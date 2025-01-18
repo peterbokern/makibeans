@@ -27,4 +27,13 @@ public class AttributeValue {
     private AttributeTemplate attributeTemplate;
 
     private String value;
+
+    @Override
+    public String toString() {
+        return "AttributeValue{" +
+                "attributeTemplate=" + attributeTemplate +
+                ", id=" + id +
+                ", value='" + value + '\'' +
+                '}';
+    }
 }

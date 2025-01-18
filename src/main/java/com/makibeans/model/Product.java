@@ -34,9 +34,15 @@ public class Product {
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductVariant> productVariants = new ArrayList<>();
 
-
-
-
-
-
+    @Override
+    public String toString() {
+        return "Product{" +
+                "id=" + id +
+                ", productName='" + productName + '\'' +
+                ", productDescription='" + productDescription + '\'' +
+                ", productImageUrl='" + productImageUrl + '\'' +
+                ", productAttributes=" + productAttributes +
+                ", productVariants=" + productVariants +
+                '}';
+    }
 }
