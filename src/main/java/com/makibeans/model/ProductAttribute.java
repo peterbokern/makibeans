@@ -42,4 +42,14 @@ public class ProductAttribute {
         this.attributeTemplate = attributeTemplate;
         this.product = product;
     }
+
+    @Override
+    public String toString() {
+        return "ProductAttribute{" +
+                "attributeTemplate=" + attributeTemplate +
+                ", id=" + id +
+                ", product=" + product +
+                ", attributeValues=" + attributeValues +
+                '}';
+    }
 }
