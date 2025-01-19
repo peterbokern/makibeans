@@ -24,6 +24,10 @@ public class Product {
     @Column(name = "product_description", nullable = false, length = 1000)
     String productDescription;
 
+    @ManyToOne
+    @JoinColumn(name = "category_id", nullable = false)
+    Category category;
+
     @Column(name = "product_image_url", nullable = true, length = 1000)
     String productImageUrl;
 
@@ -33,6 +37,13 @@ public class Product {
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductVariant> productVariants = new ArrayList<>();
+
+    public Product(String productName, String productDescription, String productImageUrl, Category category) {
+        this.productName = productName;
+        this.productDescription = productDescription;
+        this.productImageUrl = productImageUrl;
+        this.category = category;
+    }
 
     @Override
     public String toString() {
