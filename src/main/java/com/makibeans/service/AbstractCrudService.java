@@ -1,4 +1,5 @@
 package com.makibeans.service;
+import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -14,6 +15,7 @@ public abstract class AbstractCrudService<T, ID> implements CrudService<T, ID> {
     }
 
     @Override
+    @Transactional
     public T create(T entity) {
         if (entity == null) {
             throw new IllegalArgumentException("Entity cannot be null");
@@ -23,6 +25,7 @@ public abstract class AbstractCrudService<T, ID> implements CrudService<T, ID> {
     }
 
     @Override
+    @Transactional
     public T update(ID id, T entity) {
         if (entity == null) {
             throw new IllegalArgumentException("Entity cannot be null");
@@ -32,6 +35,7 @@ public abstract class AbstractCrudService<T, ID> implements CrudService<T, ID> {
     }
 
     @Override
+    @Transactional
     public void delete(ID id) {
         T entity = findById(id);
         logger.info("Deleting {}: {}", entity.getClass().getSimpleName(), entity);
