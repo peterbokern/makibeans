@@ -5,9 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="4e7a3988-a13a-4eb5-932c-94ad2548b294" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/makibeans/model/Product.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/makibeans/model/Product.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/makibeans/model/ProductVariant.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/makibeans/model/ProductVariant.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/makibeans/model/Size.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/makibeans/model/Size.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/makibeans/service/AbstractCrudService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/makibeans/service/AbstractCrudService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/makibeans/service/AttributeTemplateService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/makibeans/service/AttributeTemplateService.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -54,7 +53,7 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "Spring Boot.Application.executor": "Run",
-    "git-widget-placeholder": "feature/products",
+    "git-widget-placeholder": "refactor/service-layer",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "/Users/peterbokern/Documents/Projects/makibeans",
     "node.js.detected.package.eslint": "true",
@@ -151,12 +150,35 @@
       <workItem from="1737145720744" duration="335000" />
       <workItem from="1737146062047" duration="21000" />
       <workItem from="1737146568409" duration="117000" />
-      <workItem from="1737146690108" duration="26274000" />
+      <workItem from="1737146690108" duration="41946000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="feature/products" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

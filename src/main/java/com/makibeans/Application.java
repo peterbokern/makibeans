@@ -36,9 +36,10 @@ public class Application implements CommandLineRunner {
 
 		attributeTemplateService.deleteAttributeTemplate(1L);
 
-		attributeTemplateService.findAllAttributeTemplates().forEach(attributeTemplate -> {
+		attributeTemplateService.findAll();
 
-		});
+
+
 
 	}
 
