@@ -6,11 +6,10 @@
   <component name="ChangeListManager">
     <list default="true" id="4e7a3988-a13a-4eb5-932c-94ad2548b294" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/makibeans/model/AttributeTemplate.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/makibeans/model/AttributeTemplate.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/makibeans/model/ProductAttribute.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/makibeans/model/ProductAttribute.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/makibeans/model/AttributeTemplate.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/makibeans/model/AttributeTemplate.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/makibeans/model/ProductAttribute.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/makibeans/model/ProductAttribute.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/makibeans/service/AttributeTemplateService.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/makibeans/service/AttributeTemplateService.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/makibeans/Application.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/makibeans/Application.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/makibeans/model/AttributeValue.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/makibeans/model/AttributeValue.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/makibeans/Application.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/makibeans/Application.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/makibeans/model/AttributeValue.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/makibeans/model/AttributeValue.class" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -48,10 +47,12 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "Application.AttributeTemplateService.executor": "Run",
-    "JUnit.AttributeTemplateTest.executor": "Debug",
+    "JUnit.AttributeTemplateTest.executor": "Run",
     "JUnit.AttributeTemplateTest.getId.executor": "Run",
     "JUnit.AttributeTemplateTest.getName.executor": "Run",
     "JUnit.AttributeTemplateTest.testNullConstructor.executor": "Run",
+    "JUnit.AttributeValueTest.executor": "Run",
+    "JUnit.AttributeValueTest.shouldReturnNotNullWhenCreated.executor": "Run",
     "Maven.demo [clean].executor": "Run",
     "Maven.demo [compile].executor": "Run",
     "Maven.demo [validate].executor": "Run",
@@ -95,20 +96,7 @@
       <recent name="com.makibeans.model" />
     </key>
   </component>
-  <component name="RunManager" selected="JUnit.AttributeTemplateTest">
-    <configuration name="AttributeTemplateService" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="com.makibeans.service.AttributeTemplateService" />
-      <module name="com.makibeans" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="com.makibeans.service.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
+  <component name="RunManager" selected="JUnit.AttributeValueTest">
     <configuration name="AttributeTemplateTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="com.makibeans" />
       <extension name="coverage">
@@ -140,22 +128,6 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="AttributeTemplateTest.getName" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
-      <module name="com.makibeans" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="com.makibeans.model.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <option name="PACKAGE_NAME" value="com.makibeans.model" />
-      <option name="MAIN_CLASS_NAME" value="com.makibeans.model.AttributeTemplateTest" />
-      <option name="METHOD_NAME" value="getName" />
-      <option name="TEST_OBJECT" value="method" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
     <configuration name="AttributeTemplateTest.testNullConstructor" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="com.makibeans" />
       <extension name="coverage">
@@ -167,6 +139,37 @@
       <option name="PACKAGE_NAME" value="com.makibeans.model" />
       <option name="MAIN_CLASS_NAME" value="com.makibeans.model.AttributeTemplateTest" />
       <option name="METHOD_NAME" value="testNullConstructor" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="AttributeValueTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="com.makibeans" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.makibeans.model.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="com.makibeans.model" />
+      <option name="MAIN_CLASS_NAME" value="com.makibeans.model.AttributeValueTest" />
+      <option name="TEST_OBJECT" value="class" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="AttributeValueTest.shouldReturnNotNullWhenCreated" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="com.makibeans" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.makibeans.model.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="com.makibeans.model" />
+      <option name="MAIN_CLASS_NAME" value="com.makibeans.model.AttributeValueTest" />
+      <option name="METHOD_NAME" value="shouldReturnNotNullWhenCreated" />
       <option name="TEST_OBJECT" value="method" />
       <method v="2">
         <option name="Make" enabled="true" />
@@ -197,21 +200,21 @@
       </method>
     </configuration>
     <list>
-      <item itemvalue="Application.AttributeTemplateService" />
       <item itemvalue="JUnit.AttributeTemplateTest" />
       <item itemvalue="JUnit.AttributeTemplateTest.getId" />
-      <item itemvalue="JUnit.AttributeTemplateTest.getName" />
       <item itemvalue="JUnit.AttributeTemplateTest.testNullConstructor" />
+      <item itemvalue="JUnit.AttributeValueTest" />
+      <item itemvalue="JUnit.AttributeValueTest.shouldReturnNotNullWhenCreated" />
       <item itemvalue="Spring Boot.Application" />
       <item itemvalue="Spring Boot.DemoApplication" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="JUnit.AttributeValueTest" />
+        <item itemvalue="JUnit.AttributeValueTest.shouldReturnNotNullWhenCreated" />
         <item itemvalue="JUnit.AttributeTemplateTest" />
         <item itemvalue="JUnit.AttributeTemplateTest.getId" />
         <item itemvalue="JUnit.AttributeTemplateTest.testNullConstructor" />
-        <item itemvalue="JUnit.AttributeTemplateTest.getName" />
-        <item itemvalue="Application.AttributeTemplateService" />
       </list>
     </recent_temporary>
   </component>
