@@ -13,12 +13,18 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+//public abstract class GenericService<T, ID> implements GenericService<T, ID>
 @Service
 public class AttributeTemplateService {
 
-    public final AttributeTemplateRepository attributeTemplateRepository;
-    public static final Logger logger = LoggerFactory.getLogger(AttributeTemplateService.class);
+    //protected final JpaRepository<T, Long> repository;
+    private final AttributeTemplateRepository attributeTemplateRepository;
 
+    //private static final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private static final Logger logger = LoggerFactory.getLogger(AttributeTemplateService.class);
+
+    //public AttributeTemplateService(JpaRepository<T, Long> repository) - Constructor
+        //this.repository = repository;
     @Autowired
     public AttributeTemplateService(AttributeTemplateRepository attributeTemplateRepository) {
         this.attributeTemplateRepository = attributeTemplateRepository;
@@ -34,6 +40,7 @@ public class AttributeTemplateService {
      */
 
     // T create(T entity) - Create a new entity
+    //public T create(T entity) - Create a new entity
     @Transactional
     public AttributeTemplate createAttributeTemplate(String name) {
 
@@ -64,6 +71,7 @@ public class AttributeTemplateService {
      */
 
     //void deleteById(ID id) - Delete an entity by its id
+    //public void delete(ID id)
     @Transactional
     public void deleteAttributeTemplate(Long id) {
 
@@ -84,6 +92,7 @@ public class AttributeTemplateService {
      */
 
     // T update(ID id, T entity)
+    //public T update(ID id, T entity)
     @Transactional
     public AttributeTemplate updateAttributeTemplate(Long id, String newName) {
 
@@ -113,12 +122,14 @@ public class AttributeTemplateService {
     }
 
     // T findById(ID id) - Find an entity by its id
+    // public T findById(ID id)
     public AttributeTemplate findAttributeTemplateById(Long id) {
         return attributeTemplateRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Attribute template with id " + id + " does not exist"));
     }
 
     //List<T> findAll() - Find all entities
+    // public List<T> findAll()
     public List<AttributeTemplate> findAllAttributeTemplates() {
         return attributeTemplateRepository.findAll();
     }
