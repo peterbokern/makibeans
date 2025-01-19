@@ -9,4 +9,5 @@ public interface AttributeTemplateRepository extends JpaRepository<AttributeTemp
 
     Optional<AttributeTemplate> findByName(String name);
 
+    boolean existsByName(String trimmedName);
 }
