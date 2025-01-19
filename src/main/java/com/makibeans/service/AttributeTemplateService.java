@@ -33,6 +33,7 @@ public class AttributeTemplateService {
      * @throws DuplicateResourceException if the attribute template with the same name already exists
      */
 
+    // T create(T entity) - Create a new entity
     @Transactional
     public AttributeTemplate createAttributeTemplate(String name) {
 
@@ -62,12 +63,13 @@ public class AttributeTemplateService {
      * @throws ResourceNotFoundException if the attribute template with the id does not exist
      */
 
+    //void deleteById(ID id) - Delete an entity by its id
     @Transactional
     public void deleteAttributeTemplate(Long id) {
 
         //delete attribute template if exists
         AttributeTemplate attributeTemplate = attributeTemplateRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Attribute template with id " + id + " does not exist"));
+                 .orElseThrow(() -> new ResourceNotFoundException("Attribute template with id " + id + " does not exist"));
         logger.info("Deleting attribute template: {}", attributeTemplate);
         attributeTemplateRepository.delete(attributeTemplate);
     }
@@ -82,6 +84,7 @@ public class AttributeTemplateService {
      * @throws ResourceNotFoundException if the attribute template with the id does not exist
      */
 
+    // T update(ID id, T entity)
     @Transactional
     public AttributeTemplate updateAttributeTemplate(Long id , String newName) {
 
@@ -111,6 +114,13 @@ public class AttributeTemplateService {
 
     }
 
+    // T findById(ID id) - Find an entity by its id
+    public AttributeTemplate findAttributeTemplateById(Long id) {
+        return attributeTemplateRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Attribute template with id " + id + " does not exist"));
+    }
+
+    //List<T> findAll() - Find all entities
     public List<AttributeTemplate> findAllAttributeTemplates() {
         return attributeTemplateRepository.findAll();
     }
