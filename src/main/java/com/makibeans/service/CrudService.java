@@ -2,7 +2,7 @@ package com.makibeans.service;
 
 import java.util.List;
 
-public interface GenericService<T, ID> {
+public interface CrudService<T, ID> {
 
     T create(T entity);
     T update(ID id, T entity);
