@@ -68,8 +68,7 @@ public class AttributeTemplateService {
     public void deleteAttributeTemplate(Long id) {
 
         //delete attribute template if exists
-        AttributeTemplate attributeTemplate = attributeTemplateRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Attribute template with id " + id + " does not exist"));
+        AttributeTemplate attributeTemplate = findAttributeTemplateById(id);
         logger.info("Deleting attribute template: {}", attributeTemplate);
         attributeTemplateRepository.delete(attributeTemplate);
     }
