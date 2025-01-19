@@ -1,35 +1,28 @@
 package com.makibeans.service;
-
 import com.makibeans.exeptions.DuplicateResourceException;
 import com.makibeans.exeptions.ResourceNotFoundException;
 import com.makibeans.model.AttributeTemplate;
 import com.makibeans.repository.AttributeTemplateRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
 @Service
-public class AttributeTemplateService {
+public class AttributeTemplateService extends AbstractCrudService<AttributeTemplate, Long> {
 
-    public  final AttributeTemplateRepository attributeTemplateRepository;
-    public static final Logger logger = LoggerFactory.getLogger(AttributeTemplateService.class);
+    private final AttributeTemplateRepository attributeTemplateRepository;
 
     @Autowired
     public AttributeTemplateService(AttributeTemplateRepository attributeTemplateRepository) {
+        super(attributeTemplateRepository);
         this.attributeTemplateRepository = attributeTemplateRepository;
     }
-
     /**
      * Create a new attribute template
      *
      * @param name the name of the attribute template
      * @return the created attribute template
-     * @throws IllegalArgumentException if the name is null or empty
+     * @throws IllegalArgumentException   if the name is null or empty
      * @throws DuplicateResourceException if the attribute template with the same name already exists
      */
 
@@ -45,14 +38,11 @@ public class AttributeTemplateService {
         final String trimmedName = name.trim();
 
         //save attribute template if not exists
-        try {
-            AttributeTemplate attributeTemplate = new AttributeTemplate(trimmedName);
-            logger.info("Creating new attribute template: {}", attributeTemplate);
-            return attributeTemplateRepository.save(attributeTemplate);
-        } catch (DataIntegrityViolationException e) {
+        if (attributeTemplateRepository.existsByName(trimmedName)) {
             throw new DuplicateResourceException("Attribute template with name " + trimmedName + " already exists");
         }
 
+        return create(new AttributeTemplate(trimmedName));
     }
 
     /**
@@ -63,30 +53,22 @@ public class AttributeTemplateService {
      */
 
     @Transactional
-    public void deleteAttributeTemplate(Long id) {
-
-        //delete attribute template if exists
-        AttributeTemplate attributeTemplate = attributeTemplateRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Attribute template with id " + id + " does not exist"));
-        logger.info("Deleting attribute template: {}", attributeTemplate);
-        attributeTemplateRepository.delete(attributeTemplate);
-    }
+    public void deleteAttributeTemplate(Long id) {delete(id);}
 
     /**
      * Update an attribute template
      *
-     * @param id the id of the attribute template to update
+     * @param id      the id of the attribute template to update
      * @param newName the new name of the attribute template
      * @return the updated attribute template
-     * @throws IllegalArgumentException if the new name is null or empty
+     * @throws IllegalArgumentException  if the new name is null or empty
      * @throws ResourceNotFoundException if the attribute template with the id does not exist
      */
 
     @Transactional
-    public AttributeTemplate updateAttributeTemplate(Long id , String newName) {
+    public AttributeTemplate updateAttributeTemplate(Long id, String newName) {
 
         //input validation
-
         if (newName == null || newName.isBlank()) {
             throw new IllegalArgumentException("New attribute template name cannot be null or empty");
         }
@@ -95,23 +77,14 @@ public class AttributeTemplateService {
         final String trimmedNewName = newName.trim();
 
         //find attribute template
-        AttributeTemplate attributeTemplate = attributeTemplateRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Attribute template with id " + id + " does not exist"));
+        AttributeTemplate attributeTemplate = findById(id);
 
         if (attributeTemplate.getName().equals(trimmedNewName)) {
             return attributeTemplate;
         }
-
-        final String oldName = attributeTemplate.getName();
-
         //update attribute template and save
         attributeTemplate.setName(trimmedNewName);
-        logger.info("Updating attribute template: {}, changed name from {} to {}", attributeTemplate, oldName, attributeTemplate.getName());
-        return attributeTemplateRepository.save(attributeTemplate);
 
-    }
-
-    public List<AttributeTemplate> findAllAttributeTemplates() {
-        return attributeTemplateRepository.findAll();
+        return update(id, attributeTemplate);
     }
 }
