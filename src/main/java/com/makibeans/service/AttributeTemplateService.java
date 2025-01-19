@@ -7,16 +7,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
-//public abstract class GenericService<T, ID> implements GenericService<T, ID>
 @Service
 public class AttributeTemplateService extends AbstractCrudService<AttributeTemplate, Long> {
 
     private final AttributeTemplateRepository attributeTemplateRepository;
 
-    //public AttributeTemplateService(JpaRepository<T, Long> repository) - Constructor
-        //this.repository = repository;
     @Autowired
     public AttributeTemplateService(AttributeTemplateRepository attributeTemplateRepository) {
         super(attributeTemplateRepository);
@@ -31,8 +26,6 @@ public class AttributeTemplateService extends AbstractCrudService<AttributeTempl
      * @throws DuplicateResourceException if the attribute template with the same name already exists
      */
 
-    // T create(T entity) - Create a new entity
-    //public T create(T entity) - Create a new entity
     @Transactional
     public AttributeTemplate createAttributeTemplate(String name) {
 
@@ -59,9 +52,6 @@ public class AttributeTemplateService extends AbstractCrudService<AttributeTempl
      * @throws ResourceNotFoundException if the attribute template with the id does not exist
      */
 
-    //void deleteById(ID id) - Delete an entity by its id
-    //public void delete(ID id)
-
     @Transactional
     public void deleteAttributeTemplate(Long id) {delete(id);}
 
@@ -75,14 +65,10 @@ public class AttributeTemplateService extends AbstractCrudService<AttributeTempl
      * @throws ResourceNotFoundException if the attribute template with the id does not exist
      */
 
-    // T update(ID id, T entity)
-    //public T update(ID id, T entity)
-
     @Transactional
     public AttributeTemplate updateAttributeTemplate(Long id, String newName) {
 
         //input validation
-
         if (newName == null || newName.isBlank()) {
             throw new IllegalArgumentException("New attribute template name cannot be null or empty");
         }
@@ -96,9 +82,6 @@ public class AttributeTemplateService extends AbstractCrudService<AttributeTempl
         if (attributeTemplate.getName().equals(trimmedNewName)) {
             return attributeTemplate;
         }
-
-        final String oldName = attributeTemplate.getName();
-
         //update attribute template and save
         attributeTemplate.setName(trimmedNewName);
 
