@@ -16,7 +16,7 @@ import java.util.List;
 @Service
 public class AttributeTemplateService {
 
-    public  final AttributeTemplateRepository attributeTemplateRepository;
+    public final AttributeTemplateRepository attributeTemplateRepository;
     public static final Logger logger = LoggerFactory.getLogger(AttributeTemplateService.class);
 
     @Autowired
@@ -29,7 +29,7 @@ public class AttributeTemplateService {
      *
      * @param name the name of the attribute template
      * @return the created attribute template
-     * @throws IllegalArgumentException if the name is null or empty
+     * @throws IllegalArgumentException   if the name is null or empty
      * @throws DuplicateResourceException if the attribute template with the same name already exists
      */
 
@@ -69,7 +69,7 @@ public class AttributeTemplateService {
 
         //delete attribute template if exists
         AttributeTemplate attributeTemplate = attributeTemplateRepository.findById(id)
-                 .orElseThrow(() -> new ResourceNotFoundException("Attribute template with id " + id + " does not exist"));
+                .orElseThrow(() -> new ResourceNotFoundException("Attribute template with id " + id + " does not exist"));
         logger.info("Deleting attribute template: {}", attributeTemplate);
         attributeTemplateRepository.delete(attributeTemplate);
     }
@@ -77,16 +77,16 @@ public class AttributeTemplateService {
     /**
      * Update an attribute template
      *
-     * @param id the id of the attribute template to update
+     * @param id      the id of the attribute template to update
      * @param newName the new name of the attribute template
      * @return the updated attribute template
-     * @throws IllegalArgumentException if the new name is null or empty
+     * @throws IllegalArgumentException  if the new name is null or empty
      * @throws ResourceNotFoundException if the attribute template with the id does not exist
      */
 
     // T update(ID id, T entity)
     @Transactional
-    public AttributeTemplate updateAttributeTemplate(Long id , String newName) {
+    public AttributeTemplate updateAttributeTemplate(Long id, String newName) {
 
         //input validation
 
@@ -98,8 +98,7 @@ public class AttributeTemplateService {
         final String trimmedNewName = newName.trim();
 
         //find attribute template
-        AttributeTemplate attributeTemplate = attributeTemplateRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Attribute template with id " + id + " does not exist"));
+        AttributeTemplate attributeTemplate = findAttributeTemplateById(id);
 
         if (attributeTemplate.getName().equals(trimmedNewName)) {
             return attributeTemplate;
