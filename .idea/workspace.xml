@@ -5,12 +5,15 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="4e7a3988-a13a-4eb5-932c-94ad2548b294" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/a6d97576-fef6-4aa7-8def-8183e1036d75.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/a6d97576-fef6-4aa7-8def-8183e1036d75.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/a6d97576-fef6-4aa7-8def-8183e1036d75/storage_v2/_src_/database/students.mMXRbw/schema/public.abK9xQ.meta" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/a6d97576-fef6-4aa7-8def-8183e1036d75/storage_v2/_src_/database/students.mMXRbw/schema/public.abK9xQ.meta" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/com/makibeans/model/CategoryTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/makibeans/model/CategoryTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/test-classes/com/makibeans/model/CategoryTest.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/test-classes/com/makibeans/model/CategoryTest.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/makibeans/model/Product.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/makibeans/model/Product.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/makibeans/model/ProductVariant.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/makibeans/model/ProductVariant.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/makibeans/model/Size.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/makibeans/model/Size.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/makibeans/model/Product.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/makibeans/model/Product.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/makibeans/model/ProductVariant.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/makibeans/model/ProductVariant.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/makibeans/model/Size.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/makibeans/model/Size.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/test-classes/com/makibeans/model/AttributeTemplateTest.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/test-classes/com/makibeans/model/AttributeTemplateTest.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/test-classes/com/makibeans/model/AttributeValueTest.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/test-classes/com/makibeans/model/AttributeValueTest.class" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -51,11 +54,17 @@
     "JUnit.AttributeTemplateTest.executor": "Run",
     "JUnit.AttributeTemplateTest.getId.executor": "Run",
     "JUnit.AttributeTemplateTest.getName.executor": "Run",
+    "JUnit.AttributeTemplateTest.shouldReturnCorrectToString.executor": "Run",
     "JUnit.AttributeTemplateTest.testNullConstructor.executor": "Run",
     "JUnit.AttributeValueTest.executor": "Run",
     "JUnit.AttributeValueTest.shouldReturnNotNullWhenCreated.executor": "Run",
     "JUnit.CategoryTest.executor": "Run",
+    "JUnit.CategoryTest.shouldReturnCorrectToString.executor": "Run",
     "JUnit.CategoryTest.shouldReturnNotNullWhenCreated.executor": "Run",
+    "JUnit.ProductTest.executor": "Run",
+    "JUnit.ProductTest.shouldReturnCorrectProductIdWhenRequested.executor": "Run",
+    "JUnit.ProductTest.shouldReturnCorrectProductVariantsWhenRequested.executor": "Run",
+    "JUnit.SizeTest.executor": "Run",
     "Maven.demo [clean].executor": "Run",
     "Maven.demo [compile].executor": "Run",
     "Maven.demo [test].executor": "Run",
@@ -69,6 +78,7 @@
     "Spring Boot.Application.executor": "Run",
     "com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrary": "JUnit5",
     "com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrarySuperClass.JUnit5": "",
+    "com.intellij.testIntegration.createTest.CreateTestDialog.includeInheritedMembers": "true",
     "git-widget-placeholder": "feature/unit-tests",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "/Users/peterbokern/Documents/Projects/makibeans",
@@ -100,8 +110,8 @@
       <recent name="com.makibeans.model" />
     </key>
   </component>
-  <component name="RunManager" selected="JUnit.AttributeTemplateTest.shouldReturnCorrectToString">
-    <configuration name="AttributeTemplateTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+  <component name="RunManager" selected="JUnit.ProductTest.testToString">
+    <configuration name="ProductTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="com.makibeans" />
       <extension name="coverage">
         <pattern>
@@ -110,13 +120,13 @@
         </pattern>
       </extension>
       <option name="PACKAGE_NAME" value="com.makibeans.model" />
-      <option name="MAIN_CLASS_NAME" value="com.makibeans.model.AttributeTemplateTest" />
+      <option name="MAIN_CLASS_NAME" value="com.makibeans.model.ProductTest" />
       <option name="TEST_OBJECT" value="class" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="AttributeTemplateTest.shouldReturnCorrectToString" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+    <configuration name="ProductTest.shouldReturnCorrectProductAttributesWhenRequested" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="com.makibeans" />
       <extension name="coverage">
         <pattern>
@@ -125,14 +135,14 @@
         </pattern>
       </extension>
       <option name="PACKAGE_NAME" value="com.makibeans.model" />
-      <option name="MAIN_CLASS_NAME" value="com.makibeans.model.AttributeTemplateTest" />
-      <option name="METHOD_NAME" value="shouldReturnCorrectToString" />
+      <option name="MAIN_CLASS_NAME" value="com.makibeans.model.ProductTest" />
+      <option name="METHOD_NAME" value="shouldReturnCorrectProductAttributesWhenRequested" />
       <option name="TEST_OBJECT" value="method" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="CategoryTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+    <configuration name="ProductTest.shouldReturnCorrectProductIdWhenRequested" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="com.makibeans" />
       <extension name="coverage">
         <pattern>
@@ -141,29 +151,14 @@
         </pattern>
       </extension>
       <option name="PACKAGE_NAME" value="com.makibeans.model" />
-      <option name="MAIN_CLASS_NAME" value="com.makibeans.model.CategoryTest" />
-      <option name="TEST_OBJECT" value="class" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="CategoryTest.shouldReturnCorrectToString" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
-      <module name="com.makibeans" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="com.makibeans.model.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <option name="PACKAGE_NAME" value="com.makibeans.model" />
-      <option name="MAIN_CLASS_NAME" value="com.makibeans.model.CategoryTest" />
-      <option name="METHOD_NAME" value="shouldReturnCorrectToString" />
+      <option name="MAIN_CLASS_NAME" value="com.makibeans.model.ProductTest" />
+      <option name="METHOD_NAME" value="shouldReturnCorrectProductIdWhenRequested" />
       <option name="TEST_OBJECT" value="method" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="CategoryTest.shouldReturnNotNullWhenCreated" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+    <configuration name="ProductTest.shouldReturnCorrectProductVariantsWhenRequested" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="com.makibeans" />
       <extension name="coverage">
         <pattern>
@@ -172,8 +167,24 @@
         </pattern>
       </extension>
       <option name="PACKAGE_NAME" value="com.makibeans.model" />
-      <option name="MAIN_CLASS_NAME" value="com.makibeans.model.CategoryTest" />
-      <option name="METHOD_NAME" value="shouldReturnNotNullWhenCreated" />
+      <option name="MAIN_CLASS_NAME" value="com.makibeans.model.ProductTest" />
+      <option name="METHOD_NAME" value="shouldReturnCorrectProductVariantsWhenRequested" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="ProductTest.testToString" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="com.makibeans" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.makibeans.model.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="com.makibeans.model" />
+      <option name="MAIN_CLASS_NAME" value="com.makibeans.model.ProductTest" />
+      <option name="METHOD_NAME" value="testToString" />
       <option name="TEST_OBJECT" value="method" />
       <method v="2">
         <option name="Make" enabled="true" />
@@ -204,21 +215,21 @@
       </method>
     </configuration>
     <list>
-      <item itemvalue="JUnit.AttributeTemplateTest" />
-      <item itemvalue="JUnit.AttributeTemplateTest.shouldReturnCorrectToString" />
-      <item itemvalue="JUnit.CategoryTest" />
-      <item itemvalue="JUnit.CategoryTest.shouldReturnCorrectToString" />
-      <item itemvalue="JUnit.CategoryTest.shouldReturnNotNullWhenCreated" />
+      <item itemvalue="JUnit.ProductTest" />
+      <item itemvalue="JUnit.ProductTest.shouldReturnCorrectProductAttributesWhenRequested" />
+      <item itemvalue="JUnit.ProductTest.shouldReturnCorrectProductIdWhenRequested" />
+      <item itemvalue="JUnit.ProductTest.shouldReturnCorrectProductVariantsWhenRequested" />
+      <item itemvalue="JUnit.ProductTest.testToString" />
       <item itemvalue="Spring Boot.Application" />
       <item itemvalue="Spring Boot.DemoApplication" />
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="JUnit.AttributeTemplateTest.shouldReturnCorrectToString" />
-        <item itemvalue="JUnit.AttributeTemplateTest" />
-        <item itemvalue="JUnit.CategoryTest.shouldReturnCorrectToString" />
-        <item itemvalue="JUnit.CategoryTest" />
-        <item itemvalue="JUnit.CategoryTest.shouldReturnNotNullWhenCreated" />
+        <item itemvalue="JUnit.ProductTest.testToString" />
+        <item itemvalue="JUnit.ProductTest.shouldReturnCorrectProductAttributesWhenRequested" />
+        <item itemvalue="JUnit.ProductTest.shouldReturnCorrectProductIdWhenRequested" />
+        <item itemvalue="JUnit.ProductTest.shouldReturnCorrectProductVariantsWhenRequested" />
+        <item itemvalue="JUnit.ProductTest" />
       </list>
     </recent_temporary>
   </component>
