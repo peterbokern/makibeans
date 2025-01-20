@@ -5,15 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="4e7a3988-a13a-4eb5-932c-94ad2548b294" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/makibeans/model/Product.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/makibeans/model/Product.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/makibeans/model/ProductVariant.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/makibeans/model/ProductVariant.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/makibeans/model/Size.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/makibeans/model/Size.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/makibeans/model/Product.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/makibeans/model/Product.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/makibeans/model/ProductVariant.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/makibeans/model/ProductVariant.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/makibeans/model/Size.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/makibeans/model/Size.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/test-classes/com/makibeans/model/AttributeTemplateTest.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/test-classes/com/makibeans/model/AttributeTemplateTest.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/test-classes/com/makibeans/model/AttributeValueTest.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/test-classes/com/makibeans/model/AttributeValueTest.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/makibeans/model/ProductAttribute.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/makibeans/model/ProductAttribute.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -61,9 +53,12 @@
     "JUnit.CategoryTest.executor": "Run",
     "JUnit.CategoryTest.shouldReturnCorrectToString.executor": "Run",
     "JUnit.CategoryTest.shouldReturnNotNullWhenCreated.executor": "Run",
+    "JUnit.ProductAttributeTest.executor": "Run",
     "JUnit.ProductTest.executor": "Run",
+    "JUnit.ProductTest.shouldReturnCorrectProductAttributesWhenRequested.executor": "Run",
     "JUnit.ProductTest.shouldReturnCorrectProductIdWhenRequested.executor": "Run",
     "JUnit.ProductTest.shouldReturnCorrectProductVariantsWhenRequested.executor": "Run",
+    "JUnit.ProductTest.testToString.executor": "Run",
     "JUnit.SizeTest.executor": "Run",
     "Maven.demo [clean].executor": "Run",
     "Maven.demo [compile].executor": "Run",
@@ -110,8 +105,8 @@
       <recent name="com.makibeans.model" />
     </key>
   </component>
-  <component name="RunManager" selected="JUnit.ProductTest.testToString">
-    <configuration name="ProductTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+  <component name="RunManager" selected="JUnit.ProductAttributeTest">
+    <configuration name="ProductAttributeTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="com.makibeans" />
       <extension name="coverage">
         <pattern>
@@ -120,7 +115,7 @@
         </pattern>
       </extension>
       <option name="PACKAGE_NAME" value="com.makibeans.model" />
-      <option name="MAIN_CLASS_NAME" value="com.makibeans.model.ProductTest" />
+      <option name="MAIN_CLASS_NAME" value="com.makibeans.model.ProductAttributeTest" />
       <option name="TEST_OBJECT" value="class" />
       <method v="2">
         <option name="Make" enabled="true" />
@@ -215,7 +210,7 @@
       </method>
     </configuration>
     <list>
-      <item itemvalue="JUnit.ProductTest" />
+      <item itemvalue="JUnit.ProductAttributeTest" />
       <item itemvalue="JUnit.ProductTest.shouldReturnCorrectProductAttributesWhenRequested" />
       <item itemvalue="JUnit.ProductTest.shouldReturnCorrectProductIdWhenRequested" />
       <item itemvalue="JUnit.ProductTest.shouldReturnCorrectProductVariantsWhenRequested" />
@@ -225,11 +220,11 @@
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="JUnit.ProductAttributeTest" />
         <item itemvalue="JUnit.ProductTest.testToString" />
         <item itemvalue="JUnit.ProductTest.shouldReturnCorrectProductAttributesWhenRequested" />
         <item itemvalue="JUnit.ProductTest.shouldReturnCorrectProductIdWhenRequested" />
         <item itemvalue="JUnit.ProductTest.shouldReturnCorrectProductVariantsWhenRequested" />
-        <item itemvalue="JUnit.ProductTest" />
       </list>
     </recent_temporary>
   </component>
