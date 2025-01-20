@@ -5,9 +5,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="4e7a3988-a13a-4eb5-932c-94ad2548b294" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/a6d97576-fef6-4aa7-8def-8183e1036d75.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/a6d97576-fef6-4aa7-8def-8183e1036d75.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/a6d97576-fef6-4aa7-8def-8183e1036d75/storage_v2/_src_/database/students.mMXRbw/schema/public.abK9xQ.meta" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/a6d97576-fef6-4aa7-8def-8183e1036d75/storage_v2/_src_/database/students.mMXRbw/schema/public.abK9xQ.meta" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/makibeans/model/Category.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/makibeans/model/Category.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/makibeans/model/Category.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/makibeans/model/Category.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/com/makibeans/model/CategoryTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/makibeans/model/CategoryTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/test-classes/com/makibeans/model/CategoryTest.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/test-classes/com/makibeans/model/CategoryTest.class" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -52,8 +55,10 @@
     "JUnit.AttributeValueTest.executor": "Run",
     "JUnit.AttributeValueTest.shouldReturnNotNullWhenCreated.executor": "Run",
     "JUnit.CategoryTest.executor": "Run",
+    "JUnit.CategoryTest.shouldReturnNotNullWhenCreated.executor": "Run",
     "Maven.demo [clean].executor": "Run",
     "Maven.demo [compile].executor": "Run",
+    "Maven.demo [test].executor": "Run",
     "Maven.demo [validate].executor": "Run",
     "RequestMappingsPanelOrder0": "0",
     "RequestMappingsPanelOrder1": "1",
@@ -95,38 +100,7 @@
       <recent name="com.makibeans.model" />
     </key>
   </component>
-  <component name="RunManager" selected="JUnit.CategoryTest">
-    <configuration name="AttributeTemplateTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
-      <module name="com.makibeans" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="com.makibeans.model.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <option name="PACKAGE_NAME" value="com.makibeans.model" />
-      <option name="MAIN_CLASS_NAME" value="com.makibeans.model.AttributeTemplateTest" />
-      <option name="TEST_OBJECT" value="class" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="AttributeTemplateTest.getId" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
-      <module name="com.makibeans" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="com.makibeans.model.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <option name="PACKAGE_NAME" value="com.makibeans.model" />
-      <option name="MAIN_CLASS_NAME" value="com.makibeans.model.AttributeTemplateTest" />
-      <option name="METHOD_NAME" value="getId" />
-      <option name="TEST_OBJECT" value="method" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
+  <component name="RunManager" selected="JUnit.CategoryTest.shouldReturnCorrectToString">
     <configuration name="AttributeValueTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="com.makibeans" />
       <extension name="coverage">
@@ -173,6 +147,38 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <configuration name="CategoryTest.shouldReturnCorrectToString" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="com.makibeans" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.makibeans.model.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="com.makibeans.model" />
+      <option name="MAIN_CLASS_NAME" value="com.makibeans.model.CategoryTest" />
+      <option name="METHOD_NAME" value="shouldReturnCorrectToString" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="CategoryTest.shouldReturnNotNullWhenCreated" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="com.makibeans" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.makibeans.model.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="com.makibeans.model" />
+      <option name="MAIN_CLASS_NAME" value="com.makibeans.model.CategoryTest" />
+      <option name="METHOD_NAME" value="shouldReturnNotNullWhenCreated" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="Application" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
       <module name="com.makibeans" />
       <option name="SPRING_BOOT_MAIN_CLASS" value="com.makibeans.Application" />
@@ -198,21 +204,21 @@
       </method>
     </configuration>
     <list>
-      <item itemvalue="JUnit.AttributeTemplateTest" />
-      <item itemvalue="JUnit.AttributeTemplateTest.getId" />
       <item itemvalue="JUnit.AttributeValueTest" />
       <item itemvalue="JUnit.AttributeValueTest.shouldReturnNotNullWhenCreated" />
       <item itemvalue="JUnit.CategoryTest" />
+      <item itemvalue="JUnit.CategoryTest.shouldReturnCorrectToString" />
+      <item itemvalue="JUnit.CategoryTest.shouldReturnNotNullWhenCreated" />
       <item itemvalue="Spring Boot.Application" />
       <item itemvalue="Spring Boot.DemoApplication" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="JUnit.CategoryTest.shouldReturnCorrectToString" />
         <item itemvalue="JUnit.CategoryTest" />
+        <item itemvalue="JUnit.CategoryTest.shouldReturnNotNullWhenCreated" />
         <item itemvalue="JUnit.AttributeValueTest" />
         <item itemvalue="JUnit.AttributeValueTest.shouldReturnNotNullWhenCreated" />
-        <item itemvalue="JUnit.AttributeTemplateTest" />
-        <item itemvalue="JUnit.AttributeTemplateTest.getId" />
       </list>
     </recent_temporary>
   </component>

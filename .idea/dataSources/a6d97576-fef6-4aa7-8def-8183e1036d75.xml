@@ -3,7 +3,7 @@
   <database-model serializer="dbm" dbms="POSTGRES" family-id="POSTGRES" format-version="4.52">
     <root id="1">
       <DateStyle>mdy</DateStyle>
-      <IntrospectionStateNumber>2904</IntrospectionStateNumber>
+      <IntrospectionStateNumber>3180</IntrospectionStateNumber>
       <ServerVersion>17.2</ServerVersion>
       <StartupTime>1732394779</StartupTime>
       <TimeZones>true ACDT
@@ -809,7 +809,7 @@ false Zulu
 13527||10|C|G
 13527||-9223372036854775808|U|G
 13527||10|U|G</Grants>
-      <IntrospectionStateNumber>2904</IntrospectionStateNumber>
+      <IntrospectionStateNumber>3180</IntrospectionStateNumber>
       <ObjectId>16390</ObjectId>
       <OwnerName>peterbokern</OwnerName>
     </database>
@@ -4238,66 +4238,66 @@ false Zulu
     <schema id="267" parent="4" name="public">
       <Comment>standard public schema</Comment>
       <Current>1</Current>
-      <IntrospectionStateNumber>2904</IntrospectionStateNumber>
-      <LastIntrospectionLocalTimestamp>2025-01-19.17:24:51</LastIntrospectionLocalTimestamp>
+      <IntrospectionStateNumber>3180</IntrospectionStateNumber>
+      <LastIntrospectionLocalTimestamp>2025-01-19.22:02:12</LastIntrospectionLocalTimestamp>
       <ObjectId>2200</ObjectId>
       <StateNumber>531</StateNumber>
       <OwnerName>pg_database_owner</OwnerName>
     </schema>
     <sequence id="268" parent="267" name="attribute_template_id_seq">
       <DasType>bigint|0s</DasType>
-      <ObjectId>20889</ObjectId>
+      <ObjectId>21496</ObjectId>
       <SequenceIdentity>1</SequenceIdentity>
       <StartValue>1</StartValue>
-      <StateNumber>2880</StateNumber>
+      <StateNumber>3152</StateNumber>
       <OwnerName>postgres</OwnerName>
     </sequence>
     <sequence id="269" parent="267" name="attribute_value_id_seq">
       <DasType>bigint|0s</DasType>
-      <ObjectId>20897</ObjectId>
+      <ObjectId>21504</ObjectId>
       <SequenceIdentity>1</SequenceIdentity>
       <StartValue>1</StartValue>
-      <StateNumber>2881</StateNumber>
+      <StateNumber>3153</StateNumber>
       <OwnerName>postgres</OwnerName>
     </sequence>
     <sequence id="270" parent="267" name="category_id_seq">
       <DasType>bigint|0s</DasType>
-      <ObjectId>20903</ObjectId>
+      <ObjectId>21512</ObjectId>
       <SequenceIdentity>1</SequenceIdentity>
       <StartValue>1</StartValue>
-      <StateNumber>2882</StateNumber>
+      <StateNumber>3154</StateNumber>
       <OwnerName>postgres</OwnerName>
     </sequence>
     <sequence id="271" parent="267" name="product_attribute_id_seq">
       <DasType>bigint|0s</DasType>
-      <ObjectId>20919</ObjectId>
+      <ObjectId>21528</ObjectId>
       <SequenceIdentity>1</SequenceIdentity>
       <StartValue>1</StartValue>
-      <StateNumber>2884</StateNumber>
+      <StateNumber>3156</StateNumber>
       <OwnerName>postgres</OwnerName>
     </sequence>
     <sequence id="272" parent="267" name="product_id_seq">
       <DasType>bigint|0s</DasType>
-      <ObjectId>20911</ObjectId>
+      <ObjectId>21520</ObjectId>
       <SequenceIdentity>1</SequenceIdentity>
       <StartValue>1</StartValue>
-      <StateNumber>2883</StateNumber>
+      <StateNumber>3155</StateNumber>
       <OwnerName>postgres</OwnerName>
     </sequence>
     <sequence id="273" parent="267" name="product_variant_id_seq">
       <DasType>bigint|0s</DasType>
-      <ObjectId>20928</ObjectId>
+      <ObjectId>21537</ObjectId>
       <SequenceIdentity>1</SequenceIdentity>
       <StartValue>1</StartValue>
-      <StateNumber>2886</StateNumber>
+      <StateNumber>3158</StateNumber>
       <OwnerName>postgres</OwnerName>
     </sequence>
     <sequence id="274" parent="267" name="size_id_seq">
       <DasType>bigint|0s</DasType>
-      <ObjectId>20934</ObjectId>
+      <ObjectId>21543</ObjectId>
       <SequenceIdentity>1</SequenceIdentity>
       <StartValue>1</StartValue>
-      <StateNumber>2887</StateNumber>
+      <StateNumber>3159</StateNumber>
       <OwnerName>postgres</OwnerName>
     </sequence>
     <sequence id="275" parent="267" name="student_sequence">
@@ -4309,50 +4309,50 @@ false Zulu
       <OwnerName>peterbokern</OwnerName>
     </sequence>
     <table id="276" parent="267" name="attribute_template">
-      <ObjectId>20890</ObjectId>
-      <StateNumber>2892</StateNumber>
+      <ObjectId>21497</ObjectId>
+      <StateNumber>3164</StateNumber>
       <AccessMethodId>2</AccessMethodId>
       <OwnerName>postgres</OwnerName>
     </table>
     <table id="277" parent="267" name="attribute_value">
-      <ObjectId>20898</ObjectId>
-      <StateNumber>2892</StateNumber>
+      <ObjectId>21505</ObjectId>
+      <StateNumber>3164</StateNumber>
       <AccessMethodId>2</AccessMethodId>
       <OwnerName>postgres</OwnerName>
     </table>
     <table id="278" parent="267" name="category">
-      <ObjectId>20904</ObjectId>
-      <StateNumber>2893</StateNumber>
+      <ObjectId>21513</ObjectId>
+      <StateNumber>3165</StateNumber>
       <AccessMethodId>2</AccessMethodId>
       <OwnerName>postgres</OwnerName>
     </table>
     <table id="279" parent="267" name="product">
-      <ObjectId>20912</ObjectId>
-      <StateNumber>2894</StateNumber>
+      <ObjectId>21521</ObjectId>
+      <StateNumber>3166</StateNumber>
       <AccessMethodId>2</AccessMethodId>
       <OwnerName>postgres</OwnerName>
     </table>
     <table id="280" parent="267" name="product_attribute">
-      <ObjectId>20920</ObjectId>
-      <StateNumber>2895</StateNumber>
+      <ObjectId>21529</ObjectId>
+      <StateNumber>3167</StateNumber>
       <AccessMethodId>2</AccessMethodId>
       <OwnerName>postgres</OwnerName>
     </table>
     <table id="281" parent="267" name="product_attribute_value">
-      <ObjectId>20925</ObjectId>
-      <StateNumber>2897</StateNumber>
+      <ObjectId>21534</ObjectId>
+      <StateNumber>3169</StateNumber>
       <AccessMethodId>2</AccessMethodId>
       <OwnerName>postgres</OwnerName>
     </table>
     <table id="282" parent="267" name="product_variant">
-      <ObjectId>20929</ObjectId>
-      <StateNumber>2899</StateNumber>
+      <ObjectId>21538</ObjectId>
+      <StateNumber>3171</StateNumber>
       <AccessMethodId>2</AccessMethodId>
       <OwnerName>postgres</OwnerName>
     </table>
     <table id="283" parent="267" name="size">
-      <ObjectId>20935</ObjectId>
-      <StateNumber>2900</StateNumber>
+      <ObjectId>21544</ObjectId>
+      <StateNumber>3172</StateNumber>
       <AccessMethodId>2</AccessMethodId>
       <OwnerName>postgres</OwnerName>
     </table>
@@ -4361,31 +4361,31 @@ false Zulu
       <IdentityKind>by-default</IdentityKind>
       <NotNull>1</NotNull>
       <Position>1</Position>
-      <StateNumber>2880</StateNumber>
-      <SequenceId>20889</SequenceId>
+      <StateNumber>3152</StateNumber>
+      <SequenceId>21496</SequenceId>
       <TypeId>20</TypeId>
     </column>
     <column id="285" parent="276" name="name">
       <DasType>varchar(255)|0s</DasType>
       <NotNull>1</NotNull>
       <Position>2</Position>
-      <StateNumber>2880</StateNumber>
+      <StateNumber>3152</StateNumber>
       <TypeId>1043</TypeId>
     </column>
     <index id="286" parent="276" name="attribute_template_pkey">
       <ColNames>id</ColNames>
       <NameSurrogate>1</NameSurrogate>
-      <ObjectId>20893</ObjectId>
+      <ObjectId>21500</ObjectId>
       <Primary>1</Primary>
-      <StateNumber>2880</StateNumber>
+      <StateNumber>3152</StateNumber>
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
     </index>
     <index id="287" parent="276" name="attribute_template_name_key">
       <ColNames>name</ColNames>
       <NameSurrogate>1</NameSurrogate>
-      <ObjectId>20895</ObjectId>
-      <StateNumber>2880</StateNumber>
+      <ObjectId>21502</ObjectId>
+      <StateNumber>3152</StateNumber>
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
       <CollationNames>default</CollationNames>
@@ -4394,8 +4394,8 @@ false Zulu
     </index>
     <index id="288" parent="276" name="idx_attribute_template_name">
       <ColNames>name</ColNames>
-      <ObjectId>20940</ObjectId>
-      <StateNumber>2888</StateNumber>
+      <ObjectId>21549</ObjectId>
+      <StateNumber>3160</StateNumber>
       <AccessMethodId>403</AccessMethodId>
       <CollationNames>default</CollationNames>
       <CollationIds>100</CollationIds>
@@ -4403,131 +4403,132 @@ false Zulu
     </index>
     <key id="289" parent="276" name="attribute_template_pkey">
       <NameSurrogate>1</NameSurrogate>
-      <ObjectId>20894</ObjectId>
+      <ObjectId>21501</ObjectId>
       <Primary>1</Primary>
-      <StateNumber>2880</StateNumber>
-      <UnderlyingIndexId>20893</UnderlyingIndexId>
+      <StateNumber>3152</StateNumber>
+      <UnderlyingIndexId>21500</UnderlyingIndexId>
     </key>
     <key id="290" parent="276" name="attribute_template_name_key">
       <NameSurrogate>1</NameSurrogate>
-      <ObjectId>20896</ObjectId>
-      <StateNumber>2880</StateNumber>
-      <UnderlyingIndexId>20895</UnderlyingIndexId>
+      <ObjectId>21503</ObjectId>
+      <StateNumber>3152</StateNumber>
+      <UnderlyingIndexId>21502</UnderlyingIndexId>
     </key>
     <column id="291" parent="277" name="id">
       <DasType>bigint|0s</DasType>
       <IdentityKind>by-default</IdentityKind>
       <NotNull>1</NotNull>
       <Position>1</Position>
-      <StateNumber>2881</StateNumber>
-      <SequenceId>20897</SequenceId>
+      <StateNumber>3153</StateNumber>
+      <SequenceId>21504</SequenceId>
       <TypeId>20</TypeId>
     </column>
     <column id="292" parent="277" name="template_id">
       <DasType>bigint|0s</DasType>
       <NotNull>1</NotNull>
       <Position>2</Position>
-      <StateNumber>2881</StateNumber>
+      <StateNumber>3153</StateNumber>
       <TypeId>20</TypeId>
     </column>
     <column id="293" parent="277" name="value">
-      <DasType>varchar(255)|0s</DasType>
+      <DasType>varchar(1000)|0s</DasType>
+      <NotNull>1</NotNull>
       <Position>3</Position>
-      <StateNumber>2881</StateNumber>
+      <StateNumber>3153</StateNumber>
       <TypeId>1043</TypeId>
     </column>
     <foreign-key id="294" parent="277" name="fkmvvbbbvd1pujf2te612g35ryu">
       <ColNames>template_id</ColNames>
-      <ObjectId>20944</ObjectId>
-      <StateNumber>2892</StateNumber>
+      <ObjectId>21553</ObjectId>
+      <StateNumber>3164</StateNumber>
       <RefKeyColPositions>1</RefKeyColPositions>
-      <RefTableId>20890</RefTableId>
+      <RefTableId>21497</RefTableId>
     </foreign-key>
     <index id="295" parent="277" name="attribute_value_pkey">
       <ColNames>id</ColNames>
       <NameSurrogate>1</NameSurrogate>
-      <ObjectId>20901</ObjectId>
+      <ObjectId>21510</ObjectId>
       <Primary>1</Primary>
-      <StateNumber>2881</StateNumber>
+      <StateNumber>3153</StateNumber>
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
     </index>
     <index id="296" parent="277" name="attribute_value_template_id_index">
       <ColNames>template_id</ColNames>
-      <ObjectId>20941</ObjectId>
-      <StateNumber>2889</StateNumber>
+      <ObjectId>21550</ObjectId>
+      <StateNumber>3161</StateNumber>
       <AccessMethodId>403</AccessMethodId>
     </index>
     <key id="297" parent="277" name="attribute_value_pkey">
       <NameSurrogate>1</NameSurrogate>
-      <ObjectId>20902</ObjectId>
+      <ObjectId>21511</ObjectId>
       <Primary>1</Primary>
-      <StateNumber>2881</StateNumber>
-      <UnderlyingIndexId>20901</UnderlyingIndexId>
+      <StateNumber>3153</StateNumber>
+      <UnderlyingIndexId>21510</UnderlyingIndexId>
     </key>
     <column id="298" parent="278" name="id">
       <DasType>bigint|0s</DasType>
       <IdentityKind>by-default</IdentityKind>
       <NotNull>1</NotNull>
       <Position>1</Position>
-      <StateNumber>2882</StateNumber>
-      <SequenceId>20903</SequenceId>
+      <StateNumber>3154</StateNumber>
+      <SequenceId>21512</SequenceId>
       <TypeId>20</TypeId>
     </column>
     <column id="299" parent="278" name="parent_category_id">
       <DasType>bigint|0s</DasType>
       <Position>2</Position>
-      <StateNumber>2882</StateNumber>
+      <StateNumber>3154</StateNumber>
       <TypeId>20</TypeId>
     </column>
     <column id="300" parent="278" name="name">
       <DasType>varchar(100)|0s</DasType>
       <NotNull>1</NotNull>
       <Position>3</Position>
-      <StateNumber>2882</StateNumber>
+      <StateNumber>3154</StateNumber>
       <TypeId>1043</TypeId>
     </column>
     <column id="301" parent="278" name="description">
       <DasType>varchar(1000)|0s</DasType>
       <NotNull>1</NotNull>
       <Position>4</Position>
-      <StateNumber>2882</StateNumber>
+      <StateNumber>3154</StateNumber>
       <TypeId>1043</TypeId>
     </column>
     <column id="302" parent="278" name="image_url">
       <DasType>varchar(1000)|0s</DasType>
       <Position>5</Position>
-      <StateNumber>2882</StateNumber>
+      <StateNumber>3154</StateNumber>
       <TypeId>1043</TypeId>
     </column>
     <foreign-key id="303" parent="278" name="fks2ride9gvilxy2tcuv7witnxc">
       <ColNames>parent_category_id</ColNames>
-      <ObjectId>20949</ObjectId>
-      <StateNumber>2893</StateNumber>
+      <ObjectId>21558</ObjectId>
+      <StateNumber>3165</StateNumber>
       <RefKeyColPositions>1</RefKeyColPositions>
-      <RefTableId>20904</RefTableId>
+      <RefTableId>21513</RefTableId>
     </foreign-key>
     <index id="304" parent="278" name="category_pkey">
       <ColNames>id</ColNames>
       <NameSurrogate>1</NameSurrogate>
-      <ObjectId>20909</ObjectId>
+      <ObjectId>21518</ObjectId>
       <Primary>1</Primary>
-      <StateNumber>2882</StateNumber>
+      <StateNumber>3154</StateNumber>
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
     </index>
     <key id="305" parent="278" name="category_pkey">
       <NameSurrogate>1</NameSurrogate>
-      <ObjectId>20910</ObjectId>
+      <ObjectId>21519</ObjectId>
       <Primary>1</Primary>
-      <StateNumber>2882</StateNumber>
-      <UnderlyingIndexId>20909</UnderlyingIndexId>
+      <StateNumber>3154</StateNumber>
+      <UnderlyingIndexId>21518</UnderlyingIndexId>
     </key>
     <column id="306" parent="279" name="category_id">
       <DasType>bigint|0s</DasType>
       <NotNull>1</NotNull>
       <Position>1</Position>
-      <StateNumber>2883</StateNumber>
+      <StateNumber>3155</StateNumber>
       <TypeId>20</TypeId>
     </column>
     <column id="307" parent="279" name="id">
@@ -4535,251 +4536,251 @@ false Zulu
       <IdentityKind>by-default</IdentityKind>
       <NotNull>1</NotNull>
       <Position>2</Position>
-      <StateNumber>2883</StateNumber>
-      <SequenceId>20911</SequenceId>
+      <StateNumber>3155</StateNumber>
+      <SequenceId>21520</SequenceId>
       <TypeId>20</TypeId>
     </column>
     <column id="308" parent="279" name="product_name">
       <DasType>varchar(100)|0s</DasType>
       <NotNull>1</NotNull>
       <Position>3</Position>
-      <StateNumber>2883</StateNumber>
+      <StateNumber>3155</StateNumber>
       <TypeId>1043</TypeId>
     </column>
     <column id="309" parent="279" name="product_description">
       <DasType>varchar(1000)|0s</DasType>
       <NotNull>1</NotNull>
       <Position>4</Position>
-      <StateNumber>2883</StateNumber>
+      <StateNumber>3155</StateNumber>
       <TypeId>1043</TypeId>
     </column>
     <column id="310" parent="279" name="product_image_url">
       <DasType>varchar(1000)|0s</DasType>
       <Position>5</Position>
-      <StateNumber>2883</StateNumber>
+      <StateNumber>3155</StateNumber>
       <TypeId>1043</TypeId>
     </column>
     <foreign-key id="311" parent="279" name="fk1mtsbur82frn64de7balymq9s">
       <ColNames>category_id</ColNames>
-      <ObjectId>20954</ObjectId>
-      <StateNumber>2894</StateNumber>
+      <ObjectId>21563</ObjectId>
+      <StateNumber>3166</StateNumber>
       <RefKeyColPositions>1</RefKeyColPositions>
-      <RefTableId>20904</RefTableId>
+      <RefTableId>21513</RefTableId>
     </foreign-key>
     <index id="312" parent="279" name="product_pkey">
       <ColNames>id</ColNames>
       <NameSurrogate>1</NameSurrogate>
-      <ObjectId>20917</ObjectId>
+      <ObjectId>21526</ObjectId>
       <Primary>1</Primary>
-      <StateNumber>2883</StateNumber>
+      <StateNumber>3155</StateNumber>
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
     </index>
     <key id="313" parent="279" name="product_pkey">
       <NameSurrogate>1</NameSurrogate>
-      <ObjectId>20918</ObjectId>
+      <ObjectId>21527</ObjectId>
       <Primary>1</Primary>
-      <StateNumber>2883</StateNumber>
-      <UnderlyingIndexId>20917</UnderlyingIndexId>
+      <StateNumber>3155</StateNumber>
+      <UnderlyingIndexId>21526</UnderlyingIndexId>
     </key>
     <column id="314" parent="280" name="id">
       <DasType>bigint|0s</DasType>
       <IdentityKind>by-default</IdentityKind>
       <NotNull>1</NotNull>
       <Position>1</Position>
-      <StateNumber>2884</StateNumber>
-      <SequenceId>20919</SequenceId>
+      <StateNumber>3156</StateNumber>
+      <SequenceId>21528</SequenceId>
       <TypeId>20</TypeId>
     </column>
     <column id="315" parent="280" name="product_id">
       <DasType>bigint|0s</DasType>
       <NotNull>1</NotNull>
       <Position>2</Position>
-      <StateNumber>2884</StateNumber>
+      <StateNumber>3156</StateNumber>
       <TypeId>20</TypeId>
     </column>
     <column id="316" parent="280" name="template_id">
       <DasType>bigint|0s</DasType>
       <NotNull>1</NotNull>
       <Position>3</Position>
-      <StateNumber>2884</StateNumber>
+      <StateNumber>3156</StateNumber>
       <TypeId>20</TypeId>
     </column>
     <foreign-key id="317" parent="280" name="fklefs59y5kmsbu017n1wp10gf2">
       <ColNames>product_id</ColNames>
-      <ObjectId>20964</ObjectId>
-      <StateNumber>2896</StateNumber>
+      <ObjectId>21573</ObjectId>
+      <StateNumber>3168</StateNumber>
       <RefKeyColPositions>2</RefKeyColPositions>
-      <RefTableId>20912</RefTableId>
+      <RefTableId>21521</RefTableId>
     </foreign-key>
     <foreign-key id="318" parent="280" name="fk3ax1xdgoo65sdhv1omc33ov2b">
       <ColNames>template_id</ColNames>
-      <ObjectId>20959</ObjectId>
-      <StateNumber>2895</StateNumber>
+      <ObjectId>21568</ObjectId>
+      <StateNumber>3167</StateNumber>
       <RefKeyColPositions>1</RefKeyColPositions>
-      <RefTableId>20890</RefTableId>
+      <RefTableId>21497</RefTableId>
     </foreign-key>
     <index id="319" parent="280" name="product_attribute_pkey">
       <ColNames>id</ColNames>
       <NameSurrogate>1</NameSurrogate>
-      <ObjectId>20923</ObjectId>
+      <ObjectId>21532</ObjectId>
       <Primary>1</Primary>
-      <StateNumber>2884</StateNumber>
+      <StateNumber>3156</StateNumber>
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
     </index>
     <index id="320" parent="280" name="idx_product_attribute_id">
       <ColNames>product_id</ColNames>
-      <ObjectId>20942</ObjectId>
-      <StateNumber>2890</StateNumber>
+      <ObjectId>21551</ObjectId>
+      <StateNumber>3162</StateNumber>
       <AccessMethodId>403</AccessMethodId>
     </index>
     <index id="321" parent="280" name="idx_attribute_value_id">
       <ColNames>template_id</ColNames>
-      <ObjectId>20943</ObjectId>
-      <StateNumber>2891</StateNumber>
+      <ObjectId>21552</ObjectId>
+      <StateNumber>3163</StateNumber>
       <AccessMethodId>403</AccessMethodId>
     </index>
     <key id="322" parent="280" name="product_attribute_pkey">
       <NameSurrogate>1</NameSurrogate>
-      <ObjectId>20924</ObjectId>
+      <ObjectId>21533</ObjectId>
       <Primary>1</Primary>
-      <StateNumber>2884</StateNumber>
-      <UnderlyingIndexId>20923</UnderlyingIndexId>
+      <StateNumber>3156</StateNumber>
+      <UnderlyingIndexId>21532</UnderlyingIndexId>
     </key>
     <column id="323" parent="281" name="attribute_value_id">
       <DasType>bigint|0s</DasType>
       <NotNull>1</NotNull>
       <Position>1</Position>
-      <StateNumber>2885</StateNumber>
+      <StateNumber>3157</StateNumber>
       <TypeId>20</TypeId>
     </column>
     <column id="324" parent="281" name="product_attribute_id">
       <DasType>bigint|0s</DasType>
       <NotNull>1</NotNull>
       <Position>2</Position>
-      <StateNumber>2885</StateNumber>
+      <StateNumber>3157</StateNumber>
       <TypeId>20</TypeId>
     </column>
     <foreign-key id="325" parent="281" name="fkd5mtn2oa001f557jqxlgyyv8l">
       <ColNames>attribute_value_id</ColNames>
-      <ObjectId>20969</ObjectId>
-      <StateNumber>2897</StateNumber>
+      <ObjectId>21578</ObjectId>
+      <StateNumber>3169</StateNumber>
       <RefKeyColPositions>1</RefKeyColPositions>
-      <RefTableId>20898</RefTableId>
+      <RefTableId>21505</RefTableId>
     </foreign-key>
     <foreign-key id="326" parent="281" name="fkqgk2xbdl46wt0h9i5uheps5ke">
       <ColNames>product_attribute_id</ColNames>
-      <ObjectId>20974</ObjectId>
-      <StateNumber>2898</StateNumber>
+      <ObjectId>21583</ObjectId>
+      <StateNumber>3170</StateNumber>
       <RefKeyColPositions>1</RefKeyColPositions>
-      <RefTableId>20920</RefTableId>
+      <RefTableId>21529</RefTableId>
     </foreign-key>
     <column id="327" parent="282" name="id">
       <DasType>bigint|0s</DasType>
       <IdentityKind>by-default</IdentityKind>
       <NotNull>1</NotNull>
       <Position>1</Position>
-      <StateNumber>2886</StateNumber>
-      <SequenceId>20928</SequenceId>
+      <StateNumber>3158</StateNumber>
+      <SequenceId>21537</SequenceId>
       <TypeId>20</TypeId>
     </column>
     <column id="328" parent="282" name="price_in_cents">
       <DasType>bigint|0s</DasType>
       <NotNull>1</NotNull>
       <Position>2</Position>
-      <StateNumber>2886</StateNumber>
+      <StateNumber>3158</StateNumber>
       <TypeId>20</TypeId>
     </column>
     <column id="329" parent="282" name="product_id">
       <DasType>bigint|0s</DasType>
       <NotNull>1</NotNull>
       <Position>3</Position>
-      <StateNumber>2886</StateNumber>
+      <StateNumber>3158</StateNumber>
       <TypeId>20</TypeId>
     </column>
     <column id="330" parent="282" name="size_id">
       <DasType>bigint|0s</DasType>
       <NotNull>1</NotNull>
       <Position>4</Position>
-      <StateNumber>2886</StateNumber>
+      <StateNumber>3158</StateNumber>
       <TypeId>20</TypeId>
     </column>
     <column id="331" parent="282" name="stock">
       <DasType>bigint|0s</DasType>
       <NotNull>1</NotNull>
       <Position>5</Position>
-      <StateNumber>2886</StateNumber>
+      <StateNumber>3158</StateNumber>
       <TypeId>20</TypeId>
     </column>
     <column id="332" parent="282" name="sku">
       <DasType>varchar(100)|0s</DasType>
       <NotNull>1</NotNull>
       <Position>6</Position>
-      <StateNumber>2886</StateNumber>
+      <StateNumber>3158</StateNumber>
       <TypeId>1043</TypeId>
     </column>
     <foreign-key id="333" parent="282" name="fkgrbbs9t374m9gg43l6tq1xwdj">
       <ColNames>product_id</ColNames>
-      <ObjectId>20979</ObjectId>
-      <StateNumber>2899</StateNumber>
+      <ObjectId>21588</ObjectId>
+      <StateNumber>3171</StateNumber>
       <RefKeyColPositions>2</RefKeyColPositions>
-      <RefTableId>20912</RefTableId>
+      <RefTableId>21521</RefTableId>
     </foreign-key>
     <foreign-key id="334" parent="282" name="fkn1veiq5y5r3fb6qw0n030o7mh">
       <ColNames>size_id</ColNames>
-      <ObjectId>20984</ObjectId>
-      <StateNumber>2900</StateNumber>
+      <ObjectId>21593</ObjectId>
+      <StateNumber>3172</StateNumber>
       <RefKeyColPositions>1</RefKeyColPositions>
-      <RefTableId>20935</RefTableId>
+      <RefTableId>21544</RefTableId>
     </foreign-key>
     <index id="335" parent="282" name="product_variant_pkey">
       <ColNames>id</ColNames>
       <NameSurrogate>1</NameSurrogate>
-      <ObjectId>20932</ObjectId>
+      <ObjectId>21541</ObjectId>
       <Primary>1</Primary>
-      <StateNumber>2886</StateNumber>
+      <StateNumber>3158</StateNumber>
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
     </index>
     <key id="336" parent="282" name="product_variant_pkey">
       <NameSurrogate>1</NameSurrogate>
-      <ObjectId>20933</ObjectId>
+      <ObjectId>21542</ObjectId>
       <Primary>1</Primary>
-      <StateNumber>2886</StateNumber>
-      <UnderlyingIndexId>20932</UnderlyingIndexId>
+      <StateNumber>3158</StateNumber>
+      <UnderlyingIndexId>21541</UnderlyingIndexId>
     </key>
     <column id="337" parent="283" name="id">
       <DasType>bigint|0s</DasType>
       <IdentityKind>by-default</IdentityKind>
       <NotNull>1</NotNull>
       <Position>1</Position>
-      <StateNumber>2887</StateNumber>
-      <SequenceId>20934</SequenceId>
+      <StateNumber>3159</StateNumber>
+      <SequenceId>21543</SequenceId>
       <TypeId>20</TypeId>
     </column>
     <column id="338" parent="283" name="size_description">
       <DasType>varchar(100)|0s</DasType>
       <NotNull>1</NotNull>
       <Position>2</Position>
-      <StateNumber>2887</StateNumber>
+      <StateNumber>3159</StateNumber>
       <TypeId>1043</TypeId>
     </column>
     <index id="339" parent="283" name="size_pkey">
       <ColNames>id</ColNames>
       <NameSurrogate>1</NameSurrogate>
-      <ObjectId>20938</ObjectId>
+      <ObjectId>21547</ObjectId>
       <Primary>1</Primary>
-      <StateNumber>2887</StateNumber>
+      <StateNumber>3159</StateNumber>
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
     </index>
     <key id="340" parent="283" name="size_pkey">
       <NameSurrogate>1</NameSurrogate>
-      <ObjectId>20939</ObjectId>
+      <ObjectId>21548</ObjectId>
       <Primary>1</Primary>
-      <StateNumber>2887</StateNumber>
-      <UnderlyingIndexId>20938</UnderlyingIndexId>
+      <StateNumber>3159</StateNumber>
+      <UnderlyingIndexId>21547</UnderlyingIndexId>
     </key>
   </database-model>
 </dataSource>
