@@ -15,6 +15,7 @@ import java.util.List;
         @Index(name = "idx_product_attribute_id", columnList = "product_id"),
         @Index(name = "idx_attribute_value_id", columnList = "template_id")
 })
+
 public class ProductAttribute {
 
     @Id
