@@ -5,7 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="4e7a3988-a13a-4eb5-932c-94ad2548b294" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/makibeans/model/ProductAttribute.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/makibeans/model/ProductAttribute.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/test/java/com/makibeans/model/ProductVariantTest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/test-classes/com/makibeans/model/ProductVariantTest.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/makibeans/Application.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/makibeans/Application.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/makibeans/Application.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/makibeans/Application.class" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -43,6 +47,8 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "Application.AttributeTemplateService.executor": "Run",
+    "JUnit.AttributeTemplateServiceTest.testCreateAttributeTemplateWithValidName.executor": "Run",
+    "JUnit.AttributeTemplateServiceTest.testCreateAttributeTemplateWithValidNames.executor": "Run",
     "JUnit.AttributeTemplateTest.executor": "Run",
     "JUnit.AttributeTemplateTest.getId.executor": "Run",
     "JUnit.AttributeTemplateTest.getName.executor": "Run",
@@ -59,6 +65,7 @@
     "JUnit.ProductTest.shouldReturnCorrectProductIdWhenRequested.executor": "Run",
     "JUnit.ProductTest.shouldReturnCorrectProductVariantsWhenRequested.executor": "Run",
     "JUnit.ProductTest.testToString.executor": "Run",
+    "JUnit.ProductVariantTest.executor": "Run",
     "JUnit.SizeTest.executor": "Run",
     "Maven.demo [clean].executor": "Run",
     "Maven.demo [compile].executor": "Run",
@@ -102,10 +109,43 @@
       <recent name="" />
     </key>
     <key name="CreateTestDialog.RecentsKey">
+      <recent name="com.makibeans.service" />
       <recent name="com.makibeans.model" />
     </key>
   </component>
-  <component name="RunManager" selected="JUnit.ProductAttributeTest">
+  <component name="RunManager" selected="JUnit.AttributeTemplateServiceTest.testCreateAttributeTemplateWithValidNames">
+    <configuration name="AttributeTemplateServiceTest.testCreateAttributeTemplateWithValidName" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="com.makibeans" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.makibeans.service.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="com.makibeans.service" />
+      <option name="MAIN_CLASS_NAME" value="com.makibeans.service.AttributeTemplateServiceTest" />
+      <option name="METHOD_NAME" value="testCreateAttributeTemplateWithValidName" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="AttributeTemplateServiceTest.testCreateAttributeTemplateWithValidNames" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="com.makibeans" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.makibeans.service.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="com.makibeans.service" />
+      <option name="MAIN_CLASS_NAME" value="com.makibeans.service.AttributeTemplateServiceTest" />
+      <option name="METHOD_NAME" value="testCreateAttributeTemplateWithValidNames" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="ProductAttributeTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="com.makibeans" />
       <extension name="coverage">
@@ -117,54 +157,6 @@
       <option name="PACKAGE_NAME" value="com.makibeans.model" />
       <option name="MAIN_CLASS_NAME" value="com.makibeans.model.ProductAttributeTest" />
       <option name="TEST_OBJECT" value="class" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="ProductTest.shouldReturnCorrectProductAttributesWhenRequested" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
-      <module name="com.makibeans" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="com.makibeans.model.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <option name="PACKAGE_NAME" value="com.makibeans.model" />
-      <option name="MAIN_CLASS_NAME" value="com.makibeans.model.ProductTest" />
-      <option name="METHOD_NAME" value="shouldReturnCorrectProductAttributesWhenRequested" />
-      <option name="TEST_OBJECT" value="method" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="ProductTest.shouldReturnCorrectProductIdWhenRequested" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
-      <module name="com.makibeans" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="com.makibeans.model.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <option name="PACKAGE_NAME" value="com.makibeans.model" />
-      <option name="MAIN_CLASS_NAME" value="com.makibeans.model.ProductTest" />
-      <option name="METHOD_NAME" value="shouldReturnCorrectProductIdWhenRequested" />
-      <option name="TEST_OBJECT" value="method" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="ProductTest.shouldReturnCorrectProductVariantsWhenRequested" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
-      <module name="com.makibeans" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="com.makibeans.model.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <option name="PACKAGE_NAME" value="com.makibeans.model" />
-      <option name="MAIN_CLASS_NAME" value="com.makibeans.model.ProductTest" />
-      <option name="METHOD_NAME" value="shouldReturnCorrectProductVariantsWhenRequested" />
-      <option name="TEST_OBJECT" value="method" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
@@ -181,6 +173,21 @@
       <option name="MAIN_CLASS_NAME" value="com.makibeans.model.ProductTest" />
       <option name="METHOD_NAME" value="testToString" />
       <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="ProductVariantTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="com.makibeans" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.makibeans.model.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="com.makibeans.model" />
+      <option name="MAIN_CLASS_NAME" value="com.makibeans.model.ProductVariantTest" />
+      <option name="TEST_OBJECT" value="class" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
@@ -210,21 +217,21 @@
       </method>
     </configuration>
     <list>
+      <item itemvalue="JUnit.AttributeTemplateServiceTest.testCreateAttributeTemplateWithValidName" />
+      <item itemvalue="JUnit.AttributeTemplateServiceTest.testCreateAttributeTemplateWithValidNames" />
       <item itemvalue="JUnit.ProductAttributeTest" />
-      <item itemvalue="JUnit.ProductTest.shouldReturnCorrectProductAttributesWhenRequested" />
-      <item itemvalue="JUnit.ProductTest.shouldReturnCorrectProductIdWhenRequested" />
-      <item itemvalue="JUnit.ProductTest.shouldReturnCorrectProductVariantsWhenRequested" />
       <item itemvalue="JUnit.ProductTest.testToString" />
+      <item itemvalue="JUnit.ProductVariantTest" />
       <item itemvalue="Spring Boot.Application" />
       <item itemvalue="Spring Boot.DemoApplication" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="JUnit.AttributeTemplateServiceTest.testCreateAttributeTemplateWithValidNames" />
+        <item itemvalue="JUnit.AttributeTemplateServiceTest.testCreateAttributeTemplateWithValidName" />
+        <item itemvalue="JUnit.ProductVariantTest" />
         <item itemvalue="JUnit.ProductAttributeTest" />
         <item itemvalue="JUnit.ProductTest.testToString" />
-        <item itemvalue="JUnit.ProductTest.shouldReturnCorrectProductAttributesWhenRequested" />
-        <item itemvalue="JUnit.ProductTest.shouldReturnCorrectProductIdWhenRequested" />
-        <item itemvalue="JUnit.ProductTest.shouldReturnCorrectProductVariantsWhenRequested" />
       </list>
     </recent_temporary>
   </component>
@@ -294,5 +301,10 @@
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
     <select />
+  </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/makibeans$AttributeTemplateServiceTest_testCreateAttributeTemplateWithValidName.ic" NAME="AttributeTemplateServiceTest.testCreateAttributeTemplateWithValidName Coverage Results" MODIFIED="1737408111304" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="true">
+      <FILTER>com.makibeans.service.*</FILTER>
+    </SUITE>
   </component>
 </project>

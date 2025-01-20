@@ -1,5 +1,6 @@
 package com.makibeans;
 
+import com.makibeans.model.AttributeTemplate;
 import com.makibeans.repository.AttributeTemplateRepository;
 import com.makibeans.service.AttributeTemplateService;
 import org.springframework.boot.CommandLineRunner;
@@ -26,8 +27,7 @@ public class Application implements CommandLineRunner {
 	public void run(String... args) throws Exception {
 
 
-		attributeTemplateService.createAttributeTemplate("Size");
-
+		AttributeTemplate attributeTemplate = attributeTemplateService.createAttributeTemplate("Size");
 
 		attributeTemplateService.updateAttributeTemplate(1L, "Origin");
 
