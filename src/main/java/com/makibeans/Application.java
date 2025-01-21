@@ -31,10 +31,12 @@ public class Application implements CommandLineRunner {
 
 		attributeTemplateService.updateAttributeTemplate(1L, "Origin");
 
-		attributeTemplateService.deleteAttributeTemplate(1L);
+		//attributeTemplateService.deleteAttributeTemplate(1L);
 
 		attributeTemplateService.findAll();
 
+
+;
 
 
 
