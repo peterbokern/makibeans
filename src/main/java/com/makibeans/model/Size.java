@@ -8,7 +8,6 @@ import lombok.Setter;
 @Entity
 @NoArgsConstructor
 @Getter
-@Setter
 @Table(name = "size")
 public class Size {
 
@@ -16,8 +15,13 @@ public class Size {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Setter
     @Column(name = "size_description", nullable = false, length = 100)
     private String sizeDescription;
+
+    public Size(String sizeDescription) {
+        this.sizeDescription = sizeDescription;
+    }
 
     @Override
     public String toString() {

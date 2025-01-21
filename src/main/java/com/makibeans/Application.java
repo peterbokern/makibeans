@@ -3,8 +3,6 @@ package com.makibeans;
 import com.makibeans.model.AttributeTemplate;
 import com.makibeans.repository.AttributeTemplateRepository;
 import com.makibeans.service.AttributeTemplateService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -29,15 +27,16 @@ public class Application implements CommandLineRunner {
 	public void run(String... args) throws Exception {
 
 
-		attributeTemplateService.createAttributeTemplate("Size");
-
+		AttributeTemplate attributeTemplate = attributeTemplateService.createAttributeTemplate("Size");
 
 		attributeTemplateService.updateAttributeTemplate(1L, "Origin");
 
-		attributeTemplateService.deleteAttributeTemplate(1L);
+		//attributeTemplateService.deleteAttributeTemplate(1L);
 
 		attributeTemplateService.findAll();
 
+
+;
 
 
 
