@@ -112,6 +112,25 @@ class AttributeTemplateServiceTest {
     }
 
     @Test
+    void testUpdateAttributeTemplateWithInvalidName() {
+        // Arrange: Mock repository behavior for findById
+        when(attributeTemplateRepository.findById(any(Long.class))).thenReturn(Optional.of(new AttributeTemplate("Origin")));
+
+        // Act & Assert: Check for IllegalArgumentException on invalid names
+        assertThrows(IllegalArgumentException.class, () -> attributeTemplateService.updateAttributeTemplate(1L, null));
+        assertThrows(IllegalArgumentException.class, () -> attributeTemplateService.updateAttributeTemplate(1L, ""));
+    }
+
+    @Test
+    void testUpdateAttributeTemplateWithNonExistentId() {
+        // Arrange: Mock repository behavior for non-existent ID
+        when(attributeTemplateRepository.findById(any(Long.class))).thenReturn(Optional.empty());
+
+        // Act & Assert: Check if ResourceNotFoundException is thrown for non-existent ID
+        assertThrows(ResourceNotFoundException.class, () -> attributeTemplateService.updateAttributeTemplate(1L, "NewName"));
+    }
+
+    @Test
     void testFindById() {
         // Arrange: Mock repository to return an existing template
         when(attributeTemplateRepository.findById(any(Long.class))).thenReturn(Optional.of(new AttributeTemplate("Origin")));
