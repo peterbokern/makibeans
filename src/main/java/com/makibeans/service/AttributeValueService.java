@@ -1,6 +1,7 @@
 package com.makibeans.service;
 
 import com.makibeans.exeptions.DuplicateResourceException;
+import com.makibeans.exeptions.ResourceNotFoundException;
 import com.makibeans.model.AttributeTemplate;
 import com.makibeans.model.AttributeValue;
 import com.makibeans.repository.AttributeValueRepository;
@@ -24,6 +25,15 @@ public class AttributeValueService extends AbstractCrudService<AttributeValue, L
         this.attributeTemplateService = attributeTemplateService;
     }
 
+    /**
+     * Creates a new Attribute Value.
+     *
+     * @param id the ID of the AttributeTemplate
+     * @param value the value to be associated with the AttributeTemplate
+     * @return the created AttributeValue
+     * @throws IllegalArgumentException if id or value are invalid
+     * @throws DuplicateResourceException if the value already exists
+     */
 
     @Transactional
     public AttributeValue createAttributeValue(Long id, String value) {
@@ -47,10 +57,26 @@ public class AttributeValueService extends AbstractCrudService<AttributeValue, L
         return create(attributeValue);
     }
 
+    /**
+     * Deletes an Attribute Value by ID.
+     *
+     * @param id the ID of the AttributeValue to delete
+     * @throws ResourceNotFoundException if the AttributeValue with the given ID is not found
+     */
+
     @Transactional
     public void deleteAttributeValue(Long id) {
         delete(id);
     }
+
+    /**
+     * Updates an existing Attribute Value.
+     *
+     * @param id the ID of the AttributeValue to update
+     * @param value the new value for the AttributeValue
+     * @return the updated AttributeValue
+     * @throws IllegalArgumentException if id or value are invalid
+     */
 
     @Transactional
     public AttributeValue updateAttributeValue(Long id, String value) {
@@ -63,6 +89,7 @@ public class AttributeValueService extends AbstractCrudService<AttributeValue, L
 
         AttributeValue attributeValue = findById(id);
 
+        //
         if (Objects.equals(attributeValue.getValue(), value)) {
             return attributeValue;
         }

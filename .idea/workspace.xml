@@ -5,11 +5,34 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="4e7a3988-a13a-4eb5-932c-94ad2548b294" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/makibeans/service/AttributeValueService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/makibeans/service/AttributeValueService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/com/makibeans/service/AttributeValueServiceTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/makibeans/service/AttributeValueServiceTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/makibeans/service/AttributeValueService.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/makibeans/service/AttributeValueService.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/test-classes/com/makibeans/service/AttributeValueServiceTest.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/test-classes/com/makibeans/service/AttributeValueServiceTest.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/application.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/makibeans/Application.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/makibeans/exeptions/DuplicateResourceException.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/makibeans/exeptions/ResourceNotFoundException.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/makibeans/model/AttributeTemplate.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/makibeans/model/AttributeValue.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/makibeans/model/Category.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/makibeans/model/Product.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/makibeans/model/ProductAttribute.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/makibeans/model/ProductVariant.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/makibeans/model/Size.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/makibeans/repository/AttributeTemplateRepository.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/makibeans/repository/AttributeValueRepository.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/makibeans/service/AbstractCrudService.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/makibeans/service/AttributeTemplateService.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/makibeans/service/AttributeValueService.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/makibeans/service/CrudService.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/logback-spring.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/test-classes/com/makibeans/ApplicationTests.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/test-classes/com/makibeans/model/AttributeTemplateTest.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/test-classes/com/makibeans/model/AttributeValueTest.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/test-classes/com/makibeans/model/CategoryTest.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/test-classes/com/makibeans/model/ProductAttributeTest.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/test-classes/com/makibeans/model/ProductTest.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/test-classes/com/makibeans/model/ProductVariantTest.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/test-classes/com/makibeans/model/SizeTest.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/test-classes/com/makibeans/service/AttributeTemplateServiceTest.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/test-classes/com/makibeans/service/AttributeValueServiceTest.class" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -62,7 +85,7 @@
     "JUnit.AttributeTemplateTest.getName.executor": "Run",
     "JUnit.AttributeTemplateTest.shouldReturnCorrectToString.executor": "Run",
     "JUnit.AttributeTemplateTest.testNullConstructor.executor": "Run",
-    "JUnit.AttributeValueServiceTest.executor": "Run",
+    "JUnit.AttributeValueServiceTest.executor": "Coverage",
     "JUnit.AttributeValueServiceTest.testCreateAttributeValueWithDuplicateValue.executor": "Run",
     "JUnit.AttributeValueServiceTest.testCreateAttributeValueWithInvalidValue.executor": "Run",
     "JUnit.AttributeValueServiceTest.testCreateAttributeValueWithValidValue.executor": "Run",
@@ -100,7 +123,7 @@
     "com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrary": "JUnit5",
     "com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrarySuperClass.JUnit5": "",
     "com.intellij.testIntegration.createTest.CreateTestDialog.includeInheritedMembers": "true",
-    "git-widget-placeholder": "feature/attribute-value",
+    "git-widget-placeholder": "main",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "/Users/peterbokern/Documents/Projects/makibeans",
     "node.js.detected.package.eslint": "true",
@@ -132,7 +155,7 @@
       <recent name="com.makibeans.model" />
     </key>
   </component>
-  <component name="RunManager" selected="JUnit.AttributeValueServiceTest">
+  <component name="RunManager" selected="JUnit.com.makibeans.model in com.makibeans">
     <configuration name="AttributeValueServiceTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="com.makibeans" />
       <extension name="coverage">
@@ -164,38 +187,6 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="AttributeValueServiceTest.testUpdateAttributeValueWithInvalidValue" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
-      <module name="com.makibeans" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="com.makibeans.service.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <option name="PACKAGE_NAME" value="com.makibeans.service" />
-      <option name="MAIN_CLASS_NAME" value="com.makibeans.service.AttributeValueServiceTest" />
-      <option name="METHOD_NAME" value="testUpdateAttributeValueWithInvalidValue" />
-      <option name="TEST_OBJECT" value="method" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="AttributeValueServiceTest.testUpdateAttributeValueWithNonExistentId" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
-      <module name="com.makibeans" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="com.makibeans.service.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <option name="PACKAGE_NAME" value="com.makibeans.service" />
-      <option name="MAIN_CLASS_NAME" value="com.makibeans.service.AttributeValueServiceTest" />
-      <option name="METHOD_NAME" value="testUpdateAttributeValueWithNonExistentId" />
-      <option name="TEST_OBJECT" value="method" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
     <configuration name="AttributeValueServiceTest.testUpdateAttributeValueWithSameValue" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="com.makibeans" />
       <extension name="coverage">
@@ -208,6 +199,34 @@
       <option name="MAIN_CLASS_NAME" value="com.makibeans.service.AttributeValueServiceTest" />
       <option name="METHOD_NAME" value="testUpdateAttributeValueWithSameValue" />
       <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="com.makibeans.model in com.makibeans" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="com.makibeans" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.makibeans.model.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="com.makibeans.model" />
+      <option name="TEST_OBJECT" value="package" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="com.makibeans.service in com.makibeans" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="com.makibeans" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.makibeans.service.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="com.makibeans.service" />
+      <option name="TEST_OBJECT" value="package" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
@@ -237,21 +256,21 @@
       </method>
     </configuration>
     <list>
+      <item itemvalue="JUnit.com.makibeans.model in com.makibeans" />
+      <item itemvalue="JUnit.com.makibeans.service in com.makibeans" />
       <item itemvalue="JUnit.AttributeValueServiceTest" />
       <item itemvalue="JUnit.AttributeValueServiceTest.testFindAllAttributeValues" />
-      <item itemvalue="JUnit.AttributeValueServiceTest.testUpdateAttributeValueWithInvalidValue" />
-      <item itemvalue="JUnit.AttributeValueServiceTest.testUpdateAttributeValueWithNonExistentId" />
       <item itemvalue="JUnit.AttributeValueServiceTest.testUpdateAttributeValueWithSameValue" />
       <item itemvalue="Spring Boot.Application" />
       <item itemvalue="Spring Boot.DemoApplication" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="JUnit.com.makibeans.model in com.makibeans" />
+        <item itemvalue="JUnit.com.makibeans.service in com.makibeans" />
         <item itemvalue="JUnit.AttributeValueServiceTest" />
         <item itemvalue="JUnit.AttributeValueServiceTest.testUpdateAttributeValueWithSameValue" />
         <item itemvalue="JUnit.AttributeValueServiceTest.testFindAllAttributeValues" />
-        <item itemvalue="JUnit.AttributeValueServiceTest.testUpdateAttributeValueWithNonExistentId" />
-        <item itemvalue="JUnit.AttributeValueServiceTest.testUpdateAttributeValueWithInvalidValue" />
       </list>
     </recent_temporary>
   </component>
