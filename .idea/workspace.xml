@@ -4,7 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="4e7a3988-a13a-4eb5-932c-94ad2548b294" name="Changes" comment="" />
+    <list default="true" id="4e7a3988-a13a-4eb5-932c-94ad2548b294" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/makibeans/service/AttributeValueService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/makibeans/service/AttributeValueService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/com/makibeans/service/AttributeValueServiceTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/makibeans/service/AttributeValueServiceTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/makibeans/service/AttributeValueService.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/makibeans/service/AttributeValueService.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/test-classes/com/makibeans/service/AttributeValueServiceTest.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/test-classes/com/makibeans/service/AttributeValueServiceTest.class" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -14,13 +20,14 @@
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="package.json" />
-        <option value="Interface" />
         <option value="Class" />
+        <option value="Interface" />
+        <option value="JUnit5 Test Class" />
       </list>
     </option>
   </component>
   <component name="Git.Settings">
-    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../Tutorials/Springboot/demo" />
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="MavenImportPreferences">
     <option name="generalSettings">
@@ -37,32 +44,174 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RequestMappingsPanelOrder0&quot;: &quot;0&quot;,
-    &quot;RequestMappingsPanelOrder1&quot;: &quot;1&quot;,
-    &quot;RequestMappingsPanelWidth0&quot;: &quot;75&quot;,
-    &quot;RequestMappingsPanelWidth1&quot;: &quot;75&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;Spring Boot.Application.executor&quot;: &quot;Run&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/Users/peterbokern/Documents/Projects/makibeans&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Application.AttributeTemplateService.executor": "Run",
+    "JUnit.AttributeTemplateServiceTest.executor": "Run",
+    "JUnit.AttributeTemplateServiceTest.testCreateAttributeTemplateWithDuplicateName.executor": "Run",
+    "JUnit.AttributeTemplateServiceTest.testCreateAttributeTemplateWithInvalidName.executor": "Run",
+    "JUnit.AttributeTemplateServiceTest.testCreateAttributeTemplateWithValidName.executor": "Run",
+    "JUnit.AttributeTemplateServiceTest.testCreateAttributeTemplateWithValidNames.executor": "Run",
+    "JUnit.AttributeTemplateServiceTest.testDeleteAttributeTemplate.executor": "Run",
+    "JUnit.AttributeTemplateServiceTest.testResourseNotFoundException.executor": "Run",
+    "JUnit.AttributeTemplateServiceTest.testUpdateAttributeTemplateWithDuplicateName.executor": "Run",
+    "JUnit.AttributeTemplateServiceTest.testUpdateAttributeTemplateWithInvalidName.executor": "Run",
+    "JUnit.AttributeTemplateServiceTest.testUpdateAttributeTemplateWithValidName.executor": "Run",
+    "JUnit.AttributeTemplateTest.executor": "Run",
+    "JUnit.AttributeTemplateTest.getId.executor": "Run",
+    "JUnit.AttributeTemplateTest.getName.executor": "Run",
+    "JUnit.AttributeTemplateTest.shouldReturnCorrectToString.executor": "Run",
+    "JUnit.AttributeTemplateTest.testNullConstructor.executor": "Run",
+    "JUnit.AttributeValueServiceTest.executor": "Run",
+    "JUnit.AttributeValueServiceTest.testCreateAttributeValueWithDuplicateValue.executor": "Run",
+    "JUnit.AttributeValueServiceTest.testCreateAttributeValueWithInvalidValue.executor": "Run",
+    "JUnit.AttributeValueServiceTest.testCreateAttributeValueWithValidValue.executor": "Run",
+    "JUnit.AttributeValueServiceTest.testDeleteAttributeValue.executor": "Run",
+    "JUnit.AttributeValueServiceTest.testDeleteAttributeValueInvalidId.executor": "Run",
+    "JUnit.AttributeValueServiceTest.testFindAllAttributeValues.executor": "Run",
+    "JUnit.AttributeValueServiceTest.testUpdateAttributeValueWithInvalidValue.executor": "Run",
+    "JUnit.AttributeValueServiceTest.testUpdateAttributeValueWithNonExistentId.executor": "Run",
+    "JUnit.AttributeValueServiceTest.testUpdateAttributeValueWithSameValue.executor": "Run",
+    "JUnit.AttributeValueServiceTest.testUpdateAttributeValueWithValidValue.executor": "Run",
+    "JUnit.AttributeValueTest.executor": "Run",
+    "JUnit.AttributeValueTest.shouldReturnNotNullWhenCreated.executor": "Run",
+    "JUnit.CategoryTest.executor": "Run",
+    "JUnit.CategoryTest.shouldReturnCorrectToString.executor": "Run",
+    "JUnit.CategoryTest.shouldReturnNotNullWhenCreated.executor": "Run",
+    "JUnit.ProductAttributeTest.executor": "Run",
+    "JUnit.ProductTest.executor": "Run",
+    "JUnit.ProductTest.shouldReturnCorrectProductAttributesWhenRequested.executor": "Run",
+    "JUnit.ProductTest.shouldReturnCorrectProductIdWhenRequested.executor": "Run",
+    "JUnit.ProductTest.shouldReturnCorrectProductVariantsWhenRequested.executor": "Run",
+    "JUnit.ProductTest.testToString.executor": "Run",
+    "JUnit.ProductVariantTest.executor": "Run",
+    "JUnit.SizeTest.executor": "Run",
+    "Maven.demo [clean].executor": "Run",
+    "Maven.demo [compile].executor": "Run",
+    "Maven.demo [test].executor": "Run",
+    "Maven.demo [validate].executor": "Run",
+    "RequestMappingsPanelOrder0": "0",
+    "RequestMappingsPanelOrder1": "1",
+    "RequestMappingsPanelWidth0": "75",
+    "RequestMappingsPanelWidth1": "75",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "Spring Boot.Application.executor": "Run",
+    "com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrary": "JUnit5",
+    "com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrarySuperClass.JUnit5": "",
+    "com.intellij.testIntegration.createTest.CreateTestDialog.includeInheritedMembers": "true",
+    "git-widget-placeholder": "feature/attribute-value",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "/Users/peterbokern/Documents/Projects/makibeans",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "project.structure.last.edited": "SDKs",
+    "project.structure.proportion": "0.15",
+    "project.structure.side.proportion": "0.2",
+    "settings.editor.selected.configurable": "reference.projectsettings.compiler.javacompiler",
+    "vue.rearranger.settings.migration": "true"
   },
-  &quot;keyToStringList&quot;: {
-    &quot;DatabaseDriversLRU&quot;: [
-      &quot;postgresql&quot;
+  "keyToStringList": {
+    "DatabaseDriversLRU": [
+      "postgresql"
     ]
   }
-}</component>
-  <component name="RunManager" selected="Spring Boot.Application">
+}]]></component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/src/main/resources" />
+    </key>
+    <key name="CreateTestDialog.Recents.Supers">
+      <recent name="" />
+    </key>
+    <key name="CreateTestDialog.RecentsKey">
+      <recent name="com.makibeans.service" />
+      <recent name="com.makibeans.model" />
+    </key>
+  </component>
+  <component name="RunManager" selected="JUnit.AttributeValueServiceTest">
+    <configuration name="AttributeValueServiceTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="com.makibeans" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.makibeans.service.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="com.makibeans.service" />
+      <option name="MAIN_CLASS_NAME" value="com.makibeans.service.AttributeValueServiceTest" />
+      <option name="TEST_OBJECT" value="class" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="AttributeValueServiceTest.testFindAllAttributeValues" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="com.makibeans" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.makibeans.service.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="com.makibeans.service" />
+      <option name="MAIN_CLASS_NAME" value="com.makibeans.service.AttributeValueServiceTest" />
+      <option name="METHOD_NAME" value="testFindAllAttributeValues" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="AttributeValueServiceTest.testUpdateAttributeValueWithInvalidValue" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="com.makibeans" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.makibeans.service.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="com.makibeans.service" />
+      <option name="MAIN_CLASS_NAME" value="com.makibeans.service.AttributeValueServiceTest" />
+      <option name="METHOD_NAME" value="testUpdateAttributeValueWithInvalidValue" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="AttributeValueServiceTest.testUpdateAttributeValueWithNonExistentId" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="com.makibeans" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.makibeans.service.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="com.makibeans.service" />
+      <option name="MAIN_CLASS_NAME" value="com.makibeans.service.AttributeValueServiceTest" />
+      <option name="METHOD_NAME" value="testUpdateAttributeValueWithNonExistentId" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="AttributeValueServiceTest.testUpdateAttributeValueWithSameValue" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="com.makibeans" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.makibeans.service.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="com.makibeans.service" />
+      <option name="MAIN_CLASS_NAME" value="com.makibeans.service.AttributeValueServiceTest" />
+      <option name="METHOD_NAME" value="testUpdateAttributeValueWithSameValue" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="Application" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
       <module name="com.makibeans" />
       <option name="SPRING_BOOT_MAIN_CLASS" value="com.makibeans.Application" />
@@ -88,9 +237,23 @@
       </method>
     </configuration>
     <list>
+      <item itemvalue="JUnit.AttributeValueServiceTest" />
+      <item itemvalue="JUnit.AttributeValueServiceTest.testFindAllAttributeValues" />
+      <item itemvalue="JUnit.AttributeValueServiceTest.testUpdateAttributeValueWithInvalidValue" />
+      <item itemvalue="JUnit.AttributeValueServiceTest.testUpdateAttributeValueWithNonExistentId" />
+      <item itemvalue="JUnit.AttributeValueServiceTest.testUpdateAttributeValueWithSameValue" />
       <item itemvalue="Spring Boot.Application" />
       <item itemvalue="Spring Boot.DemoApplication" />
     </list>
+    <recent_temporary>
+      <list>
+        <item itemvalue="JUnit.AttributeValueServiceTest" />
+        <item itemvalue="JUnit.AttributeValueServiceTest.testUpdateAttributeValueWithSameValue" />
+        <item itemvalue="JUnit.AttributeValueServiceTest.testFindAllAttributeValues" />
+        <item itemvalue="JUnit.AttributeValueServiceTest.testUpdateAttributeValueWithNonExistentId" />
+        <item itemvalue="JUnit.AttributeValueServiceTest.testUpdateAttributeValueWithInvalidValue" />
+      </list>
+    </recent_temporary>
   </component>
   <component name="SharedIndexes">
     <attachedChunks>
@@ -115,11 +278,53 @@
       <workItem from="1737145720744" duration="335000" />
       <workItem from="1737146062047" duration="21000" />
       <workItem from="1737146568409" duration="117000" />
-      <workItem from="1737146690108" duration="2674000" />
+      <workItem from="1737146690108" duration="41946000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="feature/products" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <breakpoint type="java-exception">
+          <properties class="com.makibeans.exeptions.ResourceNotFoundException" package="com.makibeans.exeptions" />
+          <option name="timeStamp" value="8" />
+        </breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
+  </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/makibeans$AttributeTemplateServiceTest_testCreateAttributeTemplateWithValidName.ic" NAME="AttributeTemplateServiceTest.testCreateAttributeTemplateWithValidName Coverage Results" MODIFIED="1737408111304" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="true">
+      <FILTER>com.makibeans.service.*</FILTER>
+    </SUITE>
   </component>
 </project>
