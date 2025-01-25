@@ -5,24 +5,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="4e7a3988-a13a-4eb5-932c-94ad2548b294" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/target/classes/application.properties" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/makibeans/Application.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/makibeans/exeptions/DuplicateResourceException.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/makibeans/exeptions/ResourceNotFoundException.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/makibeans/model/AttributeTemplate.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/makibeans/model/AttributeValue.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/makibeans/model/Category.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/makibeans/model/Product.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/makibeans/model/ProductAttribute.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/makibeans/model/ProductVariant.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/makibeans/model/Size.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/makibeans/repository/AttributeTemplateRepository.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/makibeans/repository/AttributeValueRepository.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/makibeans/service/AbstractCrudService.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/makibeans/service/AttributeTemplateService.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/makibeans/service/AttributeValueService.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/makibeans/service/CrudService.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/logback-spring.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/makibeans/Application.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/makibeans/Application.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/makibeans/model/Category.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/makibeans/model/Category.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/makibeans/Application.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/makibeans/Application.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/makibeans/model/Category.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/makibeans/model/Category.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/makibeans/service/AttributeValueService.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/makibeans/service/AttributeValueService.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/test-classes/com/makibeans/ApplicationTests.class" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/target/test-classes/com/makibeans/model/AttributeTemplateTest.class" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/target/test-classes/com/makibeans/model/AttributeValueTest.class" beforeDir="false" />
@@ -39,13 +27,16 @@
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="ExportToHTMLSettings">
+    <option name="OUTPUT_DIRECTORY" value="$PROJECT_DIR$/htmlReport" />
+  </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="package.json" />
+        <option value="JUnit5 Test Class" />
         <option value="Class" />
         <option value="Interface" />
-        <option value="JUnit5 Test Class" />
       </list>
     </option>
   </component>
@@ -109,6 +100,8 @@
     "JUnit.ProductTest.testToString.executor": "Run",
     "JUnit.ProductVariantTest.executor": "Run",
     "JUnit.SizeTest.executor": "Run",
+    "JUnit.com.makibeans.model in com.makibeans.executor": "Coverage",
+    "JUnit.com.makibeans.service in com.makibeans.executor": "Coverage",
     "Maven.demo [clean].executor": "Run",
     "Maven.demo [compile].executor": "Run",
     "Maven.demo [test].executor": "Run",
@@ -123,7 +116,7 @@
     "com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrary": "JUnit5",
     "com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrarySuperClass.JUnit5": "",
     "com.intellij.testIntegration.createTest.CreateTestDialog.includeInheritedMembers": "true",
-    "git-widget-placeholder": "main",
+    "git-widget-placeholder": "feature/category-service",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "/Users/peterbokern/Documents/Projects/makibeans",
     "node.js.detected.package.eslint": "true",
@@ -155,7 +148,7 @@
       <recent name="com.makibeans.model" />
     </key>
   </component>
-  <component name="RunManager" selected="JUnit.com.makibeans.model in com.makibeans">
+  <component name="RunManager" selected="Spring Boot.Application">
     <configuration name="AttributeValueServiceTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="com.makibeans" />
       <extension name="coverage">
@@ -342,7 +335,16 @@
     <select />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/makibeans$AttributeValueServiceTest.ic" NAME="AttributeValueServiceTest Coverage Results" MODIFIED="1737810196674" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="true">
+      <FILTER>com.makibeans.service.*</FILTER>
+    </SUITE>
     <SUITE FILE_PATH="coverage/makibeans$AttributeTemplateServiceTest_testCreateAttributeTemplateWithValidName.ic" NAME="AttributeTemplateServiceTest.testCreateAttributeTemplateWithValidName Coverage Results" MODIFIED="1737408111304" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="true">
+      <FILTER>com.makibeans.service.*</FILTER>
+    </SUITE>
+    <SUITE FILE_PATH="coverage/makibeans$com_makibeans_model_in_com_makibeans.ic" NAME="com.makibeans.model in com.makibeans Coverage Results" MODIFIED="1737810351804" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="true">
+      <FILTER>com.makibeans.model.*</FILTER>
+    </SUITE>
+    <SUITE FILE_PATH="coverage/makibeans$com_makibeans_service_in_com_makibeans.ic" NAME="com.makibeans.service in com.makibeans Coverage Results" MODIFIED="1737810301312" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="true">
       <FILTER>com.makibeans.service.*</FILTER>
     </SUITE>
   </component>
