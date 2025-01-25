@@ -7,8 +7,9 @@
     <list default="true" id="4e7a3988-a13a-4eb5-932c-94ad2548b294" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/makibeans/Application.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/makibeans/Application.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/com/makibeans/service/AttributeTemplateServiceTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/makibeans/service/AttributeTemplateServiceTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/makibeans/service/AttributeTemplateService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/makibeans/service/AttributeTemplateService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/com/makibeans/Application.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/makibeans/Application.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/makibeans/service/AttributeTemplateService.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/makibeans/service/AttributeTemplateService.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/test-classes/com/makibeans/service/AttributeTemplateServiceTest.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/test-classes/com/makibeans/service/AttributeTemplateServiceTest.class" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -20,8 +21,8 @@
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="package.json" />
-        <option value="Interface" />
         <option value="Class" />
+        <option value="Interface" />
         <option value="JUnit5 Test Class" />
       </list>
     </option>
@@ -62,6 +63,7 @@
     "JUnit.AttributeTemplateTest.getName.executor": "Run",
     "JUnit.AttributeTemplateTest.shouldReturnCorrectToString.executor": "Run",
     "JUnit.AttributeTemplateTest.testNullConstructor.executor": "Run",
+    "JUnit.AttributeValueServiceTest.testCreateAttributeValueWithValidValue.executor": "Run",
     "JUnit.AttributeValueTest.executor": "Run",
     "JUnit.AttributeValueTest.shouldReturnNotNullWhenCreated.executor": "Run",
     "JUnit.CategoryTest.executor": "Run",
@@ -89,7 +91,7 @@
     "com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrary": "JUnit5",
     "com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrarySuperClass.JUnit5": "",
     "com.intellij.testIntegration.createTest.CreateTestDialog.includeInheritedMembers": "true",
-    "git-widget-placeholder": "feature/unit-tests",
+    "git-widget-placeholder": "feature/service-layer",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "/Users/peterbokern/Documents/Projects/makibeans",
     "node.js.detected.package.eslint": "true",
@@ -121,7 +123,7 @@
       <recent name="com.makibeans.model" />
     </key>
   </component>
-  <component name="RunManager" selected="JUnit.AttributeTemplateServiceTest">
+  <component name="RunManager" selected="JUnit.AttributeValueServiceTest.testCreateAttributeValueWithValidValue">
     <configuration name="AttributeTemplateServiceTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="com.makibeans" />
       <extension name="coverage">
@@ -133,22 +135,6 @@
       <option name="PACKAGE_NAME" value="com.makibeans.service" />
       <option name="MAIN_CLASS_NAME" value="com.makibeans.service.AttributeTemplateServiceTest" />
       <option name="TEST_OBJECT" value="class" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="AttributeTemplateServiceTest.testCreateAttributeTemplateWithValidName" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
-      <module name="com.makibeans" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="com.makibeans.service.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <option name="PACKAGE_NAME" value="com.makibeans.service" />
-      <option name="MAIN_CLASS_NAME" value="com.makibeans.service.AttributeTemplateServiceTest" />
-      <option name="METHOD_NAME" value="testCreateAttributeTemplateWithValidName" />
-      <option name="TEST_OBJECT" value="method" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
@@ -201,6 +187,22 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <configuration name="AttributeValueServiceTest.testCreateAttributeValueWithValidValue" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="com.makibeans" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.makibeans.service.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="com.makibeans.service" />
+      <option name="MAIN_CLASS_NAME" value="com.makibeans.service.AttributeValueServiceTest" />
+      <option name="METHOD_NAME" value="testCreateAttributeValueWithValidValue" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="Application" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
       <module name="com.makibeans" />
       <option name="SPRING_BOOT_MAIN_CLASS" value="com.makibeans.Application" />
@@ -226,8 +228,8 @@
       </method>
     </configuration>
     <list>
+      <item itemvalue="JUnit.AttributeValueServiceTest.testCreateAttributeValueWithValidValue" />
       <item itemvalue="JUnit.AttributeTemplateServiceTest" />
-      <item itemvalue="JUnit.AttributeTemplateServiceTest.testCreateAttributeTemplateWithValidName" />
       <item itemvalue="JUnit.AttributeTemplateServiceTest.testUpdateAttributeTemplateWithDuplicateName" />
       <item itemvalue="JUnit.AttributeTemplateServiceTest.testUpdateAttributeTemplateWithInvalidName" />
       <item itemvalue="JUnit.AttributeTemplateServiceTest.testUpdateAttributeTemplateWithValidName" />
@@ -236,11 +238,11 @@
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="JUnit.AttributeValueServiceTest.testCreateAttributeValueWithValidValue" />
         <item itemvalue="JUnit.AttributeTemplateServiceTest" />
         <item itemvalue="JUnit.AttributeTemplateServiceTest.testUpdateAttributeTemplateWithDuplicateName" />
         <item itemvalue="JUnit.AttributeTemplateServiceTest.testUpdateAttributeTemplateWithInvalidName" />
         <item itemvalue="JUnit.AttributeTemplateServiceTest.testUpdateAttributeTemplateWithValidName" />
-        <item itemvalue="JUnit.AttributeTemplateServiceTest.testCreateAttributeTemplateWithValidName" />
       </list>
     </recent_temporary>
   </component>

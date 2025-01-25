@@ -13,7 +13,7 @@ public class AttributeTemplateService extends AbstractCrudService<AttributeTempl
     private final AttributeTemplateRepository attributeTemplateRepository;
 
     @Autowired
-    public AttributeTemplateService(AttributeTemplateRepository attributeTemplateRepository) {
+    public AttributeTemplateService(AttributeTemplateRepository attributeTemplateRepository, AttributeTemplateRepository attributeTemplateRepository1) {
         super(attributeTemplateRepository);
         this.attributeTemplateRepository = attributeTemplateRepository;
     }
