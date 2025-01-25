@@ -9,8 +9,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Objects;
+
 @Service
-public class AttributeValueService extends AbstractCrudService<AttributeValue, Long>{
+public class AttributeValueService extends AbstractCrudService<AttributeValue, Long> {
 
     private final AttributeValueRepository attributeValueRepository;
     private final AttributeTemplateService attributeTemplateService;
@@ -25,6 +27,10 @@ public class AttributeValueService extends AbstractCrudService<AttributeValue, L
 
     @Transactional
     public AttributeValue createAttributeValue(Long id, String value) {
+
+        if (id == null) {
+            throw new IllegalArgumentException("ID cannot be null");
+        }
 
         if (value == null || value.isEmpty()) {
             throw new IllegalArgumentException("Value cannot be null or empty");
@@ -42,16 +48,25 @@ public class AttributeValueService extends AbstractCrudService<AttributeValue, L
     }
 
     @Transactional
-    public void deleteAttributeValue(Long id) {delete(id);}
+    public void deleteAttributeValue(Long id) {
+        delete(id);
+    }
 
     @Transactional
-    public AttributeValue updateAttributeValue (Long id, String value) {
+    public AttributeValue updateAttributeValue(Long id, String value) {
+
+        if (id == null) {throw new IllegalArgumentException("ID cannot be null.");}
 
         if (value == null || value.isEmpty()) {
             throw new IllegalArgumentException("Value cannot be null or empty");
         }
 
         AttributeValue attributeValue = findById(id);
+
+        if (Objects.equals(attributeValue.getValue(), value)) {
+            return attributeValue;
+        }
+
         attributeValue.setValue(value);
 
         return update(id, attributeValue);
