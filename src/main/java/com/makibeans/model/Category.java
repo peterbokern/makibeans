@@ -36,7 +36,8 @@ public class Category {
     @JoinColumn(name = "parent_category_id", nullable = true)
     private Category parentCategory;
 
-    @OneToMany(mappedBy = "parentCategory")
+    //Delete all subcategories of parent category when removed
+    @OneToMany(mappedBy = "parentCategory", cascade = CascadeType.ALL, orphanRemoval = true)
     private final List<Category> subCategories = new ArrayList<>();
 
     @OneToMany(mappedBy = "category")
@@ -55,7 +56,6 @@ public class Category {
         this.imageUrl = imageUrl;
         this.parentCategory = parentCategory;
     }
-
 
     public void addProduct(Product product) {
         products.add(product);

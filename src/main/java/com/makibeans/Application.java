@@ -34,7 +34,7 @@ public class Application implements CommandLineRunner {
 	public void run(String... args) throws Exception {
 
 
-		AttributeTemplate attributeTemplate = attributeTemplateService.createAttributeTemplate("Size");
+		/*AttributeTemplate attributeTemplate = attributeTemplateService.createAttributeTemplate("Size");
 
 		attributeTemplateService.updateAttributeTemplate(1L, "Origin");
 
@@ -49,9 +49,11 @@ public class Application implements CommandLineRunner {
 		attributeValueService.deleteAttributeValue(1L);
 
 		categoryService.createRootCategory("Koffie", null, null);
-		categoryService.createRootCategory("Koffie", null, null);
+
 		categoryService.createSubCategory("Bonen", null, null, 1L);
-		categoryService.createSubCategory("Vieze Bonen", null, null, 2L);
+		categoryService.createSubCategory("Vieze Bonen", null, null, 2L);*/
+
+		categoryService.deleteCategory(1L);
 
 
 
