@@ -5,22 +5,17 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="4e7a3988-a13a-4eb5-932c-94ad2548b294" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/a6d97576-fef6-4aa7-8def-8183e1036d75.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/a6d97576-fef6-4aa7-8def-8183e1036d75.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/a6d97576-fef6-4aa7-8def-8183e1036d75/storage_v2/_src_/database/students.mMXRbw/schema/public.abK9xQ.meta" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/a6d97576-fef6-4aa7-8def-8183e1036d75/storage_v2/_src_/database/students.mMXRbw/schema/public.abK9xQ.meta" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/makibeans/Application.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/makibeans/Application.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/makibeans/model/Category.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/makibeans/model/Category.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/makibeans/service/CategoryService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/makibeans/service/CategoryService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/application.properties" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/com/makibeans/Application.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/makibeans/Application.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/com/makibeans/model/Category.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/makibeans/model/Category.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/makibeans/service/AttributeValueService.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/makibeans/service/AttributeValueService.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/test-classes/com/makibeans/ApplicationTests.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/test-classes/com/makibeans/model/AttributeTemplateTest.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/test-classes/com/makibeans/model/AttributeValueTest.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/test-classes/com/makibeans/model/CategoryTest.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/test-classes/com/makibeans/model/ProductAttributeTest.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/test-classes/com/makibeans/model/ProductTest.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/test-classes/com/makibeans/model/ProductVariantTest.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/test-classes/com/makibeans/model/SizeTest.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/test-classes/com/makibeans/service/AttributeTemplateServiceTest.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/test-classes/com/makibeans/service/AttributeValueServiceTest.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/makibeans/service/CategoryService.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/makibeans/service/CategoryService.class" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -49,6 +44,10 @@
         <option name="mavenHomeTypeForPersistence" value="WRAPPER" />
       </MavenGeneralSettings>
     </option>
+  </component>
+  <component name="MigrationScriptOptions">
+    <option name="ignoreImplicitObjects" value="true" />
+    <option name="ignoreSourceCode" value="false" />
   </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 2
@@ -127,7 +126,7 @@
     "project.structure.last.edited": "SDKs",
     "project.structure.proportion": "0.15",
     "project.structure.side.proportion": "0.2",
-    "settings.editor.selected.configurable": "reference.projectsettings.compiler.javacompiler",
+    "settings.editor.selected.configurable": "preferences.sourceCode.PostgreSQL, Greenplum, Redshift",
     "vue.rearranger.settings.migration": "true"
   },
   "keyToStringList": {

@@ -3,6 +3,7 @@ package com.makibeans.service;
 import com.makibeans.exeptions.DuplicateResourceException;
 import com.makibeans.exeptions.ResourceNotFoundException;
 import com.makibeans.model.Category;
+import com.makibeans.model.Product;
 import com.makibeans.repository.AttributeValueRepository;
 import com.makibeans.repository.CategoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,13 +15,11 @@ import org.springframework.transaction.annotation.Transactional;
 public class CategoryService extends AbstractCrudService<Category, Long> {
 
     private final CategoryRepository categoryRepository;
-    private final AttributeValueRepository attributeValueRepository;
 
     @Autowired
     public CategoryService(JpaRepository<Category, Long> repository, CategoryRepository categoryRepository, AttributeValueRepository attributeValueRepository) {
         super(repository);
         this.categoryRepository = categoryRepository;
-        this.attributeValueRepository = attributeValueRepository;
     }
 
     //add root category
@@ -68,13 +67,62 @@ public class CategoryService extends AbstractCrudService<Category, Long> {
         return create(subCategory);
     }
 
+    @Transactional
+    public void deleteCategory(Long categoryId) {
 
+        if (categoryId == null) {
+            throw new IllegalArgumentException("Category id cannot be null.");
+        }
 
-    public void deleteCategory() {
+        Category category = categoryRepository.findById(categoryId).orElseThrow(() -> new ResourceNotFoundException("Category id " + categoryId + " not found."));
+
+        //Remove reference to deleted category
+        for (Product product : category.getProducts()) {
+            product.setCategory(null);
+        }
+
+        delete(categoryId);
     }
 
-    /*public updateCategory() {
-    }*/
+    @Transactional
+    public Category updateCategory(Long categoryToUpdate, String name, String description, String imageUrl, Long parentCategoryId) {
+
+        if (categoryToUpdate == null) {
+            throw new IllegalArgumentException("Category ID should not be null.");
+        }
+
+        if (name == null || name.isEmpty()) {
+            throw new IllegalArgumentException("Category name should not be null or empty.");
+        }
+
+        //get category
+        Category category = categoryRepository.findById(categoryToUpdate).orElseThrow(() -> new ResourceNotFoundException("Category with id " + categoryToUpdate + " not found."));
+
+        //set new name, description and imageUrl
+        category.setName(name);
+        category.setDescription(description);
+        category.setImageUrl(imageUrl);
+
+        //get current and new parent category
+        Category currentParentCategory = category.getParentCategory();
+
+        //set new parent category if provided else set null
+        Category newParentCategory = (parentCategoryId == null)
+                ? null
+                : categoryRepository.findById(parentCategoryId)
+                .orElseThrow(() -> new ResourceNotFoundException("Parent category with id " + parentCategoryId + " not found"));
+
+        //check that new parent category does not create circular reference if not null
+        if (newParentCategory != null) {
+            validateCircularReference(newParentCategory, category);
+        }
+
+        //set new parent
+        category.setParentCategory(newParentCategory);
+
+        //save and return updated category
+        return update(categoryToUpdate, category);
+    }
 
     private void validateCircularReference(Category parentCategory, Category subCategory) {
 
@@ -103,5 +151,4 @@ public class CategoryService extends AbstractCrudService<Category, Long> {
             current = current.getParentCategory(); // Move to the next parent
         }
     }
-
 }
