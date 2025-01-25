@@ -11,7 +11,8 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
-@Table(name = "category")
+@Table(name = "category", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"name", "parent_category_id"})})
 public class Category {
 
     @Id
@@ -23,7 +24,7 @@ public class Category {
     private String name;
 
     @Setter
-    @Column(name = "description", nullable = false, length = 1000)
+    @Column(name = "description", nullable = true, length = 1000)
     private String description;
 
     @Setter
@@ -41,12 +42,20 @@ public class Category {
     @OneToMany(mappedBy = "category")
     private final List<Product> products = new ArrayList<>();
 
+
+    public Category(String name, String description, String imageUrl) {
+        this.name = name;
+        this.description = description;
+        this.imageUrl = imageUrl;
+    }
+
     public Category(String name, String description, String imageUrl, Category parentCategory) {
         this.name = name;
         this.description = description;
         this.imageUrl = imageUrl;
         this.parentCategory = parentCategory;
     }
+
 
     public void addProduct(Product product) {
         products.add(product);
@@ -75,10 +84,10 @@ public class Category {
                 ", name='" + name + '\'' +
                 ", description='" + description + '\'' +
                 ", imageUrl='" + imageUrl + '\'' +
-                ", parentCategory=" + parentCategory.getName() +
+                ", parentCategory=" + (parentCategory != null ? parentCategory.getName() : null +
                 ", subCategories=" + subCategories +
                 ", products=" + products +
-                '}';
+                '}');
     }
 
 
