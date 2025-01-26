@@ -1,5 +1,6 @@
 package com.makibeans.service;
 
+import com.makibeans.exeptions.CircularReferenceException;
 import com.makibeans.model.Category;
 import com.makibeans.model.Product;
 import com.makibeans.repository.CategoryRepository;
@@ -210,26 +211,29 @@ class CategoryServiceTest {
     //Update category tests
     @Test
     void testUpdateRootCategoryWithValidCategoryIdAndNewCategoryName() {
-        //arrange
+        // Arrange
         Category category = new Category("Coffee", "Description", "imageUrl");
         when(categoryRepository.findById(1L)).thenReturn(Optional.of(category));
+        when(categoryRepository.existsByNameAndParentCategory("Tea", null)).thenReturn(false);
         when(categoryRepository.save(any(Category.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        //act
+        // Act
         Category result = categoryService.updateCategory(1L, "Tea", "otherDescription", "otherimageUrl", null);
 
-        //assert
+        // Assert
         assertNotNull(result, "Category should not be null");
         assertEquals("Tea", result.getName(), "Category name mismatch");
         assertEquals("otherDescription", result.getDescription(), "Category description mismatch");
         assertEquals("otherimageUrl", result.getImageUrl(), "Category image url mismatch");
         assertNull(result.getParentCategory(), "Parent category should be null for a root category");
 
-        //verify
+        // Verify
         verify(categoryRepository).findById(1L);
+        verify(categoryRepository).existsByNameAndParentCategory("Tea", null); // Check for the new name
         verify(categoryRepository).save(any(Category.class));
         verifyNoMoreInteractions(categoryRepository);
     }
+
 
     @Test
     void testUpdateCategoryWithNullOrEmptyNewCategoryName() {
@@ -326,6 +330,24 @@ class CategoryServiceTest {
         verifyNoMoreInteractions(categoryRepository);
     }
 
+    @Test
+    void testUpdateCategoryWithCircularReference() {
+        //arrange
+        Category parentCategory = new Category("Coffee", "Description", "imageUrl");
+        Category subCategory = new Category("Strong", "Description", "imageUrl");
+        parentCategory.addSubCategory(subCategory);
+
+        when(categoryRepository.findById(1L)).thenReturn(Optional.of(parentCategory));
+        when(categoryRepository.findById(2L)).thenReturn(Optional.of(subCategory));
+
+        //act
+        assertThrows(CircularReferenceException.class,
+                () -> categoryService.updateCategory(1L, "Coffee", "Description", "imageUrl", 2L),
+                "Expected CircularReferenceException when new parent category refers to a subcategory of itself.");
+
+        //assert
+    }
+
 
 
 
@@ -337,7 +359,7 @@ class CategoryServiceTest {
 
 
 
-    testUpdateCategoryWithCircularReference()
+
 
 5. Utility Methods
     validateCircularReference:
