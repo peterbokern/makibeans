@@ -137,25 +137,21 @@ public class CategoryService extends AbstractCrudService<Category, Long> {
     }
 
 
-    private void validateCircularReference(Category parentCategory, Category subCategory) {
-
+    void validateCircularReference(Category parentCategory, Category subCategory) {
         Category current = parentCategory;
 
         while (current != null) {
             if (current.equals(subCategory)) {
-
-                //lekker L1 has lekker as parent now I am trying to put L1 as parent to lekker
-                // parentcateogry now is L1
-                // subcategory is lekker
-
-                throw new CircularReferenceException(String.format("Category %s cannot be a subcategory of %s because this would create a circular reference. Category %s is a (grand)parent of %s.", subCategory.getName(), parentCategory.getName(), current.getName(), parentCategory.getName()));
+                throw new CircularReferenceException(String.format(
+                        "Category %s cannot be a subcategory of %s because this would create a circular reference. Category %s is a (grand)parent of %s.",
+                        subCategory.getName(), parentCategory.getName(), current.getName(), parentCategory.getName()));
             }
-
-            current = current.getParentCategory();
+            current = current.getParentCategory(); // Traverse up the hierarchy
         }
     }
 
-    private void validateUniqueCategoryNameWithinHierarchy(Category parentCategory, String categoryName, Category currentCategory) {
+
+    void validateUniqueCategoryNameWithinHierarchy(Category parentCategory, String categoryName, Category currentCategory) {
 
         Category current = parentCategory;
 
