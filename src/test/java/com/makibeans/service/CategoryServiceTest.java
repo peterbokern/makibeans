@@ -59,9 +59,16 @@ class CategoryServiceTest {
         verify(categoryRepository).save(any(Category.class));
     }
 
-  /*  1. createRootCategory
+    @Test
+    void testCreateRootCategoryWithNullOrEmptyName() {
+        //act & assert
+        assertThrows(IllegalArgumentException.class, () -> categoryService.createRootCategory(null, "Description", "imageUrl"));
+        assertThrows(IllegalArgumentException.class, () -> categoryService.createRootCategory("", "Description", "imageUrl"));
+    }
 
-    testCreateRootCategoryWithNullOrEmptyName()
+  /*
+
+
     testCreateDuplicateRootCategory()
 
 2. createSubCategory
