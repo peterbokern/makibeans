@@ -274,6 +274,30 @@ class CategoryServiceTest {
         verifyNoMoreInteractions(categoryRepository);
     }
 
+    @Test
+    void testUpdateSubCategoryWithNonUniqueCategoryNameWithinHierarchy() {
+        //arrange
+        Category grandParentCategory = new Category("Coffee", "Description", "imageUrl");
+        Category parentCategory = new Category("Beans", "Subcategory", "imageUrl");
+        Category subCategory = new Category("Strong", "Description", "imageUrl");
+
+        grandParentCategory.addSubCategory(parentCategory);
+        parentCategory.addSubCategory(subCategory);
+
+        when(categoryRepository.findById(3L)).thenReturn(Optional.of(subCategory));
+        when(categoryRepository.findById(2L)).thenReturn(Optional.of(parentCategory));
+
+        //act & assert
+        assertThrows(DuplicateResourceException.class,
+                ()-> categoryService.updateCategory(3L, "Coffee", "nonUniqueCategory", "newImageUrl", 2L),
+                "Expected DuplicateResourceException when category name already exists within hierarchy.");
+
+        //verify
+        verify(categoryRepository).findById(3L);
+        verify(categoryRepository).findById(2L);
+        verifyNoMoreInteractions(categoryRepository);
+    }
+
 
 
 
