@@ -4,25 +4,14 @@ import com.makibeans.model.Category;
 import com.makibeans.model.Product;
 import com.makibeans.repository.CategoryRepository;
 import org.junit.jupiter.api.BeforeEach;
-
 import static org.junit.jupiter.api.Assertions.*;
-
 import com.makibeans.exeptions.DuplicateResourceException;
 import com.makibeans.exeptions.ResourceNotFoundException;
-import com.makibeans.model.AttributeTemplate;
-import com.makibeans.model.AttributeValue;
-import com.makibeans.repository.AttributeValueRepository;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestClassOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
@@ -196,11 +185,7 @@ class CategoryServiceTest {
 
 
 
-
   /*
-3. deleteCategory
-
-    testDeleteCategoryWithNonExistingCategoryId()
 
 4. updateCategory
     testUpdateRootCategoryWithValidCategoryIdAndNewCategoryName()
