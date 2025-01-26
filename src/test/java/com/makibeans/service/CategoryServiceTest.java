@@ -231,14 +231,28 @@ class CategoryServiceTest {
         verifyNoMoreInteractions(categoryRepository);
     }
 
+    @Test
+    void testUpdateCategoryWithNullOrEmptyNewCategoryName() {
+        //act & assert
+        assertThrows(IllegalArgumentException.class,
+                () -> categoryService.updateCategory(2L, null, "newCategoryDescription", "newImageUrl", 1L),
+                "Expected IllegalArgumentException when new category name is null.");
+        assertThrows(IllegalArgumentException.class,
+                () -> categoryService.updateCategory(2L, "", "newCategoryDescription", "newImageUrl", 1L),
+                "Expected IllegalArgumentException when new category name is empty");
+
+        //verify
+        verifyNoInteractions(categoryRepository);
+    }
+
 
 
   /*
 
 4. updateCategory
-    testUpdateRootCategoryWithValidCategoryIdAndNewCategoryName()
-    testUpdateCategoryWithNullOrEmptyNewCategoryName()
-    testUpdateCategoryWithNullCategoryId()
+
+
+
     testUpdateCategoryWithInvalidNewCategoryName()
     testUpdateCategoryWithNonUniqueCategoryName()
     testUpdateCategoryWithCircularReference()
