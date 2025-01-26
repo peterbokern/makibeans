@@ -107,10 +107,19 @@ class CategoryServiceTest {
         assertThrows(IllegalArgumentException.class,
                 () -> categoryService.createSubCategory("", "Description", "imageUrl", 1L),
         "Expected IllegalArgumentException when name is empty");
+        verifyNoMoreInteractions(categoryRepository);
     }
 
     @Test
     void testCreateSubcategoryWithNullParentCategoryId() {
+        assertThrows(IllegalArgumentException.class,
+                () -> categoryService.createSubCategory("Beans", "Subcategory", "imageUrl", null),
+                "Expected IllegalArgumentException when parent category id is null.");
+        verifyNoInteractions(categoryRepository);
+    }
+
+    @Test
+    void  testCreateSubcategoryWithNonExistingParentCategoryId() {
         //arrange
         when(categoryRepository.findById(10L)).thenReturn(Optional.empty());
 
@@ -123,6 +132,8 @@ class CategoryServiceTest {
     }
 
 
+
+
   /*
 
 
@@ -131,7 +142,7 @@ class CategoryServiceTest {
 2. createSubCategory
 
 
-    testCreateSubcategoryWithNullParentCategoryId()
+
     testCreateSubcategoryWithNonExistingParentCategoryId()
     testCreateNonUniqueSubcategory()
 
