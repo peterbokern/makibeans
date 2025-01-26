@@ -47,8 +47,11 @@ class CategoryServiceTest {
         assertNull(result.getParentCategory(), "Parent category should be null for a root category");
         assertEquals("Description", result.getDescription(), "Category description mismatch");
         assertEquals("imageUrl", result.getImageUrl(), "Image URL mismatch");
+
+        //verify
         verify(categoryRepository).existsByNameAndParentCategory(eq("Coffee"), eq(null));
         verify(categoryRepository).save(any(Category.class));
+        verifyNoMoreInteractions(categoryRepository);
     }
 
     @Test
@@ -56,6 +59,9 @@ class CategoryServiceTest {
         //act & assert
         assertThrows(IllegalArgumentException.class, () -> categoryService.createRootCategory(null, "Description", "imageUrl"));
         assertThrows(IllegalArgumentException.class, () -> categoryService.createRootCategory("", "Description", "imageUrl"));
+
+        //verify
+        verifyNoInteractions(categoryRepository);
     }
 
     @Test
@@ -65,6 +71,8 @@ class CategoryServiceTest {
 
         //assert
         assertThrows(DuplicateResourceException.class, () -> categoryService.createRootCategory("Coffee", "Description", "imageUrl"));
+
+        //verify
         verify(categoryRepository).existsByNameAndParentCategory(eq("Coffee"), eq(null));
     }
 
@@ -73,7 +81,6 @@ class CategoryServiceTest {
     void testCreateSubcategoryWithValidNameAndParentCategoryId() {
         //arrange
         Category parentCategory = new Category("Coffee", "Description", "imageUrl");
-
         when(categoryRepository.findById(1L)).thenReturn(Optional.of(parentCategory));
         when(categoryRepository.save(any(Category.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -86,26 +93,34 @@ class CategoryServiceTest {
         assertTrue(result.getParentCategory().getSubCategories().contains(result), "Parent category should be subcategory");
         assertEquals("Subcategory", result.getDescription(), "Category description mismatch");
         assertEquals("imageUrl", result.getImageUrl(), "Image URL mismatch");
+
+        //verify
         verify(categoryRepository).findById(1L);
         verify(categoryRepository).save(any(Category.class));
     }
 
     @Test
     void testCreateSubcategoryWithNullOrEmptyName() {
+        //act & assert
         assertThrows(IllegalArgumentException.class,
                 () -> categoryService.createSubCategory(null, "Description", "imageUrl", 1L),
                 "Expected IllegalArgumentException when name is null.");
         assertThrows(IllegalArgumentException.class,
                 () -> categoryService.createSubCategory("", "Description", "imageUrl", 1L),
         "Expected IllegalArgumentException when name is empty");
+
+        //verify
         verifyNoMoreInteractions(categoryRepository);
     }
 
     @Test
     void testCreateSubcategoryWithNullParentCategoryId() {
+        //act & assert
         assertThrows(IllegalArgumentException.class,
                 () -> categoryService.createSubCategory("Beans", "Subcategory", "imageUrl", null),
                 "Expected IllegalArgumentException when parent category id is null.");
+
+        //verify
         verifyNoInteractions(categoryRepository);
     }
 
@@ -118,6 +133,8 @@ class CategoryServiceTest {
         assertThrows(ResourceNotFoundException.class,
                 () -> categoryService.createSubCategory("Coffee", null, "imageUrl", 10L),
                 "Expected ResourceNotFoundException when parent category does not exists.");
+
+        //verify
         verify(categoryRepository).findById(10L);
         verifyNoMoreInteractions(categoryRepository);
     }
@@ -134,6 +151,8 @@ class CategoryServiceTest {
         assertThrows(DuplicateResourceException.class,
                 () -> categoryService.createSubCategory("Beans", "Description", "imageUrl", 1L),
                 "Expected DuplicateResourceException when subcategory already exists.");
+
+        //verify
         verify(categoryRepository).findById(1L);
         verifyNoMoreInteractions(categoryRepository);
     }
@@ -159,6 +178,8 @@ class CategoryServiceTest {
         // Verify that findById is called twice (once in deleteCategory and once in AbstractCrudService)
         assertNull(product1.getCategory());
         assertNull(product2.getCategory());
+
+        //verify
         verify(categoryRepository, times(2)).findById(1L);
         verify(categoryRepository).delete(eq(category));
         verifyNoMoreInteractions(categoryRepository);
@@ -166,9 +187,12 @@ class CategoryServiceTest {
 
     @Test
     void testDeleteCategoryWithNullCategoryId() {
+        //act & assert
         assertThrows(IllegalArgumentException.class,
                 () -> categoryService.deleteCategory(null),
                 "Expected IllegalArgumentException when category id is null.");
+
+        //verify
         verifyNoMoreInteractions(categoryRepository);
     }
 
@@ -181,6 +205,30 @@ class CategoryServiceTest {
         assertThrows(ResourceNotFoundException.class,
                 () -> categoryService.deleteCategory(1L),
         "Expected ResourceNotFoundException when category does not exists.");
+    }
+
+    //Update category tests
+    @Test
+    void testUpdateRootCategoryWithValidCategoryIdAndNewCategoryName() {
+        //arrange
+        Category category = new Category("Coffee", "Description", "imageUrl");
+        when(categoryRepository.findById(1L)).thenReturn(Optional.of(category));
+        when(categoryRepository.save(any(Category.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        //act
+        Category result = categoryService.updateCategory(1L, "Tea", "otherDescription", "otherimageUrl", null);
+
+        //assert
+        assertNotNull(result, "Category should not be null");
+        assertEquals("Tea", result.getName(), "Category name mismatch");
+        assertEquals("otherDescription", result.getDescription(), "Category description mismatch");
+        assertEquals("otherimageUrl", result.getImageUrl(), "Category image url mismatch");
+        assertNull(result.getParentCategory(), "Parent category should be null for a root category");
+
+        //verify
+        verify(categoryRepository).findById(1L);
+        verify(categoryRepository).save(any(Category.class));
+        verifyNoMoreInteractions(categoryRepository);
     }
 
 

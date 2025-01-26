@@ -99,7 +99,7 @@ public class CategoryService extends AbstractCrudService<Category, Long> {
         }
 
         // Fetch the category to update
-        Category categoryToUpdate = findById(categoryToUpdateId); // Assuming CRUD service's `findById`
+        Category categoryToUpdate = findById(categoryToUpdateId);
 
         // Fetch the new parent category if provided
         Category newParentCategory = (newParentCategoryId == null)
