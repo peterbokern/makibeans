@@ -1,6 +1,7 @@
 package com.makibeans.service;
 
 import com.makibeans.model.Category;
+import com.makibeans.model.Product;
 import com.makibeans.repository.CategoryRepository;
 import org.junit.jupiter.api.BeforeEach;
 
@@ -152,6 +153,13 @@ class CategoryServiceTest {
     void testDeleteCategoryWithValidCategoryId() {
         //arrange
         Category category = new Category("Coffee", "Description", "imageUrl");
+        Product product1 = new Product("Coffee1", "Description", "imageUrl", category);
+        Product product2 = new Product("Coffee2", "Description", "imageUrl", category);
+
+        // Simulate Hibernate persistence: when category is added to a product. The product list in category class is updated"
+        category.addProduct(product1);
+        category.addProduct(product2);
+
         when(categoryRepository.findById(1L)).thenReturn(Optional.of(category));
 
         //act
@@ -159,8 +167,18 @@ class CategoryServiceTest {
 
         //assert
         // Verify that findById is called twice (once in deleteCategory and once in AbstractCrudService)
+        assertNull(product1.getCategory());
+        assertNull(product2.getCategory());
         verify(categoryRepository, times(2)).findById(1L);
         verify(categoryRepository).delete(eq(category));
+        verifyNoMoreInteractions(categoryRepository);
+    }
+
+    @Test
+    void testDeleteCategoryWithNullCategoryId() {
+        assertThrows(IllegalArgumentException.class,
+                () -> categoryService.deleteCategory(null),
+                "Expected IllegalArgumentException when category id is null.");
         verifyNoMoreInteractions(categoryRepository);
     }
 
