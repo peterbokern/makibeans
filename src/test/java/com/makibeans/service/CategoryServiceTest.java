@@ -96,7 +96,12 @@ class CategoryServiceTest {
         assertEquals("imageUrl", result.getImageUrl(), "Image URL mismatch");
         verify(categoryRepository).findById(1L);
         verify(categoryRepository).save(any(Category.class));
+    }
 
+    @Test
+    void testCreateSubcategoryWithNullOrEmptyName() {
+        assertThrows(IllegalArgumentException.class, () -> categoryService.createSubCategory(null, "Description", "imageUrl", 1L));
+        assertThrows(IllegalArgumentException.class, () -> categoryService.createSubCategory("", "Description", "imageUrl", 1L));
     }
 
 
@@ -107,7 +112,7 @@ class CategoryServiceTest {
 
 2. createSubCategory
 
-    testCreateSubcategoryWithNullOrEmptyName()
+
     testCreateSubcategoryWithNullParentCategoryId()
     testCreateSubcategoryWithNonExistingParentCategoryId()
     testCreateNonUniqueSubcategory()
