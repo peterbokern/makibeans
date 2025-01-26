@@ -2,6 +2,7 @@ package com.makibeans;
 
 import com.makibeans.model.AttributeTemplate;
 import com.makibeans.model.AttributeValue;
+import com.makibeans.model.Product;
 import com.makibeans.repository.AttributeTemplateRepository;
 import com.makibeans.service.AttributeTemplateService;
 import com.makibeans.service.AttributeValueService;
@@ -57,6 +58,8 @@ public class Application implements CommandLineRunner {
 
 
 		categoryService.updateCategory(15L, "new", null, null, 22L);
+
+
 
 
 
