@@ -298,6 +298,34 @@ class CategoryServiceTest {
         verifyNoMoreInteractions(categoryRepository);
     }
 
+    @Test
+    void testUpdateSubCategoryWithNonUniqueNameOutsideHierarchyAllowed() {
+        //arrange
+        Category parentCategoryHierachyA = new Category("Coffee", "Description", "imageUrl");
+        Category subCategoryHierachyA = new Category("Strong", "Description", "imageUrl");
+        parentCategoryHierachyA.addSubCategory(subCategoryHierachyA);
+
+        Category parentCategoryHierarchyB = new Category("Tea", "Subcategory", "imageUrl");
+        Category subCategoryHierarchyB = new Category("Herbal", "Description", "imageUrl");
+
+        when(categoryRepository.findById(3L)).thenReturn(Optional.of(subCategoryHierarchyB));
+        when(categoryRepository.findById(2L)).thenReturn(Optional.of(parentCategoryHierarchyB));
+        when(categoryRepository.save(any(Category.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        //act
+        Category result = categoryService.updateCategory(3L, "Strong", "description", "imageUrl", 2L);
+
+        //assert
+        assertNotNull(result, "Category should not be null");
+        assertEquals("Strong", result.getName(), "Category name mismatch");
+        assertEquals("description", result.getDescription(), "Category description mismatch");
+        assertEquals("imageUrl", result.getImageUrl(), "Category image url mismatch");
+        verify(categoryRepository).findById(3L);
+        verify(categoryRepository).findById(2L);
+        verify(categoryRepository).save(any(Category.class));
+        verifyNoMoreInteractions(categoryRepository);
+    }
+
 
 
 
