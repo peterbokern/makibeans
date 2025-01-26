@@ -53,7 +53,14 @@ public class Application implements CommandLineRunner {
 		categoryService.createSubCategory("Bonen", null, null, 1L);
 		categoryService.createSubCategory("Vieze Bonen", null, null, 2L);*/
 
-		categoryService.deleteCategory(1L);
+
+
+
+		categoryService.updateCategory(15L, "new", null, null, 22L);
+
+
+
+
 
 
 
