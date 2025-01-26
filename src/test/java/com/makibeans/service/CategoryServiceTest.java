@@ -14,6 +14,7 @@ import com.makibeans.model.AttributeValue;
 import com.makibeans.repository.AttributeValueRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestClassOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 
@@ -182,25 +183,23 @@ class CategoryServiceTest {
         verifyNoMoreInteractions(categoryRepository);
     }
 
+    @Test
+    void testDeleteCategoryWithNonExistingCategoryId() {
+        //arrange
+        when(categoryRepository.findById(1L)).thenReturn(Optional.empty());
+
+        //act & assert
+        assertThrows(ResourceNotFoundException.class,
+                () -> categoryService.deleteCategory(1L),
+        "Expected ResourceNotFoundException when category does not exists.");
+    }
 
 
 
 
   /*
-
-
-
-
-2. createSubCategory
-
-
-
-
-
-
 3. deleteCategory
 
-    testDeleteCategoryWithNullCategoryId()
     testDeleteCategoryWithNonExistingCategoryId()
 
 4. updateCategory
