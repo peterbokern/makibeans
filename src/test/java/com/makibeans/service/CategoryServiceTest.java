@@ -131,6 +131,23 @@ class CategoryServiceTest {
         verifyNoMoreInteractions(categoryRepository);
     }
 
+    @Test
+    void testCreateNonUniqueSubcategory() {
+        //arrange
+        Category parentCategory = new Category("Coffee", "Description", "imageUrl");
+        Category existingSubCategory = new Category("Beans", "Subcategory", "imageUrl");
+        parentCategory.addSubCategory(existingSubCategory);
+        when(categoryRepository.findById(1L)).thenReturn(Optional.of(parentCategory));
+
+        //act & assert
+        assertThrows(DuplicateResourceException.class,
+                () -> categoryService.createSubCategory("Beans", "Description", "imageUrl", 1L),
+                "Expected DuplicateResourceException when subcategory already exists.");
+        verify(categoryRepository).findById(1L);
+        verifyNoMoreInteractions(categoryRepository);
+    }
+
+
 
 
 
@@ -143,8 +160,8 @@ class CategoryServiceTest {
 
 
 
-    testCreateSubcategoryWithNonExistingParentCategoryId()
-    testCreateNonUniqueSubcategory()
+
+
 
 3. deleteCategory
     testDeleteCategoryWithValidCategoryId()
