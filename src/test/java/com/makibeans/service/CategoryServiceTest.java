@@ -245,6 +245,17 @@ class CategoryServiceTest {
         verifyNoInteractions(categoryRepository);
     }
 
+    @Test
+   void testUpdateCategoryWithNullCategoryToUpdateId() {
+        //act & assert
+        assertThrows(IllegalArgumentException.class,
+                () -> categoryService.updateCategory(null, "newCategoryName", "newCategoryDescription", "newImageUrl", 1L),
+                "Expected IllegalArgumentException when new category name is null.");
+
+        //verify
+        verifyNoInteractions(categoryRepository);
+    }
+
 
 
   /*
@@ -253,7 +264,7 @@ class CategoryServiceTest {
 
 
 
-    testUpdateCategoryWithInvalidNewCategoryName()
+
     testUpdateCategoryWithNonUniqueCategoryName()
     testUpdateCategoryWithCircularReference()
 
