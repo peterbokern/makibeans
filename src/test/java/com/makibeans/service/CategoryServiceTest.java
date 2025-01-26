@@ -76,13 +76,37 @@ class CategoryServiceTest {
         verify(categoryRepository).existsByNameAndParentCategory(eq("Coffee"), eq(null));
     }
 
+    //create subcategory tests
+    @Test
+    void testCreateSubcategoryWithValidNameAndParentCategoryId() {
+        //arrange
+        Category parentCategory = new Category("Coffee", "Description", "imageUrl");
+
+        when(categoryRepository.findById(1L)).thenReturn(Optional.of(parentCategory));
+        when(categoryRepository.save(any(Category.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        //act
+        Category result = categoryService.createSubCategory("Beans", "Subcategory", "imageUrl", 1L);
+
+        //assert
+        assertNotNull(result, "Category should not be null");
+        assertEquals("Beans", result.getName(), "Category name mismatch");
+        assertTrue(result.getParentCategory().getSubCategories().contains(result), "Parent category should be subcategory");
+        assertEquals("Subcategory", result.getDescription(), "Category description mismatch");
+        assertEquals("imageUrl", result.getImageUrl(), "Image URL mismatch");
+        verify(categoryRepository).findById(1L);
+        verify(categoryRepository).save(any(Category.class));
+
+    }
+
+
   /*
 
 
 
 
 2. createSubCategory
-    testCreateSubcategoryWithValidNameAndParentCategoryId()
+
     testCreateSubcategoryWithNullOrEmptyName()
     testCreateSubcategoryWithNullParentCategoryId()
     testCreateSubcategoryWithNonExistingParentCategoryId()
