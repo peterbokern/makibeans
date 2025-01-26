@@ -106,6 +106,13 @@ public class CategoryService extends AbstractCrudService<Category, Long> {
                 ? null
                 : findById(newParentCategoryId); // Assuming CRUD service's `findById`
 
+        // Check if root category name already exists, excluding the category being updated
+        if (newParentCategory == null &&
+                !categoryToUpdate.getName().equalsIgnoreCase(newCategoryName) &&
+                categoryRepository.existsByNameAndParentCategory(newCategoryName, null)) {
+            throw new DuplicateResourceException("Root category with name '" + newCategoryName + "' already exists.");
+        }
+
         // Check for name uniqueness if the name or parent changes
         if (!categoryToUpdate.getName().equalsIgnoreCase(newCategoryName) ||
                 (categoryToUpdate.getParentCategory() != newParentCategory)) {

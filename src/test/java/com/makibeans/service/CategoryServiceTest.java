@@ -256,6 +256,25 @@ class CategoryServiceTest {
         verifyNoInteractions(categoryRepository);
     }
 
+    @Test
+    void testUpdateRootCategoryWithNonUniqueCategoryName() {
+        //arrange
+        Category categoryToUpdate = new Category("Coffee", "Description", "imageUrl");
+        when(categoryRepository.findById(1L)).thenReturn(Optional.of(categoryToUpdate));
+        when(categoryRepository.existsByNameAndParentCategory("Beans", null)).thenReturn(true);
+
+        //act & assert
+        assertThrows(DuplicateResourceException.class,
+                ()-> categoryService.updateCategory(1L, "Beans", "description", "imageUrl", null),
+                "Expected DuplicateResourceException when root category already exists.");
+
+        //verify
+        verify(categoryRepository).findById(1L);
+        verify(categoryRepository).existsByNameAndParentCategory("Beans", null);
+        verifyNoMoreInteractions(categoryRepository);
+    }
+
+
 
 
   /*
@@ -265,7 +284,7 @@ class CategoryServiceTest {
 
 
 
-    testUpdateCategoryWithNonUniqueCategoryName()
+
     testUpdateCategoryWithCircularReference()
 
 5. Utility Methods
