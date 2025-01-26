@@ -147,6 +147,23 @@ class CategoryServiceTest {
         verifyNoMoreInteractions(categoryRepository);
     }
 
+    //Delete category tests
+    @Test
+    void testDeleteCategoryWithValidCategoryId() {
+        //arrange
+        Category category = new Category("Coffee", "Description", "imageUrl");
+        when(categoryRepository.findById(1L)).thenReturn(Optional.of(category));
+
+        //act
+        categoryService.deleteCategory(1L);
+
+        //assert
+        // Verify that findById is called twice (once in deleteCategory and once in AbstractCrudService)
+        verify(categoryRepository, times(2)).findById(1L);
+        verify(categoryRepository).delete(eq(category));
+        verifyNoMoreInteractions(categoryRepository);
+    }
+
 
 
 
@@ -164,7 +181,7 @@ class CategoryServiceTest {
 
 
 3. deleteCategory
-    testDeleteCategoryWithValidCategoryId()
+
     testDeleteCategoryWithNullCategoryId()
     testDeleteCategoryWithNonExistingCategoryId()
 
