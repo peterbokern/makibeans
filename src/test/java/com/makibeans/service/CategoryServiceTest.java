@@ -340,36 +340,76 @@ class CategoryServiceTest {
         when(categoryRepository.findById(1L)).thenReturn(Optional.of(parentCategory));
         when(categoryRepository.findById(2L)).thenReturn(Optional.of(subCategory));
 
-        //act
+        //act & assert
         assertThrows(CircularReferenceException.class,
                 () -> categoryService.updateCategory(1L, "Coffee", "Description", "imageUrl", 2L),
                 "Expected CircularReferenceException when new parent category refers to a subcategory of itself.");
 
-        //assert
+        verify(categoryRepository).findById(1L);
+        verify(categoryRepository).findById(2L);
+        verifyNoMoreInteractions(categoryRepository);
+    }
+
+    @Test
+    void testValidateCircularReferenceWithValidHierarchy() {
+        // Arrange: Create a valid hierarchy
+        Category root = new Category("Root", "Root Description", "Root Image");
+        Category parent = new Category("Beans", "Beans Description", "Beans Image", root);
+        Category subCategory = new Category("Coffee", "Coffee Description", "Coffee Image", parent);
+
+        // Act & Assert
+        assertDoesNotThrow(() -> categoryService.validateCircularReference(parent, subCategory),
+                "Should not throw CircularReferenceException for a valid hierarchy.");
     }
 
 
 
+    @Test
+    void testValidateCircularReferenceWithCircularReference() {
+        // Arrange
+        Category category = new Category("Coffee", "Description", "imageUrl");
+        category.addSubCategory(category); // Self-referencing
 
-  /*
+        // Act & Assert
+        assertThrows(CircularReferenceException.class,
+                () -> categoryService.validateCircularReference(category, category),
+                "Expected CircularReferenceException when a category is its own parent.");
+    }
 
-4. updateCategory
+    @Test
+    void testValidateUniqueCategoryNameWithUniqueName() {
+        // Arrange
+        Category parentCategory = new Category("Coffee", "Description", "imageUrl");
+        Category subCategory = new Category("Beans", "Description", "imageUrl");
+        parentCategory.addSubCategory(subCategory);
 
+        // Act & Assert (No exception expected)
+        assertDoesNotThrow(() -> categoryService.validateUniqueCategoryNameWithinHierarchy(parentCategory, "Strong", null));
+    }
 
+    @Test
+    void testValidateUniqueCategoryNameWithDuplicateNameInSiblings() {
+        // Arrange
+        Category parentCategory = new Category("Coffee", "Description", "imageUrl");
+        Category siblingCategory = new Category("Beans", "Description", "imageUrl");
+        parentCategory.addSubCategory(siblingCategory);
 
+        // Act & Assert
+        assertThrows(DuplicateResourceException.class,
+                () -> categoryService.validateUniqueCategoryNameWithinHierarchy(parentCategory, "Beans", null),
+                "Expected DuplicateResourceException when name already exists in sibling categories.");
+    }
 
+    @Test
+    void testValidateUniqueCategoryNameWithDuplicateNameInAncestors() {
+        // Arrange
+        Category grandParentCategory = new Category("Coffee", "Description", "imageUrl");
+        Category parentCategory = new Category("Beans", "Description", "imageUrl");
+        grandParentCategory.addSubCategory(parentCategory);
 
-
-
-5. Utility Methods
-    validateCircularReference:
-    testValidateCircularReferenceWithValidHierarchy()
-    testValidateCircularReferenceWithCircularReference()
-    validateUniqueCategoryNameWithinHierarchy:
-    testValidateUniqueCategoryNameWithUniqueName()
-    testValidateUniqueCategoryNameWithDuplicateNameInSiblings()
-    testValidateUniqueCategoryNameWithDuplicateNameInAncestors()
-
-*/
-
+        // Act & Assert
+        assertThrows(DuplicateResourceException.class,
+                () -> categoryService.validateUniqueCategoryNameWithinHierarchy(parentCategory, "Coffee", null),
+                "Expected DuplicateResourceException when name already exists in ancestor categories.");
+    }
 }
