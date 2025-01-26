@@ -5,6 +5,7 @@ import com.makibeans.repository.CategoryRepository;
 import org.junit.jupiter.api.BeforeEach;
 
 import static org.junit.jupiter.api.Assertions.*;
+
 import com.makibeans.exeptions.DuplicateResourceException;
 import com.makibeans.exeptions.ResourceNotFoundException;
 import com.makibeans.model.AttributeTemplate;
@@ -100,8 +101,25 @@ class CategoryServiceTest {
 
     @Test
     void testCreateSubcategoryWithNullOrEmptyName() {
-        assertThrows(IllegalArgumentException.class, () -> categoryService.createSubCategory(null, "Description", "imageUrl", 1L));
-        assertThrows(IllegalArgumentException.class, () -> categoryService.createSubCategory("", "Description", "imageUrl", 1L));
+        assertThrows(IllegalArgumentException.class,
+                () -> categoryService.createSubCategory(null, "Description", "imageUrl", 1L),
+                "Expected IllegalArgumentException when name is null.");
+        assertThrows(IllegalArgumentException.class,
+                () -> categoryService.createSubCategory("", "Description", "imageUrl", 1L),
+        "Expected IllegalArgumentException when name is empty");
+    }
+
+    @Test
+    void testCreateSubcategoryWithNullParentCategoryId() {
+        //arrange
+        when(categoryRepository.findById(10L)).thenReturn(Optional.empty());
+
+        //act & assert
+        assertThrows(ResourceNotFoundException.class,
+                () -> categoryService.createSubCategory("Coffee", null, "imageUrl", 10L),
+                "Expected ResourceNotFoundException when parent category does not exists.");
+        verify(categoryRepository).findById(10L);
+        verifyNoMoreInteractions(categoryRepository);
     }
 
 
