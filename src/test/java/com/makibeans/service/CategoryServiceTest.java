@@ -66,10 +66,20 @@ class CategoryServiceTest {
         assertThrows(IllegalArgumentException.class, () -> categoryService.createRootCategory("", "Description", "imageUrl"));
     }
 
+    @Test
+    void testCreateDuplicateRootCategory() {
+        //arrange
+        when(categoryRepository.existsByNameAndParentCategory("Coffee", null)).thenReturn(true);
+
+        //assert
+        assertThrows(DuplicateResourceException.class, () -> categoryService.createRootCategory("Coffee", "Description", "imageUrl"));
+        verify(categoryRepository).existsByNameAndParentCategory(eq("Coffee"), eq(null));
+    }
+
   /*
 
 
-    testCreateDuplicateRootCategory()
+
 
 2. createSubCategory
     testCreateSubcategoryWithValidNameAndParentCategoryId()
