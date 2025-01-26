@@ -1,5 +1,4 @@
 package com.makibeans.service;
-
 import com.makibeans.exeptions.DuplicateResourceException;
 import com.makibeans.exeptions.ResourceNotFoundException;
 import com.makibeans.model.Category;
@@ -50,12 +49,16 @@ public class CategoryService extends AbstractCrudService<Category, Long> {
             throw new IllegalArgumentException("Name cannot be null or empty.");
         }
 
+        if (parentCategoryId == null) {
+            throw new IllegalArgumentException("Parent category id cannot be null for a subcategory.");
+        }
+
         //find parent category
         Category parentCategory = categoryRepository.findById(parentCategoryId)
                     .orElseThrow(() -> new ResourceNotFoundException("Parent category with id " + parentCategoryId + " not found."));
 
         //throw duplicateResourceException if category name already exists within the hierarchy of categories
-        validateNameExistsInHierarchy(parentCategory, name);
+        validateUniqueCategoryNameWithinHierarchy(parentCategory, name);
 
         //create category
         Category subCategory = new Category(name, description, imageUrl, parentCategory);
@@ -85,44 +88,45 @@ public class CategoryService extends AbstractCrudService<Category, Long> {
     }
 
     @Transactional
-    public Category updateCategory(Long categoryToUpdate, String name, String description, String imageUrl, Long parentCategoryId) {
+    public Category updateCategory(Long categoryToUpdateId, String newCategoryName, String newCategoryDescription, String newImageUrl, Long newParentCategoryId) {
 
-        if (categoryToUpdate == null) {
+        if (categoryToUpdateId == null) {
             throw new IllegalArgumentException("Category ID should not be null.");
         }
 
-        if (name == null || name.isEmpty()) {
+        if (newCategoryName == null || newCategoryName.isEmpty()) {
             throw new IllegalArgumentException("Category name should not be null or empty.");
         }
 
-        //get category
-        Category category = categoryRepository.findById(categoryToUpdate).orElseThrow(() -> new ResourceNotFoundException("Category with id " + categoryToUpdate + " not found."));
+        // Fetch the category to update
+        Category categoryToUpdate = findById(categoryToUpdateId); // Assuming CRUD service's `findById`
 
-        //set new name, description and imageUrl
-        category.setName(name);
-        category.setDescription(description);
-        category.setImageUrl(imageUrl);
-
-        //get current and new parent category
-        Category currentParentCategory = category.getParentCategory();
-
-        //set new parent category if provided else set null
-        Category newParentCategory = (parentCategoryId == null)
+        // Fetch the new parent category if provided
+        Category newParentCategory = (newParentCategoryId == null)
                 ? null
-                : categoryRepository.findById(parentCategoryId)
-                .orElseThrow(() -> new ResourceNotFoundException("Parent category with id " + parentCategoryId + " not found"));
+                : findById(newParentCategoryId); // Assuming CRUD service's `findById`
 
-        //check that new parent category does not create circular reference if not null
-        if (newParentCategory != null) {
-            validateCircularReference(newParentCategory, category);
+        // Check for name uniqueness if the name or parent changes
+        if (!categoryToUpdate.getName().equalsIgnoreCase(newCategoryName) ||
+                (categoryToUpdate.getParentCategory() != newParentCategory)) {
+            validateUniqueCategoryNameWithinHierarchy(newParentCategory, newCategoryName);
         }
 
-        //set new parent
-        category.setParentCategory(newParentCategory);
+        // Validate circular references if the parent changes
+        if (newParentCategory != null) {
+            validateCircularReference(newParentCategory, categoryToUpdate);
+        }
 
-        //save and return updated category
-        return update(categoryToUpdate, category);
+        // Update fields
+        categoryToUpdate.setName(newCategoryName);
+        categoryToUpdate.setDescription(newCategoryDescription);
+        categoryToUpdate.setImageUrl(newImageUrl);
+        categoryToUpdate.setParentCategory(newParentCategory);
+
+        // Use CRUD service's `update`
+        return update(categoryToUpdateId, categoryToUpdate);
     }
+
 
     private void validateCircularReference(Category parentCategory, Category subCategory) {
 
@@ -130,20 +134,34 @@ public class CategoryService extends AbstractCrudService<Category, Long> {
 
         while (current != null) {
             if (current.equals(subCategory)) {
-                throw new IllegalStateException(String.format("Category %s cannot be a subcategory of %s because this would create a circular reference", subCategory.getName(), parentCategory.getName()));
+
+                //lekker L1 has lekker as parent now I am trying to put L1 as parent to lekker
+                // parentcateogry now is L1
+                // subcategory is lekker
+
+                throw new IllegalStateException(String.format("Category %s cannot be a subcategory of %s because this would create a circular reference. Category %s is a (grand)parent of %s.", subCategory.getName(), parentCategory.getName(), current.getName(), parentCategory.getName()));
             }
 
             current = current.getParentCategory();
         }
     }
 
-    private void validateNameExistsInHierarchy(Category parentCategory, String categoryName) {
+    private void validateUniqueCategoryNameWithinHierarchy(Category parentCategory, String categoryName) {
 
         Category current = parentCategory;
 
-        // Traverse the hierarchy upwards to check for duplicate names
+        //check if category already exists under same parent category
+        if (parentCategory != null) {
+            for (Category sub : parentCategory.getSubCategories()) {
+                if (categoryName.equalsIgnoreCase(sub.getName())) {
+                    throw new DuplicateResourceException("Category name " + categoryName + " already exists under parent category " + parentCategory.getName() + ".");
+                }
+            }
+        }
+
+        // check if category name exist in hierarchy of parent categories
         while (current != null) {
-            if (current.getName().equals(categoryName)) {
+            if (current.getName().equalsIgnoreCase(categoryName)) {
                 throw new DuplicateResourceException(
                         String.format("Category '%s' already exists in the hierarchy of parent categories.", current.getName())
                 );
