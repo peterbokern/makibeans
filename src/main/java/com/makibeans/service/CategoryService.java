@@ -1,4 +1,5 @@
 package com.makibeans.service;
+import com.makibeans.exeptions.CircularReferenceException;
 import com.makibeans.exeptions.DuplicateResourceException;
 import com.makibeans.exeptions.ResourceNotFoundException;
 import com.makibeans.model.Category;
@@ -58,7 +59,7 @@ public class CategoryService extends AbstractCrudService<Category, Long> {
                     .orElseThrow(() -> new ResourceNotFoundException("Parent category with id " + parentCategoryId + " not found."));
 
         //throw duplicateResourceException if category name already exists within the hierarchy of categories
-        validateUniqueCategoryNameWithinHierarchy(parentCategory, name);
+        validateUniqueCategoryNameWithinHierarchy(parentCategory, name, null); //CHECK
 
         //create category
         Category subCategory = new Category(name, description, imageUrl, parentCategory);
@@ -116,7 +117,8 @@ public class CategoryService extends AbstractCrudService<Category, Long> {
         // Check for name uniqueness if the name or parent changes
         if (!categoryToUpdate.getName().equalsIgnoreCase(newCategoryName) ||
                 (categoryToUpdate.getParentCategory() != newParentCategory)) {
-            validateUniqueCategoryNameWithinHierarchy(newParentCategory, newCategoryName);
+
+            validateUniqueCategoryNameWithinHierarchy(newParentCategory, newCategoryName, categoryToUpdate);
         }
 
         // Validate circular references if the parent changes
@@ -146,21 +148,22 @@ public class CategoryService extends AbstractCrudService<Category, Long> {
                 // parentcateogry now is L1
                 // subcategory is lekker
 
-                throw new IllegalStateException(String.format("Category %s cannot be a subcategory of %s because this would create a circular reference. Category %s is a (grand)parent of %s.", subCategory.getName(), parentCategory.getName(), current.getName(), parentCategory.getName()));
+                throw new CircularReferenceException(String.format("Category %s cannot be a subcategory of %s because this would create a circular reference. Category %s is a (grand)parent of %s.", subCategory.getName(), parentCategory.getName(), current.getName(), parentCategory.getName()));
             }
 
             current = current.getParentCategory();
         }
     }
 
-    private void validateUniqueCategoryNameWithinHierarchy(Category parentCategory, String categoryName) {
+    private void validateUniqueCategoryNameWithinHierarchy(Category parentCategory, String categoryName, Category currentCategory) {
 
         Category current = parentCategory;
 
         //check if category already exists under same parent category
         if (parentCategory != null) {
             for (Category sub : parentCategory.getSubCategories()) {
-                if (categoryName.equalsIgnoreCase(sub.getName())) {
+
+                if (!sub.equals(currentCategory) && categoryName.equalsIgnoreCase(sub.getName())) {
                     throw new DuplicateResourceException("Category name " + categoryName + " already exists under parent category " + parentCategory.getName() + ".");
                 }
             }
@@ -168,7 +171,7 @@ public class CategoryService extends AbstractCrudService<Category, Long> {
 
         // check if category name exist in hierarchy of parent categories
         while (current != null) {
-            if (current.getName().equalsIgnoreCase(categoryName)) {
+            if (current.getName().equalsIgnoreCase(categoryName) && !current.equals(currentCategory)) {
                 throw new DuplicateResourceException(
                         String.format("Category '%s' already exists in the hierarchy of parent categories.", current.getName())
                 );
