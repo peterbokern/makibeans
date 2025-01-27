@@ -11,7 +11,8 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
-@Table(name = "category")
+@Table(name = "category", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"name", "parent_category_id"})})
 public class Category {
 
     @Id
@@ -23,7 +24,7 @@ public class Category {
     private String name;
 
     @Setter
-    @Column(name = "description", nullable = false, length = 1000)
+    @Column(name = "description", nullable = true, length = 1000)
     private String description;
 
     @Setter
@@ -35,11 +36,19 @@ public class Category {
     @JoinColumn(name = "parent_category_id", nullable = true)
     private Category parentCategory;
 
-    @OneToMany(mappedBy = "parentCategory")
+    //Delete all subcategories of parent category when removed
+    @OneToMany(mappedBy = "parentCategory", cascade = CascadeType.ALL, orphanRemoval = true)
     private final List<Category> subCategories = new ArrayList<>();
 
     @OneToMany(mappedBy = "category")
     private final List<Product> products = new ArrayList<>();
+
+
+    public Category(String name, String description, String imageUrl) {
+        this.name = name;
+        this.description = description;
+        this.imageUrl = imageUrl;
+    }
 
     public Category(String name, String description, String imageUrl, Category parentCategory) {
         this.name = name;
@@ -75,10 +84,10 @@ public class Category {
                 ", name='" + name + '\'' +
                 ", description='" + description + '\'' +
                 ", imageUrl='" + imageUrl + '\'' +
-                ", parentCategory=" + parentCategory.getName() +
+                ", parentCategory=" + (parentCategory != null ? parentCategory.getName() : null +
                 ", subCategories=" + subCategories +
                 ", products=" + products +
-                '}';
+                '}');
     }
 
 
