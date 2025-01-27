@@ -22,7 +22,17 @@ public class CategoryService extends AbstractCrudService<Category, Long> {
         this.categoryRepository = categoryRepository;
     }
 
-    //add root category
+    /**
+     * Creates a new root category.
+     *
+     * @param name        the name of the category; must not be null or empty.
+     * @param description the description of the category.
+     * @param imageUrl    the image URL for the category.
+     * @return the newly created root category.
+     * @throws IllegalArgumentException      if the name is null or empty.
+     * @throws DuplicateResourceException   if a root category with the given name already exists.
+     */
+
     @Transactional
     public Category createRootCategory(String name, String description, String imageUrl) {
 
@@ -42,7 +52,19 @@ public class CategoryService extends AbstractCrudService<Category, Long> {
         return create(category);
     }
 
-    //add subcategory
+    /**
+     * Creates a new subcategory under a given parent category.
+     *
+     * @param name the name of the subcategory; must not be null or empty.
+     * @param description the description of the subcategory.
+     * @param imageUrl the image URL for the subcategory.
+     * @param parentCategoryId the ID of the parent category; must not be null.
+     * @return the newly created subcategory.
+     * @throws IllegalArgumentException if the name or parentCategoryId is null or empty.
+     * @throws ResourceNotFoundException if the parent category does not exist.
+     * @throws DuplicateResourceException if a category with the same name already exists within the hierarchy.
+     */
+
     @Transactional
     public Category createSubCategory(String name, String description, String imageUrl, Long parentCategoryId) {
 
@@ -71,6 +93,14 @@ public class CategoryService extends AbstractCrudService<Category, Long> {
         return create(subCategory);
     }
 
+    /**
+     * Deletes a category by its ID.
+     *
+     * @param categoryId the ID of the category to delete; must not be null.
+     * @throws IllegalArgumentException if the categoryId is null.
+     * @throws ResourceNotFoundException if the category does not exist.
+     */
+
     @Transactional
     public void deleteCategory(Long categoryId) {
 
@@ -87,6 +117,22 @@ public class CategoryService extends AbstractCrudService<Category, Long> {
 
         delete(categoryId);
     }
+
+    /**
+     * Updates an existing category.
+     *
+     * @param categoryToUpdateId the ID of the category to update; must not be null.
+     * @param newCategoryName the new name of the category; must not be null or empty.
+     * @param newCategoryDescription the new description of the category.
+     * @param newImageUrl the new image URL of the category.
+     * @param newParentCategoryId  the ID of the new parent category, or null for a root category.
+     * @return the updated category.
+     * @throws IllegalArgumentException if categoryToUpdateId or newCategoryName is null or empty.
+     * @throws ResourceNotFoundException if the category or new parent category does not exist.
+     * @throws DuplicateResourceException if a category with the same name already exists in the new hierarchy.
+     * @throws CircularReferenceException if the new parent category creates a circular reference.
+
+     */
 
     @Transactional
     public Category updateCategory(Long categoryToUpdateId, String newCategoryName, String newCategoryDescription, String newImageUrl, Long newParentCategoryId) {
@@ -136,6 +182,13 @@ public class CategoryService extends AbstractCrudService<Category, Long> {
         return update(categoryToUpdateId, categoryToUpdate);
     }
 
+    /**
+     * Validates if setting a parent category would create a circular reference.
+     *
+     * @param parentCategory the new parent category.
+     * @param subCategory  the subcategory to validate.
+     * @throws CircularReferenceException if a circular reference is detected.
+     */
 
     void validateCircularReference(Category parentCategory, Category subCategory) {
         Category current = parentCategory;
@@ -150,6 +203,14 @@ public class CategoryService extends AbstractCrudService<Category, Long> {
         }
     }
 
+    /**
+     * Validates that a category name is unique within its hierarchy.
+     *
+     * @param parentCategory the parent category to check.
+     * @param categoryName   the name to validate.
+     * @param currentCategory the current category being validated.
+     * @throws DuplicateResourceException if a duplicate name is found.
+     */
 
     void validateUniqueCategoryNameWithinHierarchy(Category parentCategory, String categoryName, Category currentCategory) {
 
@@ -157,9 +218,9 @@ public class CategoryService extends AbstractCrudService<Category, Long> {
 
         //check if category already exists under same parent category
         if (parentCategory != null) {
-            for (Category sub : parentCategory.getSubCategories()) {
+            for (Category subCategory : parentCategory.getSubCategories()) {
 
-                if (!sub.equals(currentCategory) && categoryName.equalsIgnoreCase(sub.getName())) {
+                if (!subCategory.equals(currentCategory) && categoryName.equalsIgnoreCase(subCategory.getName())) {
                     throw new DuplicateResourceException("Category name " + categoryName + " already exists under parent category " + parentCategory.getName() + ".");
                 }
             }
