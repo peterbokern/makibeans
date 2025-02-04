@@ -19,7 +19,7 @@ public class Product {
     Long id;
 
     @Setter
-    @Column(name = "product_name", nullable = false, length = 100)
+    @Column(name = "product_name", unique = true, nullable = false, length = 100)
     String productName;
 
     @Setter

@@ -151,7 +151,7 @@ public class CategoryService extends AbstractCrudService<Category, Long> {
         // Fetch the new parent category if provided
         Category newParentCategory = (newParentCategoryId == null)
                 ? null
-                : findById(newParentCategoryId); // Assuming CRUD service's `findById`
+                : findById(newParentCategoryId);
 
         // Check if root category name already exists, excluding the category being updated
         if (newParentCategory == null &&
