@@ -32,6 +32,7 @@ public class ProductService extends AbstractCrudService<Product, Long> {
      * @param productImageUrl An optional URL of the product image.
      * @return The saved Product entity.
      * @throws IllegalArgumentException If any required fields are missing or invalid.
+     * @throws DuplicateResourceException If a product with the given name already exists.
      */
 
     @Transactional
@@ -39,12 +40,21 @@ public class ProductService extends AbstractCrudService<Product, Long> {
 
         validateProductFields(productName, description, categoryId, productImageUrl);
 
+        // Ensure the product name is unique before creating a new product
+        validateUniqueProductName(productName, null);  // Pass null since we're creating a new product
+
         Category category = categoryService.findById(categoryId);
 
-        Product productToUpdate = new Product(productName.trim(), description.trim(), productImageUrl.trim(), category);
+        Product product = new Product(
+                productName.trim(),
+                description.trim(),
+                (productImageUrl != null) ? productImageUrl.trim() : null, // Prevent NullPointerException
+                category
+        );
 
-        return productRepository.save(productToUpdate);
+        return productRepository.save(product);
     }
+
 
     /**
      * Deletes a product by its ID.
@@ -53,7 +63,14 @@ public class ProductService extends AbstractCrudService<Product, Long> {
      */
 
     @Transactional
-    public void deleteProduct(Long productId) {delete(productId);}
+    public void deleteProduct(Long productId) {
+
+        if (productId == null) {
+            throw new IllegalArgumentException("Product id cannot be null");
+        };
+
+        delete(productId);
+    }
 
     /**
      * Updates an existing product’s details.
@@ -64,6 +81,7 @@ public class ProductService extends AbstractCrudService<Product, Long> {
      * @param categoryId The ID of the new category.
      * @param productImageUrl The new product image URL.
      * @return The updated Product entity.
+     * @throws IllegalArgumentException If any required fields are missing or invalid.
      * @throws DuplicateResourceException If a product with the given name already exists.
      */
 
@@ -72,17 +90,16 @@ public class ProductService extends AbstractCrudService<Product, Long> {
 
         validateProductFields(productName, description, categoryId, productImageUrl);
 
-        //check if productName is unique
-        if (productRepository.existsByProductName(productName)) {
-            Product duplicateProduct = productRepository.findByProductName(productName);
-            throw new DuplicateResourceException("Product with name " + productName + " already exists with id " + duplicateProduct.getId() + " in category " + duplicateProduct.getCategory() + ".");
-        }
-
-        //find category if exists
-        Category category = categoryService.findById(categoryId);
-
+        // Find the existing product before checking for duplicates
         Product productToUpdate = findById(productId);
 
+        //valide unique productName
+        validateUniqueProductName(productName, productToUpdate);
+
+        // Find the category
+        Category category = categoryService.findById(categoryId);
+
+        // Update product details
         productToUpdate.setProductName(productName.trim());
         productToUpdate.setProductDescription(description.trim());
         productToUpdate.setCategory(category);
@@ -90,6 +107,8 @@ public class ProductService extends AbstractCrudService<Product, Long> {
 
         return productRepository.save(productToUpdate);
     }
+
+
 
     /**
      * Validates the required fields of a product before saving.
@@ -113,4 +132,21 @@ public class ProductService extends AbstractCrudService<Product, Long> {
         }
     }
 
+    /**
+     * Validates the required fields of a product before saving.
+     *
+     * @param productName The product name to validate.
+     * @throws DuplicateResourceException If product name already exists.
+     */
+
+    private void validateUniqueProductName(String productName, Product productToUpdate) {
+        Product duplicateProduct = productRepository.findByProductName(productName);
+
+        if (duplicateProduct != null) {
+            // If we're creating a product (productToUpdate == null), always throw an exception
+            if (productToUpdate == null || !duplicateProduct.getId().equals(productToUpdate.getId())) {
+                throw new DuplicateResourceException("Product with name " + productName + " already exists.");
+            }
+        }
+    }
 }
