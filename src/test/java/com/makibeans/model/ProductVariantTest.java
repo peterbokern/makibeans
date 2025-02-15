@@ -119,7 +119,7 @@ class ProductVariantTest {
     // toString Method Test
     @Test
     void shouldReturnCorrectToString() {
-        String expected = "ProductVariant{id=null, product=" + product + ", size=" + size + ", priceInCents=1999, sku='sku123', stock=100}";
+        String expected = "ProductVariant(id=null, priceInCents=1999, sku=sku123, stock=100)";
         assertEquals(expected, productVariant.toString(), "The toString method should return the correct format");
     }
 }

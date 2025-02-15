@@ -13,6 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 @Getter
 
+@ToString(exclude = {"productAttributes", "category","productVariants"})
 public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -67,17 +68,5 @@ public class Product {
     public void removeProductVariant(ProductVariant productVariant) {
         productVariants.remove(productVariant);
         productVariant.setProduct(null);
-    }
-
-    @Override
-    public String toString() {
-        return "Product{" +
-                "id=" + id +
-                ", productName='" + productName + '\'' +
-                ", productDescription='" + productDescription + '\'' +
-                ", productImageUrl='" + productImageUrl + '\'' +
-                ", productAttributes=" + productAttributes +
-                ", productVariants=" + productVariants +
-                '}';
     }
 }

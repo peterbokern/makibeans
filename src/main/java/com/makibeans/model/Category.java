@@ -16,6 +16,7 @@ import java.util.List;
 @Table(name = "category", uniqueConstraints = {
         @UniqueConstraint(columnNames = {"name", "parent_category_id"})})
 
+@ToString(exclude = {"parentCategory", "subCategories", "products"})
 public class Category {
 
     @Id
@@ -79,20 +80,4 @@ public class Category {
         subCategories.remove(category);
         category.setParentCategory(null);
     }
-
-    @Override
-    public String toString() {
-        return "Category{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", description='" + description + '\'' +
-                ", imageUrl='" + imageUrl + '\'' +
-                ", parentCategory=" + (parentCategory != null ? parentCategory.getName() : null +
-                ", subCategories=" + subCategories +
-                ", products=" + products +
-                '}');
-    }
-
-
-
 }

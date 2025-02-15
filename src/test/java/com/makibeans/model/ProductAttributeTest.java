@@ -90,7 +90,7 @@ class ProductAttributeTest {
     // toString Method Test
     @Test
     void shouldReturnCorrectToString() {
-        String expected = "ProductAttribute{attributeTemplate=Size, id=null, product=" + product + ", attributeValues=[]}";
+        String expected = "ProductAttribute(id=null, attributeTemplate=AttributeTemplate(id=null, name=Size))";
         assertEquals(expected, productAttribute.toString(), "The toString method should return the correct format");
     }
 }

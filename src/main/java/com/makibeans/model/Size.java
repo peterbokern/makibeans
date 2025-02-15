@@ -4,11 +4,13 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 @Entity
 @NoArgsConstructor
 @Getter
 @Table(name = "size")
+@ToString
 public class Size {
 
     @Id
@@ -21,13 +23,5 @@ public class Size {
 
     public Size(String sizeDescription) {
         this.sizeDescription = sizeDescription;
-    }
-
-    @Override
-    public String toString() {
-        return "Size{" +
-                "id=" + id +
-                ", size='" + sizeDescription + '\'' +
-                '}';
     }
 }

@@ -17,6 +17,7 @@ import java.util.List;
         @Index(name = "idx_attribute_value_id", columnList = "template_id")
 })
 
+@ToString(exclude = {"product", "attributeValues"})
 public class ProductAttribute {
 
     @Id
@@ -52,15 +53,5 @@ public class ProductAttribute {
 
     public void removeAttributeValue(AttributeValue attributeValue) {
         attributeValues.remove(attributeValue);
-    }
-
-    @Override
-    public String toString() {
-        return "ProductAttribute{" +
-                "attributeTemplate=" + attributeTemplate.getName() +
-                ", id=" + id +
-                ", product=" + product +
-                ", attributeValues=" + attributeValues +
-                '}';
     }
 }

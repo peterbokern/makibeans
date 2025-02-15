@@ -134,7 +134,7 @@ class CategoryTest {
     // toString Method Test
     @Test
     void shouldReturnCorrectToString() {
-        String expected = "Category{id=null, name='Category', description='Category description', imageUrl='image_url', parentCategory=Parent Category";
+        String expected = "Category(id=null, name=Category, description=Category description, imageUrl=image_url)";
         assertEquals(expected, category.toString(), "toString() should return the correct string representation of the Category object");
     }
 }

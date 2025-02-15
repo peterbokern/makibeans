@@ -160,7 +160,7 @@ class ProductTest {
     // toString Method Test
     @Test
     void testToString() {
-        String expected = "Product{id=null, productName='Product', productDescription='Product description', productImageUrl='product_image_url', productAttributes=[], productVariants=[]}";
+        String expected = "Product(id=null, productName=Product, productDescription=Product description, productImageUrl=product_image_url)";
         assertEquals(expected, product.toString(), "The toString method should return the correct format");
     }
 }
