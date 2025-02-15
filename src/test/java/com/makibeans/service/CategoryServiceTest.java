@@ -176,11 +176,10 @@ class CategoryServiceTest {
         categoryService.deleteCategory(1L);
 
         //assert
-        // Verify that findById is called twice (once in deleteCategory and once in AbstractCrudService)
         assertNull(product1.getCategory());
         assertNull(product2.getCategory());
 
-        //verify
+        //Verify that findById is called twice (once in deleteCategory and once in AbstractCrudService)
         verify(categoryRepository, times(2)).findById(1L);
         verify(categoryRepository).delete(eq(category));
         verifyNoMoreInteractions(categoryRepository);
