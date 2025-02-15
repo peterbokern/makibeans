@@ -55,7 +55,6 @@ public class ProductService extends AbstractCrudService<Product, Long> {
         return productRepository.save(product);
     }
 
-
     /**
      * Deletes a product by its ID.
      *
@@ -107,8 +106,6 @@ public class ProductService extends AbstractCrudService<Product, Long> {
 
         return productRepository.save(productToUpdate);
     }
-
-
 
     /**
      * Validates the required fields of a product before saving.

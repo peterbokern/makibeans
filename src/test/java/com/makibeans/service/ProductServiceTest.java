@@ -61,7 +61,6 @@ class ProductServiceTest {
         verifyNoMoreInteractions(productRepository);
     }
 
-
     @Test
     void testCreateProductWithNullProductName() {
         assertThrows(IllegalArgumentException.class,
@@ -107,7 +106,6 @@ class ProductServiceTest {
         verifyNoInteractions(productRepository);
     }
 
-
     @Test
     void testCreateProductWithDuplicateName() {
         // Arrange
@@ -123,7 +121,6 @@ class ProductServiceTest {
         verify(productRepository).findByProductName("Espresso");
         verifyNoMoreInteractions(productRepository);
     }
-
 
     // Delete Product Tests
     @Test
