@@ -3,6 +3,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 
 @Entity
@@ -11,6 +12,8 @@ import lombok.Setter;
 @Table(name = "attribute_value", indexes = {
         @Index(name = "attribute_value_template_id_index", columnList = "template_id")
 })
+
+@ToString(exclude = "attributeTemplate")
 public class AttributeValue {
 
     @Id
@@ -30,12 +33,4 @@ public class AttributeValue {
         this.value = value;
     }
 
-    @Override
-    public String toString() {
-        return "AttributeValue{" +
-                "attributeTemplate=" + attributeTemplate.getName() +
-                ", id=" + id +
-                ", value='" + value + '\'' +
-                '}';
-    }
 }

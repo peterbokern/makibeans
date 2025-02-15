@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 @Entity
 @Table(
@@ -12,6 +13,8 @@ import lombok.Setter;
 })
 @NoArgsConstructor
 @Getter
+
+@ToString
 public class AttributeTemplate {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,11 +28,4 @@ public class AttributeTemplate {
         this.name = name;
     }
 
-    @Override
-    public String toString() {
-        return "AttributeTemplate{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                '}';
-    }
 }

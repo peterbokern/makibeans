@@ -3,10 +3,12 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 @NoArgsConstructor
 @Getter
 @Entity
+@ToString(exclude = {"product", "size"})
 public class ProductVariant {
 
     @Id
@@ -41,17 +43,5 @@ public class ProductVariant {
         this.priceInCents = priceInCents;
         this.sku = sku;
         this.stock = stock;
-    }
-
-    @Override
-    public String toString() {
-        return "ProductVariant{" +
-                "id=" + id +
-                ", product=" + product +
-                ", size=" + size +
-                ", priceInCents=" + priceInCents +
-                ", sku='" + sku + '\'' +
-                ", stock=" + stock +
-                '}';
     }
 }
