@@ -11,8 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.openMocks;
@@ -48,7 +47,7 @@ class ProductAttributeServiceTest {
     }
 
     @Test
-    void testCreateProductAttributeValidInput() {
+    void testCreateProductAttributeWithValidInput() {
         //arrange
         when(attributeTemplateService.findById(1L)).thenReturn(attributeTemplate);
         when(productService.findById(1L)).thenReturn(product);
@@ -59,15 +58,28 @@ class ProductAttributeServiceTest {
         ProductAttribute result = productAttributeService.createProductAttribute(1L, 1L);
 
         //assert
-        assertNotNull(result, "The result should not be null");
-        assertEquals(result.getProduct(), product);
-        assertEquals(result.getAttributeTemplate(), attributeTemplate);
+        assertNotNull(result, "The created ProductAttribute should not be null.");
+        assertEquals(result.getProduct(), product, "The Product in the ProductAttribute does not match the expected Product.");
+        assertEquals(result.getAttributeTemplate(), attributeTemplate, "The AttributeTemplate in the ProductAttribute does not match the expected AttributeTemplate.");
         verify(attributeTemplateService).findById(1L);
         verify(productService).findById(1L);
         verify(productAttributeRepository).existsByProductIdAndAttributeTemplateId(1L, 1L);
         verify(productAttributeRepository).save(result);
         verifyNoMoreInteractions(productAttributeRepository);
     }
+
+    @Test
+    void testCreateProductAttributeWithNullProductId() {
+        // Act & Assert
+        assertThrows(IllegalArgumentException.class, () -> productAttributeService.createProductAttribute(null, 1L));
+    }
+
+    @Test
+    void testCreateProductAttributeWithNullTemplateId() {
+        // Act & Assert
+        assertThrows(IllegalArgumentException.class, () -> productAttributeService.createProductAttribute(1L, null));
+    }
+
 
 
 }
