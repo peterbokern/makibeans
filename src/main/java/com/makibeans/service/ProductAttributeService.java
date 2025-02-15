@@ -69,5 +69,4 @@ public class ProductAttributeService extends AbstractCrudService<ProductAttribut
         delete(productAttributeId);
     }
 
-    //update
 }
