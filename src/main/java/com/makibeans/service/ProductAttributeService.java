@@ -1,6 +1,7 @@
 package com.makibeans.service;
 
 import com.makibeans.exeptions.DuplicateResourceException;
+import com.makibeans.exeptions.ResourceNotFoundException;
 import com.makibeans.model.AttributeTemplate;
 import com.makibeans.model.Product;
 import com.makibeans.model.ProductAttribute;
@@ -56,7 +57,17 @@ public class ProductAttributeService extends AbstractCrudService<ProductAttribut
         return create(new ProductAttribute(attributeTemplate, product));
     }
 
-    //delete
+    /**
+     * Deletes an ProductAttribute  by ID.
+     *
+     * @param productAttributeId the ID of the ProductAttribute to delete
+     * @throws ResourceNotFoundException if the ProductAttribute with the given ID is not found
+     */
+
+    @Transactional
+    public void deleteProductAttribute(Long productAttributeId) {
+        delete(productAttributeId);
+    }
 
     //update
 }
