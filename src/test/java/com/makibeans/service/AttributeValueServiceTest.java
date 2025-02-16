@@ -99,7 +99,7 @@ class AttributeValueServiceTest {
     @Test
     void testDeleteAttributeValueInvalidId() {
         //act & assert
-        assertThrows(ResourceNotFoundException.class, () -> attributeValueService.deleteAttributeValue(null), "Should throw ResourceNotFoundException for null id");
+        assertThrows(IllegalArgumentException.class, () -> attributeValueService.deleteAttributeValue(null), "Should throw IllegalArgumentException for null id");
     }
 
     // Test deleting attribute value when not found

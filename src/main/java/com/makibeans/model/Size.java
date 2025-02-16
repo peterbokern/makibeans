@@ -1,6 +1,7 @@
 package com.makibeans.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -18,10 +19,11 @@ public class Size {
     private Long id;
 
     @Setter
-    @Column(name = "size_description", nullable = false, length = 100)
-    private String sizeDescription;
+    @NotBlank(message = "Size name should not be blank.")
+    @Column(name = "name", nullable = false, length = 100)
+    private String name;
 
-    public Size(String sizeDescription) {
-        this.sizeDescription = sizeDescription;
+    public Size(String name) {
+        this.name = name;
     }
 }

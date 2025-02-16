@@ -1,5 +1,8 @@
 package com.makibeans.model;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -16,25 +19,32 @@ public class ProductVariant {
     private Long id;
 
     @Setter
+    @NotNull(message = "Product cannot be null.")
     @ManyToOne
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
     @Setter
+    @NotNull(message = "Size cannot be null.")
     @ManyToOne
     @JoinColumn(name = "size_id", nullable = false)
     private Size size;
 
     @Setter
-    @Column(name = "price_in_cents", nullable = false, length = 100)
+    @NotNull(message = "Price cannot be null.")
+    @Min(value = 0, message = "Price should be a minimum of 0.")
+    @Column(name = "price_in_cents", nullable = false)
     private Long priceInCents;
 
     @Setter
+    @NotBlank(message = "SKU cannot be blank.")
     @Column(name = "sku", nullable = false, length = 100)
     private String sku;
 
     @Setter
-    @Column(name = "stock", nullable = false, length = 100)
+    @NotNull(message = "Stock cannot be null.")
+    @Min(value = 0, message = "Stock should be a minimum of 0.")
+    @Column(name = "stock", nullable = false)
     private Long stock;
 
     public ProductVariant(Product product, Size size, Long priceInCents, String sku, Long stock) {
