@@ -28,6 +28,9 @@ public abstract class AbstractCrudService<T, ID> implements CrudService<T, ID> {
     @Override
     @Transactional
     public T update(ID id, T entity) {
+        if (id == null) {
+            throw new IllegalArgumentException(getEntityName() + " ID cannot be null.");
+        }
         if (entity == null) {
             throw new IllegalArgumentException(getEntityName() + " cannot be null");
         }
@@ -38,6 +41,9 @@ public abstract class AbstractCrudService<T, ID> implements CrudService<T, ID> {
     @Override
     @Transactional
     public void delete(ID id) {
+        if (id == null) {
+            throw new IllegalArgumentException(getEntityName() + " ID cannot be null.");
+        }
         T entity = findById(id);
         logger.info("Deleting {}: {}", getEntityName(), entity);
         repository.delete(entity);
@@ -53,6 +59,9 @@ public abstract class AbstractCrudService<T, ID> implements CrudService<T, ID> {
 
     @Override
     public T findById(ID id) {
+        if (id == null) {
+            throw new IllegalArgumentException(getEntityName() + " ID cannot be null.");
+        }
         logger.info("Looking for entity with id: {}", id);
         T entity = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(getEntityName() + " with id " + id + " not found"));
