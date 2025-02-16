@@ -10,14 +10,18 @@ import com.makibeans.repository.ProductAttributeRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.openMocks;
 
+@ExtendWith(MockitoExtension.class)
 class ProductAttributeServiceTest {
 
     Product product;
@@ -37,7 +41,6 @@ class ProductAttributeServiceTest {
 
     @BeforeEach
     void setup() {
-        openMocks(this);
         product = new Product("productName", "productDescription", "productImageUrl", new Category("categoryName", "categoryDescription", "categoryImageUrl"));
         attributeTemplate = new AttributeTemplate("attributeTemplateName");
     }
@@ -63,9 +66,9 @@ class ProductAttributeServiceTest {
         assertNotNull(result, "The created ProductAttribute should not be null.");
         assertEquals(result.getProduct(), product, "The Product in the ProductAttribute does not match the expected Product.");
         assertEquals(result.getAttributeTemplate(), attributeTemplate, "The AttributeTemplate in the ProductAttribute does not match the expected AttributeTemplate.");
-        verify(attributeTemplateService).findById(1L);
-        verify(productService).findById(1L);
-        verify(productAttributeRepository).existsByProductIdAndAttributeTemplateId(1L, 1L);
+        verify(attributeTemplateService).findById(eq(1L));
+        verify(productService).findById(eq(1L));
+        verify(productAttributeRepository).existsByProductIdAndAttributeTemplateId(eq(1L), eq(1L));
         verify(productAttributeRepository).save(result);
         verifyNoMoreInteractions(productAttributeRepository);
     }
@@ -74,12 +77,19 @@ class ProductAttributeServiceTest {
     void testCreateProductAttributeWithNullProductId() {
         // Act & Assert
         assertThrows(IllegalArgumentException.class, () -> productAttributeService.createProductAttribute(null, 1L));
+
+        //verify
+        verifyNoInteractions(productService, attributeTemplateService, productAttributeRepository);
     }
 
     @Test
     void testCreateProductAttributeWithNullTemplateId() {
         // Act & Assert
         assertThrows(IllegalArgumentException.class, () -> productAttributeService.createProductAttribute(1L, null));
+
+        //verify
+        verifyNoInteractions(productService, attributeTemplateService, productAttributeRepository);
+
     }
 
     @Test
@@ -91,7 +101,7 @@ class ProductAttributeServiceTest {
         assertThrows(
                 ResourceNotFoundException.class,
                 () -> productAttributeService.createProductAttribute(1L, 1L),
-                "Expected ResourceNotFoundException when trying to create a product attribute with an invalid product ID.");
+                "Expected ResourceNotFoundException when trying to create a product attribute with an invalid attribute template ID.");
 
         //verify
         verify(productService).findById(any(Long.class));
@@ -112,7 +122,7 @@ class ProductAttributeServiceTest {
                 "Expected ResourceNotFoundException when trying to create a product attribute with an invalid product ID.");
 
         //verify
-        verify(attributeTemplateService).findById(any(Long.class));
+        verify(attributeTemplateService).findById(eq(1L));
         verifyNoInteractions(productAttributeRepository);
     }
 
@@ -136,4 +146,45 @@ class ProductAttributeServiceTest {
         verifyNoMoreInteractions(productAttributeRepository, productService, attributeTemplateService);
     }
 
+    @Test
+    void testDeleteProductAttributeWithNullId() {
+        // Act & Assert
+        assertThrows(IllegalArgumentException.class,
+                () -> productAttributeService.deleteProductAttribute(null),
+                "Expected IllegalArgumentException when deleting a ProductAttribute with null ID.");
+
+        //verify
+        verifyNoInteractions(productAttributeRepository);
+    }
+
+    @Test
+    void testDeleteProductAttributeTemplateWithValidProductAttributeId() {
+        //arrange
+        ProductAttribute productAttribute = new ProductAttribute(attributeTemplate, product);
+        when(productAttributeRepository.findById(1L)).thenReturn(Optional.of(productAttribute));
+
+        //act
+        productAttributeService.deleteProductAttribute(1L);
+
+        //verify
+        verify(productAttributeRepository).findById(eq(1L));
+        verify(productAttributeRepository).delete(productAttribute);
+        verifyNoMoreInteractions(productAttributeRepository);
+    }
+
+    @Test
+    void testDeleteProductAttributeWithInvalidProductAttributeId() {
+        // Arrange
+        when(productAttributeRepository.findById(99L)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(ResourceNotFoundException.class, () -> productAttributeService.deleteProductAttribute(99L),
+                "Expected ResourceNotFoundException when deleting non-existent ProductAttribute.");
+
+        // Verify
+        verify(productAttributeRepository).findById(99L);
+        verify(productAttributeRepository, never()).delete(any());
+        verifyNoMoreInteractions(productAttributeRepository);
+    }
 }
+
