@@ -44,20 +44,20 @@ public abstract class AbstractCrudService<T, ID> implements CrudService<T, ID> {
     }
 
     @Override
+    public List<T> findAll() {
+        List<T> entities = repository.findAll();
+        logger.info("Found {} entities of {}:", entities.size(), getEntityName());
+        entities.forEach(entity -> logger.info("{}", entity));
+        return entities;
+    }
+
+    @Override
     public T findById(ID id) {
         logger.info("Looking for entity with id: {}", id);
         T entity = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(getEntityName() + " with id " + id + " not found"));
         logger.info("Found {}: {}", getEntityName(), entity);
         return entity;
-    }
-
-    @Override
-    public List<T> findAll() {
-        List<T> entities = repository.findAll();
-        logger.info("Found {} entities of {}:", entities.size(), getEntityName());
-        entities.forEach(entity -> logger.info("{}", entity));
-        return entities;
     }
 
     //Get entity name e.g. AttributeTemplate
