@@ -14,15 +14,15 @@ public class ProductVariantService extends AbstractCrudService<ProductVariant, L
 
 
     @Autowired
-    public ProductVariantService(JpaRepository<ProductVariant, Long> repository, ProductVariantRepository productVariantRepository) {
+    public ProductVariantService(JpaRepository<ProductVariant, Long> repository, ProductVariantRepository productVariantRepository, ProductService productService) {
         super(repository);
         this.productVariantRepository = productVariantRepository;
+        this.productService = productService;
     }
 
     //create
-    public ProductVariant createProductVariant(Long productId, Long sizeId, Long PriceInCents, String sku, Long stock) {
-
-    }
+   /* public ProductVariant createProductVariant(Long productId, Long sizeId, Long PriceInCents, String sku, Long stock) {
+    }*/
 
     //delete
 

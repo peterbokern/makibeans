@@ -19,11 +19,11 @@ public class Size {
     private Long id;
 
     @Setter
-    @NotBlank(message = "Size description should not be blank.")
+    @NotBlank(message = "Size name should not be blank.")
     @Column(name = "name", nullable = false, length = 100)
     private String name;
 
-    public Size(String sizeDescription) {
+    public Size(String name) {
         this.name = name;
     }
 }
