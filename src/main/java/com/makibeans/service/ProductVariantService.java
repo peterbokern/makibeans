@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 public class ProductVariantService extends AbstractCrudService<ProductVariant, Long> {
 
     private final ProductVariantRepository productVariantRepository;
+    private final ProductService productService;
+
 
     @Autowired
     public ProductVariantService(JpaRepository<ProductVariant, Long> repository, ProductVariantRepository productVariantRepository) {
@@ -18,7 +20,9 @@ public class ProductVariantService extends AbstractCrudService<ProductVariant, L
     }
 
     //create
-    public ProductVariant createProductVariant(Long productId, Long sizeId, Long PriceInCents, String sku, Long stock)
+    public ProductVariant createProductVariant(Long productId, Long sizeId, Long PriceInCents, String sku, Long stock) {
+
+    }
 
     //delete
 
