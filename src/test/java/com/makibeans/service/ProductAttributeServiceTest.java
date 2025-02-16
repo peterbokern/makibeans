@@ -104,7 +104,7 @@ class ProductAttributeServiceTest {
                 "Expected ResourceNotFoundException when trying to create a product attribute with an invalid attribute template ID.");
 
         //verify
-        verify(productService).findById(any(Long.class));
+        verify(productService).findById(eq(1L));
         verifyNoInteractions(attributeTemplateService);
         verifyNoInteractions(productAttributeRepository);
     }
@@ -119,7 +119,7 @@ class ProductAttributeServiceTest {
         assertThrows(
                 ResourceNotFoundException.class,
                 () -> productAttributeService.createProductAttribute(1L, 1L),
-                "Expected ResourceNotFoundException when trying to create a product attribute with an invalid product ID.");
+                "Expected ResourceNotFoundException when trying to create a product attribute with an invalid attribute template ID.");
 
         //verify
         verify(attributeTemplateService).findById(eq(1L));
