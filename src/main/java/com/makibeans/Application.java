@@ -78,6 +78,8 @@ public class Application implements CommandLineRunner {
 				System.out.println(pa);
 			}
 		}
+
+		productAttributeService.createProductAttribute(100L, 100L);
 	}
 
 
