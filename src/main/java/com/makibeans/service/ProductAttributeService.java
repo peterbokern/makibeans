@@ -61,11 +61,15 @@ public class ProductAttributeService extends AbstractCrudService<ProductAttribut
      * Deletes an ProductAttribute  by ID.
      *
      * @param productAttributeId the ID of the ProductAttribute to delete
+     * @throws IllegalArgumentException when provided ProductAttribute id is null
      * @throws ResourceNotFoundException if the ProductAttribute with the given ID is not found
      */
 
     @Transactional
     public void deleteProductAttribute(Long productAttributeId) {
+        if (productAttributeId == null) {
+            throw new IllegalArgumentException("ProductAttribute ID cannot be null.");
+        }
         delete(productAttributeId);
     }
 
