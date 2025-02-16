@@ -8,6 +8,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+// Note: null checks and empty checks are now done at the model and DTO level. The controller will enforce valid input
+// so this nog longer has to be done in service layer
+
 @Service
 public class SizeService extends AbstractCrudService<Size, Long> {
 
