@@ -55,7 +55,7 @@ public class SizeServiceTest {
     }
 
     @Test
-    void testCreateSizeSuccess() {
+    void shouldCreateSize_whenValidRequest() {
         // Arrange
         when(sizeRepository.existsByName(any(String.class))).thenReturn(false);
         when(sizeRepository.save(any(Size.class))).thenAnswer(invocation -> invocation.getArgument(0));
@@ -74,7 +74,7 @@ public class SizeServiceTest {
     }
 
     @Test
-    void testCreateSizeDuplicateResourceException() {
+    void shouldThrowDuplicateResourceException_whenCreatingSizeWithExistingName() {
         // Arrange
         SizeCreateDTO duplicateDTO = new SizeCreateDTO();
         duplicateDTO.setName("duplicatesize");
@@ -92,7 +92,7 @@ public class SizeServiceTest {
     }
 
     @Test
-    void testDeleteSizeSuccess() {
+    void shouldDeleteSize_whenSizeExists() {
         // Arrange
         when(sizeRepository.findById(1L)).thenReturn(Optional.of(size));
 
@@ -106,7 +106,7 @@ public class SizeServiceTest {
     }
 
     @Test
-    void testDeleteSizeResourceNotFoundException() {
+    void shouldThrowResourceNotFoundException_whenDeletingNonExistentSize() {
         // Arrange
         when(sizeRepository.findById(99L)).thenReturn(Optional.empty());
 
@@ -122,7 +122,7 @@ public class SizeServiceTest {
     }
 
     @Test
-    void testUpdateSizeSuccess() {
+    void shouldUpdateSize_whenValidRequest() {
         // Arrange
         when(sizeRepository.findById(1L)).thenReturn(Optional.of(size));
         when(sizeRepository.existsByName("updatedsize")).thenReturn(false);
@@ -151,7 +151,7 @@ public class SizeServiceTest {
     }
 
     @Test
-    void testUpdateSizeDuplicateResourceException(){
+    void shouldThrowDuplicateResourceException_whenUpdatingSizeWithExistingName(){
         // Arrange
         SizeUpdateDTO duplicateDTO = new SizeUpdateDTO();
         duplicateDTO.setName("DuplicateSize");
@@ -171,7 +171,7 @@ public class SizeServiceTest {
     }
 
     @Test
-    void testUpdateSizeResourceNotFoundException() {
+    void shouldThrowResourceNotFoundException_whenUpdatingNonExistentSize() {
         // Arrange
         when(sizeRepository.findById(99L)).thenReturn(Optional.empty());
 
