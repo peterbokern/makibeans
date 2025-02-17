@@ -25,14 +25,16 @@ public class Application implements CommandLineRunner {
 	private final CategoryService categoryService;
 	private final ProductService productService;
 	private final ProductAttributeService productAttributeService;
+	private final SizeService sizeService;
 
-	public Application(AttributeTemplateService attributeTemplateService, AttributeTemplateRepository attributeTemplateRepository, AttributeValueService attributeValueService, CategoryService categoryService, ProductService productService, ProductAttributeService productAttributeService) {
+	public Application(AttributeTemplateService attributeTemplateService, AttributeTemplateRepository attributeTemplateRepository, AttributeValueService attributeValueService, CategoryService categoryService, ProductService productService, ProductAttributeService productAttributeService, SizeService sizeService) {
 		this.attributeTemplateService = attributeTemplateService;
         this.attributeValueService = attributeValueService;
         this.categoryService = categoryService;
 		this.productService = productService;
         this.productAttributeService = productAttributeService;
-    }
+		this.sizeService = sizeService;
+	}
 
 	public static void main(String[] args) {
 		SpringApplication.run(Application.class, args);
@@ -73,14 +75,18 @@ public class Application implements CommandLineRunner {
 		//ProductAttribute productAttribute = productAttributeService.createProductAttribute(1L, 1L);
 
 
-		for (Product p: productService.findAll()) {
+		/*for (Product p: productService.findAll()) {
 			for (ProductAttribute pa : p.getProductAttributes()) {
 				System.out.println(pa);
 			}
 		}
 
-		productAttributeService.createProductAttribute(100L, 100L);
+		productAttributeService.createProductAttribute(100L, 100L);*/
+
+		sizeService.createSize(null);
 	}
+
+
 
 
 }
