@@ -1,5 +1,7 @@
 package com.makibeans.service;
 
+import com.makibeans.dto.SizeCreateDTO;
+import com.makibeans.dto.SizeUpdateDTO;
 import com.makibeans.exeptions.DuplicateResourceException;
 import com.makibeans.model.Size;
 import com.makibeans.repository.SizeRepository;
@@ -7,9 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-// Note: null checks and empty checks are now done at the model and DTO level. The controller will enforce valid input
-// so this nog longer has to be done in service layer
 
 @Service
 public class SizeService extends AbstractCrudService<Size, Long> {
@@ -25,19 +24,20 @@ public class SizeService extends AbstractCrudService<Size, Long> {
     /**
      * Creates a new Size entity.
      *
-     * @param name The name of the size.
+     * @param sizeCreateDTO The DTO to create Size
      * @return The saved Size entity.
      * @throws DuplicateResourceException If a size with the same name already exists.
      */
 
     @Transactional
-    public Size createSize(String name) {
+    public Size createSize(SizeCreateDTO sizeCreateDTO) {
+        String normalizedName = sizeCreateDTO.getName().trim().toLowerCase();
 
-        if (sizeRepository.existsByName(name)) {
-            throw new DuplicateResourceException("Size with name " + name + " already exists.");
+        if (sizeRepository.existsByName(normalizedName)) {
+            throw new DuplicateResourceException("Size with name " + sizeCreateDTO.getName() + " already exists.");
         }
 
-        Size size = new Size(name);
+        Size size = new Size(normalizedName);
 
         return create(size);
     }
@@ -57,21 +57,22 @@ public class SizeService extends AbstractCrudService<Size, Long> {
      * Updates an existing Size.
      *
      * @param sizeId      The ID of the size to update.
-     * @param updatedName The new name for the size.
+     * @param sizeUpdateDTO The dto to update Size.
      * @return The updated Size entity.
      * @throws DuplicateResourceException If a size with the same name already exists.
      */
 
     @Transactional
-    public Size updateSize(Long sizeId, String updatedName) {
+    public Size updateSize(Long sizeId, SizeUpdateDTO sizeUpdateDTO) {
         Size size = findById(sizeId);
+        String normalizedName = sizeUpdateDTO.getName().trim().toLowerCase();
 
-        if (!size.getName().equals(updatedName) && sizeRepository.existsByName(updatedName)) {
-            throw new DuplicateResourceException("Size with name '" + updatedName + "' already exists.");
+        if (!size.getName().equals(normalizedName) && sizeRepository.existsByName(normalizedName)) {
+            throw new DuplicateResourceException("A size with the name '" + sizeUpdateDTO.getName() + "' already exists.");
         }
 
-        size.setName(updatedName);
-
+        size.setName(normalizedName);
         return update(sizeId, size);
     }
+
 }
