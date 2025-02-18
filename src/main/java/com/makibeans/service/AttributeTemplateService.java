@@ -1,4 +1,6 @@
 package com.makibeans.service;
+
+import com.makibeans.dto.AttributeTemplateDTO;
 import com.makibeans.exeptions.DuplicateResourceException;
 import com.makibeans.exeptions.ResourceNotFoundException;
 import com.makibeans.model.AttributeTemplate;
@@ -13,78 +15,61 @@ public class AttributeTemplateService extends AbstractCrudService<AttributeTempl
     private final AttributeTemplateRepository attributeTemplateRepository;
 
     @Autowired
-    public AttributeTemplateService(AttributeTemplateRepository attributeTemplateRepository, AttributeTemplateRepository attributeTemplateRepository1) {
+    public AttributeTemplateService(AttributeTemplateRepository attributeTemplateRepository) {
         super(attributeTemplateRepository);
         this.attributeTemplateRepository = attributeTemplateRepository;
     }
+
     /**
-     * Create a new attribute template
+     * Creates a new AttributeTemplate.
      *
-     * @param name the name of the attribute template
-     * @return the created attribute template
-     * @throws IllegalArgumentException   if the name is null or empty
-     * @throws DuplicateResourceException if the attribute template with the same name already exists
+     * @param dto the DTO containing the attribute template details
+     * @return the created AttributeTemplate entity
+     * @throws DuplicateResourceException if an AttributeTemplate with the same name already exists
      */
-
     @Transactional
-    public AttributeTemplate createAttributeTemplate(String name) {
+    public AttributeTemplate createAttributeTemplate(AttributeTemplateDTO dto) {
+        String normalizedName = dto.getName().trim().toLowerCase();
 
-        //validation
-        if (name == null || name.isEmpty()) {
-            throw new IllegalArgumentException("Attribute template name cannot be null or empty");
+        if (attributeTemplateRepository.existsByName(normalizedName)) {
+            throw new DuplicateResourceException("Attribute template with name '" + normalizedName + "' already exists.");
         }
 
-        // trim input
-        final String trimmedName = name.trim();
-
-        //save attribute template if not exists
-        if (attributeTemplateRepository.existsByName(trimmedName)) {
-            throw new DuplicateResourceException("Attribute template with name " + trimmedName + " already exists");
-        }
-
-        return create(new AttributeTemplate(trimmedName));
+        return create(new AttributeTemplate(normalizedName));
     }
 
     /**
-     * Delete an attribute template
+     * Deletes an AttributeTemplate by ID.
      *
-     * @param id the id of the attribute template to delete
-     * @throws ResourceNotFoundException if the attribute template with the id does not exist
+     * @param id the ID of the attribute template to delete
+     * @throws ResourceNotFoundException if the attribute template does not exist
      */
-
     @Transactional
-    public void deleteAttributeTemplate(Long id) {delete(id);}
+    public void deleteAttributeTemplate(Long id) {
+        delete(id);
+    }
 
     /**
-     * Update an attribute template
+     * Updates an existing AttributeTemplate.
      *
-     * @param id      the id of the attribute template to update
-     * @param newName the new name of the attribute template
-     * @return the updated attribute template
-     * @throws IllegalArgumentException  if the new name is null or empty
-     * @throws ResourceNotFoundException if the attribute template with the id does not exist
+     * @param id  the ID of the attribute template to update
+     * @param dto the DTO containing the updated attribute template name
+     * @return the updated AttributeTemplate entity
+     * @throws ResourceNotFoundException if the attribute template does not exist
+     * @throws DuplicateResourceException if another AttributeTemplate already exists with the same name
      */
-
     @Transactional
-    public AttributeTemplate updateAttributeTemplate(Long id, String newName) {
+    public AttributeTemplate updateAttributeTemplate(Long id, AttributeTemplateDTO dto) {
+        String normalizedName = dto.getName().trim().toLowerCase();
 
-        //input validation
-        if (newName == null || newName.isBlank()) {
-            throw new IllegalArgumentException("New attribute template name cannot be null or empty");
-        }
-
-        // trim input
-        final String trimmedNewName = newName.trim();
-
-        //find attribute template
         AttributeTemplate attributeTemplate = findById(id);
 
-        if (attributeTemplate.getName().equals(trimmedNewName)) {
-            return attributeTemplate;
+        if (!attributeTemplate.getName().equalsIgnoreCase(normalizedName)
+                && attributeTemplateRepository.existsByName(normalizedName)) {
+            throw new DuplicateResourceException("Attribute template with name '" + normalizedName + "' already exists.");
         }
-        //update attribute template and save
-        attributeTemplate.setName(trimmedNewName);
 
+        attributeTemplate.setName(normalizedName);
         return update(id, attributeTemplate);
     }
 }
