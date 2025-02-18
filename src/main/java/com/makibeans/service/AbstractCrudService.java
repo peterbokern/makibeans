@@ -28,6 +28,9 @@ public abstract class AbstractCrudService<T, ID> implements CrudService<T, ID> {
     @Override
     @Transactional
     public T update(ID id, T entity) {
+        if (id == null) {
+            throw new IllegalArgumentException(getEntityName() + " ID cannot be null.");
+        }
         if (entity == null) {
             throw new IllegalArgumentException(getEntityName() + " cannot be null");
         }
@@ -38,18 +41,12 @@ public abstract class AbstractCrudService<T, ID> implements CrudService<T, ID> {
     @Override
     @Transactional
     public void delete(ID id) {
+        if (id == null) {
+            throw new IllegalArgumentException(getEntityName() + " ID cannot be null.");
+        }
         T entity = findById(id);
         logger.info("Deleting {}: {}", getEntityName(), entity);
         repository.delete(entity);
-    }
-
-    @Override
-    public T findById(ID id) {
-        logger.info("Looking for entity with id: {}", id);
-        T entity = repository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(getEntityName() + " with id " + id + " not found"));
-        logger.info("Found {}: {}", getEntityName(), entity);
-        return entity;
     }
 
     @Override
@@ -58,6 +55,18 @@ public abstract class AbstractCrudService<T, ID> implements CrudService<T, ID> {
         logger.info("Found {} entities of {}:", entities.size(), getEntityName());
         entities.forEach(entity -> logger.info("{}", entity));
         return entities;
+    }
+
+    @Override
+    public T findById(ID id) {
+        if (id == null) {
+            throw new IllegalArgumentException(getEntityName() + " ID cannot be null.");
+        }
+        logger.info("Looking for entity with id: {}", id);
+        T entity = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(getEntityName() + " with id " + id + " not found"));
+        logger.info("Found {}: {}", getEntityName(), entity);
+        return entity;
     }
 
     //Get entity name e.g. AttributeTemplate

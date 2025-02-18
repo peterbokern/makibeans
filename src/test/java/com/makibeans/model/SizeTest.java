@@ -13,7 +13,7 @@ class SizeTest {
     @BeforeEach
     void setUp() {
         size = new Size("Large");
-        size.setSizeDescription("Large");
+        size.setName("Large");
     }
 
     @AfterEach
@@ -29,9 +29,9 @@ class SizeTest {
 
     // Setter Tests
     @Test
-    void shouldSetSizeDescriptionSuccessfully() {
-        size.setSizeDescription("Medium");
-        assertEquals("Medium", size.getSizeDescription(), "The size description should be updated correctly via setter");
+    void shouldSetSizeNameSuccessfully() {
+        size.setName("Medium");
+        assertEquals("Medium", size.getName(), "The size description should be updated correctly via setter");
     }
 
     // Getter Tests
@@ -41,14 +41,14 @@ class SizeTest {
     }
 
     @Test
-    void shouldReturnCorrectSizeDescriptionWhenRequested() {
-        assertEquals("Large", size.getSizeDescription(), "The size description should be 'Large' as initialized");
+    void shouldReturnCorrectSizeNameWhenRequested() {
+        assertEquals("Large", size.getName(), "The size name should be 'Large' as initialized");
     }
 
     // toString Method Test
     @Test
     void shouldReturnCorrectToString() {
-        String expected = "Size(id=null, sizeDescription=Large)";
+        String expected = "Size(id=null, name=Large)";
         assertEquals(expected, size.toString(), "The toString method should return the correct format");
     }
 }
