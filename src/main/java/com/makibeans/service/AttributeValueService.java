@@ -1,16 +1,14 @@
 package com.makibeans.service;
 
+import com.makibeans.dto.AttributeValueDTO;
 import com.makibeans.exeptions.DuplicateResourceException;
 import com.makibeans.exeptions.ResourceNotFoundException;
 import com.makibeans.model.AttributeTemplate;
 import com.makibeans.model.AttributeValue;
 import com.makibeans.repository.AttributeValueRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Objects;
 
 @Service
 public class AttributeValueService extends AbstractCrudService<AttributeValue, Long> {
@@ -19,49 +17,40 @@ public class AttributeValueService extends AbstractCrudService<AttributeValue, L
     private final AttributeTemplateService attributeTemplateService;
 
     @Autowired
-    public AttributeValueService(JpaRepository<AttributeValue, Long> repository, AttributeValueRepository attributeValueRepository, AttributeTemplateService attributeTemplateService) {
-        super(repository);
+    public AttributeValueService(AttributeValueRepository attributeValueRepository,
+                                 AttributeTemplateService attributeTemplateService) {
+        super(attributeValueRepository);
         this.attributeValueRepository = attributeValueRepository;
         this.attributeTemplateService = attributeTemplateService;
     }
 
     /**
-     * Creates a new Attribute Value.
+     * Creates a new AttributeValue.
      *
-     * @param id the ID of the AttributeTemplate
-     * @param value the value to be associated with the AttributeTemplate
-     * @return the created AttributeValue
-     * @throws IllegalArgumentException if id or value are invalid
-     * @throws DuplicateResourceException if the value already exists
+     * @param dto the DTO containing the attribute value details
+     * @return the created AttributeValue entity
+     * @throws DuplicateResourceException if an AttributeValue with the same value already exists
      */
 
     @Transactional
-    public AttributeValue createAttributeValue(Long id, String value) {
+    public AttributeValue createAttributeValue(AttributeValueDTO dto) {
+        String normalizedValue = dto.getValue().trim();
 
-        if (id == null) {
-            throw new IllegalArgumentException("ID cannot be null");
+        AttributeTemplate attributeTemplate = attributeTemplateService.findById(dto.getTemplateId());
+
+        if (attributeValueRepository.existsByValue(attributeTemplate, normalizedValue)) {
+            throw new DuplicateResourceException("Attribute value '" + normalizedValue + "' already exists.");
         }
 
-        if (value == null || value.isEmpty()) {
-            throw new IllegalArgumentException("Value cannot be null or empty");
-        }
-
-        //Throws resourceNotFound
-        AttributeTemplate attributeTemplate = attributeTemplateService.findById(id);
-
-        if (attributeValueRepository.existsByValue(attributeTemplate, value.trim())) {
-            throw new DuplicateResourceException("Attribute Value " + value + " already exists.");
-        }
-
-        AttributeValue attributeValue = new AttributeValue(attributeTemplate, value.trim());
+        AttributeValue attributeValue = new AttributeValue(attributeTemplate, normalizedValue);
         return create(attributeValue);
     }
 
     /**
-     * Deletes an Attribute Value by ID.
+     * Deletes an AttributeValue by ID.
      *
-     * @param id the ID of the AttributeValue to delete
-     * @throws ResourceNotFoundException if the AttributeValue with the given ID is not found
+     * @param id the ID of the attribute value to delete
+     * @throws ResourceNotFoundException if the attribute value does not exist
      */
 
     @Transactional
@@ -70,32 +59,27 @@ public class AttributeValueService extends AbstractCrudService<AttributeValue, L
     }
 
     /**
-     * Updates an existing Attribute Value.
+     * Updates an existing AttributeValue.
      *
-     * @param id the ID of the AttributeValue to update
-     * @param value the new value for the AttributeValue
-     * @return the updated AttributeValue
-     * @throws IllegalArgumentException if id or value are invalid
+     * @param id  the ID of the attribute value to update
+     * @param dto the DTO containing the updated attribute value details
+     * @return the updated AttributeValue entity
+     * @throws ResourceNotFoundException  if the attribute value does not exist
+     * @throws DuplicateResourceException if another AttributeValue with the same value already exists
      */
 
     @Transactional
-    public AttributeValue updateAttributeValue(Long id, String value) {
-
-        if (id == null) {throw new IllegalArgumentException("ID cannot be null.");}
-
-        if (value == null || value.isEmpty()) {
-            throw new IllegalArgumentException("Value cannot be null or empty");
-        }
+    public AttributeValue updateAttributeValue(Long id, AttributeValueDTO dto) {
+        String normalizedValue = dto.getValue().trim();
 
         AttributeValue attributeValue = findById(id);
+        AttributeTemplate attributeTemplate = attributeTemplateService.findById(dto.getId());
 
-        //
-        if (Objects.equals(attributeValue.getValue(), value)) {
-            return attributeValue;
+        if (!attributeValue.getValue().equalsIgnoreCase(normalizedValue) && attributeValueRepository.existsByValue(attributeTemplate, normalizedValue)) {
+            throw new DuplicateResourceException("Attribute value '" + normalizedValue + "' already exists for attribute template " + attributeTemplate.getName() + ".");
         }
 
-        attributeValue.setValue(value);
-
+        attributeValue.setValue(normalizedValue);
         return update(id, attributeValue);
     }
 }

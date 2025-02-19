@@ -44,46 +44,6 @@ public class Application implements CommandLineRunner {
 	@Override
 	public void run(String... args) throws Exception {
 
-
-		/*AttributeTemplate attributeTemplate = attributeTemplateService.createAttributeTemplate("Size");
-
-		attributeTemplateService.updateAttributeTemplate(1L, "Origin");
-
-		//attributeTemplateService.deleteAttributeTemplate(1L);
-
-		attributeTemplateService.findAll();
-
-		AttributeValue attributeValue = attributeValueService.createAttributeValue(1L, "Something");
-
-		attributeValueService.updateAttributeValue(1L, "Something Else");
-
-		attributeValueService.deleteAttributeValue(1L);
-
-		categoryService.createRootCategory("Koffie", null, null);
-
-		categoryService.createSubCategory("Bonen", null, null, 1L);
-		categoryService.createSubCategory("Vieze Bonen", null, null, 2L);*/
-
-
-
-
-		//categoryService.updateCategory(15L, "new", null, null, 22L);
-
-		//AttributeTemplate attributeTemplate = attributeTemplateService.createAttributeTemplate("Size");
-
-		//Product product = productService.createProduct("productName", "description", 23L, "url");
-		//ProductAttribute productAttribute = productAttributeService.createProductAttribute(1L, 1L);
-
-
-		/*for (Product p: productService.findAll()) {
-			for (ProductAttribute pa : p.getProductAttributes()) {
-				System.out.println(pa);
-			}
-		}
-
-		productAttributeService.createProductAttribute(100L, 100L);*/
-
-		sizeService.createSize(null);
 	}
 
 

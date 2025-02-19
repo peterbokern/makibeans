@@ -1,14 +1,10 @@
 package com.makibeans.dto;
 
 import jakarta.validation.constraints.NotBlank;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.Data;
 
-@Getter
-@Setter
-@NoArgsConstructor
-public class AttributeTemplateDTO {
+@Data
+public class AttributeTemplateRequestDTO {
 
     @NotBlank(message = "Name of attribute template cannot be blank.")
     private String name;

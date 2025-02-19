@@ -1,6 +1,6 @@
 package com.makibeans.service;
 
-import com.makibeans.dto.AttributeTemplateDTO;
+import com.makibeans.dto.AttributeTemplateRequestDTO;
 import com.makibeans.exeptions.DuplicateResourceException;
 import com.makibeans.exeptions.ResourceNotFoundException;
 import com.makibeans.model.AttributeTemplate;
@@ -25,7 +25,7 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class AttributeTemplateServiceTest {
 
-    private AttributeTemplateDTO dto;
+    private AttributeTemplateRequestDTO dto;
 
     @Mock
     private AttributeTemplateRepository attributeTemplateRepository;
@@ -35,7 +35,7 @@ class AttributeTemplateServiceTest {
 
     @BeforeEach
     void setUp() {
-        dto = new AttributeTemplateDTO();
+        dto = new AttributeTemplateRequestDTO();
         dto.setName("  Origin  "); // Simulate untrimmed input
     }
 

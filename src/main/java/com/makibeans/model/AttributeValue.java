@@ -1,5 +1,6 @@
 package com.makibeans.model;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -26,6 +27,7 @@ public class AttributeValue {
 
     @Setter
     @Column(name = "value", nullable = false, length = 1000)
+    @NotBlank(message = "Attribute value cannot be blank.")
     private String value;
 
     public AttributeValue(AttributeTemplate attributeTemplate, String value) {
