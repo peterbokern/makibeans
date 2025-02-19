@@ -24,14 +24,7 @@ public class AttributeTemplateController {
     @PostMapping("/attribute-template")
     public ResponseEntity<AttributeTemplateResponseDTO> addAttributeTemplate(@Valid @RequestBody AttributeTemplateRequestDTO dto) {
 
-        return ResponseEntity.ok((convertToResponseDTO(attributeTemplateService.createAttributeTemplate(dto))));
+        return ResponseEntity.ok((attributeTemplateService.createAttributeTemplate(dto)));
     }
 
-    private AttributeTemplateResponseDTO convertToResponseDTO(AttributeTemplate attributeTemplate) {
-        AttributeTemplateResponseDTO response = new AttributeTemplateResponseDTO();
-        response.setId(attributeTemplate.getId());
-        response.setName(attributeTemplate.getName());
-
-        return response;
-    }
 }
