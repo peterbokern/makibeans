@@ -4,12 +4,14 @@ import com.makibeans.dto.AttributeTemplateRequestDTO;
 import com.makibeans.dto.AttributeTemplateResponseDTO;
 import com.makibeans.service.AttributeTemplateService;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
+@RequestMapping("/attribute-templates")
 public class AttributeTemplateController {
 
     private final AttributeTemplateService attributeTemplateService;
@@ -24,10 +26,10 @@ public class AttributeTemplateController {
      * @param id the ID of the AttributeTemplate to retrieve
      * @return the ResponseEntity containing the AttributeTemplateResponseDTO
      */
-
-    @GetMapping("/attribute-template/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<AttributeTemplateResponseDTO> getAttributeTemplate(@PathVariable Long id) {
-        return ResponseEntity.ok(attributeTemplateService.findAttributeTemplateById(id));
+        AttributeTemplateResponseDTO responseDTO = attributeTemplateService.findAttributeTemplateById(id);
+        return ResponseEntity.ok(responseDTO);
     }
 
     /**
@@ -35,10 +37,10 @@ public class AttributeTemplateController {
      *
      * @return the ResponseEntity containing the list of AttributeTemplateResponseDTOs
      */
-
-    @GetMapping("/attribute-template")
-    public ResponseEntity<List<AttributeTemplateResponseDTO>> findAllAttributeTemplates() {
-        return ResponseEntity.ok(attributeTemplateService.findAllAttributeTemplates());
+    @GetMapping
+    public ResponseEntity<List<AttributeTemplateResponseDTO>> getAllAttributeTemplates() {
+        List<AttributeTemplateResponseDTO> responseDTOs = attributeTemplateService.findAllAttributeTemplates();
+        return ResponseEntity.ok(responseDTOs);
     }
 
     /**
@@ -47,22 +49,37 @@ public class AttributeTemplateController {
      * @param dto the DTO containing the details of the AttributeTemplate to create
      * @return the ResponseEntity containing the created AttributeTemplateResponseDTO
      */
-
-    @PostMapping("/attribute-template")
-    public ResponseEntity<AttributeTemplateResponseDTO> addAttributeTemplate(@Valid @RequestBody AttributeTemplateRequestDTO dto) {
-        return ResponseEntity.ok(attributeTemplateService.createAttributeTemplate(dto));
+    @PostMapping
+    public ResponseEntity<AttributeTemplateResponseDTO> createAttributeTemplate(
+            @Valid @RequestBody AttributeTemplateRequestDTO dto) {
+        AttributeTemplateResponseDTO createdDTO = attributeTemplateService.createAttributeTemplate(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdDTO);
     }
 
     /**
-     * Updates the  AttributeTemplate with given id.
+     * Updates an existing AttributeTemplate.
      *
-     * @param id the id of the AttributeTemplate to update.
-     * @param dto the DTO containing the details of the AttributeTemplate to create
-     * @return the ResponseEntity containing the created AttributeTemplateResponseDTO
+     * @param id  the ID of the AttributeTemplate to update
+     * @param dto the DTO containing the updated details
+     * @return the ResponseEntity containing the updated AttributeTemplateResponseDTO
      */
+    @PutMapping("/{id}")
+    public ResponseEntity<AttributeTemplateResponseDTO> updateAttributeTemplate(
+            @PathVariable Long id,
+            @Valid @RequestBody AttributeTemplateRequestDTO dto) {
+        AttributeTemplateResponseDTO updatedDTO = attributeTemplateService.updateAttributeTemplate(id, dto);
+        return ResponseEntity.ok(updatedDTO);
+    }
 
-    @PutMapping("/attribute-template/{id}")
-    public ResponseEntity<AttributeTemplateResponseDTO> updateAttributeTemplate(@PathVariable Long id, @Valid  @RequestBody AttributeTemplateRequestDTO dto) {
-        return ResponseEntity.ok(attributeTemplateService.updateAttributeTemplate(id, dto));
+    /**
+     * Deletes an AttributeTemplate by its ID.
+     *
+     * @param id the ID of the AttributeTemplate to delete
+     * @return the ResponseEntity with appropriate HTTP status
+     */
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteAttributeTemplate(@PathVariable Long id) {
+        attributeTemplateService.deleteAttributeTemplate(id);
+        return ResponseEntity.noContent().build();
     }
 }
