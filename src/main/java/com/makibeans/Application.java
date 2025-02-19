@@ -20,22 +20,6 @@ import java.util.List;
 public class Application implements CommandLineRunner {
 
 
-	private final AttributeTemplateService attributeTemplateService;
-	private final AttributeValueService attributeValueService;
-	private final CategoryService categoryService;
-	private final ProductService productService;
-	private final ProductAttributeService productAttributeService;
-	private final SizeService sizeService;
-
-	public Application(AttributeTemplateService attributeTemplateService, AttributeTemplateRepository attributeTemplateRepository, AttributeValueService attributeValueService, CategoryService categoryService, ProductService productService, ProductAttributeService productAttributeService, SizeService sizeService) {
-		this.attributeTemplateService = attributeTemplateService;
-        this.attributeValueService = attributeValueService;
-        this.categoryService = categoryService;
-		this.productService = productService;
-        this.productAttributeService = productAttributeService;
-		this.sizeService = sizeService;
-	}
-
 	public static void main(String[] args) {
 		SpringApplication.run(Application.class, args);
 	}
