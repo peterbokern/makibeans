@@ -14,4 +14,5 @@ public interface AttributeValueRepository extends JpaRepository<AttributeValue, 
     //returns true if attribute value exists for atttribute template
     @Query("SELECT COUNT(av) > 0 FROM AttributeValue av WHERE av.attributeTemplate = :attributeTemplate AND av.value = :value")
     boolean existsByValue(AttributeTemplate attributeTemplate, String value);
+
 }

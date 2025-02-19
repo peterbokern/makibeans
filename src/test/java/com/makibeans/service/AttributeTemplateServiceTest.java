@@ -1,23 +1,33 @@
 package com.makibeans.service;
 
+import com.makibeans.dto.AttributeTemplateRequestDTO;
+import com.makibeans.dto.AttributeTemplateResponseDTO;
 import com.makibeans.exeptions.DuplicateResourceException;
 import com.makibeans.exeptions.ResourceNotFoundException;
 import com.makibeans.model.AttributeTemplate;
 import com.makibeans.repository.AttributeTemplateRepository;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.openMocks;
 
+@ExtendWith(MockitoExtension.class)
 class AttributeTemplateServiceTest {
+
+    private AttributeTemplateRequestDTO dto;
 
     @Mock
     private AttributeTemplateRepository attributeTemplateRepository;
@@ -27,144 +37,208 @@ class AttributeTemplateServiceTest {
 
     @BeforeEach
     void setUp() {
-        openMocks(this);
+        dto = new AttributeTemplateRequestDTO();
+        dto.setName("  Origin  "); // Simulate untrimmed input
+    }
+
+    @AfterEach
+    void tearDown() {
+        dto = null;
     }
 
     @Test
-    void testCreateAttributeTemplateWithValidName() {
-        // Arrange: Mock repository behavior
-        when(attributeTemplateRepository.existsByName(any(String.class))).thenReturn(false);
+    void should_CreateAttributeTemplate_When_ValidNameProvided() {
+        // Arrange
+        when(attributeTemplateRepository.existsByName("origin")).thenReturn(false);
         when(attributeTemplateRepository.save(any(AttributeTemplate.class)))
-                .thenAnswer(invocation -> {
-                            AttributeTemplate result = invocation.getArgument(0);
-                            return new AttributeTemplate(result.getName());
-                        });
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
-        // Act: Call the method under test
-        AttributeTemplate result = attributeTemplateService.createAttributeTemplate("Origin");
+        // Act
+        AttributeTemplateResponseDTO result = attributeTemplateService.createAttributeTemplate(dto);
 
-        // Assert: Verify the result
-        assertNotNull(result, "The attribute template should not be null after creation");
-        assertEquals("Origin", result.getName(), "The attribute template name should be correctly initialized");
+        // Assert
+        assertNotNull(result);
+        assertEquals("origin", result.getName(), "The attribute template name should be normalized");
 
-        // Verify: Check interactions with the repository
-        verify(attributeTemplateRepository).existsByName("Origin");
+        // Verify
+        verify(attributeTemplateRepository).existsByName(eq("origin"));
         verify(attributeTemplateRepository).save(any(AttributeTemplate.class));
     }
 
     @Test
-    void testCreateAttributeTemplateWithInvalidName() {
-        // Arrange: Nothing to mock
+    void should_ThrowDuplicateResourceException_When_NameAlreadyExists() {
+        // Arrange
+        when(attributeTemplateRepository.existsByName("origin")).thenReturn(true);
 
-        // Act & Assert: Check for IllegalArgumentException on invalid names
-        assertThrows(IllegalArgumentException.class, () -> attributeTemplateService.createAttributeTemplate(null));
-        assertThrows(IllegalArgumentException.class, () -> attributeTemplateService.createAttributeTemplate(""));
+        // Act & Assert
+        assertThrows(DuplicateResourceException.class,
+                () -> attributeTemplateService.createAttributeTemplate(dto),
+                "Expected exception when name already exists");
+
+        verify(attributeTemplateRepository).existsByName(eq("origin"));
+        verifyNoMoreInteractions(attributeTemplateRepository);
     }
 
     @Test
-    void testCreateAttributeTemplateWithDuplicateName() {
-        // Arrange: Mock repository behavior for duplicate name
-        when(attributeTemplateRepository.existsByName(any(String.class))).thenReturn(true);
+    void should_DeleteAttributeTemplate_When_ValidId() {
+        // Arrange
+        when(attributeTemplateRepository.findById(eq(1L))).thenReturn(Optional.of(new AttributeTemplate("origin")));
 
-        // Act & Assert: Ensure DuplicateResourceException is thrown for duplicate names
-        assertThrows(DuplicateResourceException.class, () -> attributeTemplateService.createAttributeTemplate("Origin"));
-    }
-
-    @Test
-    void testDeleteAttributeTemplate() {
-        // Arrange: Mock findById to return an existing template
-        when(attributeTemplateRepository.findById(any(Long.class))).thenReturn(Optional.of(new AttributeTemplate("Origin")));
-
-        // Act: Call the delete method
+        // Act
         attributeTemplateService.deleteAttributeTemplate(1L);
 
-        // Assert: Verify delete interaction with the repository
+        // Verify
+        verify(attributeTemplateRepository).findById(eq(1L));
         verify(attributeTemplateRepository).delete(any(AttributeTemplate.class));
     }
-
     @Test
-    void testDeleteAttributeTemplateInvalidId() {
-        // Arrange: Mock findById to return empty for invalid ID
-        when(attributeTemplateRepository.findById(any(Long.class))).thenReturn(Optional.empty());
+    void should_ThrowResourceNotFoundException_When_DeletingInvalidId() {
+        // Arrange
+        when(attributeTemplateRepository.findById(eq(99L))).thenReturn(Optional.empty());
 
-        // Act & Assert: Check if ResourceNotFoundException is thrown for invalid ID
-        assertThrows(ResourceNotFoundException.class, () -> attributeTemplateService.deleteAttributeTemplate(1L));
+        // Act & Assert
+        assertThrows(ResourceNotFoundException.class,
+                () -> attributeTemplateService.deleteAttributeTemplate(99L));
+
+        verify(attributeTemplateRepository).findById(eq(99L));
+        verifyNoMoreInteractions(attributeTemplateRepository);
     }
 
     @Test
-    void testUpdateAttributeTemplateWithValidName() {
-        // Arrange: Mock repository behavior for findById and save
-        when(attributeTemplateRepository.findById(any(Long.class))).thenReturn(Optional.of(new AttributeTemplate("Origin")));
+    void should_UpdateAttributeTemplate_When_ValidNameProvided() {
+        // Arrange
+        AttributeTemplate existingTemplate = new AttributeTemplate("flavor");
+        when(attributeTemplateRepository.findById(eq(1L))).thenReturn(Optional.of(existingTemplate));
+        when(attributeTemplateRepository.existsByName("origin")).thenReturn(false);
         when(attributeTemplateRepository.save(any(AttributeTemplate.class)))
-                .thenAnswer(invocation -> {
-                    AttributeTemplate result = invocation.getArgument(0);
-                    return new AttributeTemplate(result.getName());
-                });
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
-        // Act: Call update method
-        AttributeTemplate result = attributeTemplateService.updateAttributeTemplate(1L, "Flavor");
+        // Capturing argument
+        ArgumentCaptor<AttributeTemplate> captor = ArgumentCaptor.forClass(AttributeTemplate.class);
 
-        // Assert: Verify the result and repository interactions
-        assertNotNull(result, "The attribute template should not be null after update");
-        assertEquals("Flavor", result.getName(), "The attribute template name should be correctly updated");
-        verify(attributeTemplateRepository).findById(any(long.class));
-        verify(attributeTemplateRepository).save(any(AttributeTemplate.class));
+        // Act
+        AttributeTemplateResponseDTO result = attributeTemplateService.updateAttributeTemplate(1L, dto);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals("origin", result.getName());
+
+        // Verify
+        verify(attributeTemplateRepository).findById(eq(1L));
+        verify(attributeTemplateRepository).existsByName(eq("origin"));
+        verify(attributeTemplateRepository).save(captor.capture());
+
+        // Ensure name normalization
+        AttributeTemplate captured = captor.getValue();
+        assertEquals("origin", captured.getName());
     }
 
     @Test
-    void testUpdateAttributeTemplateWithInvalidName() {
-        // Arrange: Mock repository behavior for findById
-        when(attributeTemplateRepository.findById(any(Long.class))).thenReturn(Optional.of(new AttributeTemplate("Origin")));
+    void should_ThrowResourceNotFoundException_When_UpdatingNonExistentId() {
+        // Arrange
+        when(attributeTemplateRepository.findById(eq(99L))).thenReturn(Optional.empty());
 
-        // Act & Assert: Check for IllegalArgumentException on invalid names
-        assertThrows(IllegalArgumentException.class, () -> attributeTemplateService.updateAttributeTemplate(1L, null));
-        assertThrows(IllegalArgumentException.class, () -> attributeTemplateService.updateAttributeTemplate(1L, ""));
+        // Act & Assert
+        assertThrows(ResourceNotFoundException.class,
+                () -> attributeTemplateService.updateAttributeTemplate(99L, dto));
+
+        verify(attributeTemplateRepository).findById(eq(99L));
+        verifyNoMoreInteractions(attributeTemplateRepository);
     }
 
     @Test
-    void testUpdateAttributeTemplateWithNonExistentId() {
-        // Arrange: Mock repository behavior for non-existent ID
-        when(attributeTemplateRepository.findById(any(Long.class))).thenReturn(Optional.empty());
+    void should_FindById_When_ValidIdExists() {
+        // Arrange
+        when(attributeTemplateRepository.findById(eq(1L)))
+                .thenReturn(Optional.of(new AttributeTemplate("Origin")));
 
-        // Act & Assert: Check if ResourceNotFoundException is thrown for non-existent ID
-        assertThrows(ResourceNotFoundException.class, () -> attributeTemplateService.updateAttributeTemplate(1L, "NewName"));
-    }
-
-    @Test
-    void testFindById() {
-        // Arrange: Mock repository to return an existing template
-        when(attributeTemplateRepository.findById(any(Long.class))).thenReturn(Optional.of(new AttributeTemplate("Origin")));
-
-        // Act: Call findById
+        // Act
         AttributeTemplate result = attributeTemplateService.findById(1L);
 
-        // Assert: Verify the result and repository interaction
-        assertNotNull(result, "The attribute template should not be null");
-        assertEquals("Origin", result.getName(), "The attribute template name should be 'Origin'");
+        // Assert
+        assertNotNull(result);
+        assertEquals("Origin", result.getName());
+
+        verify(attributeTemplateRepository).findById(eq(1L));
+    }
+
+    @Test
+    void should_ThrowResourceNotFoundException_When_FindingByNonExistentId() {
+        // Arrange
+        when(attributeTemplateRepository.findById(eq(99L))).thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(ResourceNotFoundException.class,
+                () -> attributeTemplateService.findById(99L));
+
+        verify(attributeTemplateRepository).findById(eq(99L));
+        verifyNoMoreInteractions(attributeTemplateRepository);
+    }
+
+    @Test
+    void should_ReturnAttributeTemplateResponseDTO_When_ValidIdProvided() {
+        // Arrange
+        AttributeTemplate attributeTemplate = new AttributeTemplate("origin");
+        when(attributeTemplateRepository.findById(1L)).thenReturn(Optional.of(attributeTemplate));
+
+        // Act
+        AttributeTemplateResponseDTO result = attributeTemplateService.findAttributeTemplateById(1L);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals("origin", result.getName());
+
+        // Verify
         verify(attributeTemplateRepository).findById(1L);
     }
 
     @Test
-    void testFindByIdNotFound() {
-        // Arrange: Mock repository to return empty for a non-existent template
-        when(attributeTemplateRepository.findById(any(Long.class))).thenReturn(Optional.empty());
+    void should_ThrowResourceNotFoundException_When_InvalidIdProvided() {
+        // Arrange
+        when(attributeTemplateRepository.findById(99L)).thenReturn(Optional.empty());
 
-        // Act & Assert: Check if ResourceNotFoundException is thrown
-        assertThrows(ResourceNotFoundException.class, () -> attributeTemplateService.findById(1L));
+        // Act & Assert
+        assertThrows(ResourceNotFoundException.class, () -> attributeTemplateService.findAttributeTemplateById(99L));
+
+        // Verify
+        verify(attributeTemplateRepository).findById(99L);
     }
 
     @Test
-    void testFindAll() {
-        // Arrange: Mock repository to return a list of templates
-        List<AttributeTemplate> templates = Arrays.asList(new AttributeTemplate("Origin"), new AttributeTemplate("Size"));
+    void should_ReturnListOfAttributeTemplateResponseDTOs_When_AttributeTemplatesExist() {
+        // Arrange
+        List<AttributeTemplate> templates = Arrays.asList(
+                new AttributeTemplate("origin"),
+                new AttributeTemplate("size")
+        );
         when(attributeTemplateRepository.findAll()).thenReturn(templates);
 
-        // Act: Call findAll
-        List<AttributeTemplate> result = attributeTemplateService.findAll();
+        // Act
+        List<AttributeTemplateResponseDTO> result = attributeTemplateService.findAllAttributeTemplates();
 
-        // Assert: Verify the result and repository interaction
-        assertNotNull(result, "The result should not be null");
-        assertEquals(2, result.size(), "The result size should be 2");
+        // Assert
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        assertEquals("origin", result.get(0).getName());
+        assertEquals("size", result.get(1).getName());
+
+        // Verify
+        verify(attributeTemplateRepository).findAll();
+    }
+
+    @Test
+    void should_ReturnEmptyList_When_NoAttributeTemplatesExist() {
+        // Arrange
+        when(attributeTemplateRepository.findAll()).thenReturn(Collections.emptyList());
+
+        // Act
+        List<AttributeTemplateResponseDTO> result = attributeTemplateService.findAllAttributeTemplates();
+
+        // Assert
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+
+        // Verify
         verify(attributeTemplateRepository).findAll();
     }
 }
