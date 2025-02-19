@@ -1,6 +1,6 @@
 package com.makibeans.service;
 
-import com.makibeans.dto.AttributeTemplateDTO;
+import com.makibeans.dto.AttributeTemplateRequestDTO;
 import com.makibeans.exeptions.DuplicateResourceException;
 import com.makibeans.exeptions.ResourceNotFoundException;
 import com.makibeans.model.AttributeTemplate;
@@ -28,7 +28,7 @@ public class AttributeTemplateService extends AbstractCrudService<AttributeTempl
      * @throws DuplicateResourceException if an AttributeTemplate with the same name already exists
      */
     @Transactional
-    public AttributeTemplate createAttributeTemplate(AttributeTemplateDTO dto) {
+    public AttributeTemplate createAttributeTemplate(AttributeTemplateRequestDTO dto) {
         String normalizedName = dto.getName().trim().toLowerCase();
 
         if (attributeTemplateRepository.existsByName(normalizedName)) {
@@ -44,6 +44,7 @@ public class AttributeTemplateService extends AbstractCrudService<AttributeTempl
      * @param id the ID of the attribute template to delete
      * @throws ResourceNotFoundException if the attribute template does not exist
      */
+
     @Transactional
     public void deleteAttributeTemplate(Long id) {
         delete(id);
@@ -58,8 +59,9 @@ public class AttributeTemplateService extends AbstractCrudService<AttributeTempl
      * @throws ResourceNotFoundException if the attribute template does not exist
      * @throws DuplicateResourceException if another AttributeTemplate already exists with the same name
      */
+
     @Transactional
-    public AttributeTemplate updateAttributeTemplate(Long id, AttributeTemplateDTO dto) {
+    public AttributeTemplate updateAttributeTemplate(Long id, AttributeTemplateRequestDTO dto) {
         String normalizedName = dto.getName().trim().toLowerCase();
 
         AttributeTemplate attributeTemplate = findById(id);
