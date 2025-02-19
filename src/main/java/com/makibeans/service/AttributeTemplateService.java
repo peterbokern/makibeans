@@ -12,6 +12,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Service
 public class AttributeTemplateService extends AbstractCrudService<AttributeTemplate, Long> {
 
@@ -80,5 +83,30 @@ public class AttributeTemplateService extends AbstractCrudService<AttributeTempl
 
         attributeTemplate.setName(normalizedName);
         return mapper.toResponseDTO(update(id, attributeTemplate));
+    }
+
+    /**
+     * Retrieves an AttributeTemplate by its unique identifier.
+     *
+     * @param id the unique identifier of the AttributeTemplate to retrieve.
+     * @return the AttributeTemplateResponseDTO representing the found attribute template.
+     * @throws IllegalArgumentException if the provided id is null
+     * @throws ResourceNotFoundException if no AttributeTemplate is found with the given id.
+     */
+
+    public AttributeTemplateResponseDTO findAttributeTemplateById(Long id) {
+        AttributeTemplate attributeTemplate = findById(id);
+        return mapper.toResponseDTO(attributeTemplate);
+    }
+
+    /**
+     * Retrieves all AttributeTemplates.
+     *
+     * @return the list of all AttributeTemplateResponseDTO's representing the found attribute templates.
+     */
+
+    public List<AttributeTemplateResponseDTO> findAllAttributeTemplates() {
+
+        return findAll().stream().map(mapper::toResponseDTO).toList();
     }
 }
