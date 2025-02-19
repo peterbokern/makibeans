@@ -40,6 +40,7 @@ public class AttributeTemplateService extends AbstractCrudService<AttributeTempl
         }
 
         AttributeTemplate attributeTemplate = mapper.toEntity(dto);
+        attributeTemplate.setName(normalizedName);
 
         return mapper.toResponseDTO(create(attributeTemplate));
     }

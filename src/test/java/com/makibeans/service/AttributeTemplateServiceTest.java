@@ -1,8 +1,10 @@
 package com.makibeans.service;
 
 import com.makibeans.dto.AttributeTemplateRequestDTO;
+import com.makibeans.dto.AttributeTemplateResponseDTO;
 import com.makibeans.exeptions.DuplicateResourceException;
 import com.makibeans.exeptions.ResourceNotFoundException;
+import com.makibeans.mapper.AttributeTemplateMapper;
 import com.makibeans.model.AttributeTemplate;
 import com.makibeans.repository.AttributeTemplateRepository;
 import org.junit.jupiter.api.AfterEach;
@@ -52,7 +54,7 @@ class AttributeTemplateServiceTest {
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
         // Act
-        AttributeTemplate result = attributeTemplateService.createAttributeTemplate(dto);
+        AttributeTemplateResponseDTO result = attributeTemplateService.createAttributeTemplate(dto);
 
         // Assert
         assertNotNull(result);
@@ -89,7 +91,6 @@ class AttributeTemplateServiceTest {
         verify(attributeTemplateRepository).findById(eq(1L));
         verify(attributeTemplateRepository).delete(any(AttributeTemplate.class));
     }
-
     @Test
     void should_ThrowResourceNotFoundException_When_DeletingInvalidId() {
         // Arrange
@@ -116,7 +117,7 @@ class AttributeTemplateServiceTest {
         ArgumentCaptor<AttributeTemplate> captor = ArgumentCaptor.forClass(AttributeTemplate.class);
 
         // Act
-        AttributeTemplate result = attributeTemplateService.updateAttributeTemplate(1L, dto);
+        AttributeTemplateResponseDTO result = attributeTemplateService.updateAttributeTemplate(1L, dto);
 
         // Assert
         assertNotNull(result);
