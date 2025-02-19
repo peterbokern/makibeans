@@ -4,7 +4,6 @@ import com.makibeans.dto.AttributeTemplateRequestDTO;
 import com.makibeans.dto.AttributeTemplateResponseDTO;
 import com.makibeans.exeptions.DuplicateResourceException;
 import com.makibeans.exeptions.ResourceNotFoundException;
-import com.makibeans.mapper.AttributeTemplateMapper;
 import com.makibeans.model.AttributeTemplate;
 import com.makibeans.repository.AttributeTemplateRepository;
 import org.junit.jupiter.api.AfterEach;
@@ -17,6 +16,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -176,20 +176,69 @@ class AttributeTemplateServiceTest {
     }
 
     @Test
-    void should_FindAll_When_AttributeTemplatesExist() {
+    void should_ReturnAttributeTemplateResponseDTO_When_ValidIdProvided() {
+        // Arrange
+        AttributeTemplate attributeTemplate = new AttributeTemplate("origin");
+        when(attributeTemplateRepository.findById(1L)).thenReturn(Optional.of(attributeTemplate));
+
+        // Act
+        AttributeTemplateResponseDTO result = attributeTemplateService.findAttributeTemplateById(1L);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals("origin", result.getName());
+
+        // Verify
+        verify(attributeTemplateRepository).findById(1L);
+    }
+
+    @Test
+    void should_ThrowResourceNotFoundException_When_InvalidIdProvided() {
+        // Arrange
+        when(attributeTemplateRepository.findById(99L)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(ResourceNotFoundException.class, () -> attributeTemplateService.findAttributeTemplateById(99L));
+
+        // Verify
+        verify(attributeTemplateRepository).findById(99L);
+    }
+
+    @Test
+    void should_ReturnListOfAttributeTemplateResponseDTOs_When_AttributeTemplatesExist() {
         // Arrange
         List<AttributeTemplate> templates = Arrays.asList(
                 new AttributeTemplate("origin"),
-                new AttributeTemplate("size"));
+                new AttributeTemplate("size")
+        );
         when(attributeTemplateRepository.findAll()).thenReturn(templates);
 
         // Act
-        List<AttributeTemplate> result = attributeTemplateService.findAll();
+        List<AttributeTemplateResponseDTO> result = attributeTemplateService.findAllAttributeTemplates();
 
         // Assert
         assertNotNull(result);
         assertEquals(2, result.size());
+        assertEquals("origin", result.get(0).getName());
+        assertEquals("size", result.get(1).getName());
 
+        // Verify
+        verify(attributeTemplateRepository).findAll();
+    }
+
+    @Test
+    void should_ReturnEmptyList_When_NoAttributeTemplatesExist() {
+        // Arrange
+        when(attributeTemplateRepository.findAll()).thenReturn(Collections.emptyList());
+
+        // Act
+        List<AttributeTemplateResponseDTO> result = attributeTemplateService.findAllAttributeTemplates();
+
+        // Assert
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+
+        // Verify
         verify(attributeTemplateRepository).findAll();
     }
 }
