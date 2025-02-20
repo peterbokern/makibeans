@@ -1,8 +1,10 @@
 package com.makibeans.service;
 
-import com.makibeans.dto.AttributeValueDTO;
+import com.makibeans.dto.AttributeValueRequestDTO;
+import com.makibeans.dto.AttributeValueResponseDTO;
 import com.makibeans.exeptions.DuplicateResourceException;
 import com.makibeans.exeptions.ResourceNotFoundException;
+import com.makibeans.mapper.AttributeValueMapper;
 import com.makibeans.model.AttributeTemplate;
 import com.makibeans.model.AttributeValue;
 import com.makibeans.repository.AttributeValueRepository;
@@ -15,25 +17,29 @@ public class AttributeValueService extends AbstractCrudService<AttributeValue, L
 
     private final AttributeValueRepository attributeValueRepository;
     private final AttributeTemplateService attributeTemplateService;
+    private final AttributeValueMapper mapper;
+    private final AttributeValueMapper attributeValueMapper;
 
     @Autowired
     public AttributeValueService(AttributeValueRepository attributeValueRepository,
-                                 AttributeTemplateService attributeTemplateService) {
+                                 AttributeTemplateService attributeTemplateService, AttributeValueMapper mapper, AttributeValueMapper attributeValueMapper) {
         super(attributeValueRepository);
         this.attributeValueRepository = attributeValueRepository;
         this.attributeTemplateService = attributeTemplateService;
+        this.mapper = mapper;
+        this.attributeValueMapper = attributeValueMapper;
     }
 
     /**
      * Creates a new AttributeValue.
      *
      * @param dto the DTO containing the attribute value details
-     * @return the created AttributeValue entity
+     * @return the AttributeValueResponseDTO that represents the created AttributeValue entity
      * @throws DuplicateResourceException if an AttributeValue with the same value already exists
      */
 
     @Transactional
-    public AttributeValue createAttributeValue(AttributeValueDTO dto) {
+    public AttributeValueResponseDTO createAttributeValue(AttributeValueRequestDTO dto) {
         String normalizedValue = dto.getValue().trim();
 
         AttributeTemplate attributeTemplate = attributeTemplateService.findById(dto.getTemplateId());
@@ -42,8 +48,10 @@ public class AttributeValueService extends AbstractCrudService<AttributeValue, L
             throw new DuplicateResourceException("Attribute value '" + normalizedValue + "' already exists.");
         }
 
-        AttributeValue attributeValue = new AttributeValue(attributeTemplate, normalizedValue);
-        return create(attributeValue);
+        AttributeValue attributeValue = mapper.toEntity(dto);
+        attributeValue.setValue(normalizedValue);
+
+        return mapper.toResponseDTO(create(attributeValue));
     }
 
     /**
@@ -69,15 +77,17 @@ public class AttributeValueService extends AbstractCrudService<AttributeValue, L
      */
 
     @Transactional
-    public AttributeValue updateAttributeValue(Long id, AttributeValueDTO dto) {
+    public AttributeValue updateAttributeValue(Long id, AttributeValueRequestDTO dto) {
         String normalizedValue = dto.getValue().trim();
 
         AttributeValue attributeValue = findById(id);
-        AttributeTemplate attributeTemplate = attributeTemplateService.findById(dto.getId());
+        AttributeTemplate attributeTemplate = attributeTemplateService.findById(dto.getTemplateId());
 
         if (!attributeValue.getValue().equalsIgnoreCase(normalizedValue) && attributeValueRepository.existsByValue(attributeTemplate, normalizedValue)) {
             throw new DuplicateResourceException("Attribute value '" + normalizedValue + "' already exists for attribute template " + attributeTemplate.getName() + ".");
         }
+
+        attributeValueMapper.updateAttributeValueFromDto(dto, attributeValue);
 
         attributeValue.setValue(normalizedValue);
         return update(id, attributeValue);
