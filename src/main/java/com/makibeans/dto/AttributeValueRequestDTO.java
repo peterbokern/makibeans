@@ -9,9 +9,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class AttributeValueDTO {
-
-    private Long id;
+public class AttributeValueRequestDTO {
 
     @NotNull(message = "Template ID cannot be null.")
     private Long templateId;
