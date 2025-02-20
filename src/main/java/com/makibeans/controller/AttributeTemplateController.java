@@ -28,7 +28,7 @@ public class AttributeTemplateController {
      */
     @GetMapping("/{id}")
     public ResponseEntity<AttributeTemplateResponseDTO> getAttributeTemplate(@PathVariable Long id) {
-        AttributeTemplateResponseDTO responseDTO = attributeTemplateService.findAttributeTemplateById(id);
+        AttributeTemplateResponseDTO responseDTO = attributeTemplateService.getAttributeTemplateById(id);
         return ResponseEntity.ok(responseDTO);
     }
 
@@ -39,7 +39,7 @@ public class AttributeTemplateController {
      */
     @GetMapping
     public ResponseEntity<List<AttributeTemplateResponseDTO>> getAllAttributeTemplates() {
-        List<AttributeTemplateResponseDTO> responseDTOs = attributeTemplateService.findAllAttributeTemplates();
+        List<AttributeTemplateResponseDTO> responseDTOs = attributeTemplateService.getAllAttributeTemplates();
         return ResponseEntity.ok(responseDTOs);
     }
 

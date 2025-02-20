@@ -1,32 +1,36 @@
 package com.makibeans;
 
-import com.makibeans.model.AttributeTemplate;
-import com.makibeans.model.AttributeValue;
-import com.makibeans.model.Product;
-import com.makibeans.model.ProductAttribute;
-import com.makibeans.repository.AttributeTemplateRepository;
+
+import com.makibeans.dto.AttributeValueResponseDTO;
 import com.makibeans.service.*;
-import org.hibernate.Hibernate;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-
-
 @SpringBootApplication
 public class Application implements CommandLineRunner {
 
+	private final AttributeValueService attributeValueService;
 
-	public static void main(String[] args) {
+    public Application(AttributeValueService attributeValueService) {
+        this.attributeValueService = attributeValueService;
+
+    }
+
+
+    public static void main(String[] args) {
 		SpringApplication.run(Application.class, args);
 	}
 
 	@Transactional
 	@Override
-	public void run(String... args) throws Exception {
+	public void run(String... args) {
+
+		AttributeValueResponseDTO responseDTO = attributeValueService.getAttributeValueById(4L);
+		System.out.println(responseDTO.getId());
+		System.out.println(responseDTO.getTemplateId());
+		System.out.println(responseDTO.getValue());
 
 	}
 
