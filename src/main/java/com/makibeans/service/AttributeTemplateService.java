@@ -93,7 +93,7 @@ public class AttributeTemplateService extends AbstractCrudService<AttributeTempl
      * @throws ResourceNotFoundException if no AttributeTemplate is found with the given id.
      */
 
-    public AttributeTemplateResponseDTO findAttributeTemplateById(Long id) {
+    public AttributeTemplateResponseDTO getAttributeTemplateById(Long id) {
         AttributeTemplate attributeTemplate = findById(id);
         return mapper.toResponseDTO(attributeTemplate);
     }
@@ -104,7 +104,7 @@ public class AttributeTemplateService extends AbstractCrudService<AttributeTempl
      * @return the list of all AttributeTemplateResponseDTO's representing the found attribute templates.
      */
 
-    public List<AttributeTemplateResponseDTO> findAllAttributeTemplates() {
+    public List<AttributeTemplateResponseDTO> getAllAttributeTemplates() {
 
         return findAll().stream().map(mapper::toResponseDTO).toList();
     }
