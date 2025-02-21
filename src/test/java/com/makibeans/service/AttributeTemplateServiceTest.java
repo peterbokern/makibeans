@@ -182,7 +182,7 @@ class AttributeTemplateServiceTest {
         when(attributeTemplateRepository.findById(1L)).thenReturn(Optional.of(attributeTemplate));
 
         // Act
-        AttributeTemplateResponseDTO result = attributeTemplateService.findAttributeTemplateById(1L);
+        AttributeTemplateResponseDTO result = attributeTemplateService.getAttributeTemplateById(1L);
 
         // Assert
         assertNotNull(result);
@@ -198,7 +198,7 @@ class AttributeTemplateServiceTest {
         when(attributeTemplateRepository.findById(99L)).thenReturn(Optional.empty());
 
         // Act & Assert
-        assertThrows(ResourceNotFoundException.class, () -> attributeTemplateService.findAttributeTemplateById(99L));
+        assertThrows(ResourceNotFoundException.class, () -> attributeTemplateService.getAttributeTemplateById(99L));
 
         // Verify
         verify(attributeTemplateRepository).findById(99L);
@@ -214,7 +214,7 @@ class AttributeTemplateServiceTest {
         when(attributeTemplateRepository.findAll()).thenReturn(templates);
 
         // Act
-        List<AttributeTemplateResponseDTO> result = attributeTemplateService.findAllAttributeTemplates();
+        List<AttributeTemplateResponseDTO> result = attributeTemplateService.getAllAttributeTemplates();
 
         // Assert
         assertNotNull(result);
@@ -232,7 +232,7 @@ class AttributeTemplateServiceTest {
         when(attributeTemplateRepository.findAll()).thenReturn(Collections.emptyList());
 
         // Act
-        List<AttributeTemplateResponseDTO> result = attributeTemplateService.findAllAttributeTemplates();
+        List<AttributeTemplateResponseDTO> result = attributeTemplateService.getAllAttributeTemplates();
 
         // Assert
         assertNotNull(result);
