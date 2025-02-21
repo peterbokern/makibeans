@@ -7,5 +7,6 @@ public class AttributeValueResponseDTO {
 
     private Long id;
     private Long templateId;
+    private String attributeName;
     private String value;
 }

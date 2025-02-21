@@ -27,10 +27,6 @@ public class Application implements CommandLineRunner {
 	@Override
 	public void run(String... args) {
 
-		AttributeValueResponseDTO responseDTO = attributeValueService.getAttributeValueById(4L);
-		System.out.println(responseDTO.getId());
-		System.out.println(responseDTO.getTemplateId());
-		System.out.println(responseDTO.getValue());
 
 	}
 
