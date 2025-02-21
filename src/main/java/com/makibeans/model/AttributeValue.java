@@ -22,6 +22,7 @@ public class AttributeValue {
     private Long id;
 
     @ManyToOne
+    @Setter
     @JoinColumn(name = "template_id", nullable = false)
     private AttributeTemplate attributeTemplate;
 

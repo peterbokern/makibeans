@@ -1,26 +1,29 @@
-/*
 package com.makibeans.service;
 
+import com.makibeans.dto.AttributeValueRequestDTO;
+import com.makibeans.dto.AttributeValueResponseDTO;
+import com.makibeans.dto.AttributeValueUpdateDTO;
 import com.makibeans.exeptions.DuplicateResourceException;
 import com.makibeans.exeptions.ResourceNotFoundException;
+import com.makibeans.mapper.AttributeValueMapper;
 import com.makibeans.model.AttributeTemplate;
 import com.makibeans.model.AttributeValue;
 import com.makibeans.repository.AttributeValueRepository;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.openMocks;
 
+@ExtendWith(MockitoExtension.class)
 class AttributeValueServiceTest {
 
     private AttributeTemplate attributeTemplate;
@@ -31,153 +34,215 @@ class AttributeValueServiceTest {
     @Mock
     private AttributeTemplateService attributeTemplateService;
 
+    @Mock
+    private AttributeValueMapper mapper;
+
     @InjectMocks
     private AttributeValueService attributeValueService;
 
-    @BeforeEach
-    void setUp() {
-        openMocks(this);
-        attributeTemplate = new AttributeTemplate("Origin");
-    }
-
-    // Test creating attribute value with valid value
+    /** GET **/
     @Test
-    void testCreateAttributeValueWithValidValue() {
+    void whenGetAttributeValueById_thenReturnResponseDTO() {
         // Arrange
-        when(attributeTemplateService.findById(1L)).thenReturn(attributeTemplate);
-        when(attributeValueRepository.existsByValue(attributeTemplate, "Chili")).thenReturn(false);
-        when(attributeValueRepository.save(any(AttributeValue.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        AttributeValue attributeValue = new AttributeValue(attributeTemplate, "chili");
+        AttributeValueResponseDTO responseDTO = new AttributeValueResponseDTO();
+        responseDTO.setTemplateId(1L);
+        responseDTO.setAttributeName("origin");
+        responseDTO.setValue("chili");
+
+        when(attributeValueRepository.findById(1L)).thenReturn(Optional.of(attributeValue));
+        when(mapper.toResponseDTO(attributeValue)).thenReturn(responseDTO);
 
         // Act
-        AttributeValue result = attributeValueService.createAttributeValue(1L, "Chili");
+        AttributeValueResponseDTO response = attributeValueService.getAttributeValueById(1L);
 
         // Assert
-        assertNotNull(result, "The attribute value should not be null after creation");
-        assertEquals(attributeTemplate, result.getAttributeTemplate(), "The attribute template should be correctly associated");
-        assertEquals("Chili", result.getValue(), "The value should be 'Chili' as passed in");
-        verify(attributeTemplateService).findById(1L);
-        verify(attributeValueRepository).existsByValue(any(AttributeTemplate.class), eq("Chili"));
-        verify(attributeValueRepository).save(any(AttributeValue.class));
+        assertNotNull(response);
+        assertEquals("origin", response.getAttributeName());
+
+        // Verify
+        verify(attributeValueRepository).findById(1L);
+        verify(mapper).toResponseDTO(attributeValue);
     }
 
-    // Test creating attribute value with invalid value
     @Test
-    void testCreateAttributeValueWithInvalidValue() {
-        // Act & Assert
-        assertThrows(IllegalArgumentException.class, () -> attributeValueService.createAttributeValue(1L, null), "Should throw exception for null value");
-        assertThrows(IllegalArgumentException.class, () -> attributeValueService.createAttributeValue(null, "Chili"), "Should throw exception for null id");
-    }
-
-    // Test creating attribute value with duplicate value
-    @Test
-    void testCreateAttributeValueWithDuplicateValue() {
+    void whenGetAttributeValueByIdWithNonExistentId_thenThrowResourceNotFoundException() {
         // Arrange
+        when(attributeValueRepository.findById(1L)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(ResourceNotFoundException.class, () -> attributeValueService.getAttributeValueById(1L));
+
+        // Verify
+        verify(attributeValueRepository).findById(1L);
+    }
+
+    @Test
+    void whenGetAllAttributeValues_thenReturnListOfDTOs() {
+        // Arrange
+        AttributeValue attributeValue1 = new AttributeValue(attributeTemplate, "chili");
+        AttributeValue attributeValue2 = new AttributeValue(attributeTemplate, "argentina");
+
+        List<AttributeValue> attributeValues = List.of(attributeValue1, attributeValue2);
+        when(attributeValueRepository.findAll()).thenReturn(attributeValues);
+        when(mapper.toResponseDTO(any())).thenAnswer(invocation -> {
+            AttributeValue entity = invocation.getArgument(0);
+            AttributeValueResponseDTO dto = new AttributeValueResponseDTO();
+            dto.setTemplateId(1L);
+            dto.setAttributeName("origin");
+            dto.setValue(entity.getValue());
+            return dto;
+        });
+
+        // Act
+        List<AttributeValueResponseDTO> response = attributeValueService.getAllAttributeValues();
+
+        // Assert
+        assertEquals(2, response.size());
+        assertEquals("chili", response.get(0).getValue());
+        assertEquals("argentina", response.get(1).getValue());
+
+        // Verify
+        verify(attributeValueRepository).findAll();
+        verify(mapper, times(2)).toResponseDTO(any());
+    }
+
+    /** CREATE */
+    @Test
+    void whenCreateAttributeValue_thenReturnResponseDTO() {
+        // Arrange
+        AttributeValueRequestDTO requestDTO = new AttributeValueRequestDTO();
+        requestDTO.setTemplateId(1L);
+        requestDTO.setValue("chili");
+
+        AttributeValue mappedEntity = new AttributeValue(attributeTemplate, "chili");
+        AttributeValueResponseDTO responseDTO = new AttributeValueResponseDTO();
+        responseDTO.setTemplateId(1L);
+        responseDTO.setAttributeName("origin");
+        responseDTO.setValue("chili");
+
         when(attributeTemplateService.findById(1L)).thenReturn(attributeTemplate);
-        when(attributeValueRepository.existsByValue(attributeTemplate, "Chili")).thenReturn(true);
+        when(mapper.toEntity(requestDTO)).thenReturn(mappedEntity);
+        when(attributeValueRepository.existsByValue(attributeTemplate, "chili")).thenReturn(false);
+        when(mapper.toResponseDTO(any())).thenReturn(responseDTO);
 
-        // Act & Assert
-        assertThrows(DuplicateResourceException.class, () -> attributeValueService.createAttributeValue(1L, "Chili"), "Should throw DuplicateResourceException for duplicate value");
-        verify(attributeTemplateService).findById(1L);
-        verify(attributeValueRepository).existsByValue(any(AttributeTemplate.class), eq("Chili"));
+        ArgumentCaptor<AttributeValue> captor = ArgumentCaptor.forClass(AttributeValue.class);
+
+        // Act
+        AttributeValueResponseDTO response = attributeValueService.createAttributeValue(requestDTO);
+
+        // Assert
+        assertNotNull(response);
+        assertEquals("origin", response.getAttributeName());
+
+        // Verify
+        verify(attributeValueRepository).save(captor.capture());
+        assertEquals("chili", captor.getValue().getValue());
+        verify(mapper).toResponseDTO(any());
     }
 
-    // Test deleting attribute value
     @Test
-    void testDeleteAttributeValue() {
+    void whenCreateDAttributeValueWithDuplicateValue_thenThrowDuplicateResourceException() {
         // Arrange
-        AttributeValue attributeValue = new AttributeValue(attributeTemplate, "Chili");
+        AttributeValueRequestDTO requestDTO = new AttributeValueRequestDTO();
+        requestDTO.setTemplateId(1L);
+        requestDTO.setValue("chili");
+
+        attributeTemplate = new AttributeTemplate(); // Ensure attributeTemplate is initialized
+        AttributeValue mappedEntity = new AttributeValue(attributeTemplate, "chili");
+
+        when(attributeTemplateService.findById(1L)).thenReturn(attributeTemplate);
+        when(mapper.toEntity(requestDTO)).thenReturn(mappedEntity);
+        when(attributeValueRepository.existsByValue(attributeTemplate, "chili")).thenReturn(true);
+
+        // Act & Assert
+        assertThrows(DuplicateResourceException.class, () -> attributeValueService.createAttributeValue(requestDTO));
+
+        // Verify
+        verify(attributeValueRepository, never()).save(any());
+    }
+
+    /** UPDATE */
+    @Test
+    void whenUpdateAttributeValue_thenReturnUpdatedDTO() {
+        // Arrange
+        AttributeValueUpdateDTO updateDTO = new AttributeValueUpdateDTO();
+        updateDTO.setValue("Argentina");
+
+        AttributeValue existingAttributeValue = new AttributeValue(attributeTemplate, "chili");
+        when(attributeValueRepository.findById(1L)).thenReturn(Optional.of(existingAttributeValue));
+        when(mapper.normalizeValue("Argentina")).thenReturn("argentina");
+        when(attributeValueRepository.existsByValue(attributeTemplate, "argentina")).thenReturn(false);
+
+        ArgumentCaptor<AttributeValue> captor = ArgumentCaptor.forClass(AttributeValue.class);
+
+        // Act
+        attributeValueService.updateAttributeValue(1L, updateDTO);
+
+        // Verify
+        verify(attributeValueRepository).save(captor.capture());
+        assertEquals("argentina", captor.getValue().getValue());
+    }
+
+    @Test
+    void whenUpdateAttributeValueWithDuplicateValue_thenThrowDuplicateResourceException() {
+        // Arrange
+        AttributeValueUpdateDTO updateDTO = new AttributeValueUpdateDTO();
+        updateDTO.setValue("Argentina");
+
+        AttributeValue existingAttributeValue = new AttributeValue(attributeTemplate, "chili");
+
+        when(attributeValueRepository.findById(1L)).thenReturn(Optional.of(existingAttributeValue));
+        when(mapper.normalizeValue("Argentina")).thenReturn("argentina");
+        when(attributeValueRepository.existsByValue(attributeTemplate, "argentina")).thenReturn(true);
+
+        // Act & Assert
+        assertThrows(DuplicateResourceException.class, () -> attributeValueService.updateAttributeValue(1L, updateDTO));
+
+        // Verify
+        verify(attributeValueRepository).findById(1L);
+    }
+
+    @Test
+    void whenUpdateAttributeValueWithInvalidId_thenThrowResourceNotFoundException() {
+        // Arrange
+        AttributeValueUpdateDTO updateDTO = new AttributeValueUpdateDTO();
+        updateDTO.setValue("Argentina");
+
+        when(attributeValueRepository.findById(1L)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(ResourceNotFoundException.class, () -> attributeValueService.updateAttributeValue(1L, updateDTO));
+
+        // Verify
+        verify(attributeValueRepository).findById(1L);
+        verify(attributeValueRepository, never()).save(any());
+    }
+
+    /**  DELETE **/
+    @Test
+    void whenDeleteAttributeValue_thenSuccess() {
+        // Arrange
+        AttributeValue attributeValue = new AttributeValue(attributeTemplate, "chili");
         when(attributeValueRepository.findById(1L)).thenReturn(Optional.of(attributeValue));
 
         // Act
         attributeValueService.deleteAttributeValue(1L);
 
-        // Assert
+        // Verify
         verify(attributeValueRepository).findById(1L);
         verify(attributeValueRepository).delete(attributeValue);
     }
 
-    // Test deleting attribute value with invalid id
     @Test
-    void testDeleteAttributeValueInvalidId() {
-        //act & assert
-        assertThrows(IllegalArgumentException.class, () -> attributeValueService.deleteAttributeValue(null), "Should throw IllegalArgumentException for null id");
-    }
-
-    // Test deleting attribute value when not found
-    @Test
-    void testDeleteAttributeValueWhenNotFound() {
+    void whenDeleteAttributeValueWithNonExistentId_thenThrowResourceNotFoundException() {
         // Arrange
         when(attributeValueRepository.findById(1L)).thenReturn(Optional.empty());
 
         // Act & Assert
-        assertThrows(ResourceNotFoundException.class, () -> attributeValueService.deleteAttributeValue(1L), "Should throw ResourceNotFoundException for non-existent value");
-    }
+        assertThrows(ResourceNotFoundException.class, () -> attributeValueService.deleteAttributeValue(1L));
 
-    // Test updating attribute value with valid value
-    @Test
-    void testUpdateAttributeValueWithValidValue() {
-        // Arrange
-        AttributeValue attributeValue = new AttributeValue(attributeTemplate, "Chili");
-        when(attributeValueRepository.findById(1L)).thenReturn(Optional.of(attributeValue));
-        when(attributeValueRepository.save(any(AttributeValue.class))).thenAnswer(invocation -> invocation.getArgument(0));
-
-        // Act
-        AttributeValue result = attributeValueService.updateAttributeValue(1L, "Argentina");
-
-        // Assert
-        assertNotNull(result, "The result should not be null after update");
-        assertEquals("Argentina", result.getValue(), "The value should be 'Argentina' after the update");
+        // Verify
         verify(attributeValueRepository).findById(1L);
-        verify(attributeValueRepository).save(result);
-    }
-
-    // Test updating attribute value with the same value
-    @Test
-    void testUpdateAttributeValueWithSameValue() {
-        // Arrange
-        AttributeValue attributeValue = new AttributeValue(attributeTemplate, "Chili");
-        when(attributeValueRepository.findById(1L)).thenReturn(Optional.of(attributeValue));
-
-        // Act
-        AttributeValue result = attributeValueService.updateAttributeValue(1L, "Chili");
-
-        // Assert
-        assertNotNull(result, "The result should not be null");
-        assertEquals("Chili", result.getValue(), "The value should be 'Chili' since it hasn't changed");
-        verify(attributeValueRepository, never()).save(any(AttributeValue.class)); // Verify that save is not called
-    }
-
-    // Test updating attribute value with invalid value
-    @Test
-    void testUpdateAttributeValueWithInvalidValue() {
-        assertThrows(IllegalArgumentException.class, () -> attributeValueService.updateAttributeValue(1L, null), "Should throw exception for null value");
-        assertThrows(IllegalArgumentException.class, () -> attributeValueService.updateAttributeValue(1L, ""), "Should throw exception for empty value");
-    }
-
-    // Test updating attribute value with non-existent id
-    @Test
-    void testUpdateAttributeValueWithNonExistentId() {
-        // Arrange
-        when(attributeValueRepository.findById(1L)).thenReturn(Optional.empty());
-
-        // Act & Assert
-        assertThrows(ResourceNotFoundException.class, () -> attributeValueService.updateAttributeValue(1L, "Argentina"), "Should throw ResourceNotFoundException for non-existent id");
-    }
-
-    // Test finding all attribute values
-    @Test
-    void testFindAllAttributeValues() {
-        // Arrange
-        List<AttributeValue> attributeValues = Arrays.asList(new AttributeValue(attributeTemplate, "Chili"), new AttributeValue(attributeTemplate, "Spicy"));
-        when(attributeValueRepository.findAll()).thenReturn(attributeValues);
-
-        // Act
-        List<AttributeValue> result = attributeValueService.findAll();
-
-        // Assert
-        assertNotNull(result, "The result should not be null");
-        assertEquals(attributeValues, result, "The retured list of attribute values should match the expected list of attribute values");
-        verify(attributeValueRepository).findAll();
     }
 }
-*/
