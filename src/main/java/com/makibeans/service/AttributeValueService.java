@@ -126,15 +126,16 @@ public class AttributeValueService extends AbstractCrudService<AttributeValue, L
 
         AttributeValue attributeValue = findById(id);
         AttributeTemplate attributeTemplate = attributeValue.getAttributeTemplate();
-
-        String normalizedValue = dto.getValue().trim().toLowerCase();
+        String normalizedValue = mapper.normalizeValue(dto.getValue());
 
         if (!attributeValue.getValue().equalsIgnoreCase(normalizedValue) && attributeValueRepository.existsByValue(attributeTemplate, normalizedValue)) {
-            throw new DuplicateResourceException("Attribute value '" + normalizedValue + "' already exists for attribute template " + attributeTemplate+ ".");
+            throw new DuplicateResourceException("Attribute value '" + normalizedValue + "' already exists for attribute template " + attributeTemplate + ".");
         }
 
         attributeValue.setValue(normalizedValue);
 
-        return mapper.toResponseDTO(update(id, attributeValue));
+        AttributeValue updatedAttributeValue = update(id, attributeValue);
+
+        return mapper.toResponseDTO(updatedAttributeValue);
     }
 }
