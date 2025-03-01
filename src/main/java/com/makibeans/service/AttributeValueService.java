@@ -9,6 +9,7 @@ import com.makibeans.mapper.AttributeValueMapper;
 import com.makibeans.model.AttributeTemplate;
 import com.makibeans.model.AttributeValue;
 import com.makibeans.repository.AttributeValueRepository;
+import com.makibeans.util.MappingUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -126,7 +127,7 @@ public class AttributeValueService extends AbstractCrudService<AttributeValue, L
 
         AttributeValue attributeValue = findById(id);
         AttributeTemplate attributeTemplate = attributeValue.getAttributeTemplate();
-        String normalizedValue = mapper.normalizeValue(dto.getValue());
+        String normalizedValue = MappingUtils.normalizeValue(dto.getValue());
 
         if (!attributeValue.getValue().equalsIgnoreCase(normalizedValue) && attributeValueRepository.existsByValue(attributeTemplate, normalizedValue)) {
             throw new DuplicateResourceException("Attribute value '" + normalizedValue + "' already exists for attribute template " + attributeTemplate + ".");
