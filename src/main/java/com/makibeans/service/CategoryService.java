@@ -24,7 +24,7 @@ public class CategoryService extends AbstractCrudService<Category, Long> {
     private final CategoryMapper categoryMapper;
 
     @Autowired
-    public CategoryService(JpaRepository<Category, Long> repository, CategoryRepository categoryRepository, AttributeValueRepository attributeValueRepository, CategoryMapper categoryMapper) {
+    public CategoryService(JpaRepository<Category, Long> repository, CategoryRepository categoryRepository, CategoryMapper categoryMapper) {
         super(repository);
         this.categoryRepository = categoryRepository;
         this.categoryMapper = categoryMapper;
@@ -166,7 +166,7 @@ public class CategoryService extends AbstractCrudService<Category, Long> {
             if (current.equals(subCategory)) {
                 throw new CircularReferenceException(String.format(
                         "Category '%s' cannot be assigned as a subcategory of category '%s' because it would create a circular reference.",
-                        subCategory.getName(), parentCategory.getName(), current.getName(), parentCategory.getName()));
+                        subCategory.getName(), parentCategory.getName()));
             }
             current = current.getParentCategory(); // Traverse up the hierarchy
         }
