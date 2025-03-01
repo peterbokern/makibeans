@@ -9,8 +9,6 @@ import com.makibeans.model.Category;
 import com.makibeans.model.Product;
 import com.makibeans.repository.AttributeValueRepository;
 import com.makibeans.repository.CategoryRepository;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
@@ -24,9 +22,6 @@ public class CategoryService extends AbstractCrudService<Category, Long> {
 
     private final CategoryRepository categoryRepository;
     private final CategoryMapper categoryMapper;
-
-    @PersistenceContext
-    private EntityManager entityManager;
 
     @Autowired
     public CategoryService(JpaRepository<Category, Long> repository, CategoryRepository categoryRepository, AttributeValueRepository attributeValueRepository, CategoryMapper categoryMapper) {
@@ -106,10 +101,6 @@ public class CategoryService extends AbstractCrudService<Category, Long> {
     @Transactional
     public void deleteCategory(Long categoryId) {
 
-        if (categoryId == null) {
-            throw new IllegalArgumentException("Category id cannot be null.");
-        }
-
         Category category = categoryRepository.findById(categoryId).orElseThrow(() -> new ResourceNotFoundException("Category id " + categoryId + " not found."));
 
         //Remove reference to deleted category
@@ -133,29 +124,31 @@ public class CategoryService extends AbstractCrudService<Category, Long> {
 
     @Transactional
     public CategoryResponseDTO updateCategory(Long id, CategoryRequestDTO requestDTO) {
+
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Category with ID " + id + " not found."));
 
-        // Update name if changed
-        if (!category.getName().equalsIgnoreCase(requestDTO.getName())) {
-            validateUniqueCategoryNameWithinHierarchy(category.getParentCategory(), requestDTO.getName(), category);
-            category.setName(requestDTO.getName());
-        }
+        validateUniqueCategoryNameWithinHierarchy(category.getParentCategory(), requestDTO.getName(), category);
 
-        // Check if parent category changed
+        // update category
+        category.setName(requestDTO.getName());
+        category.setDescription(requestDTO.getDescription());
+        category.setImageUrl(requestDTO.getImageUrl());
+
+        // Set new parent category
         Long newParentId = requestDTO.getParentCategoryId();
-        if (newParentId != null && !newParentId.equals(category.getParentCategory() != null ? category.getParentCategory().getId() : null)) {
+        if (newParentId != null) {
             Category newParent = categoryRepository.findById(newParentId)
                     .orElseThrow(() -> new ResourceNotFoundException("Parent category with ID " + newParentId + " not found."));
-
             validateCircularReference(newParent, category);
             category.setParentCategory(newParent);
-        } else if (newParentId == null) {
-            category.setParentCategory(null); // root category
+        } else {
+            category.setParentCategory(null); // Set as root category if null
         }
 
-        categoryRepository.save(category);
-        return categoryMapper.toResponseDTO(category);
+        Category updatedCategory = update(id, category);
+
+        return categoryMapper.toResponseDTO(updatedCategory);
     }
 
     /**
