@@ -3,9 +3,10 @@ package com.makibeans.mapper;
 import com.makibeans.dto.AttributeValueRequestDTO;
 import com.makibeans.dto.AttributeValueResponseDTO;
 import com.makibeans.model.AttributeValue;
+import com.makibeans.util.MappingUtils;
 import org.mapstruct.*;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = MappingUtils.class)
 public interface AttributeValueMapper {
 
     @Mapping(source = "attributeTemplate.id", target = "templateId")
@@ -16,8 +17,4 @@ public interface AttributeValueMapper {
     @Mapping(target = "attributeTemplate", ignore = true)
     AttributeValue toEntity(AttributeValueRequestDTO dto);
 
-    @Named("normalizeValue")
-    default String normalizeValue(String value) {
-        return value.trim().toLowerCase();
-    }
 }
