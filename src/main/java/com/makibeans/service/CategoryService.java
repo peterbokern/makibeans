@@ -7,7 +7,6 @@ import com.makibeans.exeptions.ResourceNotFoundException;
 import com.makibeans.mapper.CategoryMapper;
 import com.makibeans.model.Category;
 import com.makibeans.model.Product;
-import com.makibeans.repository.AttributeValueRepository;
 import com.makibeans.repository.CategoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
