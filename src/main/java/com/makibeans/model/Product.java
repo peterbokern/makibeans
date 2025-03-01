@@ -2,6 +2,7 @@ package com.makibeans.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -33,6 +34,7 @@ public class Product {
     @Setter
     @ManyToOne
     @JoinColumn(name = "category_id", nullable = false)
+    @NotNull(message = "Category cannot be null.")
     Category category;
 
     @Setter

@@ -3,13 +3,11 @@ package com.makibeans.dto;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Min;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
+@Data
 @NoArgsConstructor
-@Getter
-@Setter
+@AllArgsConstructor
 public class ProductVariantUpdateDTO{
 
     @NotNull(message = "Price cannot be null.")
@@ -20,3 +18,5 @@ public class ProductVariantUpdateDTO{
     @Min(value = 0, message = "Stock should be a minimum of 0.")
     private Long stock;
 }
+
+
