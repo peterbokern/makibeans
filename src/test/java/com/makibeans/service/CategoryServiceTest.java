@@ -40,7 +40,7 @@ class CategoryServiceTest {
         when(categoryRepository.save(any(Category.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         //act
-        Category result = categoryService.createRootCategory("Coffee", "Description", "imageUrl");
+        Category result = categoryService.createCategory("Coffee", "Description", "imageUrl", null);
 
         //assert
         assertNotNull(result, "The result should not be null");

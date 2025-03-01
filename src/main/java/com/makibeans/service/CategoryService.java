@@ -1,96 +1,98 @@
 package com.makibeans.service;
+import com.makibeans.dto.CategoryRequestDTO;
+import com.makibeans.dto.CategoryResponseDTO;
 import com.makibeans.exeptions.CircularReferenceException;
 import com.makibeans.exeptions.DuplicateResourceException;
 import com.makibeans.exeptions.ResourceNotFoundException;
+import com.makibeans.mapper.CategoryMapper;
 import com.makibeans.model.Category;
 import com.makibeans.model.Product;
 import com.makibeans.repository.AttributeValueRepository;
 import com.makibeans.repository.CategoryRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
+
 @Service
 public class CategoryService extends AbstractCrudService<Category, Long> {
 
     private final CategoryRepository categoryRepository;
+    private final CategoryMapper categoryMapper;
+
+    @PersistenceContext
+    private EntityManager entityManager;
 
     @Autowired
-    public CategoryService(JpaRepository<Category, Long> repository, CategoryRepository categoryRepository, AttributeValueRepository attributeValueRepository) {
+    public CategoryService(JpaRepository<Category, Long> repository, CategoryRepository categoryRepository, AttributeValueRepository attributeValueRepository, CategoryMapper categoryMapper) {
         super(repository);
         this.categoryRepository = categoryRepository;
+        this.categoryMapper = categoryMapper;
+    }
+
+    /**
+     * Retrieves a category by its ID.
+     *
+     * @param id the ID of the category to retrieve.
+     * @return the CategoryResponseDTO representing the category.
+     * @throws IllegalArgumentException if the id is null.
+     * @throws ResourceNotFoundException if the category does not exist.
+     */
+
+    @Transactional
+    public CategoryResponseDTO getCategoryById(Long id) {
+        Category category = findById(id);
+        return categoryMapper.toResponseDTO(category);
+    }
+
+    /**
+     * Retrieves all categories.
+     *
+     * @return a list of CategoryResponseDTO representing all categories.
+     */
+
+    @Transactional
+    public List<CategoryResponseDTO> getAllCategories(){
+        return categoryRepository.findAll().stream().map(categoryMapper:: toResponseDTO).toList();
     }
 
     /**
      * Creates a new root category.
      *
-     * @param name        the name of the category; must not be null or empty.
-     * @param description the description of the category.
-     * @param imageUrl    the image URL for the category.
-     * @return the newly created root category.
+     * @param requestDTO the DTO containing the category details.
+     * @return the newly created root category as categoryResponseDTO.
      * @throws IllegalArgumentException      if the name is null or empty.
      * @throws DuplicateResourceException   if a root category with the given name already exists.
      */
 
     @Transactional
-    public Category createRootCategory(String name, String description, String imageUrl) {
+    public CategoryResponseDTO createCategory(CategoryRequestDTO requestDTO) {
 
-        if (name == null || name.isEmpty()) {
-            throw new IllegalArgumentException("Name cannot be null or empty.");
-        }
+        Category category = categoryMapper.toEntity(requestDTO);
+        Long parentCategoryId = requestDTO.getParentCategoryId();
 
-        //check if root category name already exists
-        if (categoryRepository.existsByNameAndParentCategory(name, null)) {
-            throw new DuplicateResourceException("Root category with name  " + name + " already exists.");
-        }
-
-        //create category
-        Category category = new Category(name, description, imageUrl);
-
-        //save category
-        return create(category);
-    }
-
-    /**
-     * Creates a new subcategory under a given parent category.
-     *
-     * @param name the name of the subcategory; must not be null or empty.
-     * @param description the description of the subcategory.
-     * @param imageUrl the image URL for the subcategory.
-     * @param parentCategoryId the ID of the parent category; must not be null.
-     * @return the newly created subcategory.
-     * @throws IllegalArgumentException if the name or parentCategoryId is null or empty.
-     * @throws ResourceNotFoundException if the parent category does not exist.
-     * @throws DuplicateResourceException if a category with the same name already exists within the hierarchy.
-     */
-
-    @Transactional
-    public Category createSubCategory(String name, String description, String imageUrl, Long parentCategoryId) {
-
-        if (name == null || name.isEmpty()) {
-            throw new IllegalArgumentException("Name cannot be null or empty.");
-        }
-
+        // If creating root category check uniqueness
         if (parentCategoryId == null) {
-            throw new IllegalArgumentException("Parent category id cannot be null for a subcategory.");
-        }
-
-        //find parent category
-        Category parentCategory = categoryRepository.findById(parentCategoryId)
+            if (categoryRepository.existsByNameAndParentCategory(category.getName(), null)) {
+                throw new DuplicateResourceException("Root category with name " + category.getName() + " already exists.");
+            }
+        } else {
+            Category parentCategory = categoryRepository.findById(parentCategoryId)
                     .orElseThrow(() -> new ResourceNotFoundException("Parent category with id " + parentCategoryId + " not found."));
 
-        //throw duplicateResourceException if category name already exists within the hierarchy of categories
-        validateUniqueCategoryNameWithinHierarchy(parentCategory, name, null); //CHECK
+            validateUniqueCategoryNameWithinHierarchy(parentCategory, category.getName(), null);
+            category.setParentCategory(parentCategory);
+            parentCategory.getSubCategories().add(category);
+        }
 
-        //create category
-        Category subCategory = new Category(name, description, imageUrl, parentCategory);
+        Category createdCategory = categoryRepository.save(category);
 
-        //add as subcategory to parent
-        parentCategory.addSubCategory(subCategory);
-
-        //save and return category
-        return create(subCategory);
+        return categoryMapper.toResponseDTO(createdCategory);
     }
 
     /**
@@ -121,65 +123,39 @@ public class CategoryService extends AbstractCrudService<Category, Long> {
     /**
      * Updates an existing category.
      *
-     * @param categoryToUpdateId the ID of the category to update; must not be null.
-     * @param newCategoryName the new name of the category; must not be null or empty.
-     * @param newCategoryDescription the new description of the category.
-     * @param newImageUrl the new image URL of the category.
-     * @param newParentCategoryId  the ID of the new parent category, or null for a root category.
-     * @return the updated category.
-     * @throws IllegalArgumentException if categoryToUpdateId or newCategoryName is null or empty.
-     * @throws ResourceNotFoundException if the category or new parent category does not exist.
-     * @throws DuplicateResourceException if a category with the same name already exists in the new hierarchy.
-     * @throws CircularReferenceException if the new parent category creates a circular reference.
-
+     * @param id the ID of the category to update.
+     * @param requestDTO the DTO containing the updated category details.
+     * @return the updated category as a CategoryResponseDTO.
+     * @throws ResourceNotFoundException if the category with the given ID does not exist.
+     * @throws DuplicateResourceException if the updated category name already exists within the hierarchy.
+     * @throws CircularReferenceException if updating the parent category creates a circular reference.
      */
 
     @Transactional
-    public Category updateCategory(Long categoryToUpdateId, String newCategoryName, String newCategoryDescription, String newImageUrl, Long newParentCategoryId) {
+    public CategoryResponseDTO updateCategory(Long id, CategoryRequestDTO requestDTO) {
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Category with ID " + id + " not found."));
 
-        if (categoryToUpdateId == null) {
-            throw new IllegalArgumentException("Category ID should not be null.");
+        // Update name if changed
+        if (!category.getName().equalsIgnoreCase(requestDTO.getName())) {
+            validateUniqueCategoryNameWithinHierarchy(category.getParentCategory(), requestDTO.getName(), category);
+            category.setName(requestDTO.getName());
         }
 
-        if (newCategoryName == null || newCategoryName.isEmpty()) {
-            throw new IllegalArgumentException("Category name should not be null or empty.");
+        // Check if parent category changed
+        Long newParentId = requestDTO.getParentCategoryId();
+        if (newParentId != null && !newParentId.equals(category.getParentCategory() != null ? category.getParentCategory().getId() : null)) {
+            Category newParent = categoryRepository.findById(newParentId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Parent category with ID " + newParentId + " not found."));
+
+            validateCircularReference(newParent, category);
+            category.setParentCategory(newParent);
+        } else if (newParentId == null) {
+            category.setParentCategory(null); // root category
         }
 
-        // Fetch the category to update
-        Category categoryToUpdate = findById(categoryToUpdateId);
-
-        // Fetch the new parent category if provided
-        Category newParentCategory = (newParentCategoryId == null)
-                ? null
-                : findById(newParentCategoryId);
-
-        // Check if root category name already exists, excluding the category being updated
-        if (newParentCategory == null &&
-                !categoryToUpdate.getName().equalsIgnoreCase(newCategoryName) &&
-                categoryRepository.existsByNameAndParentCategory(newCategoryName, null)) {
-            throw new DuplicateResourceException("Root category with name '" + newCategoryName + "' already exists.");
-        }
-
-        // Check for name uniqueness if the name or parent changes
-        if (!categoryToUpdate.getName().equalsIgnoreCase(newCategoryName) ||
-                (categoryToUpdate.getParentCategory() != newParentCategory)) {
-
-            validateUniqueCategoryNameWithinHierarchy(newParentCategory, newCategoryName, categoryToUpdate);
-        }
-
-        // Validate circular references if the parent changes
-        if (newParentCategory != null) {
-            validateCircularReference(newParentCategory, categoryToUpdate);
-        }
-
-        // Update fields
-        categoryToUpdate.setName(newCategoryName);
-        categoryToUpdate.setDescription(newCategoryDescription);
-        categoryToUpdate.setImageUrl(newImageUrl);
-        categoryToUpdate.setParentCategory(newParentCategory);
-
-        // Use CRUD service's `update`
-        return update(categoryToUpdateId, categoryToUpdate);
+        categoryRepository.save(category);
+        return categoryMapper.toResponseDTO(category);
     }
 
     /**
@@ -196,7 +172,7 @@ public class CategoryService extends AbstractCrudService<Category, Long> {
         while (current != null) {
             if (current.equals(subCategory)) {
                 throw new CircularReferenceException(String.format(
-                        "Category %s cannot be a subcategory of %s because this would create a circular reference. Category %s is a (grand)parent of %s.",
+                        "Category '%s' cannot be assigned as a subcategory of category '%s' because it would create a circular reference.",
                         subCategory.getName(), parentCategory.getName(), current.getName(), parentCategory.getName()));
             }
             current = current.getParentCategory(); // Traverse up the hierarchy
@@ -236,4 +212,5 @@ public class CategoryService extends AbstractCrudService<Category, Long> {
             current = current.getParentCategory(); // Move to the next parent
         }
     }
+
 }
