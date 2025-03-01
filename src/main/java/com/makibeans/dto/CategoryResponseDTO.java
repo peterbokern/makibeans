@@ -1,10 +1,11 @@
 package com.makibeans.dto;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import java.util.List;
 
 @Data
-
+@AllArgsConstructor
 public class CategoryResponseDTO {
     private Long id;
     private String name;
