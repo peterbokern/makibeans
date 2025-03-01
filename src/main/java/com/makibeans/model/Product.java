@@ -1,6 +1,7 @@
 package com.makibeans.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -13,7 +14,7 @@ import java.util.List;
 @NoArgsConstructor
 @Getter
 
-@ToString(exclude = {"productAttributes", "category","productVariants"})
+@ToString(exclude = {"productAttributes", "category", "productVariants"})
 public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,10 +22,12 @@ public class Product {
 
     @Setter
     @Column(name = "product_name", unique = true, nullable = false, length = 100)
+    @NotBlank(message = "Product name cannot be blank.")
     String productName;
 
     @Setter
     @Column(name = "product_description", nullable = false, length = 1000)
+    @NotBlank(message = "Product description cannot be blank.")
     String productDescription;
 
     @Setter
