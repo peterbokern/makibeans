@@ -13,6 +13,8 @@ import java.util.List;
 public class ProductAttributeResponseDTO {
 
     private Long id;
+    private Long productId;
+    private String productName;
     private Long attributeTemplateId;
     private String attributeTemplateName;
     private List<AttributeValueResponseDTO> attributeValues = new ArrayList<>();
