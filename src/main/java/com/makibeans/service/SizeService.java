@@ -1,7 +1,6 @@
 package com.makibeans.service;
 
-import com.makibeans.dto.SizeCreateDTO;
-import com.makibeans.dto.SizeUpdateDTO;
+import com.makibeans.dto.SizeRequestDTO;
 import com.makibeans.exeptions.DuplicateResourceException;
 import com.makibeans.model.Size;
 import com.makibeans.repository.SizeRepository;
@@ -24,17 +23,17 @@ public class SizeService extends AbstractCrudService<Size, Long> {
     /**
      * Creates a new Size entity.
      *
-     * @param sizeCreateDTO The DTO to create Size
+     * @param sizeRequestDTO The DTO to create Size
      * @return The saved Size entity.
      * @throws DuplicateResourceException If a size with the same name already exists.
      */
 
     @Transactional
-    public Size createSize(SizeCreateDTO sizeCreateDTO) {
-        String normalizedName = sizeCreateDTO.getName().trim().toLowerCase();
+    public Size createSize(SizeRequestDTO sizeRequestDTO) {
+        String normalizedName = sizeRequestDTO.getName().trim().toLowerCase();
 
         if (sizeRepository.existsByName(normalizedName)) {
-            throw new DuplicateResourceException("Size with name " + sizeCreateDTO.getName() + " already exists.");
+            throw new DuplicateResourceException("Size with name " + sizeRequestDTO.getName() + " already exists.");
         }
 
         Size size = new Size(normalizedName);
@@ -57,18 +56,18 @@ public class SizeService extends AbstractCrudService<Size, Long> {
      * Updates an existing Size.
      *
      * @param sizeId      The ID of the size to update.
-     * @param sizeUpdateDTO The dto to update Size.
+     * @param sizeRequestDTO The dto to update Size.
      * @return The updated Size entity.
      * @throws DuplicateResourceException If a size with the same name already exists.
      */
 
     @Transactional
-    public Size updateSize(Long sizeId, SizeUpdateDTO sizeUpdateDTO) {
+    public Size updateSize(Long sizeId, SizeRequestDTO sizeRequestDTO) {
         Size size = findById(sizeId);
-        String normalizedName = sizeUpdateDTO.getName().trim().toLowerCase();
+        String normalizedName = sizeRequestDTO.getName().trim().toLowerCase();
 
         if (!size.getName().equals(normalizedName) && sizeRepository.existsByName(normalizedName)) {
-            throw new DuplicateResourceException("A size with the name '" + sizeUpdateDTO.getName() + "' already exists.");
+            throw new DuplicateResourceException("A size with the name '" + sizeRequestDTO.getName() + "' already exists.");
         }
 
         size.setName(normalizedName);

@@ -1,6 +1,6 @@
 package com.makibeans.service;
 
-import com.makibeans.dto.ProductVariantCreateDTO;
+import com.makibeans.dto.ProductVariantRequestDTO;
 import com.makibeans.dto.ProductVariantUpdateDTO;
 import com.makibeans.exeptions.DuplicateResourceException;
 import com.makibeans.exeptions.ResourceNotFoundException;
@@ -35,7 +35,7 @@ class ProductVariantServiceTest {
     private ProductVariantService productVariantService;
 
     private ProductVariant productVariant;
-    private ProductVariantCreateDTO productVariantCreateDTO;
+    private ProductVariantRequestDTO productVariantRequestDTO;
     private ProductVariantUpdateDTO productVariantUpdateDTO;
     private Product product;
     private Size size;
@@ -45,22 +45,15 @@ class ProductVariantServiceTest {
         product = new Product("Test Product", "Description", "image-url", null);
         size = new Size("Large");
         productVariant = new ProductVariant(product, size, 1000L, "SKU-1234", 10L);
+        productVariantRequestDTO = new ProductVariantRequestDTO(1L, 1L,1000L, 10L);
+        productVariantUpdateDTO = new ProductVariantUpdateDTO(1500L, 5L);
 
-        productVariantCreateDTO = new ProductVariantCreateDTO();
-        productVariantCreateDTO.setProductId(1L);
-        productVariantCreateDTO.setSizeId(1L);
-        productVariantCreateDTO.setPriceInCents(1000L);
-        productVariantCreateDTO.setStock(10L);
-
-        productVariantUpdateDTO = new ProductVariantUpdateDTO();
-        productVariantUpdateDTO.setPriceInCents(1500L);
-        productVariantUpdateDTO.setStock(5L);
     }
 
     @AfterEach
     void tearDown() {
         productVariant = null;
-        productVariantCreateDTO = null;
+        productVariantRequestDTO = null;
         productVariantUpdateDTO = null;
         product = null;
         size = null;
@@ -75,7 +68,7 @@ class ProductVariantServiceTest {
         when(productVariantRepository.save(any(ProductVariant.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         // Act
-        ProductVariant result = productVariantService.createProductVariant(productVariantCreateDTO);
+        ProductVariant result = productVariantService.createProductVariant(productVariantRequestDTO);
 
         // Assert
         assertNotNull(result, "The created ProductVariant should not be null.");
@@ -102,7 +95,7 @@ class ProductVariantServiceTest {
 
         // Act & Assert
         assertThrows(DuplicateResourceException.class,
-                () -> productVariantService.createProductVariant(productVariantCreateDTO),
+                () -> productVariantService.createProductVariant(productVariantRequestDTO),
                 "Expected DuplicateResourceException when creating a duplicate ProductVariant.");
 
         // Verify interactions

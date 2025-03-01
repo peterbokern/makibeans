@@ -1,6 +1,6 @@
 package com.makibeans.service;
 
-import com.makibeans.dto.ProductVariantCreateDTO;
+import com.makibeans.dto.ProductVariantRequestDTO;
 import com.makibeans.dto.ProductVariantUpdateDTO;
 import com.makibeans.exeptions.DuplicateResourceException;
 import com.makibeans.exeptions.ResourceNotFoundException;
@@ -43,7 +43,7 @@ public class ProductVariantService extends AbstractCrudService<ProductVariant, L
      */
 
     @Transactional
-    public ProductVariant createProductVariant(ProductVariantCreateDTO dto) {
+    public ProductVariant createProductVariant(ProductVariantRequestDTO dto) {
         Product product = productService.findById(dto.getProductId());
         Size size = sizeService.findById(dto.getSizeId());
 

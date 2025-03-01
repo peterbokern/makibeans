@@ -1,11 +1,14 @@
 package com.makibeans.dto;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.util.List;
 
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class CategoryResponseDTO {
     private Long id;
     private String name;
@@ -13,8 +16,7 @@ public class CategoryResponseDTO {
     private String imageUrl;
     private Long parentCategoryId;
 
-    @JsonManagedReference
-    private List<CategoryResponseDTO> subCategories;
 
+    private List<CategoryResponseDTO> subCategories;
     private List<BreadCrumbDTO> breadCrumbs;
 }
