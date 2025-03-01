@@ -1,6 +1,9 @@
 package com.makibeans.model;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -17,6 +20,7 @@ import java.util.List;
         @UniqueConstraint(columnNames = {"name", "parent_category_id"})})
 
 @ToString(exclude = {"parentCategory", "subCategories", "products"})
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id") // 🚀 Prevent infinite loop
 public class Category {
 
     @Id
@@ -24,6 +28,7 @@ public class Category {
     private Long id;
 
     @Setter
+    @NotBlank(message = "Category name cannot be blank.")
     @Column(name = "name", nullable = false, length = 100)
     private String name;
 

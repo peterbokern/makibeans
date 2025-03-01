@@ -9,6 +9,7 @@ import com.makibeans.mapper.AttributeValueMapper;
 import com.makibeans.model.AttributeTemplate;
 import com.makibeans.model.AttributeValue;
 import com.makibeans.repository.AttributeValueRepository;
+import com.makibeans.util.MappingUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -171,7 +172,7 @@ class AttributeValueServiceTest {
 
         AttributeValue existingAttributeValue = new AttributeValue(attributeTemplate, "chili");
         when(attributeValueRepository.findById(1L)).thenReturn(Optional.of(existingAttributeValue));
-        when(mapper.normalizeValue("Argentina")).thenReturn("argentina");
+        when(MappingUtils.normalizeValue("Argentina")).thenReturn("argentina");
         when(attributeValueRepository.existsByValue(attributeTemplate, "argentina")).thenReturn(false);
 
         ArgumentCaptor<AttributeValue> captor = ArgumentCaptor.forClass(AttributeValue.class);
@@ -193,7 +194,7 @@ class AttributeValueServiceTest {
         AttributeValue existingAttributeValue = new AttributeValue(attributeTemplate, "chili");
 
         when(attributeValueRepository.findById(1L)).thenReturn(Optional.of(existingAttributeValue));
-        when(mapper.normalizeValue("Argentina")).thenReturn("argentina");
+        when(MappingUtils.normalizeValue("Argentina")).thenReturn("argentina");
         when(attributeValueRepository.existsByValue(attributeTemplate, "argentina")).thenReturn(true);
 
         // Act & Assert
