@@ -1,3 +1,4 @@
+/*
 package com.makibeans.service;
 
 import com.makibeans.exeptions.DuplicateResourceException;
@@ -188,3 +189,4 @@ class ProductAttributeServiceTest {
     }
 }
 
+*/

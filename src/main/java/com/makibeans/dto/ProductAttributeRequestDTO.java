@@ -14,4 +14,5 @@ public class ProductAttributeRequestDTO {
 
     @NotNull(message = "Template id cannot be null.")
     private Long templateId;
+
 }
