@@ -9,8 +9,8 @@ import org.mapstruct.*;
 @Mapper(componentModel = "spring", uses = MappingUtils.class)
 public interface AttributeValueMapper {
 
-    @Mapping(source = "attributeTemplate.id", target = "templateId")
-    @Mapping(source = "attributeTemplate.name", target = "attributeName")
+ /*   @Mapping(source = "attributeTemplate.id", target = "templateId")
+    @Mapping(source = "attributeTemplate.name", target = "attributeName")*/
     AttributeValueResponseDTO toResponseDTO(AttributeValue entity);
 
     @Mapping(source = "value", target = "value", qualifiedByName = "normalizeValue")

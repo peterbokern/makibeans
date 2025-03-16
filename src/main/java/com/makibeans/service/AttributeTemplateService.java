@@ -18,12 +18,13 @@ import java.util.List;
 public class AttributeTemplateService extends AbstractCrudService<AttributeTemplate, Long> {
 
     private final AttributeTemplateRepository attributeTemplateRepository;
-    private final AttributeTemplateMapper mapper = AttributeTemplateMapper.INSTANCE;
+    private final AttributeTemplateMapper mapper;
 
     @Autowired
-    public AttributeTemplateService(JpaRepository<AttributeTemplate, Long> repository, AttributeTemplateRepository attributeTemplateRepository) {
+    public AttributeTemplateService(JpaRepository<AttributeTemplate, Long> repository, AttributeTemplateRepository attributeTemplateRepository, AttributeTemplateMapper mapper) {
         super(repository);
         this.attributeTemplateRepository = attributeTemplateRepository;
+        this.mapper = mapper;
     }
 
     /**

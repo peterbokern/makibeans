@@ -8,7 +8,7 @@ import org.mapstruct.*;
 public interface ProductAttributeMapper {
 
     @Mapping(source = "product.id", target = "productId")
-    @Mapping(source = "product.name", target = "productName")
+    @Mapping(source = "product.productName", target = "productName")
     @Mapping(source = "attributeTemplate.id", target = "attributeTemplateId")
     @Mapping(source = "attributeTemplate.name", target = "attributeTemplateName")
     @Mapping(source = "attributeValues", target = "attributeValues")
