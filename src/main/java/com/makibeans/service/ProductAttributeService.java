@@ -45,7 +45,6 @@ public class ProductAttributeService extends AbstractCrudService<ProductAttribut
     @Transactional
     public ProductAttributeResponseDTO getProductAttributeById(Long id) {
         ProductAttribute productAttribute = findById(id);
-        System.out.println("PRINT" + productAttribute.getAttributeValues());
         return productAttributeMapper.toResponseDTO(productAttribute);
     }
 
