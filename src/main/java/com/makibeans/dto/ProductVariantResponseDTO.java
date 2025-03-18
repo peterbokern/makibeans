@@ -15,4 +15,3 @@ public class ProductVariantResponseDTO {
     private String sku;
     private Long stock;
 }
-;
