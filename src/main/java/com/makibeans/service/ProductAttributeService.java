@@ -75,7 +75,6 @@ public class ProductAttributeService extends AbstractCrudService<ProductAttribut
         Long productId = requestDTO.getProductId();
         Long templateId = requestDTO.getTemplateId();
 
-
         Product product = productService.findById(productId);
         AttributeTemplate attributeTemplate = attributeTemplateService.findById(templateId);
 
@@ -84,8 +83,9 @@ public class ProductAttributeService extends AbstractCrudService<ProductAttribut
         }
 
         ProductAttribute productAttribute = new ProductAttribute(attributeTemplate, product);
+        ProductAttribute savedProductAttribute = create(productAttribute);
 
-        return productAttributeMapper.toResponseDTO(productAttribute);
+        return productAttributeMapper.toResponseDTO(savedProductAttribute);
     }
 
     /**
@@ -98,9 +98,6 @@ public class ProductAttributeService extends AbstractCrudService<ProductAttribut
 
     @Transactional
     public void deleteProductAttribute(Long productAttributeId) {
-        if (productAttributeId == null) {
-            throw new IllegalArgumentException("ProductAttribute ID cannot be null.");
-        }
         delete(productAttributeId);
     }
 
