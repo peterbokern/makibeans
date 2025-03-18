@@ -3,10 +3,7 @@ package com.makibeans.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,7 +11,6 @@ import java.util.List;
 @Entity
 @NoArgsConstructor
 @Getter
-
 @ToString(exclude = {"productAttributes", "category", "productVariants"})
 public class Product {
     @Id
@@ -48,6 +44,7 @@ public class Product {
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductVariant> productVariants = new ArrayList<>();
 
+    @Builder
     public Product(String productName, String productDescription, String productImageUrl, Category category) {
         this.productName = productName;
         this.productDescription = productDescription;
