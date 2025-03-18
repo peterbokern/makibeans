@@ -18,6 +18,11 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * Service class for managing Product Variants.
+ * Provides methods to retrieve, create, update, and delete Product Variants.
+ */
+
 @Service
 public class ProductVariantService extends AbstractCrudService<ProductVariant, Long> {
 
@@ -39,6 +44,42 @@ public class ProductVariantService extends AbstractCrudService<ProductVariant, L
         this.sizeService = sizeService;
         this.productVariantMapper = productVariantMapper;
     }
+
+    /**
+     * Retrieves a Product Variant by its ID.
+     *
+     * @param id the ID of the Product Variant to retrieve
+     * @return the ProductVariantResponseDTO representing the Product Variant
+     * @throws ResourceNotFoundException if the Product Variant does not exist
+     */
+
+    @Transactional(readOnly = true)
+    public ProductVariantResponseDTO getProductVariantById(Long id) {
+        ProductVariant productVariant = findById(id);
+        return productVariantMapper.toResponseDTO(productVariant);
+    }
+
+    /**
+     * Retrieves all Product Variants.
+     *
+     * @return a list of ProductVariantResponseDTO representing all Product Variants
+     */
+
+    @Transactional(readOnly = true)
+    public List<ProductVariantResponseDTO> getAllProductVariants() {
+        return productVariantRepository.findAll()
+                .stream()
+                .map(productVariantMapper::toResponseDTO)
+                .toList();
+    }
+
+    /**
+     * Creates a new Product Variant.
+     *
+     * @param dto the DTO containing details for creating a Product Variant
+     * @return the saved ProductVariantResponseDTO
+     * @throws DuplicateResourceException if a Product Variant with the same product and size already exists
+     */
 
     @Transactional
     public ProductVariantResponseDTO createProductVariant(ProductVariantRequestDTO dto) {
@@ -63,34 +104,44 @@ public class ProductVariantService extends AbstractCrudService<ProductVariant, L
         return productVariantMapper.toResponseDTO(savedVariant);
     }
 
-    @Transactional(readOnly = true)
-    public ProductVariantResponseDTO getProductVariantById(Long id) {
-        ProductVariant productVariant = findById(id);
-        return productVariantMapper.toResponseDTO(productVariant);
-    }
-
-    @Transactional(readOnly = true)
-    public List<ProductVariantResponseDTO> getAllProductVariants() {
-        return productVariantRepository.findAll()
-                .stream()
-                .map(productVariantMapper::toResponseDTO)
-                .toList();
-    }
+    /**
+     * Deletes a Product Variant by ID.
+     *
+     * @param productVariantId the ID of the Product Variant to delete
+     */
 
     @Transactional
     public void deleteProductVariant(Long productVariantId) {
         delete(productVariantId);
     }
 
+    /**
+     * Updates an existing Product Variant.
+     *
+     * @param productVariantId the ID of the Product Variant to update
+     * @param dto the DTO containing updated price and stock
+     * @return the updated ProductVariantResponseDTO
+     * @throws ResourceNotFoundException if the Product Variant does not exist
+     */
+
     @Transactional
     public ProductVariantResponseDTO updateProductVariant(Long productVariantId, ProductVariantUpdateDTO dto) {
         ProductVariant productVariant = findById(productVariantId);
         productVariant.setPriceInCents(dto.getPriceInCents());
         productVariant.setStock(dto.getStock());
+        productVariant.setSku(generateSKU(productVariant.getProduct(), productVariant.getSize()));
 
         ProductVariant updatedVariant = update(productVariantId, productVariant);
         return productVariantMapper.toResponseDTO(updatedVariant);
     }
+
+    /**
+     * Generates a unique SKU based on product and size.
+     *
+     * @param product the associated Product entity
+     * @param size the associated Size entity
+     * @return the generated SKU
+     */
 
     private String generateSKU(Product product, Size size) {
         String productCode = product.getProductName().replaceAll("\\s+", "").toUpperCase();
