@@ -1,9 +1,11 @@
 package com.makibeans.service;
 
 import com.makibeans.dto.ProductVariantRequestDTO;
+import com.makibeans.dto.ProductVariantResponseDTO;
 import com.makibeans.dto.ProductVariantUpdateDTO;
 import com.makibeans.exeptions.DuplicateResourceException;
 import com.makibeans.exeptions.ResourceNotFoundException;
+import com.makibeans.mapper.ProductVariantMapper;
 import com.makibeans.model.Product;
 import com.makibeans.model.ProductVariant;
 import com.makibeans.model.Size;
@@ -13,6 +15,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Random;
 
 @Service
@@ -21,29 +24,24 @@ public class ProductVariantService extends AbstractCrudService<ProductVariant, L
     private final ProductVariantRepository productVariantRepository;
     private final ProductService productService;
     private final SizeService sizeService;
+    private final ProductVariantMapper productVariantMapper;
 
     @Autowired
     public ProductVariantService(
             JpaRepository<ProductVariant, Long> repository,
             ProductVariantRepository productVariantRepository,
             ProductService productService,
-            SizeService sizeService) {
+            SizeService sizeService,
+            ProductVariantMapper productVariantMapper) {
         super(repository);
         this.productVariantRepository = productVariantRepository;
         this.productService = productService;
         this.sizeService = sizeService;
+        this.productVariantMapper = productVariantMapper;
     }
 
-    /**
-     * Creates a new ProductVariant.
-     *
-     * @param dto The DTO containing details for creating a ProductVariant.
-     * @return The saved ProductVariant entity.
-     * @throws DuplicateResourceException If a ProductVariant with the same product and size already exists.
-     */
-
     @Transactional
-    public ProductVariant createProductVariant(ProductVariantRequestDTO dto) {
+    public ProductVariantResponseDTO createProductVariant(ProductVariantRequestDTO dto) {
         Product product = productService.findById(dto.getProductId());
         Size size = sizeService.findById(dto.getSizeId());
 
@@ -61,50 +59,39 @@ public class ProductVariantService extends AbstractCrudService<ProductVariant, L
                 dto.getStock()
         );
 
-        return create(productVariant);
+        ProductVariant savedVariant = create(productVariant);
+        return productVariantMapper.toResponseDTO(savedVariant);
     }
 
-    /**
-     * Deletes a ProductVariant by ID.
-     *
-     * @param productVariantId The ID of the ProductVariant to delete.
-     * @throws ResourceNotFoundException If the ProductVariant does not exist.
-     */
+    @Transactional(readOnly = true)
+    public ProductVariantResponseDTO getProductVariantById(Long id) {
+        ProductVariant productVariant = findById(id);
+        return productVariantMapper.toResponseDTO(productVariant);
+    }
+
+    @Transactional(readOnly = true)
+    public List<ProductVariantResponseDTO> getAllProductVariants() {
+        return productVariantRepository.findAll()
+                .stream()
+                .map(productVariantMapper::toResponseDTO)
+                .toList();
+    }
 
     @Transactional
     public void deleteProductVariant(Long productVariantId) {
         delete(productVariantId);
     }
 
-    /**
-     * Updates an existing ProductVariant.
-     *
-     * @param productVariantId The ID of the ProductVariant to update.
-     * @param dto The DTO containing updated price and stock.
-     * @return The updated ProductVariant entity.
-     * @throws ResourceNotFoundException If the ProductVariant does not exist.
-     */
-
     @Transactional
-    public ProductVariant updateProductVariant(Long productVariantId, ProductVariantUpdateDTO dto) {
-        ProductVariant productVariant = productVariantRepository.findById(productVariantId)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "ProductVariant with ID " + productVariantId + " does not exist."
-                ));
-
+    public ProductVariantResponseDTO updateProductVariant(Long productVariantId, ProductVariantUpdateDTO dto) {
+        ProductVariant productVariant = findById(productVariantId);
         productVariant.setPriceInCents(dto.getPriceInCents());
         productVariant.setStock(dto.getStock());
 
-        return update(productVariantId, productVariant);
+        ProductVariant updatedVariant = update(productVariantId, productVariant);
+        return productVariantMapper.toResponseDTO(updatedVariant);
     }
 
-    /**
-     * Generates a unique SKU based on product and size.
-     *
-     * @param product The associated Product entity.
-     * @param size The associated Size entity.
-     * @return The generated SKU.
-     */
     private String generateSKU(Product product, Size size) {
         String productCode = product.getProductName().replaceAll("\\s+", "").toUpperCase();
         String sizeCode = size.getName().replaceAll("\\s+", "").toUpperCase();

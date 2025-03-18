@@ -10,8 +10,7 @@ import lombok.NoArgsConstructor;
 public class ProductVariantResponseDTO {
     private Long id;
     private SizeResponseDTO size;
-    private String sizeName;
-    private Long priceInCents;
     private String sku;
+    private Long priceInCents;
     private Long stock;
 }
