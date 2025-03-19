@@ -38,7 +38,7 @@ public class CategoryService extends AbstractCrudService<Category, Long> {
      * @throws ResourceNotFoundException if the category does not exist.
      */
 
-    @Transactional
+    @Transactional(readOnly = true)
     public CategoryResponseDTO getCategoryById(Long id) {
         Category category = findById(id);
         return categoryMapper.toResponseDTO(category);
@@ -50,7 +50,7 @@ public class CategoryService extends AbstractCrudService<Category, Long> {
      * @return a list of CategoryResponseDTO representing all categories.
      */
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<CategoryResponseDTO> getAllCategories(){
         return categoryRepository.findAll().stream().map(categoryMapper:: toResponseDTO).toList();
     }

@@ -1,10 +1,9 @@
 package com.makibeans.model;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,8 +11,7 @@ import java.util.List;
 @Entity
 @NoArgsConstructor
 @Getter
-
-@ToString(exclude = {"productAttributes", "category","productVariants"})
+@ToString(exclude = {"productAttributes", "category", "productVariants"})
 public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,15 +19,18 @@ public class Product {
 
     @Setter
     @Column(name = "product_name", unique = true, nullable = false, length = 100)
+    @NotBlank(message = "Product name cannot be blank.")
     String productName;
 
     @Setter
     @Column(name = "product_description", nullable = false, length = 1000)
+    @NotBlank(message = "Product description cannot be blank.")
     String productDescription;
 
     @Setter
     @ManyToOne
     @JoinColumn(name = "category_id", nullable = false)
+    @NotNull(message = "Category cannot be null.")
     Category category;
 
     @Setter
@@ -43,6 +44,7 @@ public class Product {
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductVariant> productVariants = new ArrayList<>();
 
+    @Builder
     public Product(String productName, String productDescription, String productImageUrl, Category category) {
         this.productName = productName;
         this.productDescription = productDescription;

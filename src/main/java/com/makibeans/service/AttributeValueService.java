@@ -43,6 +43,7 @@ public class AttributeValueService extends AbstractCrudService<AttributeValue, L
      * @throws ResourceNotFoundException if no AttributeValue is found with the given id.
      */
 
+    @Transactional(readOnly = true)
     public AttributeValueResponseDTO getAttributeValueById(Long id) {
         AttributeValue attributeValue = findById(id);
         return mapper.toResponseDTO(attributeValue);
@@ -54,6 +55,7 @@ public class AttributeValueService extends AbstractCrudService<AttributeValue, L
      * @return the list of all AttributeValueResponseDTO's representing the found attribute values.
      */
 
+    @Transactional(readOnly = true)
     public List<AttributeValueResponseDTO> getAllAttributeValues() {
         return findAll().stream().map(mapper::toResponseDTO).toList();
     }
@@ -65,6 +67,7 @@ public class AttributeValueService extends AbstractCrudService<AttributeValue, L
      * @return the list of all AttributeValueResponseDTO's representing the found attribute values.
      */
 
+    @Transactional(readOnly = true)
     public List<AttributeValueResponseDTO> getAllAttributeValuesByTemplateId(Long templateId) {
 
         AttributeTemplate  attributeTemplate = attributeTemplateService.findById(templateId);

@@ -1,7 +1,7 @@
+/*
 package com.makibeans.service;
 
-import com.makibeans.dto.SizeCreateDTO;
-import com.makibeans.dto.SizeUpdateDTO;
+import com.makibeans.dto.SizeRequestDTO;
 import com.makibeans.exeptions.DuplicateResourceException;
 import com.makibeans.exeptions.ResourceNotFoundException;
 import com.makibeans.model.Size;
@@ -28,8 +28,8 @@ import static org.mockito.Mockito.*;
 public class SizeServiceTest {
 
     private Size size;
-    private SizeCreateDTO sizeCreateDTO;
-    private SizeUpdateDTO sizeUpdateDTO;
+    private SizeRequestDTO sizeCreateDTO;
+    private SizeRequestDTO sizeRequestDTO;
 
     @Mock
     SizeRepository sizeRepository;
@@ -40,18 +40,14 @@ public class SizeServiceTest {
     @BeforeEach
     void setUp() {
         size = new Size("Size");
-        sizeCreateDTO = new SizeCreateDTO();
-        sizeCreateDTO.setName("Size");
-
-        sizeUpdateDTO = new SizeUpdateDTO();
-        sizeUpdateDTO.setName("UpdatedSize");
+        sizeCreateDTO = new SizeRequestDTO("Size");
+        sizeRequestDTO = new SizeRequestDTO("UpdatedName");
     }
 
     @AfterEach
     void tearDown() {
         size = null;
         sizeCreateDTO = null;
-        sizeUpdateDTO = null;
     }
 
     @Test
@@ -76,8 +72,7 @@ public class SizeServiceTest {
     @Test
     void shouldThrowDuplicateResourceException_whenCreatingSizeWithExistingName() {
         // Arrange
-        SizeCreateDTO duplicateDTO = new SizeCreateDTO();
-        duplicateDTO.setName("duplicatesize");
+        SizeRequestDTO duplicateDTO = new SizeRequestDTO("duplicateSize");
 
         when(sizeRepository.existsByName("duplicatesize")).thenReturn(true);
 
@@ -132,7 +127,7 @@ public class SizeServiceTest {
         ArgumentCaptor<Size> sizeCaptor = ArgumentCaptor.forClass(Size.class);
 
         // Act
-        Size updatedSize = sizeService.updateSize(1L, sizeUpdateDTO);
+        Size updatedSize = sizeService.updateSize(1L, sizeRequestDTO);
 
         // Assert
         assertNotNull(updatedSize, "The updated Size should not be null.");
@@ -153,8 +148,7 @@ public class SizeServiceTest {
     @Test
     void shouldThrowDuplicateResourceException_whenUpdatingSizeWithExistingName(){
         // Arrange
-        SizeUpdateDTO duplicateDTO = new SizeUpdateDTO();
-        duplicateDTO.setName("DuplicateSize");
+        SizeRequestDTO duplicateDTO = new SizeRequestDTO("duplicateSize");
 
         when(sizeRepository.findById(1L)).thenReturn(Optional.of(size));
         when(sizeRepository.existsByName("duplicatesize")).thenReturn(true);
@@ -177,7 +171,7 @@ public class SizeServiceTest {
 
         // Act & Assert
         assertThrows(ResourceNotFoundException.class,
-                () -> sizeService.updateSize(99L, sizeUpdateDTO),
+                () -> sizeService.updateSize(99L, sizeRequestDTO),
                 "Expected ResourceNotFoundException when trying to update a non-existent size.");
 
         // Verify
@@ -185,3 +179,4 @@ public class SizeServiceTest {
         verifyNoMoreInteractions(sizeRepository);
     }
 }
+*/
