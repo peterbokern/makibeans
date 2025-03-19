@@ -6,6 +6,7 @@ import com.makibeans.exeptions.DuplicateResourceException;
 import com.makibeans.exeptions.ResourceNotFoundException;
 import com.makibeans.mapper.SizeMapper;
 import com.makibeans.model.Size;
+import com.makibeans.repository.ProductVariantRepository;
 import com.makibeans.repository.SizeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -19,12 +20,14 @@ public class SizeService extends AbstractCrudService<Size, Long> {
 
     private final SizeRepository sizeRepository;
     private final SizeMapper sizeMapper;
+    private final ProductVariantRepository productVariantRepository;
 
     @Autowired
-    public SizeService(JpaRepository<Size, Long> repository, SizeRepository sizeRepository, SizeMapper sizeMapper) {
+    public SizeService(JpaRepository<Size, Long> repository, SizeRepository sizeRepository, SizeMapper sizeMapper, ProductVariantRepository productVariantRepository) {
         super(repository);
         this.sizeRepository = sizeRepository;
         this.sizeMapper = sizeMapper;
+        this.productVariantRepository = productVariantRepository;
     }
 
     /**
@@ -77,13 +80,14 @@ public class SizeService extends AbstractCrudService<Size, Long> {
     }
 
     /**
-     * Deletes a Size by ID.
+     * Deletes a Size by ID and deletes all associated productVariants .
      *
      * @param sizeId The ID of the size to delete.
      */
 
     @Transactional
     public void deleteSize(Long sizeId){
+        productVariantRepository.deleteBySizeId(sizeId);
         delete(sizeId);
     }
 

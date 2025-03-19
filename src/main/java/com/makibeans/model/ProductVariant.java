@@ -7,6 +7,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 @NoArgsConstructor
 @Getter
@@ -27,6 +29,7 @@ public class ProductVariant {
     @Setter
     @NotNull(message = "Size cannot be null.")
     @ManyToOne
+    @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "size_id", nullable = false)
     private Size size;
 

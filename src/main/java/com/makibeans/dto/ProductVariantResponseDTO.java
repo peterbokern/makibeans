@@ -9,7 +9,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ProductVariantResponseDTO {
     private Long id;
-    private SizeResponseDTO size;
+    private Long sizeId;
+    private String sizeName;
     private String sku;
     private Long priceInCents;
     private Long stock;
