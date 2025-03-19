@@ -1,14 +1,12 @@
 package com.makibeans.dto;
 
 import jakarta.validation.constraints.NotBlank;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
-public class SizeCreateDTO {
+@AllArgsConstructor
+public class SizeRequestDTO {
     @NotBlank(message = "Size cannot be blank.")
     private String name;
 }

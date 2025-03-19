@@ -7,9 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class AttributeTemplateResponseDTO {
-
-    private Long id;
-    private String name;
+public class SizeResponseDTO {
+    Long id;
+    String name;
 }
-

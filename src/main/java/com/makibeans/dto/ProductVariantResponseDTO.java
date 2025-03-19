@@ -7,9 +7,11 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class AttributeTemplateResponseDTO {
-
+public class ProductVariantResponseDTO {
     private Long id;
-    private String name;
+    private Long sizeId;
+    private String sizeName;
+    private String sku;
+    private Long priceInCents;
+    private Long stock;
 }
-

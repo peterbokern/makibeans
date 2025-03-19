@@ -3,14 +3,12 @@ package com.makibeans.dto;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Min;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
+@Data
+@AllArgsConstructor
 @NoArgsConstructor
-@Getter
-@Setter
-public class ProductVariantCreateDTO {
+public class ProductVariantRequestDTO {
 
     @NotNull(message = "Product ID cannot be null.")
     private Long productId;

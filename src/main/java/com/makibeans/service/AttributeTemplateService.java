@@ -18,12 +18,40 @@ import java.util.List;
 public class AttributeTemplateService extends AbstractCrudService<AttributeTemplate, Long> {
 
     private final AttributeTemplateRepository attributeTemplateRepository;
-    private final AttributeTemplateMapper mapper = AttributeTemplateMapper.INSTANCE;
+    private final AttributeTemplateMapper mapper;
 
     @Autowired
-    public AttributeTemplateService(JpaRepository<AttributeTemplate, Long> repository, AttributeTemplateRepository attributeTemplateRepository) {
+    public AttributeTemplateService(JpaRepository<AttributeTemplate, Long> repository, AttributeTemplateRepository attributeTemplateRepository, AttributeTemplateMapper mapper) {
         super(repository);
         this.attributeTemplateRepository = attributeTemplateRepository;
+        this.mapper = mapper;
+    }
+
+    /**
+     * Retrieves an AttributeTemplate by its unique identifier.
+     *
+     * @param id the unique identifier of the AttributeTemplate to retrieve.
+     * @return the AttributeTemplateResponseDTO representing the found attribute template.
+     * @throws IllegalArgumentException if the provided id is null
+     * @throws ResourceNotFoundException if no AttributeTemplate is found with the given id.
+     */
+
+    @Transactional(readOnly = true)
+    public AttributeTemplateResponseDTO getAttributeTemplateById(Long id) {
+        AttributeTemplate attributeTemplate = findById(id);
+        return mapper.toResponseDTO(attributeTemplate);
+    }
+
+    /**
+     * Retrieves all AttributeTemplates.
+     *
+     * @return the list of all AttributeTemplateResponseDTO's representing the found attribute templates.
+     */
+
+    @Transactional(readOnly = true)
+    public List<AttributeTemplateResponseDTO> getAllAttributeTemplates() {
+
+        return findAll().stream().map(mapper::toResponseDTO).toList();
     }
 
     /**
@@ -82,30 +110,5 @@ public class AttributeTemplateService extends AbstractCrudService<AttributeTempl
 
         attributeTemplate.setName(normalizedName);
         return mapper.toResponseDTO(update(id, attributeTemplate));
-    }
-
-    /**
-     * Retrieves an AttributeTemplate by its unique identifier.
-     *
-     * @param id the unique identifier of the AttributeTemplate to retrieve.
-     * @return the AttributeTemplateResponseDTO representing the found attribute template.
-     * @throws IllegalArgumentException if the provided id is null
-     * @throws ResourceNotFoundException if no AttributeTemplate is found with the given id.
-     */
-
-    public AttributeTemplateResponseDTO getAttributeTemplateById(Long id) {
-        AttributeTemplate attributeTemplate = findById(id);
-        return mapper.toResponseDTO(attributeTemplate);
-    }
-
-    /**
-     * Retrieves all AttributeTemplates.
-     *
-     * @return the list of all AttributeTemplateResponseDTO's representing the found attribute templates.
-     */
-
-    public List<AttributeTemplateResponseDTO> getAllAttributeTemplates() {
-
-        return findAll().stream().map(mapper::toResponseDTO).toList();
     }
 }
