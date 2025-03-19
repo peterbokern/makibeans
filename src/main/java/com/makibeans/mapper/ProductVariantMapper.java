@@ -8,6 +8,7 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring", uses = {AttributeValueMapper.class, SizeMapper.class})
 public interface ProductVariantMapper {
 
-    @Mapping(source = "size", target = "size")
+    @Mapping(source = "size.id", target = "sizeId")
+    @Mapping(source = "size.name", target = "sizeName")
     ProductVariantResponseDTO toResponseDTO(ProductVariant entity);
 }
