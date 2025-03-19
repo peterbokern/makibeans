@@ -7,7 +7,7 @@ import com.makibeans.mapper.ProductMapper;
 import com.makibeans.model.Category;
 import com.makibeans.model.Product;
 import com.makibeans.repository.ProductRepository;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
@@ -45,7 +45,7 @@ public class ProductService extends AbstractCrudService<Product, Long> {
      * @return the ProductResponseDTO representing the product.
      */
 
-    @Transactional
+    @Transactional(readOnly = true)
     public ProductResponseDTO getProductById(Long productId) {
         Product product = findById(productId);
         return productMapper.toResponseDTO(product);
@@ -57,7 +57,7 @@ public class ProductService extends AbstractCrudService<Product, Long> {
      * @return a list of ProductResponseDTO representing all products.
      */
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<ProductResponseDTO> getAllProducts() {
         return productRepository.findAll()
                 .stream()

@@ -42,7 +42,7 @@ public class ProductAttributeService extends AbstractCrudService<ProductAttribut
      * @throws ResourceNotFoundException if the product attribute does not exist.
      */
 
-    @Transactional
+    @Transactional(readOnly = true)
     public ProductAttributeResponseDTO getProductAttributeById(Long id) {
         ProductAttribute productAttribute = findById(id);
         return productAttributeMapper.toResponseDTO(productAttribute);
@@ -54,7 +54,7 @@ public class ProductAttributeService extends AbstractCrudService<ProductAttribut
      * @return a list of productAttributeResponseDTO's representing all product attributes..
      */
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<ProductAttributeResponseDTO> getAllProductAttributes(){
         return productAttributeRepository.findAll().stream().map(productAttributeMapper:: toResponseDTO).toList();
     }
