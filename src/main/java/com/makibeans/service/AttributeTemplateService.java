@@ -2,8 +2,8 @@ package com.makibeans.service;
 
 import com.makibeans.dto.AttributeTemplateRequestDTO;
 import com.makibeans.dto.AttributeTemplateResponseDTO;
-import com.makibeans.exeptions.DuplicateResourceException;
-import com.makibeans.exeptions.ResourceNotFoundException;
+import com.makibeans.exceptions.DuplicateResourceException;
+import com.makibeans.exceptions.ResourceNotFoundException;
 import com.makibeans.mapper.AttributeTemplateMapper;
 import com.makibeans.model.AttributeTemplate;
 import com.makibeans.repository.AttributeTemplateRepository;
@@ -69,10 +69,10 @@ public class AttributeTemplateService extends AbstractCrudService<AttributeTempl
             throw new DuplicateResourceException("Attribute template with name '" + normalizedName + "' already exists.");
         }
 
-        AttributeTemplate attributeTemplate = mapper.toEntity(dto);
-        attributeTemplate.setName(normalizedName);
+        AttributeTemplate attributeTemplate = new AttributeTemplate(normalizedName);
+        AttributeTemplate createdAttributeTemplate =  create(attributeTemplate);
 
-        return mapper.toResponseDTO(create(attributeTemplate));
+        return mapper.toResponseDTO(createdAttributeTemplate);
     }
 
     /**

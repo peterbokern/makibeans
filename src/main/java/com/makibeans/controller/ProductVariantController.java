@@ -6,6 +6,7 @@ import com.makibeans.dto.ProductVariantUpdateDTO;
 import com.makibeans.service.ProductVariantService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -57,6 +58,7 @@ public class ProductVariantController {
      * @return a ResponseEntity containing the created ProductVariantResponseDTO
      */
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<ProductVariantResponseDTO> createProductVariant(@Valid @RequestBody ProductVariantRequestDTO requestDTO) {
         ProductVariantResponseDTO responseDTO = productVariantService.createProductVariant(requestDTO);
@@ -71,6 +73,7 @@ public class ProductVariantController {
      * @return a ResponseEntity containing the updated ProductVariantResponseDTO
      */
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<ProductVariantResponseDTO> updateProductVariant(@PathVariable Long id, @Valid @RequestBody ProductVariantUpdateDTO requestDTO) {
         ProductVariantResponseDTO responseDTO = productVariantService.updateProductVariant(id, requestDTO);
@@ -84,6 +87,7 @@ public class ProductVariantController {
      * @return a ResponseEntity indicating the result of the operation
      */
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteProductVariant(@PathVariable Long id) {
         productVariantService.deleteProductVariant(id);

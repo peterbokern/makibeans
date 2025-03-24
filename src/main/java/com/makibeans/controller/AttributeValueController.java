@@ -5,6 +5,7 @@ import com.makibeans.service.AttributeValueService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -69,6 +70,8 @@ public class AttributeValueController {
      * @param dto the DTO containing the details of the new AttributeValue
      * @return a ResponseEntity containing the created AttributeValueResponseDTO
      */
+
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<AttributeValueResponseDTO> createAttributeValue(@Valid @RequestBody AttributeValueRequestDTO dto) {
         AttributeValueResponseDTO response = attributeValueService.createAttributeValue(dto);
@@ -82,6 +85,8 @@ public class AttributeValueController {
      * @param dto the DTO containing the updated details
      * @return a ResponseEntity containing the updated AttributeValueResponseDTO
      */
+
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<AttributeValueResponseDTO> updateAttributeValue(
             @PathVariable Long id,
@@ -96,6 +101,8 @@ public class AttributeValueController {
      * @param id the unique identifier of the AttributeValue to delete
      * @return a ResponseEntity with no content if the deletion was successful
      */
+
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteAttributeValue(@PathVariable Long id) {
         attributeValueService.deleteAttributeValue(id);

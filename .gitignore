@@ -1,4 +1,5 @@
 config.properties
+/application.properties
 target/
 .idea/
 *.class

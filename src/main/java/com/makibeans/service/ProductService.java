@@ -2,7 +2,7 @@ package com.makibeans.service;
 
 import com.makibeans.dto.ProductRequestDTO;
 import com.makibeans.dto.ProductResponseDTO;
-import com.makibeans.exeptions.DuplicateResourceException;
+import com.makibeans.exceptions.DuplicateResourceException;
 import com.makibeans.mapper.ProductMapper;
 import com.makibeans.model.Category;
 import com.makibeans.model.Product;
