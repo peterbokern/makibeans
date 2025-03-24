@@ -5,6 +5,7 @@ import com.makibeans.dto.ProductResponseDTO;
 import com.makibeans.service.ProductService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -56,6 +57,7 @@ public class ProductController {
      * @return a ResponseEntity containing the created ProductResponseDTO
      */
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<ProductResponseDTO> createProduct(@Valid @RequestBody ProductRequestDTO requestDTO) {
         ProductResponseDTO responseDTO = productService.createProduct(requestDTO);
@@ -70,6 +72,7 @@ public class ProductController {
      * @return a ResponseEntity containing the updated ProductResponseDTO
      */
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<ProductResponseDTO> updateProduct(@PathVariable Long id, @Valid @RequestBody ProductRequestDTO requestDTO) {
         ProductResponseDTO responseDTO = productService.updateProduct(id, requestDTO);
@@ -83,6 +86,7 @@ public class ProductController {
      * @return a ResponseEntity indicating the result of the operation
      */
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
         productService.deleteProduct(id);

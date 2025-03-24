@@ -5,6 +5,7 @@ import com.makibeans.dto.ProductAttributeResponseDTO;
 import com.makibeans.service.ProductAttributeService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -56,6 +57,7 @@ public class ProductAttributeController {
      * @return a ResponseEntity containing the created ProductAttributeResponseDTO
      */
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<ProductAttributeResponseDTO> createProductAttribute(@Valid @RequestBody ProductAttributeRequestDTO requestDTO) {
         ProductAttributeResponseDTO responseDTO = productAttributeService.createProductAttribute(requestDTO);
@@ -69,6 +71,7 @@ public class ProductAttributeController {
      * @return a ResponseEntity indicating the result of the operation
      */
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteProductAttribute(@PathVariable Long id) {
         productAttributeService.deleteProductAttribute(id);
@@ -83,6 +86,7 @@ public class ProductAttributeController {
      * @return a ResponseEntity indicating the result of the operation.
      */
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/{productAttributeId}/attribute-values/{attributeValueId}")
     public ResponseEntity<Void> addAttributeValue(@PathVariable Long productAttributeId, @PathVariable Long attributeValueId) {
         productAttributeService.addAttributeValue(productAttributeId, attributeValueId);
@@ -97,6 +101,7 @@ public class ProductAttributeController {
      * @return a ResponseEntity indicating the result of the operation.
      */
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{productAttributeId}/attribute-values/{attributeValueId}")
     public ResponseEntity<Void> removeAttributeValue(@PathVariable Long productAttributeId, @PathVariable Long attributeValueId) {
         productAttributeService.removeAttributeValue(productAttributeId, attributeValueId);

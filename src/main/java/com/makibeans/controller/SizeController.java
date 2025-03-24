@@ -5,6 +5,7 @@ import com.makibeans.dto.SizeResponseDTO;
 import com.makibeans.service.SizeService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -56,6 +57,7 @@ public class SizeController {
      * @return a ResponseEntity containing the created SizeResponseDTO
      */
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<SizeResponseDTO> createSize(@Valid @RequestBody SizeRequestDTO requestDTO) {
         SizeResponseDTO responseDTO = sizeService.createSize(requestDTO);
@@ -70,6 +72,7 @@ public class SizeController {
      * @return a ResponseEntity containing the updated SizeResponseDTO
      */
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<SizeResponseDTO> updateSize(@PathVariable Long id, @Valid @RequestBody SizeRequestDTO requestDTO) {
         SizeResponseDTO responseDTO = sizeService.updateSize(id, requestDTO);
@@ -83,6 +86,7 @@ public class SizeController {
      * @return a ResponseEntity indicating the result of the operation
      */
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteSize(@PathVariable Long id) {
         sizeService.deleteSize(id);

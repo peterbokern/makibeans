@@ -2,8 +2,8 @@ package com.makibeans.service;
 
 import com.makibeans.dto.ProductAttributeRequestDTO;
 import com.makibeans.dto.ProductAttributeResponseDTO;
-import com.makibeans.exeptions.DuplicateResourceException;
-import com.makibeans.exeptions.ResourceNotFoundException;
+import com.makibeans.exceptions.DuplicateResourceException;
+import com.makibeans.exceptions.ResourceNotFoundException;
 import com.makibeans.mapper.ProductAttributeMapper;
 import com.makibeans.model.*;
 import com.makibeans.repository.ProductAttributeRepository;

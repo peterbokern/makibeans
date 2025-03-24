@@ -6,6 +6,7 @@ import com.makibeans.service.CategoryService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -32,6 +33,7 @@ public class CategoryController {
         return ResponseEntity.ok(categoryResponseDTO);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping()
     public ResponseEntity<CategoryResponseDTO> createCategory(@Valid @RequestBody CategoryRequestDTO requestDTO) {
         CategoryResponseDTO responseDTO =categoryService.createCategory(requestDTO);
@@ -45,6 +47,7 @@ public class CategoryController {
      * @return a ResponseEntity with no content if the deletion was successful
      */
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCategory(@PathVariable Long id) {
         categoryService.deleteCategory(id);
@@ -59,6 +62,7 @@ public class CategoryController {
      * @return the updated category as a CategoryResponseDTO
      */
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<CategoryResponseDTO> updateCategory(@PathVariable Long id, @Valid @RequestBody CategoryRequestDTO requestDTO) {
         CategoryResponseDTO updatedCategory = categoryService.updateCategory(id, requestDTO);

@@ -1,4 +1,4 @@
-package com.makibeans.exeptions;
+package com.makibeans.exceptions;
 
 public class DuplicateResourceException extends RuntimeException {
     public DuplicateResourceException(String message) {

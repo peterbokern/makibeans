@@ -2,9 +2,9 @@ package com.makibeans.service;
 
 import com.makibeans.dto.CategoryRequestDTO;
 import com.makibeans.dto.CategoryResponseDTO;
-import com.makibeans.exeptions.CircularReferenceException;
-import com.makibeans.exeptions.DuplicateResourceException;
-import com.makibeans.exeptions.ResourceNotFoundException;
+import com.makibeans.exceptions.CircularReferenceException;
+import com.makibeans.exceptions.DuplicateResourceException;
+import com.makibeans.exceptions.ResourceNotFoundException;
 import com.makibeans.mapper.CategoryMapper;
 import com.makibeans.model.Category;
 import com.makibeans.repository.CategoryRepository;
