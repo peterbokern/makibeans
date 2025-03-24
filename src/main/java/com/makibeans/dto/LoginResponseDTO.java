@@ -4,6 +4,11 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * DTO for user login responses.
+ * Contains the username, email, and JWT token.
+ */
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
