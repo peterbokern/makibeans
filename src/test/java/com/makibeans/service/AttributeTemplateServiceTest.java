@@ -2,8 +2,8 @@ package com.makibeans.service;
 
 import com.makibeans.dto.AttributeTemplateRequestDTO;
 import com.makibeans.dto.AttributeTemplateResponseDTO;
-import com.makibeans.exeptions.DuplicateResourceException;
-import com.makibeans.exeptions.ResourceNotFoundException;
+import com.makibeans.exceptions.DuplicateResourceException;
+import com.makibeans.exceptions.ResourceNotFoundException;
 import com.makibeans.model.AttributeTemplate;
 import com.makibeans.repository.AttributeTemplateRepository;
 import org.junit.jupiter.api.AfterEach;

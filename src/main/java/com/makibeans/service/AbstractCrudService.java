@@ -1,5 +1,5 @@
 package com.makibeans.service;
-import com.makibeans.exeptions.ResourceNotFoundException;
+import com.makibeans.exceptions.ResourceNotFoundException;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

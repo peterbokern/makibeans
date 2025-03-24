@@ -1,9 +1,5 @@
-package com.makibeans.exception;
+package com.makibeans.exceptions;
 
-import com.makibeans.exeptions.CircularReferenceException;
-import com.makibeans.exeptions.DuplicateResourceException;
-import com.makibeans.exeptions.InvalidCredentialsException;
-import com.makibeans.exeptions.ResourceNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authorization.AuthorizationDeniedException;
@@ -58,9 +54,9 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler({AccessDeniedException.class, AuthorizationDeniedException.class})
     @ResponseStatus(HttpStatus.FORBIDDEN)
-    public ResponseEntity<String> handleAccessDenied(AccessDeniedException ex) {
+    public ResponseEntity<String> handleAccessDenied(Exception ex) {
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                .body("You are not authorized to access this resource.");
+                .body("You are not authorized to perform this action.");
     }
 
     @ExceptionHandler(Exception.class)

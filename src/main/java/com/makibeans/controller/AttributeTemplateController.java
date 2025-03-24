@@ -6,6 +6,7 @@ import com.makibeans.service.AttributeTemplateService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -49,6 +50,8 @@ public class AttributeTemplateController {
      * @param dto the DTO containing the details of the AttributeTemplate to create
      * @return the ResponseEntity containing the created AttributeTemplateResponseDTO
      */
+
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<AttributeTemplateResponseDTO> createAttributeTemplate(
             @Valid @RequestBody AttributeTemplateRequestDTO dto) {
@@ -63,6 +66,8 @@ public class AttributeTemplateController {
      * @param dto the DTO containing the updated details
      * @return the ResponseEntity containing the updated AttributeTemplateResponseDTO
      */
+
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<AttributeTemplateResponseDTO> updateAttributeTemplate(
             @PathVariable Long id,
@@ -77,6 +82,8 @@ public class AttributeTemplateController {
      * @param id the ID of the AttributeTemplate to delete
      * @return the ResponseEntity with appropriate HTTP status
      */
+
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteAttributeTemplate(@PathVariable Long id) {
         attributeTemplateService.deleteAttributeTemplate(id);
