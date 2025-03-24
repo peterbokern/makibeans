@@ -30,8 +30,6 @@ public class UserService extends AbstractCrudService<User, Long> {
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
     private final RoleService roleService;
-    private final JwtUtil jwtUtil;
-    private final UserDetailsServiceImpl userDetailsServiceImpl;
 
     @Autowired
     public UserService(JpaRepository<User, Long> repository,
@@ -42,8 +40,6 @@ public class UserService extends AbstractCrudService<User, Long> {
         this.passwordEncoder = passwordEncoder;
         this.userMapper = userMapper;
         this.roleService = roleService;
-        this.jwtUtil = jwtUtil;
-        this.userDetailsServiceImpl = userDetailsServiceImpl;
     }
 
     /**
@@ -120,7 +116,7 @@ public class UserService extends AbstractCrudService<User, Long> {
      */
 
     @Transactional
-    public UserResponseDTO registerUser(@Valid @RequestBody UserRequestDTO userRequestDTO) {
+    public UserResponseDTO registerUser(@Valid UserRequestDTO userRequestDTO) {
         return registerUserWithRole(userRequestDTO, "ROLE_USER");
     }
 
@@ -152,6 +148,9 @@ public class UserService extends AbstractCrudService<User, Long> {
         user.addRole(userRole);
 
         User createdUser = create(user);
+
+        logger.info("User {} created with role {}", user.getUsername(), roleName);
+
         return userMapper.toResponseDTO(createdUser);
     }
 

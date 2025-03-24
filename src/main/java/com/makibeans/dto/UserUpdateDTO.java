@@ -6,6 +6,11 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * DTO for user updates.
+ * Contains the username, email, and password.
+ */
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

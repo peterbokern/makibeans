@@ -6,6 +6,11 @@ import lombok.NoArgsConstructor;
 
 import java.util.Set;
 
+/**
+ * DTO for user responses.
+ * Contains the id, username, email, and roles.
+ */
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
