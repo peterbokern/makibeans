@@ -7,9 +7,7 @@ import com.makibeans.exceptions.DuplicateResourceException;
 import com.makibeans.mapper.ProductMapper;
 import com.makibeans.model.Category;
 import com.makibeans.model.Product;
-import com.makibeans.model.ProductVariant;
 import com.makibeans.repository.ProductRepository;
-import com.makibeans.util.FilterUtils;
 import com.makibeans.util.ProductFilter;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,8 +15,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Service class for managing Products.
@@ -88,8 +84,12 @@ public class ProductService extends AbstractCrudService<Product, Long> {
     @Transactional
     public ProductPageDTO filterProducts(Map<String, String> filters) {
 
-        ProductFilter productFilter = new ProductFilter(filters, findAll());
-        return productFilter.filterAndPaginate(productMapper);
+        ProductFilter productFilter = ProductFilter.builder()
+                .filters(filters)
+                .products(findAll())
+                .productMapper(productMapper)
+                .build();
+        return productFilter.filterAndPaginate();
     }
 
     /**
