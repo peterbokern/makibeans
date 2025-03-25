@@ -1,5 +1,6 @@
 package com.makibeans.service;
 
+import com.makibeans.dto.ProductPageDTO;
 import com.makibeans.dto.ProductRequestDTO;
 import com.makibeans.dto.ProductResponseDTO;
 import com.makibeans.exceptions.DuplicateResourceException;
@@ -7,12 +8,13 @@ import com.makibeans.mapper.ProductMapper;
 import com.makibeans.model.Category;
 import com.makibeans.model.Product;
 import com.makibeans.repository.ProductRepository;
+import com.makibeans.util.ProductFilter;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.util.*;
 
 /**
  * Service class for managing Products.
@@ -25,6 +27,7 @@ public class ProductService extends AbstractCrudService<Product, Long> {
     private final ProductRepository productRepository;
     private final CategoryService categoryService;
     private final ProductMapper productMapper;
+
 
     @Autowired
     public ProductService(
@@ -65,6 +68,30 @@ public class ProductService extends AbstractCrudService<Product, Long> {
                 .toList();
     }
 
+
+    /**
+     * Filters products based on various criteria provided in the filters map.
+     * The filters can include category ID, category name, price range, size, SKU, stock, and custom attributes.
+     * Uses ProductFilter to handle the filtering and pagination logic.
+     * Additionally, you can search on product name, description, attribute template, and attribute value.
+     *
+     * @param filters a map containing the filter criteria as key-value pairs.
+     *                Supported keys: "categoryId", "categoryName", "minPrice", "maxPrice", "sizeId", "sizeName", "sku", "stock", "query", "sort", "order", "page", "size".
+     *                Any other keys will be treated as custom attribute filters.
+     * @return a ProductPageDTO representing the filtered products.
+     */
+
+    @Transactional
+    public ProductPageDTO filterProducts(Map<String, String> filters) {
+
+        ProductFilter productFilter = ProductFilter.builder()
+                .filters(filters)
+                .products(findAll())
+                .productMapper(productMapper)
+                .build();
+        return productFilter.filterAndPaginate();
+    }
+
     /**
      * Creates a new product.
      *
@@ -72,6 +99,7 @@ public class ProductService extends AbstractCrudService<Product, Long> {
      * @return the saved ProductResponseDTO.
      * @throws DuplicateResourceException if a product with the given name already exists.
      */
+
 
     @Transactional
     public ProductResponseDTO createProduct(ProductRequestDTO dto) {

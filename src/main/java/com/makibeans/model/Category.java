@@ -52,7 +52,6 @@ public class Category {
     @OneToMany(mappedBy = "category")
     private final List<Product> products = new ArrayList<>();
 
-
     public Category(String name, String description, String imageUrl) {
         this.name = name;
         this.description = description;
