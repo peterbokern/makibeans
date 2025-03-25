@@ -13,7 +13,7 @@ public class ProductResponseDTO {
     private String productDescription;
     private String productImageUrl;
     private Long categoryId;
-    private String category;
+    private String categoryName;
     private List<ProductVariantResponseDTO> productVariants;
     private List<ProductAttributeResponseDTO> productAttributes;
 }
