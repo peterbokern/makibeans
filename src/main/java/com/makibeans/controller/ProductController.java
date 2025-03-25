@@ -9,6 +9,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * REST controller for managing Products.
@@ -48,6 +49,20 @@ public class ProductController {
     public ResponseEntity<List<ProductResponseDTO>> getAllProducts() {
         List<ProductResponseDTO> responseDTOS = productService.getAllProducts();
         return ResponseEntity.ok(responseDTOS);
+    }
+
+    /**
+     * Filters products based on various criteria provided in the filters map.
+     * The filters can include category ID, category name, price range, size, SKU, stock, and custom attributes.
+     *
+     * @param filters a map containing the filter criteria as key-value pairs
+     * @return a ResponseEntity containing a list of ProductResponseDTOs representing the filtered products
+     */
+
+    @GetMapping("/filter")
+    public ResponseEntity<List<ProductResponseDTO>> filterProducts(@RequestParam Map<String,String> filters) {
+        List<ProductResponseDTO> products = productService.filterProducts(filters);
+        return ResponseEntity.ok(products);
     }
 
     /**
