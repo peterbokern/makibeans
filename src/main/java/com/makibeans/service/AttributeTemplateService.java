@@ -4,15 +4,19 @@ import com.makibeans.dto.AttributeTemplateRequestDTO;
 import com.makibeans.dto.AttributeTemplateResponseDTO;
 import com.makibeans.exceptions.DuplicateResourceException;
 import com.makibeans.exceptions.ResourceNotFoundException;
+import com.makibeans.filter.SearchFilter;
 import com.makibeans.mapper.AttributeTemplateMapper;
 import com.makibeans.model.AttributeTemplate;
 import com.makibeans.repository.AttributeTemplateRepository;
+import com.makibeans.util.FilterUtils;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 
 @Service
 public class AttributeTemplateService extends AbstractCrudService<AttributeTemplate, Long> {
@@ -52,6 +56,31 @@ public class AttributeTemplateService extends AbstractCrudService<AttributeTempl
     public List<AttributeTemplateResponseDTO> getAllAttributeTemplates() {
 
         return findAll().stream().map(mapper::toResponseDTO).toList();
+    }
+
+    /**
+     * Searches for AttributeTemplates based on the provided filters.
+     * The search is performed on the name of the AttributeTemplate.
+     *
+     * @param searchParams the map containing the search params
+     * @return a list of AttributeTemplateResponseDTOs representing the matched attribute templates
+     */
+
+    @Transactional(readOnly = true)
+    public List<AttributeTemplateResponseDTO> findBySearchQuery(Map<String, String> searchParams) {
+
+        // Define which fields should be included in the search
+        Map<String,Function<AttributeTemplate, String>> searchableFields = Map.of(
+                "name", AttributeTemplate::getName
+        );
+
+        // Perform the search using the utility method
+        List<AttributeTemplate> matchedTemplates = SearchFilter.apply(findAll(), searchParams, searchableFields);
+
+        // Convert to response DTOs
+        return matchedTemplates.stream()
+                .map(mapper::toResponseDTO)
+                .toList();
     }
 
     /**
