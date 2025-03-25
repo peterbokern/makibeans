@@ -80,28 +80,85 @@ public class ProductService extends AbstractCrudService<Product, Long> {
      * @return a list of ProductResponseDTO representing the filtered products.
      */
     @Transactional
-    public ProductPageDTO filterProducts(@RequestBody Map<String, String> filters) {
+    public ProductPageDTO filterProducts(Map<String, String> filters) {
 
         //extract filters
-        Long categoryId = filters.containsKey("categoryId") ? Long.parseLong(filters.get("categoryId")) : null;
-        String categoryName = filters.get("categoryName");
-        Long minPrice = filters.containsKey("minPrice") ? Long.parseLong(filters.get("minPrice")) : null;
-        Long maxPrice = filters.containsKey("maxPrice") ? Long.parseLong(filters.get("maxPrice")) : null;
-        Long sizeId = filters.containsKey("sizeId") ? Long.parseLong(filters.get("sizeId")) : null;
-        String sizeName = filters.get("sizeName");
-        String sku = filters.get("sku");
-        Long stock = filters.containsKey("stock") ? Long.parseLong(filters.get("stock")) : null;
+        Long categoryId = Optional.ofNullable(filters.get("categoryId"))
+                .map(String::trim)
+                .filter(s -> !s.isBlank())
+                .map(Long::parseLong)
+                .orElse(null);
+
+
+        String categoryName = Optional.ofNullable(filters.get("categoryName"))
+                        .map(String::trim)
+                        .filter(s -> !s.isBlank())
+                        .orElse(null);
+
+        Long minPrice = Optional.ofNullable(filters.get("minPrice"))
+                .map(String::trim)
+                .filter(s -> !s.isBlank())
+                .map(Long::parseLong)
+                .orElse(null);
+
+        Long maxPrice = Optional.ofNullable(filters.get("maxPrice"))
+                .map(String::trim)
+                .filter(s -> !s.isBlank())
+                .map(Long::parseLong)
+                .orElse(null);
+
+        Long sizeId = Optional.ofNullable(filters.get("sizeId"))
+                .map(String::trim)
+                .filter(s-> !s.isBlank())
+                .map(Long::parseLong)
+                .orElse(null);
+
+        String sizeName = Optional.ofNullable(filters.get("sizeName"))
+                .map(String::trim)
+                .filter(s -> !s.isBlank())
+                .orElse(null);
+
+        String sku = Optional.ofNullable(filters.get("sku"))
+                .map(String::trim)
+                .filter(s -> !s.isBlank())
+                .orElse(null);
+
+        Long stock = Optional.ofNullable(filters.get("stock"))
+                .map(String::trim)
+                .filter(s -> !s.isBlank())
+                .map(Long::parseLong)
+                .orElse(null);
 
         //extract query
-        String query = filters.get("query");
+        String query = Optional.ofNullable(filters.get("query"))
+                .map(String::trim)
+                .filter(s -> !s.isBlank())
+                .orElse(null);
 
         //extract sort
-        String sort = filters.get("sort");
-        String order = filters.getOrDefault("order", "asc"); // default to ascending
+        String sort = Optional.ofNullable(filters.get("sort"))
+                .map(String::trim)
+                .filter(s -> !s.isBlank())
+                .orElse(null);
+
+
+        String order = Optional.ofNullable(filters.get("order"))
+                .map(String::trim)
+                .filter(s -> !s.isBlank())
+                .orElse(null);
 
         //extract pagination
-        int page = filters.containsKey("page") ? Integer.parseInt(filters.get("page")) : 0; //default page is 0
-        int size = filters.containsKey("size") ? Integer.parseInt(filters.get("size")) : 12; //default size is 12
+        int page = Optional.ofNullable(filters.get("page"))
+                .map(String::trim)
+                .filter(s -> !s.isBlank())
+                .map(Integer::parseInt)
+                .orElse(0); // default page is 0
+
+        int size = Optional.ofNullable(filters.get("size"))
+                .map(String::trim)
+                .filter(s -> !s.isBlank())
+                .map(Integer::parseInt)
+                .orElse(12); // default size is 12
 
         //list the know params
         Set<String> knownParams = Set.of("categoryId", "categoryName", "minPrice", "maxPrice", "sizeId", "sizeName", "sku", "stock", "query", "sort", "order", "page", "size");
@@ -205,7 +262,7 @@ public class ProductService extends AbstractCrudService<Product, Long> {
             //sort by comparator
             if (comparator != null) {
                 comparator = order.equals("desc") ? comparator.reversed() : comparator;
-                products =  products.sorted(comparator);
+                products = products.sorted(comparator);
             }
 
         }
