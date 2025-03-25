@@ -14,7 +14,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -84,14 +83,16 @@ public class ProductService extends AbstractCrudService<Product, Long> {
     @Transactional
     public ProductPageDTO filterProducts(Map<String, String> filters) {
 
-        //extract filters
-        Long categoryId = FilterUtils.extractLong(filters, "categoryId").orElse(null);
-        String categoryName = FilterUtils.extractLowerCase(filters, "categoryName").orElse(null);
+        //extract multi-value filters
+        List<Long> categoryIdValues = FilterUtils.extractLongList(filters, "categoryId");
+        List<String> categoryNameValues = FilterUtils.extractStringList(filters, "categoryName");
+        List<Long> sizeIdValues = FilterUtils.extractLongList(filters, "sizeId");
+        List<String> sizeNameValues = FilterUtils.extractStringList(filters, "sizeName");
+        List<String> skuValues = FilterUtils.extractStringList(filters, "sku");
+
+        //extract single-value filters
         Long minPrice = FilterUtils.extractLong(filters, "minPrice").orElse(null);
         Long maxPrice = FilterUtils.extractLong(filters, "maxPrice").orElse(null);
-        Long sizeId = FilterUtils.extractLong(filters, "sizeId").orElse(null);
-        String sizeName = FilterUtils.extractLowerCase(filters, "sizeName").orElse(null);
-        String sku = FilterUtils.extractLowerCase(filters, "sku").orElse(null);
         Long stock = FilterUtils.extractLong(filters, "stock").orElse(null);
 
         //extract query
@@ -120,13 +121,13 @@ public class ProductService extends AbstractCrudService<Product, Long> {
         Stream<Product> products = allProducts.stream();
 
         //filter by categoryId
-        if (categoryId != null) {
-            products = products.filter(p -> p.getCategory().getId().equals(categoryId));
+        if (!categoryIdValues.isEmpty()) {
+            products = products.filter(p -> categoryIdValues.contains(p.getCategory().getId()));
         }
 
         //filter by categoryName
-        if (categoryName != null) {
-            products = products.filter(p -> p.getCategory().getName().equalsIgnoreCase(categoryName));
+        if (!categoryNameValues.isEmpty()) {
+            products = products.filter(p -> categoryNameValues.contains(p.getCategory().getName().toLowerCase()));
         }
 
         //filter by minPrice
@@ -140,18 +141,18 @@ public class ProductService extends AbstractCrudService<Product, Long> {
         }
 
         //filter by size id
-        if (sizeId != null) {
-            products = products.filter(p -> p.getProductVariants().stream().anyMatch(v -> v.getSize().getId().equals(sizeId)));
+        if (!sizeIdValues.isEmpty()) {
+            products = products.filter(p -> p.getProductVariants().stream().anyMatch(v -> sizeIdValues.contains(v.getSize().getId())));
         }
 
         //filter by size name
-        if (sizeName != null) {
-            products = products.filter(p -> p.getProductVariants().stream().anyMatch(v -> v.getSize().getName().equalsIgnoreCase(sizeName)));
+        if (!sizeNameValues.isEmpty()) {
+            products = products.filter(p -> p.getProductVariants().stream().anyMatch(v -> sizeNameValues.contains(v.getSize().getName().toLowerCase())));
         }
 
         // filter by SKU
-        if (sku != null) {
-            products = products.filter(p -> p.getProductVariants().stream().anyMatch(v -> v.getSku().equalsIgnoreCase(sku)));
+        if (!skuValues.isEmpty()) {
+            products = products.filter(p -> p.getProductVariants().stream().anyMatch(v -> skuValues.contains(v.getSku().toLowerCase())));
         }
 
         // filter by stock
@@ -159,20 +160,23 @@ public class ProductService extends AbstractCrudService<Product, Long> {
             products = products.filter(p -> p.getProductVariants().stream().anyMatch(v -> v.getStock() >= stock));
         }
 
-        //filter by product attributes
+        // filter by product attributes
         products = products.filter(product ->
 
-                //for each product loop through the product attribute filters: for each filter e.g. (origin: chili)
-                attributeFilters.entrySet().stream().allMatch(attributeFilter -> //all filters should return true
+                // for each product, check all attribute filters (e.g. origin=chili,argentina)
+                attributeFilters.entrySet().stream().allMatch(attributeFilter -> {
 
-                        //get all productAttributes and for each productAttribute check if attributeTemplate name attributeValues match
-                        product.getProductAttributes().stream().anyMatch(productAttribute ->
-                                productAttribute.getAttributeTemplate().getName().equalsIgnoreCase(attributeFilter.getKey()) &&
-                                        productAttribute.getAttributeValues().stream().anyMatch(attributeValue ->
-                                                attributeValue.getValue().equalsIgnoreCase(attributeFilter.getValue())
-                                        )
-                        )
-                )
+                    // get list of cleaned attribute filter values, e.g. origin=chili,argentina => ["chili", "argentina"]
+                    List<String> values = FilterUtils.splitAndNormalize(attributeFilter.getValue());
+
+                    // match product attributes: template name matches filter key AND at least one value matches
+                    return product.getProductAttributes().stream().anyMatch(productAttribute ->
+                            productAttribute.getAttributeTemplate().getName().equalsIgnoreCase(attributeFilter.getKey()) &&
+                                    productAttribute.getAttributeValues().stream().anyMatch(attributeValue ->
+                                            values.contains(attributeValue.getValue().toLowerCase()) // normalize comparison
+                                    )
+                    );
+                })
         );
 
         //filter by search query on product name and description
@@ -187,7 +191,7 @@ public class ProductService extends AbstractCrudService<Product, Long> {
         //define the sort comparator
         if (sort != null) {
 
-            Comparator<Product> comparator = null;
+            Comparator<Product> comparator;
 
             switch (sort) {
 
