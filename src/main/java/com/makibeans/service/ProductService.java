@@ -9,6 +9,7 @@ import com.makibeans.model.Category;
 import com.makibeans.model.Product;
 import com.makibeans.model.ProductVariant;
 import com.makibeans.repository.ProductRepository;
+import com.makibeans.util.FilterUtils;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -83,82 +84,28 @@ public class ProductService extends AbstractCrudService<Product, Long> {
     public ProductPageDTO filterProducts(Map<String, String> filters) {
 
         //extract filters
-        Long categoryId = Optional.ofNullable(filters.get("categoryId"))
-                .map(String::trim)
-                .filter(s -> !s.isBlank())
-                .map(Long::parseLong)
-                .orElse(null);
-
-
-        String categoryName = Optional.ofNullable(filters.get("categoryName"))
-                        .map(String::trim)
-                        .filter(s -> !s.isBlank())
-                        .orElse(null);
-
-        Long minPrice = Optional.ofNullable(filters.get("minPrice"))
-                .map(String::trim)
-                .filter(s -> !s.isBlank())
-                .map(Long::parseLong)
-                .orElse(null);
-
-        Long maxPrice = Optional.ofNullable(filters.get("maxPrice"))
-                .map(String::trim)
-                .filter(s -> !s.isBlank())
-                .map(Long::parseLong)
-                .orElse(null);
-
-        Long sizeId = Optional.ofNullable(filters.get("sizeId"))
-                .map(String::trim)
-                .filter(s-> !s.isBlank())
-                .map(Long::parseLong)
-                .orElse(null);
-
-        String sizeName = Optional.ofNullable(filters.get("sizeName"))
-                .map(String::trim)
-                .filter(s -> !s.isBlank())
-                .orElse(null);
-
-        String sku = Optional.ofNullable(filters.get("sku"))
-                .map(String::trim)
-                .filter(s -> !s.isBlank())
-                .orElse(null);
-
-        Long stock = Optional.ofNullable(filters.get("stock"))
-                .map(String::trim)
-                .filter(s -> !s.isBlank())
-                .map(Long::parseLong)
-                .orElse(null);
+        Long categoryId = FilterUtils.extractLong(filters, "categoryId").orElse(null);
+        String categoryName = FilterUtils.extractString(filters, "categoryName").orElse(null);
+        Long minPrice = FilterUtils.extractLong(filters, "minPrice").orElse(null);
+        Long maxPrice = FilterUtils.extractLong(filters, "maxPrice").orElse(null);
+        Long sizeId = FilterUtils.extractLong(filters, "sizeId").orElse(null);
+        String sizeName = FilterUtils.extractString(filters, "sizeName").orElse(null);
+        String sku = FilterUtils.extractString(filters, "sku").orElse(null);
+        Long stock = FilterUtils.extractLong(filters, "stock").orElse(null);
 
         //extract query
-        String query = Optional.ofNullable(filters.get("query"))
-                .map(String::trim)
-                .filter(s -> !s.isBlank())
-                .orElse(null);
+        String query = FilterUtils.extractString(filters, "query").orElse(null);
 
         //extract sort
-        String sort = Optional.ofNullable(filters.get("sort"))
-                .map(String::trim)
-                .filter(s -> !s.isBlank())
-                .orElse(null);
+        String sort = FilterUtils.extractString(filters, "sort").orElse(null);
 
-
-        String order = Optional.ofNullable(filters.get("order"))
-                .map(String::trim)
-                .filter(s -> !s.isBlank())
-                .orElse(null);
+        // default to ascending
+        String order = FilterUtils.extractString(filters, "order").orElse("asc");
 
         //extract pagination
-        int page = Optional.ofNullable(filters.get("page"))
-                .map(String::trim)
-                .filter(s -> !s.isBlank())
-                .map(Integer::parseInt)
-                .orElse(0); // default page is 0
+        int page = FilterUtils.extractInt(filters, "page").orElse(0); // default page is 0
+        int size = FilterUtils.extractInt(filters, "size").orElse(12); // default size is 12
 
-        int size = Optional.ofNullable(filters.get("size"))
-                .map(String::trim)
-                .filter(s -> !s.isBlank())
-                .map(Integer::parseInt)
-                .orElse(12); // default size is 12
 
         //list the know params
         Set<String> knownParams = Set.of("categoryId", "categoryName", "minPrice", "maxPrice", "sizeId", "sizeName", "sku", "stock", "query", "sort", "order", "page", "size");
