@@ -1,5 +1,6 @@
 package com.makibeans.service;
 
+import com.makibeans.dto.ProductPageDTO;
 import com.makibeans.dto.ProductRequestDTO;
 import com.makibeans.dto.ProductResponseDTO;
 import com.makibeans.exceptions.DuplicateResourceException;
@@ -79,7 +80,7 @@ public class ProductService extends AbstractCrudService<Product, Long> {
      * @return a list of ProductResponseDTO representing the filtered products.
      */
     @Transactional
-    public List<ProductResponseDTO> filterProducts(@RequestBody Map<String, String> filters) {
+    public ProductPageDTO filterProducts(@RequestBody Map<String, String> filters) {
 
         //extract filters
         Long categoryId = filters.containsKey("categoryId") ? Long.parseLong(filters.get("categoryId")) : null;
@@ -98,8 +99,12 @@ public class ProductService extends AbstractCrudService<Product, Long> {
         String sort = filters.get("sort");
         String order = filters.getOrDefault("order", "asc"); // default to ascending
 
+        //extract pagination
+        int page = filters.containsKey("page") ? Integer.parseInt(filters.get("page")) : 0; //default page is 0
+        int size = filters.containsKey("size") ? Integer.parseInt(filters.get("size")) : 12; //default size is 12
+
         //list the know params
-        Set<String> knownParams = Set.of("categoryId", "categoryName", "minPrice", "maxPrice", "sizeId", "sizeName", "sku", "stock", "query", "sort", "order");
+        Set<String> knownParams = Set.of("categoryId", "categoryName", "minPrice", "maxPrice", "sizeId", "sizeName", "sku", "stock", "query", "sort", "order", "page", "size");
 
         //extracts the unknown params i.e. the attribute filters
         Map<String, String> attributeFilters = filters.entrySet().stream().
@@ -107,7 +112,8 @@ public class ProductService extends AbstractCrudService<Product, Long> {
                 collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
         //stream products
-        Stream<Product> products = findAll().stream();
+        List<Product> allProducts = findAll();
+        Stream<Product> products = allProducts.stream();
 
         //filter by categoryId
         if (categoryId != null) {
@@ -199,12 +205,26 @@ public class ProductService extends AbstractCrudService<Product, Long> {
             //sort by comparator
             if (comparator != null) {
                 comparator = order.equals("desc") ? comparator.reversed() : comparator;
-                return products.sorted(comparator).map(productMapper::toResponseDTO).toList();
+                products =  products.sorted(comparator);
             }
 
         }
-        // default return if no sorting applied
-        return products.map(productMapper::toResponseDTO).toList();
+
+        //filtered products
+        List<Product> filtered = products.toList();
+
+        //pagination
+        List<ProductResponseDTO> pageContent = filtered
+                .stream()
+                .skip((long) page * size) // if page is 2 and size is 12 skip first 12 elements
+                .limit(size) //if size is 12 returns 12 elements*/
+                .map(productMapper::toResponseDTO).toList();
+
+        Long totalElements = (long) filtered.size();
+        int totalPages = (int) Math.ceil((double) totalElements / size);
+
+        //return paginated content
+        return new ProductPageDTO(pageContent, page, size, totalElements, totalPages);
     }
 
     /**
