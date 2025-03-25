@@ -204,6 +204,11 @@ public class ProductService extends AbstractCrudService<Product, Long> {
                         .comparing(product -> product.getProductVariants().stream()
                                 .map(v -> v.getSize().getName())
                                 .min(String.CASE_INSENSITIVE_ORDER).orElse(""));
+                default -> comparator = Comparator
+                        .comparing(product -> product.getProductVariants()
+                                .stream().mapToLong(ProductVariant::getPriceInCents)
+                                .min()
+                                .orElse(Integer.MAX_VALUE)); // default to priceInCents
             }
 
             //sort by comparator
