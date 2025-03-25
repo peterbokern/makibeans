@@ -9,6 +9,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * REST controller for managing Attribute Values.
@@ -42,15 +43,20 @@ public class AttributeValueController {
     }
 
     /**
-     * Retrieves all AttributeValues.
+     * Retrieves all AttributeValues, or filters them based on search parameters.
      *
+     * @param params optional search, sort, and order parameters
      * @return a ResponseEntity containing a list of AttributeValueResponseDTOs
      */
     @GetMapping
-    public ResponseEntity<List<AttributeValueResponseDTO>> getAllAttributeValues() {
-        List<AttributeValueResponseDTO> attributeValueResponseDTOS = attributeValueService.getAllAttributeValues();
+    public ResponseEntity<List<AttributeValueResponseDTO>> getAttributeValues(@RequestParam Map<String, String> params) {
+        List<AttributeValueResponseDTO> attributeValueResponseDTOS = params.containsKey("search")
+                ? attributeValueService.findBySearchQuery(params)
+                : attributeValueService.getAllAttributeValues();
+
         return ResponseEntity.ok(attributeValueResponseDTOS);
     }
+
 
     /**
      * Retrieves all AttributeValues associated with a given AttributeTemplate ID.
