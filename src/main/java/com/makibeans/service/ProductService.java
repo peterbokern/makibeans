@@ -74,38 +74,38 @@ public class ProductService extends AbstractCrudService<Product, Long> {
     /**
      * Filters products based on various criteria provided in the filters map.
      * The filters can include category ID, category name, price range, size, SKU, stock, and custom attributes.
+     * Uses FilterUtils to extract filter criteria.
      *
      * @param filters a map containing the filter criteria as key-value pairs.
-     *                Supported keys: "categoryId", "categoryName", "minPrice", "maxPrice", "sizeId", "sizeName", "sku", "stock", "query".
+     *                Supported keys: "categoryId", "categoryName", "minPrice", "maxPrice", "sizeId", "sizeName", "sku", "stock", "query", "sort", "order", "page", "size".
      *                Any other keys will be treated as custom attribute filters.
-     * @return a list of ProductResponseDTO representing the filtered products.
+     * @return a ProductPageDTO representing the filtered products.
      */
     @Transactional
     public ProductPageDTO filterProducts(Map<String, String> filters) {
 
         //extract filters
         Long categoryId = FilterUtils.extractLong(filters, "categoryId").orElse(null);
-        String categoryName = FilterUtils.extractString(filters, "categoryName").orElse(null);
+        String categoryName = FilterUtils.extractLowerCase(filters, "categoryName").orElse(null);
         Long minPrice = FilterUtils.extractLong(filters, "minPrice").orElse(null);
         Long maxPrice = FilterUtils.extractLong(filters, "maxPrice").orElse(null);
         Long sizeId = FilterUtils.extractLong(filters, "sizeId").orElse(null);
-        String sizeName = FilterUtils.extractString(filters, "sizeName").orElse(null);
-        String sku = FilterUtils.extractString(filters, "sku").orElse(null);
+        String sizeName = FilterUtils.extractLowerCase(filters, "sizeName").orElse(null);
+        String sku = FilterUtils.extractLowerCase(filters, "sku").orElse(null);
         Long stock = FilterUtils.extractLong(filters, "stock").orElse(null);
 
         //extract query
-        String query = FilterUtils.extractString(filters, "query").orElse(null);
+        String query = FilterUtils.extractLowerCase(filters, "query").orElse(null);
 
         //extract sort
-        String sort = FilterUtils.extractString(filters, "sort").orElse(null);
+        String sort = FilterUtils.extractLowerCase(filters, "sort").orElse(null);
 
         // default to ascending
-        String order = FilterUtils.extractString(filters, "order").orElse("asc");
+        String order = FilterUtils.extractLowerCase(filters, "order").orElse("asc");
 
         //extract pagination
         int page = FilterUtils.extractInt(filters, "page").orElse(0); // default page is 0
         int size = FilterUtils.extractInt(filters, "size").orElse(12); // default size is 12
-
 
         //list the know params
         Set<String> knownParams = Set.of("categoryId", "categoryName", "minPrice", "maxPrice", "sizeId", "sizeName", "sku", "stock", "query", "sort", "order", "page", "size");
