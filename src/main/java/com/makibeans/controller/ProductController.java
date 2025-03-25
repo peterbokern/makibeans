@@ -1,5 +1,6 @@
 package com.makibeans.controller;
 
+import com.makibeans.dto.ProductPageDTO;
 import com.makibeans.dto.ProductRequestDTO;
 import com.makibeans.dto.ProductResponseDTO;
 import com.makibeans.service.ProductService;
@@ -60,9 +61,9 @@ public class ProductController {
      */
 
     @GetMapping("/filter")
-    public ResponseEntity<List<ProductResponseDTO>> filterProducts(@RequestParam Map<String,String> filters) {
-        List<ProductResponseDTO> products = productService.filterProducts(filters);
-        return ResponseEntity.ok(products);
+    public ResponseEntity<ProductPageDTO> filterProducts(@RequestParam Map<String,String> filters) {
+        ProductPageDTO content = productService.filterProducts(filters);
+        return ResponseEntity.ok(content);
     }
 
     /**
