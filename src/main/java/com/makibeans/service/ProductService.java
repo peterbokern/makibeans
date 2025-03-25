@@ -74,6 +74,7 @@ public class ProductService extends AbstractCrudService<Product, Long> {
      * Filters products based on various criteria provided in the filters map.
      * The filters can include category ID, category name, price range, size, SKU, stock, and custom attributes.
      * Uses FilterUtils to extract filter criteria.
+     * Additionally, you can search on product name, description, attribute template, and attribute value.
      *
      * @param filters a map containing the filter criteria as key-value pairs.
      *                Supported keys: "categoryId", "categoryName", "minPrice", "maxPrice", "sizeId", "sizeName", "sku", "stock", "query", "sort", "order", "page", "size".
@@ -179,12 +180,24 @@ public class ProductService extends AbstractCrudService<Product, Long> {
                 })
         );
 
-        //filter by search query on product name and description
+        //filter by search query on product name, description, attribute values, and attribute template names
         if (query != null && !query.isBlank()) {
             String lowerQuery = query.toLowerCase();
             products = products.filter(p ->
+                    //search product name
                     p.getProductName().toLowerCase().contains(lowerQuery) ||
-                            p.getProductDescription().toLowerCase().contains(lowerQuery)
+
+                            //search product description
+                            p.getProductDescription().toLowerCase().contains(lowerQuery) ||
+
+                            //search product attribute values
+                            p.getProductAttributes().stream().anyMatch(pa ->
+                                    pa.getAttributeValues().stream().anyMatch(v ->
+                                            v.getValue().toLowerCase().contains(lowerQuery))) ||
+
+                            //search attribute template names
+                            p.getProductAttributes().stream().anyMatch(pa ->
+                                    pa.getAttributeTemplate().getName().toLowerCase().contains(lowerQuery))
             );
         }
 
