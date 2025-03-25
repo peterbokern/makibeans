@@ -1,10 +1,11 @@
-package com.makibeans.util;
+package com.makibeans.filter;
 
 import com.makibeans.dto.ProductPageDTO;
 import com.makibeans.dto.ProductResponseDTO;
 import com.makibeans.mapper.ProductMapper;
 import com.makibeans.model.Product;
 import com.makibeans.model.ProductVariant;
+import com.makibeans.util.FilterUtils;
 import lombok.Builder;
 
 import java.util.Comparator;

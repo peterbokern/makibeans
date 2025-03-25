@@ -8,7 +8,7 @@ import com.makibeans.mapper.ProductMapper;
 import com.makibeans.model.Category;
 import com.makibeans.model.Product;
 import com.makibeans.repository.ProductRepository;
-import com.makibeans.util.ProductFilter;
+import com.makibeans.filter.ProductFilter;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -68,7 +68,6 @@ public class ProductService extends AbstractCrudService<Product, Long> {
                 .toList();
     }
 
-
     /**
      * Filters products based on various criteria provided in the filters map.
      * The filters can include category ID, category name, price range, size, SKU, stock, and custom attributes.
@@ -99,7 +98,6 @@ public class ProductService extends AbstractCrudService<Product, Long> {
      * @return the saved ProductResponseDTO.
      * @throws DuplicateResourceException if a product with the given name already exists.
      */
-
 
     @Transactional
     public ProductResponseDTO createProduct(ProductRequestDTO dto) {
