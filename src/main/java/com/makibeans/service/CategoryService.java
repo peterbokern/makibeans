@@ -62,25 +62,20 @@ public class CategoryService extends AbstractCrudService<Category, Long> {
     @Transactional(readOnly = true)
     public List<CategoryResponseDTO> findBySearchQuery(Map<String, String> searchParams) {
 
-        // Define searchable and sortable fields
         Map<String, Function<Category, String>> searchableFields = Map.of(
                 "name", Category::getName,
-                "description", Category::getDescription
-        );
+                "description", Category::getDescription);
 
-        //define sortfields
         Map<String, Comparator<Category>> sortFields= Map.of(
                 "id", Comparator.comparing(Category::getId, Comparator.nullsLast(Comparator.naturalOrder())),
                 "name", Comparator.comparing(Category::getName, String.CASE_INSENSITIVE_ORDER),
                 "description", Comparator.comparing(Category::getDescription, String.CASE_INSENSITIVE_ORDER));
 
-        // Apply filtering and sorting using SearchFilter
         List<Category> matchedCategories = SearchFilter.apply(findAll(),
                 searchParams,
                 searchableFields,
                 sortFields);
 
-        // Convert to response DTOs
         return matchedCategories.stream()
                 .map(categoryMapper::toResponseDTO)
                 .toList();

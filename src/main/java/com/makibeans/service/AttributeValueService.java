@@ -91,7 +91,6 @@ public class AttributeValueService extends AbstractCrudService<AttributeValue, L
                         searchFields,
                         sortFields);
 
-        // Map to DTOs
         return matchedValues.stream()
                 .map(mapper::toResponseDTO)
                 .toList();

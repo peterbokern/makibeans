@@ -61,20 +61,20 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(InvalidFilterException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<String> handleInvalidFilterException(Exception ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid filter: " + ex.getMessage());
     }
 
     @ExceptionHandler(NoHandlerFoundException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<String> handleNoHandlerFoundException(Exception ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No handler found for the requested endpoint: " + ex.getMessage());
     }
 
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleGenericException(Exception ex) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred: " + ex.getMessage());
     }
-
-
-
 }
