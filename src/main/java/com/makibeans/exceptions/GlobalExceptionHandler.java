@@ -3,6 +3,7 @@ package com.makibeans.exceptions;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authorization.AuthorizationDeniedException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -70,6 +71,12 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<String> handleNoHandlerFoundException(Exception ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No handler found for the requested endpoint: " + ex.getMessage());
+    }
+
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    @ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
+    public ResponseEntity<String> handleHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException ex) {
+        return new ResponseEntity<>("Request method not supported. Please check the HTTP method and try again.", HttpStatus.METHOD_NOT_ALLOWED);
     }
 
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)

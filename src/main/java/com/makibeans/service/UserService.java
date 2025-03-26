@@ -102,15 +102,12 @@ public class UserService extends AbstractCrudService<User, Long> {
         Map<String, Function<User, String>> searchFields = Map.of(
                 "name", User::getUsername,
                 "username", User::getUsername,
-                "email", User::getEmail,
-                "role", user -> user.getRoles().toString());
-
+                "email", User::getEmail);
 
         Map<String, Comparator<User>> sortFields = Map.of(
                 "id", Comparator.comparing(User::getId, Comparator.nullsLast(Comparator.naturalOrder())),
                 "userName", Comparator.comparing(User::getUsername, String.CASE_INSENSITIVE_ORDER),
-                "email", Comparator.comparing(User::getEmail, String.CASE_INSENSITIVE_ORDER),
-                "role", Comparator.comparing(User::getUsername, String.CASE_INSENSITIVE_ORDER));
+                "email", Comparator.comparing(User::getEmail, String.CASE_INSENSITIVE_ORDER));
 
         List<User> matchedUsers = SearchFilter.apply(
                 findAll(),
