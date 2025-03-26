@@ -13,6 +13,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * REST controller for managing users.
@@ -49,20 +50,25 @@ public class UserController {
     }
 
     /**
-     * Retrieves all users (Admin only).
+     * Retrieves all Sizes, or filters them based on search parameters. (Admin Only)
+     *
+     * @param params optional search, sort, and order parameters
+     * @return a ResponseEntity containing a list of SizeResponseDTOs
      */
 
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
-    public ResponseEntity<List<UserResponseDTO>> getAllUsers() {
-        return ResponseEntity.ok(userService.getAllUsers());
+    public ResponseEntity<List<UserResponseDTO>> getUsers(@RequestParam Map<String, String> params) {
+        List<UserResponseDTO> userResponseDTOS = userService.findBySearchQuery(params);
+
+        return ResponseEntity.ok(userResponseDTOS);
     }
 
     /**
      * Registers a new user.
      */
 
-    @PostMapping
+    @PostMapping("/register")
     public ResponseEntity<UserResponseDTO> registerUser(@Valid @RequestBody UserRequestDTO userRequestDTO) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(userService.registerUser(userRequestDTO));

@@ -3,8 +3,10 @@ package com.makibeans.service;
 import com.makibeans.dto.*;
 import com.makibeans.exceptions.DuplicateResourceException;
 import com.makibeans.exceptions.ResourceNotFoundException;
+import com.makibeans.filter.SearchFilter;
 import com.makibeans.mapper.UserMapper;
 import com.makibeans.model.Role;
+import com.makibeans.model.Size;
 import com.makibeans.model.User;
 import com.makibeans.repository.UserRepository;
 import com.makibeans.security.JwtUtil;
@@ -16,7 +18,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 
 /**
  * Service class for managing User entities.
@@ -51,7 +56,7 @@ public class UserService extends AbstractCrudService<User, Long> {
      */
 
     @Transactional(readOnly = true)
-    public User findByUserName(String userName){
+    public User findByUserName(String userName) {
         return userRepository.findByUsername(userName)
                 .orElseThrow(() -> new ResourceNotFoundException("User with username " + userName + " not found."));
     }
@@ -80,6 +85,37 @@ public class UserService extends AbstractCrudService<User, Long> {
     public List<UserResponseDTO> getAllUsers() {
         return userRepository.findAll()
                 .stream()
+                .map(userMapper::toResponseDTO)
+                .toList();
+    }
+
+    /**
+     * Retrieves a list of users based on the provided search parameters.
+     * Searchable fields: name, username, email, role.
+     *
+     * @param searchParams a map of search parameters to filter the users.
+     * @return a list of UserResponseDTO representing the matched users.
+     */
+    @Transactional(readOnly = true)
+    public List<UserResponseDTO> findBySearchQuery(Map<String, String> searchParams) {
+
+        Map<String, Function<User, String>> searchFields = Map.of(
+                "name", User::getUsername,
+                "username", User::getUsername,
+                "email", User::getEmail);
+
+        Map<String, Comparator<User>> sortFields = Map.of(
+                "id", Comparator.comparing(User::getId, Comparator.nullsLast(Comparator.naturalOrder())),
+                "userName", Comparator.comparing(User::getUsername, String.CASE_INSENSITIVE_ORDER),
+                "email", Comparator.comparing(User::getEmail, String.CASE_INSENSITIVE_ORDER));
+
+        List<User> matchedUsers = SearchFilter.apply(
+                findAll(),
+                searchParams,
+                searchFields,
+                sortFields);
+
+        return matchedUsers.stream()
                 .map(userMapper::toResponseDTO)
                 .toList();
     }
@@ -124,7 +160,7 @@ public class UserService extends AbstractCrudService<User, Long> {
      * Registers a new user with the specified role.
      *
      * @param userRequestDTO the UserRequestDTO containing user details
-     * @param roleName the name of the role to assign to the user
+     * @param roleName       the name of the role to assign to the user
      * @return a UserResponseDTO containing the created user details
      * @throws DuplicateResourceException if a user with the given username or email already exists
      */
@@ -168,11 +204,11 @@ public class UserService extends AbstractCrudService<User, Long> {
     /**
      * Updates an existing User with the provided details.
      *
-     * @param id the ID of the user to update.
+     * @param id            the ID of the user to update.
      * @param userUpdateDTO the new details for the user.
      * @return the updated User entity as a UserResponseDTO.
      * @throws DuplicateResourceException if a user with the given username or email already exists.
-     * @throws ResourceNotFoundException if the user with the given ID does not exist.
+     * @throws ResourceNotFoundException  if the user with the given ID does not exist.
      */
 
     @Transactional

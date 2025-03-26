@@ -10,6 +10,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/attribute-templates")
@@ -34,15 +35,18 @@ public class AttributeTemplateController {
     }
 
     /**
-     * Retrieves all AttributeTemplates.
+     * Retrieves all AttributeTemplates or searches for AttributeTemplates based on the provided serach params.
      *
+     * @param params the map containing the search parameters
      * @return the ResponseEntity containing the list of AttributeTemplateResponseDTOs
      */
+
     @GetMapping
-    public ResponseEntity<List<AttributeTemplateResponseDTO>> getAllAttributeTemplates() {
-        List<AttributeTemplateResponseDTO> responseDTOs = attributeTemplateService.getAllAttributeTemplates();
-        return ResponseEntity.ok(responseDTOs);
+    public ResponseEntity<List<AttributeTemplateResponseDTO>> getTemplates(@RequestParam Map<String, String> params) {
+        List<AttributeTemplateResponseDTO> attributeTemplateResponseDTOS =  attributeTemplateService.findBySearchQuery(params);
+        return ResponseEntity.ok(attributeTemplateResponseDTOS);
     }
+
 
     /**
      * Creates a new AttributeTemplate.

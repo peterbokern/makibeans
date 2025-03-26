@@ -1,5 +1,6 @@
 package com.makibeans.controller;
 
+import com.makibeans.dto.AttributeValueResponseDTO;
 import com.makibeans.dto.SizeRequestDTO;
 import com.makibeans.dto.SizeResponseDTO;
 import com.makibeans.service.SizeService;
@@ -9,6 +10,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * REST controller for managing Sizes.
@@ -39,15 +41,17 @@ public class SizeController {
     }
 
     /**
-     * Retrieves all sizes.
+     * Retrieves all Sizes, or filters them based on search parameters.
      *
+     * @param params optional search, sort, and order parameters
      * @return a ResponseEntity containing a list of SizeResponseDTOs
      */
 
     @GetMapping
-    public ResponseEntity<List<SizeResponseDTO>> getAllSizes() {
-        List<SizeResponseDTO> responseDTOS = sizeService.getAllSizes();
-        return ResponseEntity.ok(responseDTOS);
+    public ResponseEntity<List<SizeResponseDTO>> getSizes(@RequestParam Map<String, String> params) {
+        List<SizeResponseDTO> sizeResponseDTOS = sizeService.findBySearchQuery(params);
+
+        return ResponseEntity.ok(sizeResponseDTOS);
     }
 
     /**

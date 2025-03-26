@@ -41,18 +41,6 @@ public class ProductController {
     }
 
     /**
-     * Retrieves all products.
-     *
-     * @return a ResponseEntity containing a list of ProductResponseDTOs
-     */
-
-    @GetMapping
-    public ResponseEntity<List<ProductResponseDTO>> getAllProducts() {
-        List<ProductResponseDTO> responseDTOS = productService.getAllProducts();
-        return ResponseEntity.ok(responseDTOS);
-    }
-
-    /**
      * Filters products based on various criteria provided in the filters map.
      * The filters can include category ID, category name, price range, size, SKU, stock, and custom attributes.
      *
@@ -60,9 +48,9 @@ public class ProductController {
      * @return a ResponseEntity containing a list of ProductResponseDTOs representing the filtered products
      */
 
-    @GetMapping("/filter")
-    public ResponseEntity<ProductPageDTO> filterProducts(@RequestParam Map<String,String> filters) {
-        ProductPageDTO content = productService.filterProducts(filters);
+    @GetMapping("")
+    public ResponseEntity<ProductPageDTO> getProducts(@RequestParam Map<String,String> filters) {
+        ProductPageDTO content = productService.findBySearchQuery(filters);
         return ResponseEntity.ok(content);
     }
 

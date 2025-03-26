@@ -1,16 +1,17 @@
-package com.makibeans.util;
+package com.makibeans.filter;
 
 import com.makibeans.dto.ProductPageDTO;
 import com.makibeans.dto.ProductResponseDTO;
 import com.makibeans.mapper.ProductMapper;
 import com.makibeans.model.Product;
 import com.makibeans.model.ProductVariant;
+import com.makibeans.service.AttributeTemplateService;
+import com.makibeans.util.FilterUtils;
 import lombok.Builder;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -23,12 +24,6 @@ public class ProductFilter {
     private final Map<String, String> filters;
     private final List<Product> products;
     private final ProductMapper productMapper;
-
-    private static final Set<String> KNOWN_PARAMS = Set.of(
-            "categoryId", "categoryName", "minPrice", "maxPrice",
-            "sizeId", "sizeName", "sku", "stock", "query", "sort", "order", "page", "size"
-    );
-
     private List<Long> categoryIdValues;
     private List<String> categoryNameValues;
     private List<Long> sizeIdValues;
@@ -37,17 +32,24 @@ public class ProductFilter {
     private Long minPrice;
     private Long maxPrice;
     private Long stock;
-    private String query;
+    private String search;
     private String sort;
     private String order;
     private int page;
     private int size;
+    private final Set<String> validAttributeKeys;
+
+    private static final Set<String> KNOWN_PARAMS = Set.of(
+            "categoryId", "categoryName", "minPrice", "maxPrice",
+            "sizeId", "sizeName", "sku", "stock", "query", "sort", "order", "page", "size", "search"
+    );
 
     @Builder
-    public ProductFilter(Map<String, String> filters, List<Product> products, ProductMapper productMapper) {
+    public ProductFilter(Map<String, String> filters, List<Product> products, ProductMapper productMapper, AttributeTemplateService attributeTemplateService, Set<String> validAttributeKeys) {
         this.filters = filters;
         this.products = products;
         this.productMapper = productMapper;
+        this.validAttributeKeys = validAttributeKeys;
     }
 
     /**
@@ -55,10 +57,18 @@ public class ProductFilter {
      *
      * @return a ProductPageDTO representing the filtered and paginated products.
      */
-    public ProductPageDTO filterAndPaginate() {
+    public ProductPageDTO apply() {
 
         // Extract filters into instance fields
         extractFilters();
+
+        //define validParams
+        Set<String> validParams = new HashSet<>();
+        validParams.addAll(KNOWN_PARAMS);
+        validParams.addAll(validAttributeKeys);
+
+        //validate
+        FilterUtils.validateParams(filters, validParams);
 
         // Create a stream from the product list
         Stream<Product> stream = products.stream();
@@ -92,7 +102,7 @@ public class ProductFilter {
         stock = FilterUtils.extractLong(filters, "stock").orElse(null);
 
         //extract query
-        query = FilterUtils.extractLowerCase(filters, "query").orElse(null);
+        search = FilterUtils.extractLowerCase(filters, "search").orElse(null);
 
         //extract sort
         sort = FilterUtils.extractLowerCase(filters, "sort").orElse(null);
@@ -135,27 +145,31 @@ public class ProductFilter {
      */
     private Stream<Product> applySorting(Stream<Product> products) {
 
-        //define the sort comparator
         if (sort != null) {
 
             Comparator<Product> comparator;
 
             switch (sort) {
 
-                case "categoryName" -> comparator = Comparator
+                case "categoryName" ->
+                        comparator = Comparator
                         .comparing(product -> product.getCategory().getName(), String.CASE_INSENSITIVE_ORDER);
-                case "priceInCents" -> comparator = Comparator
+                case "priceInCents" ->
+                        comparator = Comparator
                         .comparing(product -> product.getProductVariants()
                                 .stream().mapToLong(ProductVariant::getPriceInCents)
                                 .min()
                                 .orElse(Integer.MAX_VALUE));
-                case "productName" -> comparator = Comparator
+                case "productName" ->
+                        comparator = Comparator
                         .comparing(Product::getProductName, String.CASE_INSENSITIVE_ORDER);
-                case "sizeName" -> comparator = Comparator
+                case "sizeName" ->
+                        comparator = Comparator
                         .comparing(product -> product.getProductVariants().stream()
                                 .map(v -> v.getSize().getName())
                                 .min(String.CASE_INSENSITIVE_ORDER).orElse(""));
-                default -> comparator = Comparator
+                default ->
+                        comparator = Comparator
                         .comparing(product -> product.getProductVariants()
                                 .stream().mapToLong(ProductVariant::getPriceInCents)
                                 .min()
@@ -195,6 +209,7 @@ public class ProductFilter {
                 .page(page)
                 .totalPages(totalPages)
                 .size(size)
+                .totalElements(totalElements)
                 .build();
     }
 
@@ -309,8 +324,7 @@ public class ProductFilter {
                             productAttribute.getAttributeTemplate().getName().equalsIgnoreCase(attributeFilter.getKey()) &&
                                     productAttribute.getAttributeValues().stream().anyMatch(attributeValue ->
                                             values.contains(attributeValue.getValue().toLowerCase()) // normalize comparison
-                                    )
-                    );
+                                    ));
                 })
         );
 
@@ -328,8 +342,8 @@ public class ProductFilter {
     private Stream<Product> applySearchQueryFilter(Stream<Product> products) {
 
         //filter by search query on product name, description, attribute values, and attribute template names
-        if (query != null && !query.isBlank()) {
-            String lowerQuery = query.toLowerCase();
+        if (search != null && !search.isBlank()) {
+            String lowerQuery = search.toLowerCase();
             products = products.filter(p ->
                     //search product name
                     p.getProductName().toLowerCase().contains(lowerQuery) ||
