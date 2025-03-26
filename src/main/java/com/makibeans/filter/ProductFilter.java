@@ -41,7 +41,7 @@ public class ProductFilter {
 
     private static final Set<String> KNOWN_PARAMS = Set.of(
             "categoryId", "categoryName", "minPrice", "maxPrice",
-            "sizeId", "sizeName", "sku", "stock", "query", "sort", "order", "page", "size"
+            "sizeId", "sizeName", "sku", "stock", "query", "sort", "order", "page", "size", "search"
     );
 
     @Builder
@@ -205,6 +205,7 @@ public class ProductFilter {
                 .page(page)
                 .totalPages(totalPages)
                 .size(size)
+                .totalElements(totalElements)
                 .build();
     }
 
