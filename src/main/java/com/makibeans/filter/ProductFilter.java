@@ -145,27 +145,31 @@ public class ProductFilter {
      */
     private Stream<Product> applySorting(Stream<Product> products) {
 
-        //define the sort comparator
         if (sort != null) {
 
             Comparator<Product> comparator;
 
             switch (sort) {
 
-                case "categoryName" -> comparator = Comparator
+                case "categoryName" ->
+                        comparator = Comparator
                         .comparing(product -> product.getCategory().getName(), String.CASE_INSENSITIVE_ORDER);
-                case "priceInCents" -> comparator = Comparator
+                case "priceInCents" ->
+                        comparator = Comparator
                         .comparing(product -> product.getProductVariants()
                                 .stream().mapToLong(ProductVariant::getPriceInCents)
                                 .min()
                                 .orElse(Integer.MAX_VALUE));
-                case "productName" -> comparator = Comparator
+                case "productName" ->
+                        comparator = Comparator
                         .comparing(Product::getProductName, String.CASE_INSENSITIVE_ORDER);
-                case "sizeName" -> comparator = Comparator
+                case "sizeName" ->
+                        comparator = Comparator
                         .comparing(product -> product.getProductVariants().stream()
                                 .map(v -> v.getSize().getName())
                                 .min(String.CASE_INSENSITIVE_ORDER).orElse(""));
-                default -> comparator = Comparator
+                default ->
+                        comparator = Comparator
                         .comparing(product -> product.getProductVariants()
                                 .stream().mapToLong(ProductVariant::getPriceInCents)
                                 .min()
@@ -320,8 +324,7 @@ public class ProductFilter {
                             productAttribute.getAttributeTemplate().getName().equalsIgnoreCase(attributeFilter.getKey()) &&
                                     productAttribute.getAttributeValues().stream().anyMatch(attributeValue ->
                                             values.contains(attributeValue.getValue().toLowerCase()) // normalize comparison
-                                    )
-                    );
+                                    ));
                 })
         );
 

@@ -13,7 +13,6 @@ public class SearchFilter {
     private static final Logger logger = LoggerFactory.getLogger(SearchFilter.class);
     private static final Set<String> SPECIAL_PARAMS = Set.of("sort", "order", "search", "page", "size");
 
-
     /**
      * Filters a list of objects using search parameters and a list of getter functions.
      *
@@ -31,8 +30,8 @@ public class SearchFilter {
             Map<String, Function<T, String>> searchFields,
             Map<String, Comparator<T>> sortFields) {
 
-
-        logger.info("Applying filter and sort on (class =  {} ) with search parameters: {}", items.isEmpty() ? "Unknown" : items.get(0).getClass().getSimpleName(), searchParams);
+        String className = items.isEmpty() ? "Unknown" : items.get(0).getClass().getSimpleName();
+        logger.info("Applying filter and sort on class: {} with params: {}", className, searchParams);
 
         //extract the search parameters
         String query = FilterUtils.extractLowerCase(searchParams, "search").orElse(null);
@@ -56,9 +55,7 @@ public class SearchFilter {
                             Optional.ofNullable(getter.apply(item)) // e.g attributeTemplate.getName()
                                     .map(String::toLowerCase)
                                     .map(val -> val.contains(query))
-                                    .orElse(false)
-                    )
-            );
+                                    .orElse(false)));
         }
 
         //apply filtering on search fields
