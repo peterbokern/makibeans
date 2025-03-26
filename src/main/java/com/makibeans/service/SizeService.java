@@ -4,6 +4,7 @@ import com.makibeans.dto.SizeRequestDTO;
 import com.makibeans.dto.SizeResponseDTO;
 import com.makibeans.exceptions.DuplicateResourceException;
 import com.makibeans.exceptions.ResourceNotFoundException;
+import com.makibeans.filter.SearchFilter;
 import com.makibeans.mapper.SizeMapper;
 import com.makibeans.model.Size;
 import com.makibeans.repository.ProductVariantRepository;
@@ -13,7 +14,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 
 @Service
 public class SizeService extends AbstractCrudService<Size, Long> {
@@ -55,7 +59,29 @@ public class SizeService extends AbstractCrudService<Size, Long> {
         return sizeRepository.findAll()
                 .stream()
                 .map(sizeMapper::toResponseDTO)
-                .toList(); // ✅ No need for collect(Collectors.toList())
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<SizeResponseDTO> findBySearchQuery(Map<String, String> searchParams) {
+
+        Map<String, Function<Size, String>> searchFields = Map.of(
+                "name", Size::getName);
+
+        Map<String, Comparator<Size>> sortFields = Map.of(
+                "id", Comparator.comparing(Size::getId, Comparator.nullsLast(Comparator.naturalOrder())),
+                "name", Comparator.comparing(Size::getName, String.CASE_INSENSITIVE_ORDER));
+
+        List<Size> matchSizes = SearchFilter.apply(
+                findAll(),
+                searchParams,
+                searchFields,
+                sortFields);
+
+        // Convert to response DTOs
+        return matchSizes.stream()
+                .map(sizeMapper::toResponseDTO)
+                .toList();
     }
 
     /**

@@ -1,9 +1,8 @@
 package com.makibeans.util;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import com.makibeans.exceptions.InvalidFilterException;
+
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -126,4 +125,21 @@ public class FilterUtils {
                 .orElse(List.of());
     }
 
+    /**
+     * Validates the search parameters against a set of allowed parameters.
+     * Throws an InvalidFilterException if any parameter is not allowed.
+     *
+     * @param searchParams  the map of search parameters to validate
+     * @param allowedParams the set of allowed parameter names
+     * @throws InvalidFilterException if any parameter in searchParams is not in allowedParams
+     */
+    public static void validateParams(Map<String, String> searchParams, Set<String> allowedParams) {
+
+        List<String> invalid = searchParams.keySet()
+                .stream()
+                .filter(p -> !allowedParams.contains(p))
+                .toList();
+
+        if (!invalid.isEmpty()) throw new InvalidFilterException("Invalid filter parameter(s): " + invalid);
+    }
 }

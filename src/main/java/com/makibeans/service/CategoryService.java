@@ -4,6 +4,7 @@ import com.makibeans.dto.CategoryResponseDTO;
 import com.makibeans.exceptions.CircularReferenceException;
 import com.makibeans.exceptions.DuplicateResourceException;
 import com.makibeans.exceptions.ResourceNotFoundException;
+import com.makibeans.filter.SearchFilter;
 import com.makibeans.mapper.CategoryMapper;
 import com.makibeans.model.Category;
 import com.makibeans.model.Product;
@@ -13,7 +14,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 
 
 @Service
@@ -53,6 +57,28 @@ public class CategoryService extends AbstractCrudService<Category, Long> {
     @Transactional(readOnly = true)
     public List<CategoryResponseDTO> getAllCategories(){
         return categoryRepository.findAll().stream().map(categoryMapper:: toResponseDTO).toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<CategoryResponseDTO> findBySearchQuery(Map<String, String> searchParams) {
+
+        Map<String, Function<Category, String>> searchableFields = Map.of(
+                "name", Category::getName,
+                "description", Category::getDescription);
+
+        Map<String, Comparator<Category>> sortFields= Map.of(
+                "id", Comparator.comparing(Category::getId, Comparator.nullsLast(Comparator.naturalOrder())),
+                "name", Comparator.comparing(Category::getName, String.CASE_INSENSITIVE_ORDER),
+                "description", Comparator.comparing(Category::getDescription, String.CASE_INSENSITIVE_ORDER));
+
+        List<Category> matchedCategories = SearchFilter.apply(findAll(),
+                searchParams,
+                searchableFields,
+                sortFields);
+
+        return matchedCategories.stream()
+                .map(categoryMapper::toResponseDTO)
+                .toList();
     }
 
     /**

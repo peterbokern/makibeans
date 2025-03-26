@@ -10,6 +10,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/categories")
@@ -21,17 +22,43 @@ public class CategoryController {
         this.categoryService = categoryService;
     }
 
-    @GetMapping()
-    public ResponseEntity<List<CategoryResponseDTO>> getAllCategories() {
-        List<CategoryResponseDTO> categoriesResponseDTOs = categoryService.getAllCategories();
-        return ResponseEntity.ok(categoriesResponseDTOs);
+    /**
+     * Retrieves a list of categories based on the provided search and sort parameters.
+     * If no search or sort parameters are provided, all categories are retrieved.
+     *
+     * @param params a map of search and sort parameters
+     * @return a ResponseEntity containing a list of CategoryResponseDTOs
+     */
+
+    @GetMapping
+    public ResponseEntity<List<CategoryResponseDTO>> getCategories(@RequestParam Map<String, String> params) {
+        List<CategoryResponseDTO> categoryResponseDTOs =
+                params.containsKey("search") || params.containsKey("sort") || params.containsKey("order")
+                        ? categoryService.findBySearchQuery(params)
+                        : categoryService.getAllCategories();
+
+        return ResponseEntity.ok(categoryResponseDTOs);
     }
+
+    /**
+     * Retrieves a category by its ID.
+     *
+     * @param id the ID of the category to retrieve
+     * @return a ResponseEntity containing the CategoryResponseDTO representing the category
+     */
 
     @GetMapping("/{id}")
     public ResponseEntity<CategoryResponseDTO> getCategory(@Valid @PathVariable Long id) {
         CategoryResponseDTO categoryResponseDTO = categoryService.getCategoryById(id);
         return ResponseEntity.ok(categoryResponseDTO);
     }
+
+    /**
+     * Creates a new category.
+     *
+     * @param requestDTO the DTO containing the category details
+     * @return a ResponseEntity containing the newly created CategoryResponseDTO
+     */
 
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping()

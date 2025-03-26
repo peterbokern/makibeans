@@ -4,15 +4,24 @@ import com.makibeans.dto.AttributeTemplateRequestDTO;
 import com.makibeans.dto.AttributeTemplateResponseDTO;
 import com.makibeans.exceptions.DuplicateResourceException;
 import com.makibeans.exceptions.ResourceNotFoundException;
+import com.makibeans.filter.SearchFilter;
 import com.makibeans.mapper.AttributeTemplateMapper;
 import com.makibeans.model.AttributeTemplate;
 import com.makibeans.repository.AttributeTemplateRepository;
+import com.makibeans.util.FilterUtils;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 public class AttributeTemplateService extends AbstractCrudService<AttributeTemplate, Long> {
@@ -32,7 +41,7 @@ public class AttributeTemplateService extends AbstractCrudService<AttributeTempl
      *
      * @param id the unique identifier of the AttributeTemplate to retrieve.
      * @return the AttributeTemplateResponseDTO representing the found attribute template.
-     * @throws IllegalArgumentException if the provided id is null
+     * @throws IllegalArgumentException  if the provided id is null
      * @throws ResourceNotFoundException if no AttributeTemplate is found with the given id.
      */
 
@@ -43,15 +52,32 @@ public class AttributeTemplateService extends AbstractCrudService<AttributeTempl
     }
 
     /**
-     * Retrieves all AttributeTemplates.
+     * Searches for AttributeTemplates based on the provided filters.
+     * The search is performed on the name of the AttributeTemplate.
      *
-     * @return the list of all AttributeTemplateResponseDTO's representing the found attribute templates.
+     * @param searchParams the map containing the search params
+     * @return a list of AttributeTemplateResponseDTOs representing the matched attribute templates
      */
 
     @Transactional(readOnly = true)
-    public List<AttributeTemplateResponseDTO> getAllAttributeTemplates() {
+    public List<AttributeTemplateResponseDTO> findBySearchQuery(Map<String, String> searchParams) {
 
-        return findAll().stream().map(mapper::toResponseDTO).toList();
+        Map<String, Function<AttributeTemplate, String>> searchFields = Map.of(
+                "name", AttributeTemplate::getName);
+
+        Map<String, Comparator<AttributeTemplate>> sortFields = Map.of(
+                "id", Comparator.comparing(AttributeTemplate::getId, Comparator.nullsLast(Comparator.naturalOrder())),
+                "name", Comparator.comparing(AttributeTemplate::getName, String.CASE_INSENSITIVE_ORDER));
+
+        List<AttributeTemplate> matchedTemplates = SearchFilter.apply(
+                findAll(),
+                searchParams,
+                searchFields,
+                sortFields);
+
+        return matchedTemplates.stream()
+                .map(mapper::toResponseDTO)
+                .toList();
     }
 
     /**
@@ -70,8 +96,9 @@ public class AttributeTemplateService extends AbstractCrudService<AttributeTempl
         }
 
         AttributeTemplate attributeTemplate = new AttributeTemplate(normalizedName);
-        AttributeTemplate createdAttributeTemplate =  create(attributeTemplate);
+        AttributeTemplate createdAttributeTemplate = create(attributeTemplate);
 
+        refreshAttributeCache();
         return mapper.toResponseDTO(createdAttributeTemplate);
     }
 
@@ -93,7 +120,7 @@ public class AttributeTemplateService extends AbstractCrudService<AttributeTempl
      * @param id  the ID of the attribute template to update
      * @param dto the DTO containing the updated attribute template name
      * @return the updated AttributeTemplate entity as AttributeTemplateResponseDTO
-     * @throws ResourceNotFoundException if the attribute template does not exist
+     * @throws ResourceNotFoundException  if the attribute template does not exist
      * @throws DuplicateResourceException if another AttributeTemplate already exists with the same name
      */
 
@@ -108,7 +135,31 @@ public class AttributeTemplateService extends AbstractCrudService<AttributeTempl
             throw new DuplicateResourceException("Attribute template with name '" + normalizedName + "' already exists.");
         }
 
+        refreshAttributeCache();
         attributeTemplate.setName(normalizedName);
         return mapper.toResponseDTO(update(id, attributeTemplate));
     }
+
+    /**
+     * Retrieves a set of valid attribute keys.
+     * The attribute keys are derived from the names of all attribute templates.
+     * The result is cached to improve performance.
+     *
+     * @return a set of valid attribute keys in lowercase.
+     */
+
+    @Cacheable("validAttributeKeys")
+    public Set<String> getValidAttributeKeys() {
+        return findAll().stream()
+                .map(template -> template.getName().toLowerCase())
+                .collect(Collectors.toSet());
+    }
+
+    /**
+     * Evicts all entries from the cache named "validAttributeKeys".
+     * This method is used to refresh the cache when attribute templates are created, updated, or deleted.
+     */
+    @CacheEvict(value = "validAttributeKeys", allEntries = true)
+    public void refreshAttributeCache() {}
+
 }
