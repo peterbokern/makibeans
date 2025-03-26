@@ -1,6 +1,5 @@
 package com.makibeans.filter;
 
-import com.makibeans.exceptions.InvalidFilterException;
 import com.makibeans.util.FilterUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,18 +40,13 @@ public class SearchFilter {
         String order = FilterUtils.extractLowerCase(searchParams, "order").orElse("asc");
 
         //define allowed params
-        Set<String> allowedParams = new HashSet<>();
+        Set<String> allowedParams = new HashSet<>(SPECIAL_PARAMS);
         allowedParams.addAll(searchFields.keySet());
-        allowedParams.addAll(sortFields.keySet());
-        allowedParams.addAll(SPECIAL_PARAMS);
-
 
         //validate query
         FilterUtils.validateParams(searchParams, allowedParams);
 
-        logger.info("searchparams: {}", searchParams);
-        logger.info("allowed params{}", allowedParams);
-
+        //stream items
         Stream<T> stream = items.stream();
 
         // Apply search filter if present
@@ -66,8 +60,6 @@ public class SearchFilter {
                     )
             );
         }
-
-
 
         //apply filtering on search fields
         for (Map.Entry<String, String> entry : searchParams.entrySet()) {
@@ -84,15 +76,16 @@ public class SearchFilter {
                             .map(String::toLowerCase)
                             .map(String::trim)
                             .map(val -> val.equals(value.toLowerCase().trim()))
-                            .orElse(false)
-            );
+                            .orElse(false));
         }
 
         // Sort and default to id field if present and no sort field is provided
         Comparator<T> comparator = sortFields.getOrDefault(sort, null);
 
         if (comparator != null) {
-            stream = "desc".equals(order) ? stream.sorted(comparator.reversed()) : stream.sorted(comparator);
+            stream = "desc".equals(order)
+                    ? stream.sorted(comparator.reversed())
+                    : stream.sorted(comparator);
         }
 
         return stream.toList();

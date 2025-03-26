@@ -75,7 +75,6 @@ public class AttributeValueService extends AbstractCrudService<AttributeValue, L
     public List<AttributeValueResponseDTO> findBySearchQuery(Map<String, String> searchParams) {
 
         Map<String, Function<AttributeValue, String>> searchFields = Map.of(
-                "id", attributeValue -> String.valueOf(attributeValue.getId()),
                 "value", AttributeValue::getValue,
                 "attributeTemplate", attributeValue -> attributeValue.getAttributeTemplate().getName()
         );
@@ -86,7 +85,7 @@ public class AttributeValueService extends AbstractCrudService<AttributeValue, L
                 "attributeTemplate", Comparator.comparing(attributeValue-> attributeValue.getAttributeTemplate().getName()));
 
                 // Apply filtering and sorting using SearchFilter
-                List < AttributeValue > matchedValues = SearchFilter.apply(
+                List <AttributeValue > matchedValues = SearchFilter.apply(
                         findAll(),
                         searchParams,
                         searchFields,

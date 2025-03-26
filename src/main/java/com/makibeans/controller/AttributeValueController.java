@@ -50,13 +50,10 @@ public class AttributeValueController {
      */
     @GetMapping
     public ResponseEntity<List<AttributeValueResponseDTO>> getAttributeValues(@RequestParam Map<String, String> params) {
-        List<AttributeValueResponseDTO> attributeValueResponseDTOS = params.containsKey("search") || params.containsKey("sort") || params.containsKey("order")
-                ? attributeValueService.findBySearchQuery(params)
-                : attributeValueService.getAllAttributeValues();
+        List<AttributeValueResponseDTO> attributeValueResponseDTOS = attributeValueService.findBySearchQuery(params);
 
         return ResponseEntity.ok(attributeValueResponseDTOS);
     }
-
 
     /**
      * Retrieves all AttributeValues associated with a given AttributeTemplate ID.
