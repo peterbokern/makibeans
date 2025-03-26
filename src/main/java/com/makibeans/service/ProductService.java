@@ -27,6 +27,7 @@ public class ProductService extends AbstractCrudService<Product, Long> {
     private final ProductRepository productRepository;
     private final CategoryService categoryService;
     private final ProductMapper productMapper;
+    private final AttributeTemplateService attributeTemplateService;
 
 
     @Autowired
@@ -34,11 +35,12 @@ public class ProductService extends AbstractCrudService<Product, Long> {
             JpaRepository<Product, Long> repository,
             ProductRepository productRepository,
             CategoryService categoryService,
-            ProductMapper productMapper) {
+            ProductMapper productMapper, AttributeTemplateService attributeTemplateService) {
         super(repository);
         this.productRepository = productRepository;
         this.categoryService = categoryService;
         this.productMapper = productMapper;
+        this.attributeTemplateService = attributeTemplateService;
     }
 
     /**
@@ -54,19 +56,6 @@ public class ProductService extends AbstractCrudService<Product, Long> {
         return productMapper.toResponseDTO(product);
     }
 
-    /**
-     * Retrieves all products.
-     *
-     * @return a list of ProductResponseDTO representing all products.
-     */
-
-    @Transactional(readOnly = true)
-    public List<ProductResponseDTO> getAllProducts() {
-        return productRepository.findAll()
-                .stream()
-                .map(productMapper::toResponseDTO)
-                .toList();
-    }
 
     /**
      * Filters products based on various criteria provided in the filters map.
@@ -81,14 +70,15 @@ public class ProductService extends AbstractCrudService<Product, Long> {
      */
 
     @Transactional
-    public ProductPageDTO filterProducts(Map<String, String> filters) {
+    public ProductPageDTO findBySearchQuery(Map<String, String> filters) {
 
         ProductFilter productFilter = ProductFilter.builder()
                 .filters(filters)
                 .products(findAll())
                 .productMapper(productMapper)
+                .validAttributeKeys(attributeTemplateService.getValidAttributeKeys())
                 .build();
-        return productFilter.filterAndPaginate();
+        return productFilter.apply();
     }
 
     /**
@@ -160,4 +150,5 @@ public class ProductService extends AbstractCrudService<Product, Long> {
         Product updatedProduct = productRepository.save(productToUpdate);
         return productMapper.toResponseDTO(updatedProduct);
     }
+
 }

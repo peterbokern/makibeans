@@ -60,7 +60,7 @@ public class CategoryService extends AbstractCrudService<Category, Long> {
     }
 
     @Transactional(readOnly = true)
-    public List<CategoryResponseDTO> searchCategories(Map<String, String> searchParams) {
+    public List<CategoryResponseDTO> findBySearchQuery(Map<String, String> searchParams) {
 
         // Define searchable and sortable fields
         Map<String, Function<Category, String>> searchableFields = Map.of(

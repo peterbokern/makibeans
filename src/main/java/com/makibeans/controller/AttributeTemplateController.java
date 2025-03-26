@@ -45,9 +45,11 @@ public class AttributeTemplateController {
     public ResponseEntity<List<AttributeTemplateResponseDTO>> getTemplates(@RequestParam Map<String, String> params) {
         List<AttributeTemplateResponseDTO> attributeTemplateResponseDTOS;
 
-        attributeTemplateResponseDTOS = params.containsKey("search") || params.containsKey("order") || params.containsKey("sort") ?
+       /* attributeTemplateResponseDTOS = params.containsKey("search") || params.containsKey("order") || params.containsKey("sort") ?
                 attributeTemplateService.findBySearchQuery(params) :
-                attributeTemplateService.getAllAttributeTemplates();
+                attributeTemplateService.getAllAttributeTemplates();*/
+        attributeTemplateResponseDTOS =  attributeTemplateService.findBySearchQuery(params);
+
 
         return ResponseEntity.ok(attributeTemplateResponseDTOS);
     }

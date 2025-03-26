@@ -59,6 +59,11 @@ public class GlobalExceptionHandler {
                 .body("You are not authorized to perform this action.");
     }
 
+    @ExceptionHandler(InvalidFilterException.class)
+    public ResponseEntity<String> handleInvalidFilterException(Exception ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("An unexpected error occurred: " + ex.getMessage());
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleGenericException(Exception ex) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred: " + ex.getMessage());
