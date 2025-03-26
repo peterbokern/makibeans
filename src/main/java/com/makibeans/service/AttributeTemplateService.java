@@ -75,7 +75,6 @@ public class AttributeTemplateService extends AbstractCrudService<AttributeTempl
                 searchFields,
                 sortFields);
 
-        // Convert to response DTOs
         return matchedTemplates.stream()
                 .map(mapper::toResponseDTO)
                 .toList();
