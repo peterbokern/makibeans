@@ -9,6 +9,8 @@ import com.makibeans.mapper.AttributeTemplateMapper;
 import com.makibeans.model.AttributeTemplate;
 import com.makibeans.repository.AttributeTemplateRepository;
 import com.makibeans.util.FilterUtils;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +19,9 @@ import org.springframework.stereotype.Service;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 public class AttributeTemplateService extends AbstractCrudService<AttributeTemplate, Long> {
@@ -45,18 +49,6 @@ public class AttributeTemplateService extends AbstractCrudService<AttributeTempl
     public AttributeTemplateResponseDTO getAttributeTemplateById(Long id) {
         AttributeTemplate attributeTemplate = findById(id);
         return mapper.toResponseDTO(attributeTemplate);
-    }
-
-    /**
-     * Retrieves all AttributeTemplates.
-     *
-     * @return the list of all AttributeTemplateResponseDTO's representing the found attribute templates.
-     */
-
-    @Transactional(readOnly = true)
-    public List<AttributeTemplateResponseDTO> getAllAttributeTemplates() {
-
-        return findAll().stream().map(mapper::toResponseDTO).toList();
     }
 
     /**
@@ -107,6 +99,7 @@ public class AttributeTemplateService extends AbstractCrudService<AttributeTempl
         AttributeTemplate attributeTemplate = new AttributeTemplate(normalizedName);
         AttributeTemplate createdAttributeTemplate = create(attributeTemplate);
 
+        refreshAttributeCache();
         return mapper.toResponseDTO(createdAttributeTemplate);
     }
 
@@ -143,7 +136,31 @@ public class AttributeTemplateService extends AbstractCrudService<AttributeTempl
             throw new DuplicateResourceException("Attribute template with name '" + normalizedName + "' already exists.");
         }
 
+        refreshAttributeCache();
         attributeTemplate.setName(normalizedName);
         return mapper.toResponseDTO(update(id, attributeTemplate));
     }
+
+    /**
+     * Retrieves a set of valid attribute keys.
+     * The attribute keys are derived from the names of all attribute templates.
+     * The result is cached to improve performance.
+     *
+     * @return a set of valid attribute keys in lowercase.
+     */
+
+    @Cacheable("validAttributeKeys")
+    public Set<String> getValidAttributeKeys() {
+        return findAll().stream()
+                .map(template -> template.getName().toLowerCase())
+                .collect(Collectors.toSet());
+    }
+
+    /**
+     * Evicts all entries from the cache named "validAttributeKeys".
+     * This method is used to refresh the cache when attribute templates are created, updated, or deleted.
+     */
+    @CacheEvict(value = "validAttributeKeys", allEntries = true)
+    public void refreshAttributeCache() {}
+
 }
