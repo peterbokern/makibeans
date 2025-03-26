@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -36,7 +37,7 @@ public class AttributeTemplateService extends AbstractCrudService<AttributeTempl
      *
      * @param id the unique identifier of the AttributeTemplate to retrieve.
      * @return the AttributeTemplateResponseDTO representing the found attribute template.
-     * @throws IllegalArgumentException if the provided id is null
+     * @throws IllegalArgumentException  if the provided id is null
      * @throws ResourceNotFoundException if no AttributeTemplate is found with the given id.
      */
 
@@ -69,13 +70,18 @@ public class AttributeTemplateService extends AbstractCrudService<AttributeTempl
     @Transactional(readOnly = true)
     public List<AttributeTemplateResponseDTO> findBySearchQuery(Map<String, String> searchParams) {
 
-        // Define which fields should be included in the search
-        Map<String,Function<AttributeTemplate, String>> searchableFields = Map.of(
-                "name", AttributeTemplate::getName
-        );
+        Map<String, Function<AttributeTemplate, String>> searchFields = Map.of(
+                "name", AttributeTemplate::getName);
 
-        // Perform the search using the utility method
-        List<AttributeTemplate> matchedTemplates = SearchFilter.apply(findAll(), searchParams, searchableFields);
+        Map<String, Comparator<AttributeTemplate>> sortFields = Map.of(
+                "id", Comparator.comparing(AttributeTemplate::getId, Comparator.nullsLast(Comparator.naturalOrder())),
+                "name", Comparator.comparing(AttributeTemplate::getName, String.CASE_INSENSITIVE_ORDER));
+
+        List<AttributeTemplate> matchedTemplates = SearchFilter.apply(
+                findAll(),
+                searchParams,
+                searchFields,
+                sortFields);
 
         // Convert to response DTOs
         return matchedTemplates.stream()
@@ -99,7 +105,7 @@ public class AttributeTemplateService extends AbstractCrudService<AttributeTempl
         }
 
         AttributeTemplate attributeTemplate = new AttributeTemplate(normalizedName);
-        AttributeTemplate createdAttributeTemplate =  create(attributeTemplate);
+        AttributeTemplate createdAttributeTemplate = create(attributeTemplate);
 
         return mapper.toResponseDTO(createdAttributeTemplate);
     }
@@ -122,7 +128,7 @@ public class AttributeTemplateService extends AbstractCrudService<AttributeTempl
      * @param id  the ID of the attribute template to update
      * @param dto the DTO containing the updated attribute template name
      * @return the updated AttributeTemplate entity as AttributeTemplateResponseDTO
-     * @throws ResourceNotFoundException if the attribute template does not exist
+     * @throws ResourceNotFoundException  if the attribute template does not exist
      * @throws DuplicateResourceException if another AttributeTemplate already exists with the same name
      */
 

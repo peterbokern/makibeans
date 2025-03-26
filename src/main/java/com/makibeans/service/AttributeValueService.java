@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -42,7 +43,7 @@ public class AttributeValueService extends AbstractCrudService<AttributeValue, L
      *
      * @param id the unique identifier of the AttributeValue to retrieve.
      * @return the AttributeValueResponseDTO representing the found attribute template.
-     * @throws IllegalArgumentException if the provided id is null
+     * @throws IllegalArgumentException  if the provided id is null
      * @throws ResourceNotFoundException if no AttributeValue is found with the given id.
      */
 
@@ -73,14 +74,23 @@ public class AttributeValueService extends AbstractCrudService<AttributeValue, L
     @Transactional(readOnly = true)
     public List<AttributeValueResponseDTO> findBySearchQuery(Map<String, String> searchParams) {
 
-        // Define searchable and sortable fields
-        Map<String, Function<AttributeValue, String>> searchableFields = Map.of(
+        Map<String, Function<AttributeValue, String>> searchFields = Map.of(
+                "id", attributeValue -> String.valueOf(attributeValue.getId()),
                 "value", AttributeValue::getValue,
                 "attributeTemplate", attributeValue -> attributeValue.getAttributeTemplate().getName()
         );
 
-        // Apply filtering and sorting using SearchFilter
-        List<AttributeValue> matchedValues = SearchFilter.apply(findAll(), searchParams, searchableFields);
+        Map<String, Comparator<AttributeValue>> sortFields = Map.of(
+                "id", Comparator.comparing(AttributeValue::getId, Comparator.nullsLast(Comparator.naturalOrder())),
+                "Value", Comparator.comparing(AttributeValue::getValue, String.CASE_INSENSITIVE_ORDER),
+                "attributeTemplate", Comparator.comparing(attributeValue-> attributeValue.getAttributeTemplate().getName()));
+
+                // Apply filtering and sorting using SearchFilter
+                List < AttributeValue > matchedValues = SearchFilter.apply(
+                        findAll(),
+                        searchParams,
+                        searchFields,
+                        sortFields);
 
         // Map to DTOs
         return matchedValues.stream()
@@ -98,7 +108,7 @@ public class AttributeValueService extends AbstractCrudService<AttributeValue, L
     @Transactional(readOnly = true)
     public List<AttributeValueResponseDTO> getAllAttributeValuesByTemplateId(Long templateId) {
 
-        AttributeTemplate  attributeTemplate = attributeTemplateService.findById(templateId);
+        AttributeTemplate attributeTemplate = attributeTemplateService.findById(templateId);
 
         return attributeValueRepository.findAllByAttributeTemplate(attributeTemplate)
                 .stream()
