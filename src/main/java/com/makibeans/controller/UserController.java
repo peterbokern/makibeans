@@ -58,17 +58,17 @@ public class UserController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
-    public ResponseEntity<List<UserResponseDTO>> getSizes(@RequestParam Map<String, String> params) {
-        List<UserResponseDTO> sizeResponseDTOS = userService.findBySearchQuery(params);
+    public ResponseEntity<List<UserResponseDTO>> getUsers(@RequestParam Map<String, String> params) {
+        List<UserResponseDTO> userResponseDTOS = userService.findBySearchQuery(params);
 
-        return ResponseEntity.ok(sizeResponseDTOS);
+        return ResponseEntity.ok(userResponseDTOS);
     }
 
     /**
      * Registers a new user.
      */
 
-    @PostMapping
+    @PostMapping("/register")
     public ResponseEntity<UserResponseDTO> registerUser(@Valid @RequestBody UserRequestDTO userRequestDTO) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(userService.registerUser(userRequestDTO));

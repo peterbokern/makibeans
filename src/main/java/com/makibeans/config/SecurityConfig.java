@@ -109,7 +109,8 @@ public class SecurityConfig {
                                 "/attribute-values/**",
                                 "/product-variants/**",
                                 "/sizes/**",
-                                "/products/**"
+                                "/products/**",
+                                "/users/**"
                         ).hasRole("ADMIN")
 
                         // User endpoints
