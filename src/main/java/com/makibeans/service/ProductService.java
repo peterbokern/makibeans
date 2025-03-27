@@ -56,6 +56,17 @@ public class ProductService extends AbstractCrudService<Product, Long> {
         return productMapper.toResponseDTO(product);
     }
 
+    /**
+     * Retrieves a list of products by the given category ID.
+     *
+     * @param categoryId the ID of the category to retrieve products for.
+     * @return a list of products belonging to the specified category.
+     */
+    @Transactional
+    public List<Product> getProductsByCategoryId(Long categoryId) {
+        return productRepository.findProductsByCategoryId(categoryId);
+    }
+
 
     /**
      * Filters products based on various criteria provided in the filters map.
@@ -150,5 +161,4 @@ public class ProductService extends AbstractCrudService<Product, Long> {
         Product updatedProduct = productRepository.save(productToUpdate);
         return productMapper.toResponseDTO(updatedProduct);
     }
-
 }

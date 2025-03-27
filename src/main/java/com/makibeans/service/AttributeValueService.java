@@ -81,7 +81,7 @@ public class AttributeValueService extends AbstractCrudService<AttributeValue, L
 
         Map<String, Comparator<AttributeValue>> sortFields = Map.of(
                 "id", Comparator.comparing(AttributeValue::getId, Comparator.nullsLast(Comparator.naturalOrder())),
-                "Value", Comparator.comparing(AttributeValue::getValue, String.CASE_INSENSITIVE_ORDER),
+                "value", Comparator.comparing(AttributeValue::getValue, String.CASE_INSENSITIVE_ORDER),
                 "attributeTemplate", Comparator.comparing(attributeValue-> attributeValue.getAttributeTemplate().getName()));
 
                 // Apply filtering and sorting using SearchFilter

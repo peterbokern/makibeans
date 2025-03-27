@@ -32,10 +32,7 @@ public class CategoryController {
 
     @GetMapping
     public ResponseEntity<List<CategoryResponseDTO>> getCategories(@RequestParam Map<String, String> params) {
-        List<CategoryResponseDTO> categoryResponseDTOs =
-                params.containsKey("search") || params.containsKey("sort") || params.containsKey("order")
-                        ? categoryService.findBySearchQuery(params)
-                        : categoryService.getAllCategories();
+        List<CategoryResponseDTO> categoryResponseDTOs = categoryService.findBySearchQuery(params);
 
         return ResponseEntity.ok(categoryResponseDTOs);
     }
