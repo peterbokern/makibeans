@@ -6,12 +6,17 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+/**
+ * Represents an attribute value entity.
+ * This entity is used to store values for attributes defined by an AttributeTemplate.
+ */
 
 @Entity
 @Getter
 @NoArgsConstructor
 @Table(name = "attribute_value", indexes = {
-        @Index(name = "attribute_value_template_id_index", columnList = "template_id")
+        @Index(name = "attribute_value_template_id_index", columnList = "template_id"),
+        @Index(name = "idx_attribute_value_value", columnList = "value")
 })
 
 @ToString(exclude = "attributeTemplate")
@@ -21,13 +26,13 @@ public class AttributeValue {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch= FetchType.LAZY)
     @Setter
     @JoinColumn(name = "template_id", nullable = false)
     private AttributeTemplate attributeTemplate;
 
     @Setter
-    @Column(name = "value", nullable = false, length = 1000)
+    @Column(name = "value", nullable = false, length = 255)
     @NotBlank(message = "Attribute value cannot be blank.")
     private String value;
 
@@ -35,5 +40,4 @@ public class AttributeValue {
         this.attributeTemplate = attributeTemplate;
         this.value = value;
     }
-
 }

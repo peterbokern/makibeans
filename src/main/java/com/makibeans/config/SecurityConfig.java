@@ -116,7 +116,7 @@ public class SecurityConfig {
                         // User endpoints
                         .requestMatchers("/users/me", "/users/{id}").authenticated()
 
-                        .anyRequest().denyAll()
+                        .anyRequest().permitAll()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 

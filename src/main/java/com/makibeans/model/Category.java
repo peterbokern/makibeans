@@ -1,7 +1,5 @@
 package com.makibeans.model;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
@@ -16,11 +14,11 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
-@Table(name = "category", uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"name", "parent_category_id"})})
+@Table(name = "category",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"name", "parent_category_id"})})
 
-@ToString(exclude = {"parentCategory", "subCategories", "products"})
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id") // 🚀 Prevent infinite loop
+@ToString(exclude = {"parentCategory", "subCategories"})
 public class Category {
 
     @Id
@@ -46,11 +44,16 @@ public class Category {
     private Category parentCategory;
 
     //Delete all subcategories of parent category when removed
-    @OneToMany(mappedBy = "parentCategory", cascade = CascadeType.ALL, orphanRemoval = true)
-    private final List<Category> subCategories = new ArrayList<>();
+    @OneToMany(mappedBy = "parentCategory",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.LAZY)
+    private List<Category> subCategories;
 
-    @OneToMany(mappedBy = "category")
-    private final List<Product> products = new ArrayList<>();
+    @OneToMany(
+            mappedBy = "category",
+            fetch = FetchType.LAZY)
+    private List<Product> products = new ArrayList<>();
 
     public Category(String name, String description, String imageUrl) {
         this.name = name;

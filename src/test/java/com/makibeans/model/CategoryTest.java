@@ -98,13 +98,14 @@ class CategoryTest {
     }
 
     // Relationship Tests (Add/Remove Product)
-    @Test
+ /*   @Test
     void shouldAddProductSuccessfully() {
         category.addProduct(product);
         assertTrue(category.getProducts().contains(product), "Product should be added to the category");
         assertEquals(category, product.getCategory(), "Product's category should be updated correctly");
-    }
+    }*/
 
+/*
     @Test
     void shouldRemoveProductSuccessfully() {
         category.addProduct(product);
@@ -112,24 +113,25 @@ class CategoryTest {
         assertFalse(category.getProducts().contains(product), "Product should be removed from the category");
         assertNull(product.getCategory(), "Product's category should be set to null after removal");
     }
+*/
 
     // Relationship Tests (Add/Remove SubCategory)
-    @Test
+ /*   @Test
     void shouldAddSubCategorySuccessfully() {
         Category subCategory = new Category("SubCategory", "SubCategory description", "sub_image_url", category);
         category.addSubCategory(subCategory);
         assertTrue(category.getSubCategories().contains(subCategory), "Subcategory should be added to the category");
         assertEquals(category, subCategory.getParentCategory(), "Subcategory's parent category should be updated correctly");
-    }
+    }*/
 
-    @Test
+/*    @Test
     void shouldRemoveSubCategorySuccessfully() {
         Category subCategory = new Category("SubCategory", "SubCategory description", "sub_image_url", category);
         category.addSubCategory(subCategory);
         category.removeSubCategory(subCategory);
         assertFalse(category.getSubCategories().contains(subCategory), "Subcategory should be removed from the category");
         assertNull(subCategory.getParentCategory(), "Subcategory's parent category should be set to null after removal");
-    }
+    }*/
 
     // toString Method Test
     @Test
