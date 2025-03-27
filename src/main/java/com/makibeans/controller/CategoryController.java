@@ -2,6 +2,7 @@ package com.makibeans.controller;
 
 import com.makibeans.dto.CategoryRequestDTO;
 import com.makibeans.dto.CategoryResponseDTO;
+import com.makibeans.dto.CategoryUpdateDTO;
 import com.makibeans.service.CategoryService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -82,14 +83,14 @@ public class CategoryController {
      * Updates an existing category by its ID.
      *
      * @param id the ID of the category to update
-     * @param requestDTO the DTO containing the updated category details
+     * @param updateDTO the DTO containing the updated category details
      * @return the updated category as a CategoryResponseDTO
      */
 
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
-    public ResponseEntity<CategoryResponseDTO> updateCategory(@PathVariable Long id, @Valid @RequestBody CategoryRequestDTO requestDTO) {
-        CategoryResponseDTO updatedCategory = categoryService.updateCategory(id, requestDTO);
+    public ResponseEntity<CategoryResponseDTO> updateCategory(@PathVariable Long id, @Valid @RequestBody CategoryUpdateDTO updateDTO) {
+        CategoryResponseDTO updatedCategory = categoryService.updateCategory(id, updateDTO);
         return ResponseEntity.ok(updatedCategory);
     }
 }
