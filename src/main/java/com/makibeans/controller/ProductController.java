@@ -3,6 +3,7 @@ package com.makibeans.controller;
 import com.makibeans.dto.ProductPageDTO;
 import com.makibeans.dto.ProductRequestDTO;
 import com.makibeans.dto.ProductResponseDTO;
+import com.makibeans.dto.ProductUpdateDTO;
 import com.makibeans.service.ProductService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -72,14 +73,16 @@ public class ProductController {
      * Updates a product by its ID.
      *
      * @param id         the ID of the product to update
-     * @param requestDTO the ProductRequestDTO containing updated product details
+     * @param updateDTO the ProductUpdateDTO containing updated product details
      * @return a ResponseEntity containing the updated ProductResponseDTO
      */
 
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
-    public ResponseEntity<ProductResponseDTO> updateProduct(@PathVariable Long id, @Valid @RequestBody ProductRequestDTO requestDTO) {
-        ProductResponseDTO responseDTO = productService.updateProduct(id, requestDTO);
+    public ResponseEntity<ProductResponseDTO> updateProduct(
+            @PathVariable Long id,
+            @Valid @RequestBody ProductUpdateDTO updateDTO) {
+        ProductResponseDTO responseDTO = productService.updateProduct(id, updateDTO);
         return ResponseEntity.ok(responseDTO);
     }
 

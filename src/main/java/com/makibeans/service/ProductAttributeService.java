@@ -34,10 +34,10 @@ public class ProductAttributeService extends AbstractCrudService<ProductAttribut
     }
 
     /**
-     * Retrieves a category by its ID.
+     * Retrieves a product attribute by its ID.
      *
      * @param id the ID of the productAttribute to retrieve.
-     * @return the CategoryResponseDTO representing the category.
+     * @return the ProductAttributeResponseDTO representing the product attribute.
      * @throws IllegalArgumentException if the id is null.
      * @throws ResourceNotFoundException if the product attribute does not exist.
      */
@@ -77,9 +77,7 @@ public class ProductAttributeService extends AbstractCrudService<ProductAttribut
         Product product = productService.findById(productId);
         AttributeTemplate attributeTemplate = attributeTemplateService.findById(templateId);
 
-        if (productAttributeRepository.existsByProductIdAndAttributeTemplateId(productId, templateId)) {
-            throw new DuplicateResourceException("Product Attribute with product id " + productId + " and template id " + templateId + " already exists.");
-        }
+        validateUniqueProductAttribute(productId, templateId);
 
         ProductAttribute productAttribute = new ProductAttribute(attributeTemplate, product);
         ProductAttribute savedProductAttribute = create(productAttribute);
@@ -112,19 +110,15 @@ public class ProductAttributeService extends AbstractCrudService<ProductAttribut
 
     @Transactional
     public void addAttributeValue(Long productAttributeId, Long attributeValueId) {
-        ProductAttribute productAttribute = productAttributeRepository.findById(productAttributeId)
-                .orElseThrow(() -> new ResourceNotFoundException("ProductAttribute with ID " + productAttributeId + " not found."));
+        ProductAttribute productAttribute = findById(productAttributeId);
+
         AttributeValue attributeValue = attributeValueService.findById(attributeValueId);
 
-        if (productAttribute.getAttributeValues().contains(attributeValue)) {
-            throw new DuplicateResourceException(String.format(
-                    "AttributeValue (ID: %d, Value: '%s') is already associated with ProductAttribute (ID: %d, Product: '%s').",
-                    attributeValueId, attributeValue.getValue(), productAttributeId, productAttribute.getProduct().getProductName()
-            ));
-        }
+        validateAttributeValueNotAlreadyAssociated(productAttribute, attributeValue);
 
         productAttribute.getAttributeValues().add(attributeValue);
-        productAttributeRepository.save(productAttribute);
+
+        update(productAttributeId, productAttribute);
     }
 
     /**
@@ -137,21 +131,66 @@ public class ProductAttributeService extends AbstractCrudService<ProductAttribut
 
     @Transactional
     public void removeAttributeValue(Long productAttributeId, Long attributeValueId) {
-        ProductAttribute productAttribute = productAttributeRepository.findById(productAttributeId)
-                .orElseThrow(() -> new ResourceNotFoundException("ProductAttribute with ID " + productAttributeId + " not found."));
+        ProductAttribute productAttribute = findById(productAttributeId);
+
         AttributeValue attributeValue = attributeValueService.findById(attributeValueId);
 
+        validateAttributeValueAssociation(productAttribute, attributeValue);
+
+        productAttribute.getAttributeValues().remove(attributeValue);
+
+        update(productAttributeId, productAttribute);
+    }
+
+    /**
+     * Validates if an AttributeValue is associated with a ProductAttribute.
+     *
+     * @param productAttribute the ProductAttribute to check.
+     * @param attributeValue the AttributeValue to check.
+     * @throws ResourceNotFoundException if the AttributeValue is not associated with the ProductAttribute.
+     */
+
+    private void validateAttributeValueAssociation(ProductAttribute productAttribute, AttributeValue attributeValue) {
         if (!productAttribute.getAttributeValues().contains(attributeValue)) {
             throw new ResourceNotFoundException(String.format(
                     "AttributeValue (ID: %d, Value: '%s') is not associated with ProductAttribute (ID: %d, Product: '%s').",
-                    attributeValueId, attributeValue.getValue(), productAttributeId, productAttribute.getProduct().getProductName()
-            ));
-        }
-
-        //only update product attribute if value was actually removed
-        if (productAttribute.getAttributeValues().remove(attributeValue)) {
-            update(productAttributeId, productAttribute);
+                    attributeValue.getId(),
+                    attributeValue.getValue(),
+                    productAttribute.getId(),
+                    productAttribute.getProduct().getProductName()));
         }
     }
 
+    /**
+     * Validates that an AttributeValue is not already associated with a ProductAttribute.
+     *
+     * @param productAttribute the ProductAttribute to check.
+     * @param attributeValue the AttributeValue to check.
+     * @throws DuplicateResourceException if the AttributeValue is already associated.
+     */
+
+    private void validateAttributeValueNotAlreadyAssociated(ProductAttribute productAttribute, AttributeValue attributeValue) {
+        if (productAttribute.getAttributeValues().contains(attributeValue)) {
+            throw new DuplicateResourceException(String.format(
+                    "AttributeValue (ID: %d, Value: '%s') is already associated with ProductAttribute (ID: %d, Product: '%s').",
+                    attributeValue.getId(),
+                    attributeValue.getValue(),
+                    productAttribute.getId(),
+                    productAttribute.getProduct().getProductName()));
+        }
+    }
+
+    /**
+     * Validates the existence of a ProductAttribute by productId and templateId.
+     *
+     * @param productId the ID of the product.
+     * @param templateId the ID of the attribute template.
+     * @throws DuplicateResourceException if a ProductAttribute with the given productId and templateId already exists.
+     */
+
+    private void validateUniqueProductAttribute(Long productId, Long templateId) {
+        if (productAttributeRepository.existsByProductIdAndAttributeTemplateId(productId, templateId)) {
+            throw new DuplicateResourceException("Product Attribute with product id " + productId + " and template id " + templateId + " already exists.");
+        }
+    }
 }

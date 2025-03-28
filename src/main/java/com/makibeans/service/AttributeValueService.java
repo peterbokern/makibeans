@@ -20,6 +20,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
+import static com.makibeans.util.UpdateUtils.normalize;
+import static com.makibeans.util.UpdateUtils.shouldUpdate;
+
+/**
+ * Service class for managing AttributeValues.
+ */
+
 @Service
 public class AttributeValueService extends AbstractCrudService<AttributeValue, Long> {
 
@@ -54,23 +61,13 @@ public class AttributeValueService extends AbstractCrudService<AttributeValue, L
     }
 
     /**
-     * Retrieves all AttributeValues.
-     *
-     * @return the list of all AttributeValueResponseDTO's representing the found attribute values.
-     */
-
-    @Transactional(readOnly = true)
-    public List<AttributeValueResponseDTO> getAllAttributeValues() {
-        return findAll().stream().map(mapper::toResponseDTO).toList();
-    }
-
-    /**
      * Searches for AttributeValues based on the provided filters.
      * The search is performed on the value field of the AttributeValue.
      *
      * @param searchParams the map containing the search parameters (e.g., "search", "sort", "order")
      * @return a list of AttributeValueResponseDTOs representing the matched attribute values
      */
+
     @Transactional(readOnly = true)
     public List<AttributeValueResponseDTO> findBySearchQuery(Map<String, String> searchParams) {
 
@@ -130,9 +127,7 @@ public class AttributeValueService extends AbstractCrudService<AttributeValue, L
         attributeValue.setAttributeTemplate(attributeTemplate);
         String value = attributeValue.getValue();
 
-        if (attributeValueRepository.existsByValue(attributeTemplate, value)) {
-            throw new DuplicateResourceException("Attribute value '" + value + "' already exists for attribute " + attributeTemplate.getName() + ".");
-        }
+        validateUniqueAttributeValue(attributeTemplate, value);
 
         AttributeValue savedAttributeValue = create(attributeValue);
 
@@ -165,17 +160,42 @@ public class AttributeValueService extends AbstractCrudService<AttributeValue, L
     public AttributeValueResponseDTO updateAttributeValue(Long id, AttributeValueUpdateDTO dto) {
 
         AttributeValue attributeValue = findById(id);
-        AttributeTemplate attributeTemplate = attributeValue.getAttributeTemplate();
-        String normalizedValue = MappingUtils.normalizeValue(dto.getValue());
 
-        if (!attributeValue.getValue().equalsIgnoreCase(normalizedValue) && attributeValueRepository.existsByValue(attributeTemplate, normalizedValue)) {
-            throw new DuplicateResourceException("Attribute value '" + normalizedValue + "' already exists for attribute template " + attributeTemplate + ".");
-        }
+        String newValue = normalize(dto.getValue());
 
-        attributeValue.setValue(normalizedValue);
+        updateAttributeValueField(attributeValue, newValue);
 
         AttributeValue updatedAttributeValue = update(id, attributeValue);
 
         return mapper.toResponseDTO(updatedAttributeValue);
+    }
+
+    /**
+     * Validates that an attribute value is unique within the given attribute template.
+     *
+     * @param attributeTemplate the attribute template to check within
+     * @param value             the value to validate
+     * @throws DuplicateResourceException if an attribute value with the same value already exists within the attribute template
+     */
+
+    private void validateUniqueAttributeValue(AttributeTemplate attributeTemplate, String value) {
+        if (attributeValueRepository.existsByValue(attributeTemplate, value)) {
+            throw new DuplicateResourceException("Attribute value '" + value + "' already exists for attribute " + attributeTemplate.getName() + ".");
+        }
+    }
+
+    /**
+     * Updates the value of the given AttributeValue if needed.
+     *
+     * @param attributeValue the AttributeValue to update
+     * @param newValue       the new value to set
+     * @throws DuplicateResourceException if another AttributeValue with the same value already exists
+     */
+
+    private void updateAttributeValueField(AttributeValue attributeValue, String newValue) {
+        if (shouldUpdate(newValue, attributeValue.getValue())) {
+            validateUniqueAttributeValue(attributeValue.getAttributeTemplate(), newValue);
+            attributeValue.setValue(newValue);
+        }
     }
 }
