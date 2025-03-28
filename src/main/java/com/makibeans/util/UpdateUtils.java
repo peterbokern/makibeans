@@ -1,5 +1,6 @@
 package com.makibeans.util;
 
+//TODO refactor all update methods to introduce this
 /**
  * Utility class for handling updates and normalization of strings.
  */
@@ -15,6 +16,17 @@ public class UpdateUtils {
     public static boolean shouldUpdate(String newValue, String currentValue) {
         return newValue != null && !newValue.isBlank() &&
                 !normalize(newValue).equalsIgnoreCase(normalize(currentValue));
+    }
+
+    /**
+     * Determines if a Long should be updated.
+     *
+     * @param newValue     the new value from the DTO
+     * @param currentValue the current value from the entity
+     * @return true if the value is non-null and different
+     */
+    public static boolean shouldUpdate(Long newValue, Long currentValue) {
+        return newValue != null && !newValue.equals(currentValue);
     }
 
     /**

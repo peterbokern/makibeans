@@ -7,6 +7,10 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+/**
+ * Entity representing a Size.
+ */
+
 @Entity
 @NoArgsConstructor
 @Getter

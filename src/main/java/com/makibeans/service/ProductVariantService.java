@@ -17,6 +17,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
+
+import static com.makibeans.util.UpdateUtils.shouldUpdate;
 
 /**
  * Service class for managing Product Variants.
@@ -86,11 +89,7 @@ public class ProductVariantService extends AbstractCrudService<ProductVariant, L
         Product product = productService.findById(dto.getProductId());
         Size size = sizeService.findById(dto.getSizeId());
 
-        if (productVariantRepository.existsByProductAndSize(product, size)) {
-            throw new DuplicateResourceException(
-                    "A ProductVariant with product ID " + product.getId() + " and size ID " + size.getId() + " already exists."
-            );
-        }
+        validateUniqueProductVariant(product, size);
 
         ProductVariant productVariant = new ProductVariant(
                 product,
@@ -101,6 +100,7 @@ public class ProductVariantService extends AbstractCrudService<ProductVariant, L
         );
 
         ProductVariant savedVariant = create(productVariant);
+
         return productVariantMapper.toResponseDTO(savedVariant);
     }
 
@@ -127,11 +127,14 @@ public class ProductVariantService extends AbstractCrudService<ProductVariant, L
     @Transactional
     public ProductVariantResponseDTO updateProductVariant(Long productVariantId, ProductVariantUpdateDTO dto) {
         ProductVariant productVariant = findById(productVariantId);
-        productVariant.setPriceInCents(dto.getPriceInCents());
-        productVariant.setStock(dto.getStock());
-        productVariant.setSku(generateSKU(productVariant.getProduct(), productVariant.getSize()));
 
-        ProductVariant updatedVariant = update(productVariantId, productVariant);
+        boolean updated = false;
+
+        updated |= updatePriceInCentsField(productVariant, dto.getPriceInCents());
+        updated |= updateStockField(productVariant, dto.getStock());
+        updated |= updateSkuField(productVariant);
+
+        ProductVariant updatedVariant = updated ? update(productVariantId, productVariant) : productVariant;
         return productVariantMapper.toResponseDTO(updatedVariant);
     }
 
@@ -146,8 +149,73 @@ public class ProductVariantService extends AbstractCrudService<ProductVariant, L
     private String generateSKU(Product product, Size size) {
         String productCode = product.getProductName().replaceAll("\\s+", "").toUpperCase();
         String sizeCode = size.getName().replaceAll("\\s+", "").toUpperCase();
-        String uniqueNumber = String.format("%04d", new Random().nextInt(10000));
+        String uniqueNumber = String.format("%04d", ThreadLocalRandom.current().nextInt(10000));
 
         return productCode + "-" + sizeCode + "-" + uniqueNumber;
+    }
+
+    /**
+     * Updates the price in cents field of the Product Variant if it has changed.
+     *
+     * @param productVariant the Product Variant to update
+     * @param newPriceInCents the new price in cents
+     * @return true if the price was updated, false otherwise
+     */
+
+    private boolean updatePriceInCentsField(ProductVariant productVariant, Long newPriceInCents) {
+        if (shouldUpdate(newPriceInCents, productVariant.getPriceInCents())) {
+            productVariant.setPriceInCents(newPriceInCents);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Updates the stock field of the Product Variant if it has changed.
+     *
+     * @param productVariant the Product Variant to update
+     * @param newStock the new stock value
+     * @return true if the stock was updated, false otherwise
+     */
+
+    private boolean updateStockField(ProductVariant productVariant, Long newStock) {
+        if (shouldUpdate(newStock, productVariant.getStock())) {
+            productVariant.setStock(newStock);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Updates the SKU field of the Product Variant if it has changed.
+     *
+     * @param productVariant the Product Variant to update
+     * @return true if the SKU was updated, false otherwise
+     */
+
+    private boolean updateSkuField(ProductVariant productVariant) {
+        String newSku = generateSKU(productVariant.getProduct(), productVariant.getSize());
+        if (shouldUpdate(newSku, productVariant.getSku())) {
+            productVariant.setSku(newSku);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Validates the uniqueness of a Product Variant based on the given product and size.
+     * Throws a DuplicateResourceException if a Product Variant with the same product and size already exists.
+     *
+     * @param product the Product entity to check
+     * @param size the Size entity to check
+     * @throws DuplicateResourceException if a Product Variant with the same product and size already exists
+     */
+
+    private void validateUniqueProductVariant(Product product, Size size) {
+        if (productVariantRepository.existsByProductAndSize(product, size)) {
+            throw new DuplicateResourceException(
+                    "A ProductVariant with product ID " + product.getId() + " and size ID " + size.getId() + " already exists."
+            );
+        }
     }
 }
