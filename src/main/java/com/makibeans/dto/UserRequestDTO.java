@@ -23,9 +23,10 @@ public class UserRequestDTO {
 
     @NotBlank(message = "Email cannot be blank.")
     @Email(message = "Invalid email format")
+    @Size(max = 255, message = "Email must be at most 255 characters long.")
     private String email;
 
     @NotBlank(message = "Password cannot be blank.")
-    @Size(min = 8, message = "Password must be at least 8 characters long.")
+    @Size(min = 8, max = 255, message = "Password must be between 8 and 255 characters.")
     private String password;
 }

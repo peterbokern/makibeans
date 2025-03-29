@@ -1,6 +1,7 @@
 package com.makibeans.config;
 
 import com.makibeans.dto.*;
+import com.makibeans.model.RoleType;
 import com.makibeans.service.*;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -59,8 +60,8 @@ public class DataInitializer implements CommandLineRunner {
     }
 
     private void initRoles() {
-        createRoleIfNotExists("ROLE_USER");
-        createRoleIfNotExists("ROLE_ADMIN");
+        createRoleIfNotExists(RoleType.ROLE_USER.name());
+        createRoleIfNotExists(RoleType.ROLE_ADMIN.name());
         createAdminIfNotExists();
     }
 

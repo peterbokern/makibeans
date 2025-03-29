@@ -58,13 +58,26 @@ public class RoleService extends AbstractCrudService<Role, Long> {
 
     @Transactional
     public void createRole(String name) {
+        if (name == null || name.trim().isEmpty()) {
+            throw new IllegalArgumentException("Role name cannot be blank.");
+        }
+        String normalizedRoleName = name.trim();
+        validateUniqueRoleName(normalizedRoleName);
+        Role role = new Role(normalizedRoleName);
+        create(role);
+    }
 
+
+    /**
+     * Validates the uniqueness of a Role based on the given name.
+     * Throws a DuplicateResourceException if a Role with the same name already exists.
+     *
+     * @param name the name of the Role to check
+     * @throws DuplicateResourceException if a Role with the same name already exists
+     */
+    private void validateUniqueRoleName(String name) {
         if (roleRepository.existsByName(name)) {
             throw new DuplicateResourceException("Role with name " + name + " already exists.");
         }
-
-        Role role = new Role();
-        role.setName(name);
-        create(role);
     }
 }

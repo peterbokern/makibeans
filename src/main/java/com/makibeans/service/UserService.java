@@ -11,6 +11,8 @@ import com.makibeans.model.User;
 import com.makibeans.repository.UserRepository;
 import com.makibeans.security.JwtUtil;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -22,6 +24,9 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+
+import static com.makibeans.util.UpdateUtils.normalize;
+import static com.makibeans.util.UpdateUtils.shouldUpdate;
 
 /**
  * Service class for managing User entities.
@@ -35,6 +40,7 @@ public class UserService extends AbstractCrudService<User, Long> {
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
     private final RoleService roleService;
+    private final Logger logger = LoggerFactory.getLogger(UserService.class);
 
     @Autowired
     public UserService(JpaRepository<User, Long> repository,
@@ -83,7 +89,7 @@ public class UserService extends AbstractCrudService<User, Long> {
 
     @Transactional(readOnly = true)
     public List<UserResponseDTO> getAllUsers() {
-        return userRepository.findAll()
+        return findAll()
                 .stream()
                 .map(userMapper::toResponseDTO)
                 .toList();
@@ -96,6 +102,7 @@ public class UserService extends AbstractCrudService<User, Long> {
      * @param searchParams a map of search parameters to filter the users.
      * @return a list of UserResponseDTO representing the matched users.
      */
+
     @Transactional(readOnly = true)
     public List<UserResponseDTO> findBySearchQuery(Map<String, String> searchParams) {
 
@@ -169,13 +176,8 @@ public class UserService extends AbstractCrudService<User, Long> {
     public UserResponseDTO registerUserWithRole(UserRequestDTO userRequestDTO, String roleName) {
         User user = userMapper.toEntity(userRequestDTO);
 
-        if (userRepository.existsByUsername(user.getUsername())) {
-            throw new DuplicateResourceException("User with username " + user.getUsername() + " already exists.");
-        }
-
-        if (userRepository.existsByEmail(user.getEmail())) {
-            throw new DuplicateResourceException("User with email " + user.getEmail() + " already exists.");
-        }
+        validateUniqueUsername(user.getUsername());
+        validateUniqueEmail(user.getEmail());
 
         String encryptedPassword = encodePassword(user.getPassword());
         user.setPassword(encryptedPassword);
@@ -215,30 +217,18 @@ public class UserService extends AbstractCrudService<User, Long> {
     public UserResponseDTO updateUser(Long id, @Valid UserUpdateDTO userUpdateDTO) {
         User user = findById(id);
 
-        String userNameToUpdate = userUpdateDTO.getUsername();
-        if (userNameToUpdate != null && !userNameToUpdate.isBlank() && !user.getUsername().equals(userNameToUpdate)) {
-            if (userRepository.existsByUsername(userNameToUpdate)) {
-                throw new DuplicateResourceException("User with username " + userNameToUpdate + " already exists.");
-            }
-            user.setUsername(userNameToUpdate);
-        }
+        boolean updated = false;
 
-        String emailToUpdate = userUpdateDTO.getEmail();
-        if (emailToUpdate != null && !emailToUpdate.isBlank() && !user.getEmail().equalsIgnoreCase(emailToUpdate)) {
-            if (userRepository.existsByEmail(emailToUpdate)) {
-                throw new DuplicateResourceException("User with email " + emailToUpdate + " already exists.");
-            }
-            user.setEmail(emailToUpdate);
-        }
+        updated |= updateUsernameField(user, userUpdateDTO.getUsername());
+        updated |= updateEmailField(user, userUpdateDTO.getEmail());
+        updated |= updatePasswordField(user, userUpdateDTO.getPassword());
 
-        String passwordToUpdate = userUpdateDTO.getPassword();
-        if (passwordToUpdate != null && !passwordToUpdate.isBlank()) {
-            if (!passwordEncoder.matches(passwordToUpdate, user.getPassword())) {
-                user.setPassword(encodePassword(passwordToUpdate));
-            }
-        }
 
-        User updatedUser = update(user.getId(), user);
+        logger.info("User {} updated. Updated fields: username={}, email={}, password={}", user.getUsername(), userUpdateDTO.getUsername() != null, userUpdateDTO.getEmail() != null, userUpdateDTO.getPassword() != null);
+        logger.info("Update result: {}", updated);
+
+        User updatedUser = updated ? update(user.getId(), user) : user;
+
         return userMapper.toResponseDTO(updatedUser);
     }
 
@@ -251,5 +241,85 @@ public class UserService extends AbstractCrudService<User, Long> {
 
     private String encodePassword(String rawPassword) {
         return passwordEncoder.encode(rawPassword);
+    }
+
+    /**
+     * Validates the uniqueness of a User based on the given username.
+     * Throws a DuplicateResourceException if a User with the same username already exists.
+     *
+     * @param username the username to check
+     * @throws DuplicateResourceException if a User with the same username already exists
+     */
+
+    private void validateUniqueUsername(String username) {
+        if (userRepository.existsByUsername(username)) {
+            throw new DuplicateResourceException("User with username " + username + " already exists.");
+        }
+    }
+
+    /**
+     * Validates the uniqueness of a User based on the given email.
+     * Throws a DuplicateResourceException if a User with the same email already exists.
+     *
+     * @param email the email to check
+     * @throws DuplicateResourceException if a User with the same email already exists
+     */
+    private void validateUniqueEmail(String email) {
+        if (userRepository.existsByEmail(email)) {
+            throw new DuplicateResourceException("User with email " + email + " already exists.");
+        }
+    }
+
+    /**
+     * Updates the username field of the user if it has changed.
+     *
+     * @param user the user to update
+     * @param newUsername the new username
+     * @return true if the username was updated, false otherwise
+     * @throws DuplicateResourceException if a user with the given username already exists
+     */
+    private boolean updateUsernameField(User user, String newUsername) {
+        String normalizedUsername = normalize(newUsername);
+        if (shouldUpdate(normalizedUsername, user.getUsername())) {
+            validateUniqueUsername(normalizedUsername);
+            user.setUsername(normalizedUsername);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Updates the email field of the user if it has changed.
+     *
+     * @param user the user to update
+     * @param newEmail the new email
+     * @return true if the email was updated, false otherwise
+     * @throws DuplicateResourceException if a user with the given email already exists
+     */
+
+    private boolean updateEmailField(User user, String newEmail) {
+        String normalizedEmail = normalize(newEmail);
+        if (shouldUpdate(normalizedEmail, user.getEmail())) {
+            validateUniqueEmail(normalizedEmail);
+            user.setEmail(normalizedEmail);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Updates the password field of the user if it has changed.
+     *
+     * @param user the user to update
+     * @param newPassword the new password
+     * @return true if the password was updated, false otherwise
+     */
+
+    private boolean updatePasswordField(User user, String newPassword) {
+        if (newPassword != null && !newPassword.isBlank() && !passwordEncoder.matches(newPassword, user.getPassword())) {
+            user.setPassword(encodePassword(newPassword));
+            return true;
+        }
+        return false;
     }
 }

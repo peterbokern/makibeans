@@ -2,6 +2,7 @@ package com.makibeans.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -9,14 +10,17 @@ import lombok.ToString;
 
 import java.util.List;
 
+/**
+ * Represents an attribute template entity.
+ * This entity is used to define a template for attributes that can be associated with other entities.
+ */
+
 @Entity
 @Table(
-        name = "attribute_template", indexes = {
-        @Index(name = "idx_attribute_template_name", columnList = "name")
-})
+        name = "attribute_template",
+        indexes = {@Index(name = "idx_attribute_template_name", columnList = "name")})
 @NoArgsConstructor
 @Getter
-
 @ToString
 public class AttributeTemplate {
     @Id
@@ -25,15 +29,18 @@ public class AttributeTemplate {
 
     @Setter
     @NotBlank(message = "Name of attribute template cannot be blank.")
-    @Column(name = "name", nullable = false, unique = true)
+    @Size(min = 3, max = 50, message = "Name of attribute template must be between 3 and 50 characters.")
+    @Column(name = "name", nullable = false, unique = true, length = 50)
     private String name;
 
-    //Remove all dependent attribute values when template is removed
-    @OneToMany(mappedBy = "attributeTemplate", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    @OneToMany(
+            mappedBy = "attributeTemplate",
+            cascade = CascadeType.REMOVE, //remove all dependent attribute values
+            orphanRemoval = true,
+            fetch = FetchType.LAZY) //only load attribute values when needed
     private List<AttributeValue> attributeValues;
 
     public AttributeTemplate(String name) {
         this.name = name;
     }
-
 }

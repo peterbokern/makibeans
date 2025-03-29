@@ -3,6 +3,7 @@ package com.makibeans.controller;
 import com.makibeans.dto.AttributeValueResponseDTO;
 import com.makibeans.dto.SizeRequestDTO;
 import com.makibeans.dto.SizeResponseDTO;
+import com.makibeans.dto.SizeUpdateDTO;
 import com.makibeans.service.SizeService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -72,14 +73,16 @@ public class SizeController {
      * Updates a size by its ID.
      *
      * @param id         the ID of the size to update
-     * @param requestDTO the SizeRequestDTO containing updated size details
+     * @param updateDTO the SizeRequestDTO containing updated size details
      * @return a ResponseEntity containing the updated SizeResponseDTO
      */
 
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
-    public ResponseEntity<SizeResponseDTO> updateSize(@PathVariable Long id, @Valid @RequestBody SizeRequestDTO requestDTO) {
-        SizeResponseDTO responseDTO = sizeService.updateSize(id, requestDTO);
+    public ResponseEntity<SizeResponseDTO> updateSize(
+            @PathVariable Long id,
+            @Valid @RequestBody SizeUpdateDTO updateDTO) {
+        SizeResponseDTO responseDTO = sizeService.updateSize(id, updateDTO);
         return ResponseEntity.ok(responseDTO);
     }
 
