@@ -5,12 +5,15 @@ import com.makibeans.dto.ProductRequestDTO;
 import com.makibeans.dto.ProductResponseDTO;
 import com.makibeans.dto.ProductUpdateDTO;
 import com.makibeans.exceptions.DuplicateResourceException;
+import com.makibeans.exceptions.ResourceNotFoundException;
 import com.makibeans.mapper.ProductMapper;
 import com.makibeans.model.Category;
 import com.makibeans.model.Product;
+import com.makibeans.model.ProductAttribute;
 import com.makibeans.repository.ProductRepository;
 import com.makibeans.filter.ProductFilter;
 import jakarta.validation.Valid;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -33,6 +36,7 @@ public class ProductService extends AbstractCrudService<Product, Long> {
     private final CategoryService categoryService;
     private final ProductMapper productMapper;
     private final AttributeTemplateService attributeTemplateService;
+    private final ProductAttributeService productAttributeService;
 
 
     @Autowired
@@ -40,12 +44,15 @@ public class ProductService extends AbstractCrudService<Product, Long> {
             JpaRepository<Product, Long> repository,
             ProductRepository productRepository,
             CategoryService categoryService,
-            ProductMapper productMapper, AttributeTemplateService attributeTemplateService) {
+            ProductMapper productMapper,
+            AttributeTemplateService attributeTemplateService,
+            @Lazy ProductAttributeService productAttributeService) {
         super(repository);
         this.productRepository = productRepository;
         this.categoryService = categoryService;
         this.productMapper = productMapper;
         this.attributeTemplateService = attributeTemplateService;
+        this.productAttributeService = productAttributeService;
     }
 
     /**
@@ -124,15 +131,22 @@ public class ProductService extends AbstractCrudService<Product, Long> {
     }
 
     /**
-     * Deletes a product by its ID.
+     * Deletes a product and associated product attributes by its ID
      *
      * @param productId the ID of the product to delete.
+     * @throws ResourceNotFoundException if the product does not exist.
      */
 
     @Transactional
     public void deleteProduct(Long productId) {
+
+        productAttributeService.getProductAttributesByProductId(productId)
+                .forEach(productAttribute ->
+                        productAttributeService.deleteProductAttribute(productAttribute.getId()));
+
         delete(productId);
     }
+
 
     /**
      * Updates an existing product.

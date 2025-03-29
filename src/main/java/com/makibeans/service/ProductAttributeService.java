@@ -60,6 +60,32 @@ public class ProductAttributeService extends AbstractCrudService<ProductAttribut
     }
 
     /**
+     * Retrieves a list of ProductAttributes by the given AttributeTemplate ID.
+     *
+     * @param templateId the ID of the AttributeTemplate.
+     * @return a list of ProductAttributes associated with the given AttributeTemplate ID.
+     * @throws IllegalArgumentException if the templateId is null.
+     */
+
+    @Transactional(readOnly = true)
+    public List<ProductAttribute> getProductAttributesByTemplateId(Long templateId) {
+        return productAttributeRepository.findByAttributeTemplateId(templateId);
+    }
+
+    /**
+     * Retrieves a list of ProductAttributes by the given Product ID.
+     *
+     * @param productId the ID of the Product.
+     * @return a list of ProductAttributes associated with the given Product ID.
+     * @throws IllegalArgumentException if the productId is null.
+     */
+
+    @Transactional
+    public List<ProductAttribute> getProductAttributesByProductId(Long productId) {
+        return productAttributeRepository.findByProductId(productId);
+    }
+
+    /**
      * Creates a product attribute.
      *
      * @param requestDTO  the dto representing the product attribute
@@ -86,7 +112,7 @@ public class ProductAttributeService extends AbstractCrudService<ProductAttribut
     }
 
     /**
-     * Deletes an ProductAttribute  by ID.
+     * Deletes an ProductAttribute  by ID and all associated attribute values.
      *
      * @param productAttributeId the ID of the ProductAttribute to delete
      * @throws IllegalArgumentException when provided ProductAttribute id is null
@@ -97,6 +123,17 @@ public class ProductAttributeService extends AbstractCrudService<ProductAttribut
     public void deleteProductAttribute(Long productAttributeId) {
         productAttributeRepository.deleteAttributeValuesByProductAttributeId(productAttributeId);
         delete(productAttributeId);
+    }
+
+    /**
+     * Deletes attribute values by attribute value ID.
+     *
+     * @param attributeValueId the ID of the attribute value to delete
+     */
+
+    @Transactional
+    public void deleteAttributeValuesByAttributeValueId(Long attributeValueId) {
+        productAttributeRepository.deleteAttributeValuesByAttributeValueId(attributeValueId);
     }
 
     /**
