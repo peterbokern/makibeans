@@ -8,9 +8,13 @@ import com.makibeans.exceptions.ResourceNotFoundException;
 import com.makibeans.filter.SearchFilter;
 import com.makibeans.mapper.AttributeTemplateMapper;
 import com.makibeans.model.AttributeTemplate;
+import com.makibeans.model.ProductAttribute;
 import com.makibeans.repository.AttributeTemplateRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,12 +35,18 @@ public class AttributeTemplateService extends AbstractCrudService<AttributeTempl
 
     private final AttributeTemplateRepository attributeTemplateRepository;
     private final AttributeTemplateMapper mapper;
+    private final Logger logger = LoggerFactory.getLogger(AttributeTemplateService.class);
+    private final ProductAttributeService productAttributeService;
 
     @Autowired
-    public AttributeTemplateService(JpaRepository<AttributeTemplate, Long> repository, AttributeTemplateRepository attributeTemplateRepository, AttributeTemplateMapper mapper) {
+    public AttributeTemplateService(
+            JpaRepository<AttributeTemplate, Long> repository,
+            AttributeTemplateRepository attributeTemplateRepository,
+            AttributeTemplateMapper mapper, @Lazy ProductAttributeService productAttributeService) {
         super(repository);
         this.attributeTemplateRepository = attributeTemplateRepository;
         this.mapper = mapper;
+        this.productAttributeService = productAttributeService;
     }
 
     /**
@@ -107,7 +117,7 @@ public class AttributeTemplateService extends AbstractCrudService<AttributeTempl
     }
 
     /**
-     * Deletes an AttributeTemplate by ID.
+     * Deletes an AttributeTemplate and associated product attributes by ID.
      *
      * @param id the ID of the attribute template to delete
      * @throws ResourceNotFoundException if the attribute template does not exist
@@ -115,8 +125,13 @@ public class AttributeTemplateService extends AbstractCrudService<AttributeTempl
 
     @Transactional
     public void deleteAttributeTemplate(Long id) {
+
+        productAttributeService.getProductAttributesByTemplateId(id)
+                .forEach(productAttribute ->
+                        productAttributeService.deleteProductAttribute(productAttribute.getId()));
         delete(id);
     }
+
 
     /**
      * Updates an existing AttributeTemplate.
@@ -133,7 +148,15 @@ public class AttributeTemplateService extends AbstractCrudService<AttributeTempl
 
         AttributeTemplate attributeTemplate = findById(id);
 
+        logger.info("Updating AttributeTemplate with ID {}: {}. Trying to change name from '{}' to {}.", id, attributeTemplate.getName(), attributeTemplate.getName(), dto.getName() == null ? null : dto.getName());
+
         boolean updated = updateAttributeTemplateNameField(attributeTemplate, dto.getName());
+
+        if (updated) {
+            logger.info("AttributeTemplate with ID {} updated successfully.", id);
+        } else {
+            logger.info("AttributeTemplate with ID {} not updated.", id);
+        }
 
         AttributeTemplate saved = updated ? update(id, attributeTemplate) : attributeTemplate;
 
@@ -146,7 +169,7 @@ public class AttributeTemplateService extends AbstractCrudService<AttributeTempl
      * Updates the name of the given AttributeTemplate if the new name is different from the current name.
      *
      * @param attributeTemplate the AttributeTemplate to update
-     * @param newName the new name to set
+     * @param newName           the new name to set
      * @return true if the name was updated, false otherwise
      * @throws DuplicateResourceException if an AttributeTemplate with the new name already exists
      */
@@ -171,7 +194,7 @@ public class AttributeTemplateService extends AbstractCrudService<AttributeTempl
     private void validateAttributeTemplateName(String name) {
         if (attributeTemplateRepository.existsByName(name)) {
             throw new DuplicateResourceException(
-                    String.format("Attribute template with name '%s' already exists", name));
+                    String.format("Attribute template with name '%s' already exists.", name));
         }
     }
 
@@ -197,6 +220,7 @@ public class AttributeTemplateService extends AbstractCrudService<AttributeTempl
      */
 
     @CacheEvict(value = "validAttributeKeys", allEntries = true)
-    public void refreshAttributeCache() {}
+    public void refreshAttributeCache() {
+    }
 
 }

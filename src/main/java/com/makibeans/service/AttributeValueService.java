@@ -12,6 +12,7 @@ import com.makibeans.model.AttributeValue;
 import com.makibeans.repository.AttributeValueRepository;
 import com.makibeans.util.MappingUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,16 +33,19 @@ public class AttributeValueService extends AbstractCrudService<AttributeValue, L
 
     private final AttributeValueRepository attributeValueRepository;
     private final AttributeTemplateService attributeTemplateService;
+    private final ProductAttributeService productAttributeService;
     private final AttributeValueMapper mapper;
 
 
     @Autowired
     public AttributeValueService(AttributeValueRepository attributeValueRepository,
                                  AttributeTemplateService attributeTemplateService,
+                                 @Lazy ProductAttributeService productAttributeService,
                                  AttributeValueMapper mapper) {
         super(attributeValueRepository);
         this.attributeValueRepository = attributeValueRepository;
         this.attributeTemplateService = attributeTemplateService;
+        this.productAttributeService = productAttributeService;
         this.mapper = mapper;
     }
 
@@ -79,14 +83,14 @@ public class AttributeValueService extends AbstractCrudService<AttributeValue, L
         Map<String, Comparator<AttributeValue>> sortFields = Map.of(
                 "id", Comparator.comparing(AttributeValue::getId, Comparator.nullsLast(Comparator.naturalOrder())),
                 "value", Comparator.comparing(AttributeValue::getValue, String.CASE_INSENSITIVE_ORDER),
-                "attributeTemplate", Comparator.comparing(attributeValue-> attributeValue.getAttributeTemplate().getName()));
+                "attributeTemplate", Comparator.comparing(attributeValue -> attributeValue.getAttributeTemplate().getName()));
 
-                // Apply filtering and sorting using SearchFilter
-                List <AttributeValue > matchedValues = SearchFilter.apply(
-                        findAll(),
-                        searchParams,
-                        searchFields,
-                        sortFields);
+        // Apply filtering and sorting using SearchFilter
+        List<AttributeValue> matchedValues = SearchFilter.apply(
+                findAll(),
+                searchParams,
+                searchFields,
+                sortFields);
 
         return matchedValues.stream()
                 .map(mapper::toResponseDTO)
@@ -135,7 +139,7 @@ public class AttributeValueService extends AbstractCrudService<AttributeValue, L
     }
 
     /**
-     * Deletes an AttributeValue by ID.
+     * Deletes an AttributeValue by ID and removes it from product_attribute_value table
      *
      * @param id the ID of the attribute value to delete
      * @throws ResourceNotFoundException if the attribute value does not exist
@@ -143,6 +147,7 @@ public class AttributeValueService extends AbstractCrudService<AttributeValue, L
 
     @Transactional
     public void deleteAttributeValue(Long id) {
+        productAttributeService.deleteAttributeValuesByAttributeValueId(id);
         delete(id);
     }
 
