@@ -3,15 +3,14 @@ package com.makibeans.service;
 import com.makibeans.dto.CategoryRequestDTO;
 import com.makibeans.dto.CategoryResponseDTO;
 import com.makibeans.dto.CategoryUpdateDTO;
-import com.makibeans.exceptions.CategoryInUseException;
-import com.makibeans.exceptions.CircularReferenceException;
-import com.makibeans.exceptions.DuplicateResourceException;
-import com.makibeans.exceptions.ResourceNotFoundException;
+import com.makibeans.dto.ImageUploadResponseDTO;
+import com.makibeans.exceptions.*;
 import com.makibeans.filter.SearchFilter;
 import com.makibeans.mapper.CategoryMapper;
 import com.makibeans.model.Category;
 import com.makibeans.model.Product;
 import com.makibeans.repository.CategoryRepository;
+import com.makibeans.util.ImageUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +18,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.*;
 import java.util.function.Function;
@@ -32,13 +32,15 @@ public class CategoryService extends AbstractCrudService<Category, Long> {
     private final CategoryMapper categoryMapper;
     private final ProductService productService;
     private final Logger logger = LoggerFactory.getLogger(CategoryService.class);
+    private final ImageUtils imageUtils;
 
     @Autowired
-    public CategoryService(JpaRepository<Category, Long> repository, CategoryRepository categoryRepository, CategoryMapper categoryMapper, @Lazy ProductService productService) {
+    public CategoryService(JpaRepository<Category, Long> repository, CategoryRepository categoryRepository, CategoryMapper categoryMapper, @Lazy ProductService productService, ImageUtils imageUtils) {
         super(repository);
         this.categoryRepository = categoryRepository;
         this.categoryMapper = categoryMapper;
         this.productService = productService;
+        this.imageUtils = imageUtils;
     }
 
     /**
@@ -189,6 +191,57 @@ public class CategoryService extends AbstractCrudService<Category, Long> {
      * @param subCategory    the subcategory to validate.
      * @throws CircularReferenceException if a circular reference is detected.
      */
+
+    /**
+     * Uploads or updates the image of a category.
+     *
+     * @param categoryId the ID of the category.
+     * @param image      the MultipartFile representing the image.
+     * @return the updated CategoryResponseDTO.
+     * @throws ImageProcessingException if validation or reading fails.
+     */
+    @Transactional
+    public ImageUploadResponseDTO uploadCategoryImage(Long categoryId, MultipartFile image) {
+        Category category = findById(categoryId);
+        byte[] imageBytes = imageUtils.validateAndExtractImageBytes(image);
+        category.setCategoryImage(imageBytes);
+        update(categoryId, category);
+        return ImageUploadResponseDTO.builder()
+                .message("Category image uploaded successfully for category '" + category.getName() + "' with ID " + categoryId)
+                .originalFilename(image.getOriginalFilename())
+                .fileType(image.getContentType())
+                .build();
+    }
+
+    /**
+     * Retrieves the image of a category by its ID.
+     *
+     * @param categoryId the ID of the category whose image is to be retrieved.
+     * @return a byte array representing the category image.
+     */
+
+    @Transactional(readOnly = true)
+    public byte[] getCategoryImage(Long categoryId) {
+        Category category = findById(categoryId);
+        byte[] categoryImage = category.getCategoryImage();
+        if (categoryImage == null) {
+            throw new ResourceNotFoundException("Category with ID " + categoryId + " does not have an image.");
+        }
+        return categoryImage;
+    }
+
+    /**
+     * Deletes the image of a category by its ID.
+     *
+     * @param categoryId the ID of the category whose image is to be deleted.
+     */
+
+    @Transactional
+    public void deleteCategoryImage(Long categoryId) {
+        Category category = findById(categoryId);
+        category.setCategoryImage(null);
+        update(categoryId, category);
+    }
 
     void validateCircularReference(Category parentCategory, Category subCategory) {
         Category current = parentCategory;

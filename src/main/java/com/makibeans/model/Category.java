@@ -31,7 +31,7 @@ import java.util.List;
         }
 )
 
-@ToString(exclude = {"parentCategory", "subCategories"})
+@ToString(exclude = {"parentCategory", "subCategories", "categoryImage", "products"})
 public class Category {
 
     @Id
@@ -50,6 +50,11 @@ public class Category {
     @Setter
     @Column(name = "image_url", nullable = true, length = 1000)
     private String imageUrl;
+
+    @Setter
+    @Lob
+    @Column(name = "categoryImage", nullable = true)
+    private byte[] categoryImage;
 
     @Setter
     @ManyToOne

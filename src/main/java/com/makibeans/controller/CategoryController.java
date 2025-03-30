@@ -3,15 +3,20 @@ package com.makibeans.controller;
 import com.makibeans.dto.CategoryRequestDTO;
 import com.makibeans.dto.CategoryResponseDTO;
 import com.makibeans.dto.CategoryUpdateDTO;
+import com.makibeans.dto.ImageUploadResponseDTO;
+import com.makibeans.exceptions.ImageProcessingException;
 import com.makibeans.service.CategoryService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;
+
+import static com.makibeans.util.FileTypeUtils.detectImageContentType;
 
 @RestController
 @RequestMapping("/categories")
@@ -52,6 +57,22 @@ public class CategoryController {
     }
 
     /**
+     * Retrieves the image of a category by its ID.
+     *
+     * @param categoryId the ID of the category whose image is to be retrieved.
+     * @return a ResponseEntity containing the byte array representing the category image.
+     */
+
+    @GetMapping("/{id}/image")
+    public ResponseEntity<byte[]> getCategoryImage(@PathVariable("id") Long categoryId) {
+        byte[] image = categoryService.getCategoryImage(categoryId);
+        return ResponseEntity
+                .ok()
+                .header("Content-Type", detectImageContentType(image)) // optionally dynamic if needed
+                .body(image);
+    }
+
+    /**
      * Creates a new category.
      *
      * @param requestDTO the DTO containing the category details
@@ -63,6 +84,39 @@ public class CategoryController {
     public ResponseEntity<CategoryResponseDTO> createCategory(@Valid @RequestBody CategoryRequestDTO requestDTO) {
         CategoryResponseDTO responseDTO =categoryService.createCategory(requestDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
+    }
+
+    /**
+     * Uploads or updates the image of a category.
+     *
+     * @param categoryId the ID of the category.
+     * @param image      the MultipartFile representing the image.
+     * @return the updated CategoryResponseDTO.
+     * @throws ImageProcessingException if validation or reading fails.
+     */
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping("/{id}/image")
+    public ResponseEntity<ImageUploadResponseDTO> uploadCategoryImage(
+            @PathVariable("id") Long categoryId,
+            @RequestParam("image") MultipartFile image) {
+        ImageUploadResponseDTO imageUploadResponseDTO = categoryService.uploadCategoryImage(categoryId, image);
+        return ResponseEntity.ok(imageUploadResponseDTO);
+    }
+
+    /**
+     * Updates an existing category by its ID.
+     *
+     * @param id the ID of the category to update
+     * @param updateDTO the DTO containing the updated category details
+     * @return the updated category as a CategoryResponseDTO
+     */
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("/{id}")
+    public ResponseEntity<CategoryResponseDTO> updateCategory(@PathVariable Long id, @Valid @RequestBody CategoryUpdateDTO updateDTO) {
+        CategoryResponseDTO updatedCategory = categoryService.updateCategory(id, updateDTO);
+        return ResponseEntity.ok(updatedCategory);
     }
 
     /**
@@ -80,17 +134,16 @@ public class CategoryController {
     }
 
     /**
-     * Updates an existing category by its ID.
+     * Deletes the image of a category by its ID.
      *
-     * @param id the ID of the category to update
-     * @param updateDTO the DTO containing the updated category details
-     * @return the updated category as a CategoryResponseDTO
+     * @param categoryId the ID of the category whose image is to be deleted.
+     * @return a ResponseEntity indicating the result of the operation.
      */
 
     @PreAuthorize("hasRole('ADMIN')")
-    @PutMapping("/{id}")
-    public ResponseEntity<CategoryResponseDTO> updateCategory(@PathVariable Long id, @Valid @RequestBody CategoryUpdateDTO updateDTO) {
-        CategoryResponseDTO updatedCategory = categoryService.updateCategory(id, updateDTO);
-        return ResponseEntity.ok(updatedCategory);
+    @DeleteMapping("/{id}/image")
+    public ResponseEntity<Void> deleteCategoryImage(@PathVariable("id") Long categoryId) {
+        categoryService.deleteCategoryImage(categoryId);
+        return ResponseEntity.ok().build();
     }
 }

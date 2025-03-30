@@ -13,7 +13,7 @@ import java.util.List;
 @Entity
 @NoArgsConstructor
 @Getter
-@ToString(exclude = {"productAttributes", "category", "productVariants"})
+@ToString(exclude = {"productAttributes", "category", "productVariants", "productImage"})
 public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -39,6 +39,11 @@ public class Product {
     @Column(name = "product_image_url", nullable = true, length = 1000)
     String productImageUrl;
 
+    @Setter
+    @Lob
+    @Column(name = "product_image", nullable = true)
+    private byte[] productImage;
+
     //Ensures that adding & removing attributes and variants will be cascaded to the database
     @OneToMany(
             mappedBy = "product",
@@ -55,10 +60,15 @@ public class Product {
     private List<ProductVariant> productVariants = new ArrayList<>();
 
     @Builder
-    public Product(String productName, String productDescription, String productImageUrl, Category category) {
+    public Product(String productName,
+                   String productDescription,
+                   String productImageUrl,
+                     byte[] productImage,
+                   Category category) {
         this.productName = productName;
         this.productDescription = productDescription;
         this.productImageUrl = productImageUrl;
+        this.productImage = productImage;
         this.category = category;
     }
 

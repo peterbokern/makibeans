@@ -1,23 +1,24 @@
 package com.makibeans.service;
 
-import com.makibeans.dto.ProductPageDTO;
-import com.makibeans.dto.ProductRequestDTO;
-import com.makibeans.dto.ProductResponseDTO;
-import com.makibeans.dto.ProductUpdateDTO;
+import com.makibeans.dto.*;
 import com.makibeans.exceptions.DuplicateResourceException;
+import com.makibeans.exceptions.ImageProcessingException;
 import com.makibeans.exceptions.ResourceNotFoundException;
 import com.makibeans.mapper.ProductMapper;
 import com.makibeans.model.Category;
 import com.makibeans.model.Product;
-import com.makibeans.model.ProductAttribute;
 import com.makibeans.repository.ProductRepository;
 import com.makibeans.filter.ProductFilter;
+import com.makibeans.util.ImageUtils;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.*;
 
@@ -37,6 +38,8 @@ public class ProductService extends AbstractCrudService<Product, Long> {
     private final ProductMapper productMapper;
     private final AttributeTemplateService attributeTemplateService;
     private final ProductAttributeService productAttributeService;
+    private final Logger logger = LoggerFactory.getLogger(ProductService.class);
+    private final ImageUtils imageUtils;
 
 
     @Autowired
@@ -46,13 +49,14 @@ public class ProductService extends AbstractCrudService<Product, Long> {
             CategoryService categoryService,
             ProductMapper productMapper,
             AttributeTemplateService attributeTemplateService,
-            @Lazy ProductAttributeService productAttributeService) {
+            @Lazy ProductAttributeService productAttributeService, ImageUtils imageUtils) {
         super(repository);
         this.productRepository = productRepository;
         this.categoryService = categoryService;
         this.productMapper = productMapper;
         this.attributeTemplateService = attributeTemplateService;
         this.productAttributeService = productAttributeService;
+        this.imageUtils = imageUtils;
     }
 
     /**
@@ -65,6 +69,7 @@ public class ProductService extends AbstractCrudService<Product, Long> {
     @Transactional(readOnly = true)
     public ProductResponseDTO getProductById(Long productId) {
         Product product = findById(productId);
+        logger.info("product: {}", product);
         return productMapper.toResponseDTO(product);
     }
 
@@ -174,6 +179,63 @@ public class ProductService extends AbstractCrudService<Product, Long> {
     }
 
     /**
+     * Uploads an image for a product.
+     *
+     * @param productId the ID of the product to upload the image for.
+     * @param image     the image file to upload.
+     * @return the ImageUploadResponseDTO representing the updated product.
+     * @throws ImageProcessingException if the image file is empty or null.
+     */
+
+    @Transactional
+    public ImageUploadResponseDTO uploadProductImage(Long productId, MultipartFile image) throws ImageProcessingException {
+        Product product = findById(productId);
+
+        byte[] imageBytes = imageUtils.validateAndExtractImageBytes(image);
+
+        product.setProductImage(imageBytes);
+
+        update(productId, product);
+
+        return ImageUploadResponseDTO.builder()
+                .message("Product image uploaded successfully for category '" + product.getProductName() + "' with ID " + productId)
+                .originalFilename(image.getOriginalFilename())
+                .fileType(image.getContentType())
+                .build();
+    }
+
+
+    /**
+     * Retrieves the image of a product by its ID.
+     *
+     * @param productId the ID of the product whose image is to be retrieved.
+     * @return a byte array representing the product image.
+     */
+
+    @Transactional
+    public byte[] getProductImage(Long productId) {
+        Product product = findById(productId);
+        byte[] productImage = product.getProductImage();
+        if (productImage == null) {
+            throw new ResourceNotFoundException("Product with ID " + productId + " does not have an image.");
+        }
+        return product.getProductImage();
+    }
+
+    /**
+     * Deletes the image of a product by its ID.
+     *
+     * @param productId the ID of the product whose image is to be deleted.
+     */
+
+    @Transactional
+    public void deleteProductImage(Long productId) {
+        Product product = findById(productId);
+        product.setProductImage(null);
+        update(productId, product);
+    }
+
+    /**
      * Validates that the new product name is unique.
      *
      * @param newProductName the new product name to check for uniqueness
@@ -189,7 +251,7 @@ public class ProductService extends AbstractCrudService<Product, Long> {
     /**
      * Updates the product name field if it has changed.
      *
-     * @param product the product to update
+     * @param product        the product to update
      * @param newProductName the new product name
      * @return true if the product name was updated, false otherwise
      * @throws DuplicateResourceException if a product with the given name already exists
@@ -200,7 +262,7 @@ public class ProductService extends AbstractCrudService<Product, Long> {
         if (shouldUpdate(newProductName, product.getProductName())) {
             validateUniqueProductName(newProductName);
             product.setProductName(normalizedNewProductName);
-           return true;
+            return true;
         }
         return false;
     }
@@ -208,7 +270,7 @@ public class ProductService extends AbstractCrudService<Product, Long> {
     /**
      * Updates the category field of the product if it has changed.
      *
-     * @param product the product to update
+     * @param product       the product to update
      * @param newCategoryId the new category ID
      * @return true if the category was updated, false otherwise
      */
@@ -226,11 +288,11 @@ public class ProductService extends AbstractCrudService<Product, Long> {
     /**
      * Updates the product description field if it has changed.
      *
-     * @param product the product to update
+     * @param product               the product to update
      * @param newProductDescription the new product description
      */
 
-    private boolean updateProductDescriptionField (Product product, String newProductDescription) {
+    private boolean updateProductDescriptionField(Product product, String newProductDescription) {
         String normalizedNewProductDescription = normalize(newProductDescription);
         if (shouldUpdate(newProductDescription, product.getProductDescription())) {
             product.setProductDescription(normalizedNewProductDescription);
@@ -242,7 +304,7 @@ public class ProductService extends AbstractCrudService<Product, Long> {
     /**
      * Updates the product image URL field if it has changed.
      *
-     * @param product the product to update
+     * @param product            the product to update
      * @param newProductImageUrl the new product image URL
      * @return true if the product image URL was updated, false otherwise
      */

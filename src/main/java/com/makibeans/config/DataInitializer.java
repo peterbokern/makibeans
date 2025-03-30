@@ -12,6 +12,7 @@ import java.util.List;
  * Component for initializing data in the database.
  * Implements CommandLineRunner to execute code after the application starts.
  */
+
 @Component
 public class DataInitializer implements CommandLineRunner {
 

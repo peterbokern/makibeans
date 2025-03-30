@@ -1,17 +1,19 @@
 package com.makibeans.controller;
 
-import com.makibeans.dto.ProductPageDTO;
-import com.makibeans.dto.ProductRequestDTO;
-import com.makibeans.dto.ProductResponseDTO;
-import com.makibeans.dto.ProductUpdateDTO;
+import com.makibeans.dto.*;
+import com.makibeans.exceptions.ImageProcessingException;
 import com.makibeans.service.ProductService;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
 import java.util.Map;
+
+import static com.makibeans.util.FileTypeUtils.detectImageContentType;
 
 /**
  * REST controller for managing Products.
@@ -23,6 +25,7 @@ import java.util.Map;
 public class ProductController {
 
     private final ProductService productService;
+    private final Logger logger = LoggerFactory.getLogger(ProductController.class);
 
     public ProductController(ProductService productService) {
         this.productService = productService;
@@ -38,6 +41,7 @@ public class ProductController {
     @GetMapping("/{id}")
     public ResponseEntity<ProductResponseDTO> getProductById(@PathVariable Long id) {
         ProductResponseDTO responseDTO = productService.getProductById(id);
+        logger.info("HALO Retrieved product with ID: {}", id);
         return ResponseEntity.ok(responseDTO);
     }
 
@@ -50,9 +54,25 @@ public class ProductController {
      */
 
     @GetMapping("")
-    public ResponseEntity<ProductPageDTO> getProducts(@RequestParam Map<String,String> filters) {
+    public ResponseEntity<ProductPageDTO> getProducts(@RequestParam Map<String, String> filters) {
         ProductPageDTO content = productService.findBySearchQuery(filters);
         return ResponseEntity.ok(content);
+    }
+
+    /**
+     * Retrieves the image of a product by its ID.
+     *
+     * @param id the ID of the product whose image is to be retrieved.
+     * @return a ResponseEntity containing the byte array representing the product image.
+     */
+
+    @GetMapping("/{id}/image")
+    public ResponseEntity<byte[]> getProductImage(@PathVariable Long id) {
+        byte[] image = productService.getProductImage(id);
+        return ResponseEntity
+                .ok()
+                .header("Content-Type", detectImageContentType(image))
+                .body(image);
     }
 
     /**
@@ -70,9 +90,27 @@ public class ProductController {
     }
 
     /**
+     * Uploads an image for a product (Admin only).
+     *
+     * @param id    the ID of the product to upload the image for.
+     * @param image the image file to upload.
+     * @throws ImageProcessingException if the image file is empty or null or if an I/O error occurs during image processing.
+     */
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping("/{id}/image")
+    public ResponseEntity<ImageUploadResponseDTO> uploadProductImage(
+            @PathVariable Long id,
+            @RequestParam("image") MultipartFile image) {
+        logger.info("Uploading image for product with ID: {}", id);
+        ImageUploadResponseDTO imageUploadResponseDTO = productService.uploadProductImage(id, image);
+        return ResponseEntity.ok(imageUploadResponseDTO);
+    }
+
+    /**
      * Updates a product by its ID.
      *
-     * @param id         the ID of the product to update
+     * @param id        the ID of the product to update
      * @param updateDTO the ProductUpdateDTO containing updated product details
      * @return a ResponseEntity containing the updated ProductResponseDTO
      */
@@ -97,6 +135,20 @@ public class ProductController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
         productService.deleteProduct(id);
+        return ResponseEntity.ok().build();
+    }
+
+    /**
+     * Deletes the image of a product by its ID (Admin only).
+     *
+     * @param id the ID of the product whose image is to be deleted.
+     * @return a ResponseEntity indicating the result of the operation.
+     */
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping("/{id}/image")
+    public ResponseEntity<Void> deleteProductImage(@PathVariable Long id) {
+        productService.deleteProductImage(id);
         return ResponseEntity.ok().build();
     }
 }
