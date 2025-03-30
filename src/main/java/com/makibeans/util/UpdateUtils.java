@@ -1,9 +1,9 @@
 package com.makibeans.util;
 
-//TODO refactor all update methods to introduce this
 /**
  * Utility class for handling updates and normalization of strings.
  */
+
 public class UpdateUtils {
 
     /**
@@ -13,6 +13,7 @@ public class UpdateUtils {
      * @param currentValue the current value to compare against
      * @return true if the new value is not null, not blank, and different from the current value after normalization; false otherwise
      */
+
     public static boolean shouldUpdate(String newValue, String currentValue) {
         return newValue != null && !newValue.isBlank() &&
                 !normalize(newValue).equalsIgnoreCase(normalize(currentValue));
@@ -39,5 +40,4 @@ public class UpdateUtils {
     public static String normalize(String value) {
         return value == null ? "" : value.trim().toLowerCase();
     }
-
 }

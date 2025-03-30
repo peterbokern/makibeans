@@ -7,6 +7,10 @@ import lombok.NoArgsConstructor;
 
 import java.util.List;
 
+/**
+ * Data Transfer Object for ProductPage.
+ */
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

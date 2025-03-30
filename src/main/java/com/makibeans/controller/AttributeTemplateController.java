@@ -29,6 +29,7 @@ public class AttributeTemplateController {
      * @param id the ID of the AttributeTemplate to retrieve
      * @return the ResponseEntity containing the AttributeTemplateResponseDTO
      */
+
     @GetMapping("/{id}")
     public ResponseEntity<AttributeTemplateResponseDTO> getAttributeTemplate(@PathVariable Long id) {
         AttributeTemplateResponseDTO responseDTO = attributeTemplateService.getAttributeTemplateById(id);

@@ -57,6 +57,7 @@ public class ProductFilter {
      *
      * @return a ProductPageDTO representing the filtered and paginated products.
      */
+
     public ProductPageDTO apply() {
 
         // Extract filters into instance fields
@@ -88,6 +89,7 @@ public class ProductFilter {
      * Extracts filters from the provided map and assigns them to instance fields.
      * This method handles multi-value filters, single-value filters, query, sort, order, and pagination.
      */
+
     private void extractFilters() {
         //extract multi-value filters
         categoryIdValues = FilterUtils.extractLongList(filters, "categoryId");
@@ -143,6 +145,7 @@ public class ProductFilter {
      * @param products the stream of products to sort.
      * @return the sorted stream of products.
      */
+
     private Stream<Product> applySorting(Stream<Product> products) {
 
         if (sort != null) {
@@ -192,6 +195,7 @@ public class ProductFilter {
      * @param filtered the list of filtered products.
      * @return a ProductPageDTO representing the paginated products.
      */
+
     private ProductPageDTO applyPagination(List<Product> filtered) {
         //pagination
         Long totalElements = (long) filtered.size();
@@ -219,6 +223,7 @@ public class ProductFilter {
      * @param products the stream of products to filter.
      * @return the filtered stream of products.
      */
+
     private Stream<Product> applyCategoryFilters(Stream<Product> products) {
         //filter by categoryId
         if (!categoryIdValues.isEmpty()) {
@@ -239,6 +244,7 @@ public class ProductFilter {
      * @param products the stream of products to filter.
      * @return the filtered stream of products.
      */
+
     private Stream<Product> applyPriceFilters(Stream<Product> products) {
         //filter by minPrice
         if (minPrice != null) {
@@ -259,6 +265,7 @@ public class ProductFilter {
      * @param products the stream of products to filter.
      * @return the filtered stream of products.
      */
+
     private Stream<Product> applySizeFilters(Stream<Product> products) {
 
         //filter by size id
@@ -280,6 +287,7 @@ public class ProductFilter {
      * @param products the stream of products to filter.
      * @return the filtered stream of products.
      */
+
     private Stream<Product> applySKUandStockFilters(Stream<Product> products) {
 
         // filter by SKU
@@ -303,6 +311,7 @@ public class ProductFilter {
      * @param products the stream of products to filter.
      * @return the filtered stream of products.
      */
+
     private Stream<Product> applyAttributeFilters(Stream<Product> products) {
 
         //extracts the unknown params i.e. the attribute filters
@@ -339,6 +348,7 @@ public class ProductFilter {
      * @param products the stream of products to filter.
      * @return the filtered stream of products.
      */
+
     private Stream<Product> applySearchQueryFilter(Stream<Product> products) {
 
         //filter by search query on product name, description, attribute values, and attribute template names

@@ -11,6 +11,11 @@ import lombok.ToString;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
+/**
+ * Represents a product variant entity.
+ * This entity is used to store variants for products.
+ */
+
 @NoArgsConstructor
 @Getter
 @Entity

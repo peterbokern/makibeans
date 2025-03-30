@@ -3,6 +3,10 @@ package com.makibeans.dto;
 import lombok.*;
 import java.util.List;
 
+/**
+ * Data Transfer Object for ProductResponse.
+ */
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

@@ -1,6 +1,8 @@
 package com.makibeans.exceptions;
 
-import java.io.IOException;
+/**
+ * Exception thrown when an error occurs during image processing.
+ */
 
 public class ImageProcessingException extends RuntimeException {
     public ImageProcessingException(String message) {

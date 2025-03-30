@@ -26,6 +26,11 @@ import java.util.function.Function;
 import static com.makibeans.util.UpdateUtils.normalize;
 import static com.makibeans.util.UpdateUtils.shouldUpdate;
 
+/**
+ * Service class for managing Sizes.
+ * Provides methods to retrieve, create, update, and delete sizes.
+ */
+
 @Service
 public class SizeService extends AbstractCrudService<Size, Long> {
 
@@ -69,6 +74,13 @@ public class SizeService extends AbstractCrudService<Size, Long> {
                 .map(sizeMapper::toResponseDTO)
                 .toList();
     }
+
+    /**
+     * Finds sizes based on search query parameters.
+     *
+     * @param searchParams the search parameters to filter sizes
+     * @return a list of SizeResponseDTO representing the matching sizes
+     */
 
     @Transactional(readOnly = true)
     public List<SizeResponseDTO> findBySearchQuery(Map<String, String> searchParams) {

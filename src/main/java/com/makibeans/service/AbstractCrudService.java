@@ -16,7 +16,7 @@ import java.util.List;
  * @param <ID> the type of the entity's identifier
  */
 
-public abstract class AbstractCrudService<T, ID> implements CrudService<T, ID> {
+public abstract class AbstractCrudService<T, ID> {
 
     protected final JpaRepository<T, ID> repository;
     protected final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -33,7 +33,6 @@ public abstract class AbstractCrudService<T, ID> implements CrudService<T, ID> {
      * @throws IllegalArgumentException if the entity is null
      */
 
-    @Override
     @Transactional
     public T create(T entity) {
         if (entity == null) {
@@ -52,7 +51,6 @@ public abstract class AbstractCrudService<T, ID> implements CrudService<T, ID> {
      * @throws IllegalArgumentException if the ID or entity is null
      */
 
-    @Override
     @Transactional
     public T update(ID id, T entity) {
         if (id == null) {
@@ -73,7 +71,6 @@ public abstract class AbstractCrudService<T, ID> implements CrudService<T, ID> {
      * @throws ResourceNotFoundException if the entity does not exist
      */
 
-    @Override
     @Transactional
     public void delete(ID id) {
         if (id == null) {
@@ -90,7 +87,6 @@ public abstract class AbstractCrudService<T, ID> implements CrudService<T, ID> {
      * @return a list of all entities
      */
 
-    @Override
     @Transactional(readOnly = true)
     public List<T> findAll() {
         List<T> entities = repository.findAll();
@@ -107,7 +103,7 @@ public abstract class AbstractCrudService<T, ID> implements CrudService<T, ID> {
      * @throws ResourceNotFoundException if no entity is found with the given ID
      */
 
-    @Override
+
     @Transactional(readOnly = true)
     public T findById(ID id) {
         if (id == null) {

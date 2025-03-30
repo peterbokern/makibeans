@@ -4,6 +4,10 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
+/**
+ * Data Transfer Object for Size requests.
+ */
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

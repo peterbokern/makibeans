@@ -25,6 +25,11 @@ import java.util.function.Function;
 
 import static com.makibeans.util.UpdateUtils.*;
 
+/**
+ * Service class for managing Category entities.
+ * Provides methods to perform CRUD operations and search for Categories.
+ */
+
 @Service
 public class CategoryService extends AbstractCrudService<Category, Long> {
 
@@ -102,25 +107,35 @@ public class CategoryService extends AbstractCrudService<Category, Long> {
     /**
      * Creates a new root category.
      *
-     * @param updateDTO the DTO containing the category details.
+     * @param requestDTO  DTO containing the category details.
      * @return the newly created root category as categoryResponseDTO.
      * @throws IllegalArgumentException   if the name is null or empty.
      * @throws DuplicateResourceException if a root category with the given name already exists.
      */
 
     @Transactional
-    public CategoryResponseDTO createCategory(CategoryRequestDTO updateDTO) {
+    public CategoryResponseDTO createCategory(CategoryRequestDTO requestDTO) {
 
-        Category category = categoryMapper.toEntity(updateDTO);
-        Long parentCategoryId = updateDTO.getParentCategoryId();
+        Long parentCategoryId = requestDTO.getParentCategoryId();
+        String normalizedCategoryName = normalize(requestDTO.getName());
+        String normalizedCategoryDescription = normalize(requestDTO.getDescription());
+        String normalizedImageUrl = normalize(requestDTO.getImageUrl());
+        Category category;
 
-        // If creating root category check uniqueness
         if (parentCategoryId == null) {
-            validateUniqueRootCategoryName(category.getName());
+            validateUniqueRootCategoryName(normalizedCategoryName);
+            category = new Category(
+                    normalizedCategoryName,
+                    normalizedCategoryDescription,
+                    normalizedImageUrl);
         } else {
             Category parentCategory = findById(parentCategoryId);
 
-            validateUniqueCategoryNameWithinHierarchy(parentCategory, category.getName(), null);
+            validateUniqueCategoryNameWithinHierarchy(parentCategory, normalizedCategoryName, null);
+
+            category = new Category(normalizedCategoryName,
+                    normalizedCategoryDescription,
+                    normalizedImageUrl);
 
             category.setParentCategory(parentCategory);
 
@@ -185,14 +200,6 @@ public class CategoryService extends AbstractCrudService<Category, Long> {
     }
 
     /**
-     * Validates if setting a parent category would create a circular reference.
-     *
-     * @param parentCategory the new parent category.
-     * @param subCategory    the subcategory to validate.
-     * @throws CircularReferenceException if a circular reference is detected.
-     */
-
-    /**
      * Uploads or updates the image of a category.
      *
      * @param categoryId the ID of the category.
@@ -242,6 +249,14 @@ public class CategoryService extends AbstractCrudService<Category, Long> {
         category.setCategoryImage(null);
         update(categoryId, category);
     }
+
+    /**
+     * Validates if setting a parent category would create a circular reference.
+     *
+     * @param parentCategory the new parent category.
+     * @param subCategory    the subcategory to validate.
+     * @throws CircularReferenceException if a circular reference is detected.
+     */
 
     void validateCircularReference(Category parentCategory, Category subCategory) {
         Category current = parentCategory;
@@ -320,6 +335,7 @@ public class CategoryService extends AbstractCrudService<Category, Long> {
      * @param category the category to update.
      * @param newName  the new name to set.
      */
+
     private boolean updateCategoryName(Category category, String newName) {
         if (shouldUpdate(newName, category.getName())) {
             validateUniqueCategoryNameWithinHierarchy(category.getParentCategory(), newName, category);
@@ -335,6 +351,7 @@ public class CategoryService extends AbstractCrudService<Category, Long> {
      * @param category      the category to update.
      * @param newDescription the new description to set.
      */
+
     private boolean updateCategoryDescription(Category category, String newDescription) {
         if (shouldUpdate(newDescription, category.getDescription())) {
             category.setDescription(normalize(newDescription));

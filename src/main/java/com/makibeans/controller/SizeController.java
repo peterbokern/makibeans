@@ -1,6 +1,5 @@
 package com.makibeans.controller;
 
-import com.makibeans.dto.AttributeValueResponseDTO;
 import com.makibeans.dto.SizeRequestDTO;
 import com.makibeans.dto.SizeResponseDTO;
 import com.makibeans.dto.SizeUpdateDTO;

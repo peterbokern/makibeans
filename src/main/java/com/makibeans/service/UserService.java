@@ -264,6 +264,7 @@ public class UserService extends AbstractCrudService<User, Long> {
      * @param email the email to check
      * @throws DuplicateResourceException if a User with the same email already exists
      */
+
     private void validateUniqueEmail(String email) {
         if (userRepository.existsByEmail(email)) {
             throw new DuplicateResourceException("User with email " + email + " already exists.");
@@ -278,6 +279,7 @@ public class UserService extends AbstractCrudService<User, Long> {
      * @return true if the username was updated, false otherwise
      * @throws DuplicateResourceException if a user with the given username already exists
      */
+
     private boolean updateUsernameField(User user, String newUsername) {
         String normalizedUsername = normalize(newUsername);
         if (shouldUpdate(normalizedUsername, user.getUsername())) {

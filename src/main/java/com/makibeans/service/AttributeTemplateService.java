@@ -8,7 +8,6 @@ import com.makibeans.exceptions.ResourceNotFoundException;
 import com.makibeans.filter.SearchFilter;
 import com.makibeans.mapper.AttributeTemplateMapper;
 import com.makibeans.model.AttributeTemplate;
-import com.makibeans.model.ProductAttribute;
 import com.makibeans.repository.AttributeTemplateRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +29,10 @@ import java.util.stream.Collectors;
 import static com.makibeans.util.UpdateUtils.normalize;
 import static com.makibeans.util.UpdateUtils.shouldUpdate;
 
+/**
+ * Service class for managing AttributeTemplate entities.
+ * Provides methods to perform CRUD operations and search for AttributeTemplates.
+ */
 @Service
 public class AttributeTemplateService extends AbstractCrudService<AttributeTemplate, Long> {
 
@@ -152,12 +155,6 @@ public class AttributeTemplateService extends AbstractCrudService<AttributeTempl
 
         boolean updated = updateAttributeTemplateNameField(attributeTemplate, dto.getName());
 
-        if (updated) {
-            logger.info("AttributeTemplate with ID {} updated successfully.", id);
-        } else {
-            logger.info("AttributeTemplate with ID {} not updated.", id);
-        }
-
         AttributeTemplate saved = updated ? update(id, attributeTemplate) : attributeTemplate;
 
         refreshAttributeCache();
@@ -222,5 +219,4 @@ public class AttributeTemplateService extends AbstractCrudService<AttributeTempl
     @CacheEvict(value = "validAttributeKeys", allEntries = true)
     public void refreshAttributeCache() {
     }
-
 }

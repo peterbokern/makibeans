@@ -17,22 +17,12 @@ public class FilterUtils {
      * @param <T>       the target type
      * @return an Optional containing the parsed value, or empty if not present or blank
      */
+
     public static <T> Optional<T> extract(Map<String, String> filters, String key, Function<String, T> converter) {
         return Optional.ofNullable(filters.get(key))
                 .map(String::trim)
                 .filter(s -> !s.isBlank())
                 .map(converter);
-    }
-
-    /**
-     * Extract a String value (trims and filters blank).
-     *
-     * @param filters the filter map
-     * @param key     the key to extract
-     * @return an Optional containing the trimmed string, or empty if blank or not present
-     */
-    public static Optional<String> extractString(Map<String, String> filters, String key) {
-        return extract(filters, key, Function.identity());
     }
 
     /**
@@ -42,6 +32,7 @@ public class FilterUtils {
      * @param key     the key to extract
      * @return an Optional containing the lowercase trimmed string, or empty if blank or not present
      */
+
     public static Optional<String> extractLowerCase(Map<String, String> filters, String key) {
         return extract(filters, key, String::toLowerCase);
     }
@@ -53,6 +44,7 @@ public class FilterUtils {
      * @param key     the key to extract
      * @return an Optional containing the parsed Long, or empty if blank or not a valid number
      */
+
     public static Optional<Long> extractLong(Map<String, String> filters, String key) {
         try {
             return extract(filters, key, Long::parseLong);
@@ -68,6 +60,7 @@ public class FilterUtils {
      * @param key     the key to extract
      * @return an Optional containing the parsed Integer, or empty if blank or not a valid number
      */
+
     public static Optional<Integer> extractInt(Map<String, String> filters, String key) {
         try {
             return extract(filters, key, Integer::parseInt);
@@ -101,6 +94,7 @@ public class FilterUtils {
      * @param key     the key to extract
      * @return a list of cleaned, lowercase, trimmed strings, or an empty list if the key is not present or the value is blank
      */
+
     public static List<String> extractStringList(Map<String, String> filters, String key) {
         return Optional.ofNullable(filters.get(key))
                 .map(FilterUtils::splitAndNormalize)
@@ -115,6 +109,7 @@ public class FilterUtils {
      * @return a list of cleaned, trimmed Long values, or an empty list if the key is not present or the value is blank
      * @throws NumberFormatException if any of the values cannot be parsed as Long
      */
+
     public static List<Long> extractLongList(Map<String, String> filters, String key) {
         return Optional.ofNullable(filters.get(key))
                 .map(value -> Arrays.stream(value.split(","))
@@ -133,6 +128,7 @@ public class FilterUtils {
      * @param allowedParams the set of allowed parameter names
      * @throws InvalidFilterException if any parameter in searchParams is not in allowedParams
      */
+
     public static void validateParams(Map<String, String> searchParams, Set<String> allowedParams) {
 
         List<String> invalid = searchParams.keySet()
