@@ -20,6 +20,8 @@ public interface AttributeValueMapper {
      * @return the converted AttributeValueResponseDTO
      */
 
+    @Mapping(source = "attributeTemplate.id", target = "templateId")
+    @Mapping(source = "attributeTemplate.name", target = "attributeName")
     AttributeValueResponseDTO toResponseDTO(AttributeValue entity);
 
 

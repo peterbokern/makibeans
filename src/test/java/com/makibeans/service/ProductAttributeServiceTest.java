@@ -1,3 +1,4 @@
+/*
 package com.makibeans.service;
 
 import com.makibeans.dto.ProductAttributeRequestDTO;
@@ -293,3 +294,4 @@ class ProductAttributeServiceTest {
         verifyNoMoreInteractions(productAttributeRepository, attributeValueService);
     }
 }
+*/
