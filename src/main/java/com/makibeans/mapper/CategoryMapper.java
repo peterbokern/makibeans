@@ -19,6 +19,8 @@ public interface CategoryMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "subCategories", ignore = true)
     @Mapping(target = "products", ignore = true)
+    @Mapping(target = "imageUrl", ignore = true)
+    @Mapping(target = "categoryImage", ignore = true)
     Category toEntity(CategoryRequestDTO requestDTO);
 
     @Mapping(source = "category.id", target = "id")

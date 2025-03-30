@@ -12,6 +12,6 @@ public interface SizeMapper {
 
     SizeResponseDTO toResponseDTO(Size entity);
 
-    @Mapping(source = "name", target = "name", qualifiedByName = "normalizeValue")
-    Size toEntity(SizeRequestDTO dto);
+/*    @Mapping(source = "name", target = "name", qualifiedByName = "normalizeValue")
+    Size toEntity(SizeRequestDTO dto);*/
 }
