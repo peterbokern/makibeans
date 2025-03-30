@@ -7,6 +7,10 @@ import lombok.NoArgsConstructor;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Data Transfer Object for ProductAttributeResponse.
+ */
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

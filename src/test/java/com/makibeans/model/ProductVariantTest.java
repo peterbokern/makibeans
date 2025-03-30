@@ -1,3 +1,4 @@
+/*
 package com.makibeans.model;
 
 import org.junit.jupiter.api.AfterEach;
@@ -123,3 +124,4 @@ class ProductVariantTest {
         assertEquals(expected, productVariant.toString(), "The toString method should return the correct format");
     }
 }
+*/

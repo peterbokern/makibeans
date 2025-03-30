@@ -6,6 +6,10 @@ import lombok.NoArgsConstructor;
 
 import java.util.List;
 
+/**
+ * Data Transfer Object for Category responses.
+ */
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

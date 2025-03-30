@@ -1,20 +1,29 @@
 package com.makibeans.service;
 
-import com.makibeans.dto.ProductPageDTO;
-import com.makibeans.dto.ProductRequestDTO;
-import com.makibeans.dto.ProductResponseDTO;
+import com.makibeans.dto.*;
 import com.makibeans.exceptions.DuplicateResourceException;
+import com.makibeans.exceptions.ImageProcessingException;
+import com.makibeans.exceptions.ResourceNotFoundException;
 import com.makibeans.mapper.ProductMapper;
 import com.makibeans.model.Category;
 import com.makibeans.model.Product;
 import com.makibeans.repository.ProductRepository;
 import com.makibeans.filter.ProductFilter;
+import com.makibeans.util.ImageUtils;
+import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.*;
+
+import static com.makibeans.util.UpdateUtils.normalize;
+import static com.makibeans.util.UpdateUtils.shouldUpdate;
 
 /**
  * Service class for managing Products.
@@ -28,6 +37,9 @@ public class ProductService extends AbstractCrudService<Product, Long> {
     private final CategoryService categoryService;
     private final ProductMapper productMapper;
     private final AttributeTemplateService attributeTemplateService;
+    private final ProductAttributeService productAttributeService;
+    private final Logger logger = LoggerFactory.getLogger(ProductService.class);
+    private final ImageUtils imageUtils;
 
 
     @Autowired
@@ -35,12 +47,16 @@ public class ProductService extends AbstractCrudService<Product, Long> {
             JpaRepository<Product, Long> repository,
             ProductRepository productRepository,
             CategoryService categoryService,
-            ProductMapper productMapper, AttributeTemplateService attributeTemplateService) {
+            ProductMapper productMapper,
+            AttributeTemplateService attributeTemplateService,
+            @Lazy ProductAttributeService productAttributeService, ImageUtils imageUtils) {
         super(repository);
         this.productRepository = productRepository;
         this.categoryService = categoryService;
         this.productMapper = productMapper;
         this.attributeTemplateService = attributeTemplateService;
+        this.productAttributeService = productAttributeService;
+        this.imageUtils = imageUtils;
     }
 
     /**
@@ -53,9 +69,21 @@ public class ProductService extends AbstractCrudService<Product, Long> {
     @Transactional(readOnly = true)
     public ProductResponseDTO getProductById(Long productId) {
         Product product = findById(productId);
+        logger.info("product: {}", product);
         return productMapper.toResponseDTO(product);
     }
 
+    /**
+     * Retrieves a list of products by the given category ID.
+     *
+     * @param categoryId the ID of the category to retrieve products for.
+     * @return a list of products belonging to the specified category.
+     */
+
+    @Transactional
+    public List<Product> getProductsByCategoryId(Long categoryId) {
+        return productRepository.findProductsByCategoryId(categoryId);
+    }
 
     /**
      * Filters products based on various criteria provided in the filters map.
@@ -92,16 +120,14 @@ public class ProductService extends AbstractCrudService<Product, Long> {
     @Transactional
     public ProductResponseDTO createProduct(ProductRequestDTO dto) {
 
-        if (productRepository.existsByProductName(dto.getProductName())) {
-            throw new DuplicateResourceException("Product with name " + dto.getProductName() + " already exists.");
-        }
+        validateUniqueProductName(dto.getProductName());
 
         Category category = categoryService.findById(dto.getCategoryId());
 
         Product product = Product.builder()
-                .productName(dto.getProductName().trim().toLowerCase())
-                .productDescription(dto.getProductDescription().trim().toLowerCase())
-                .productImageUrl((dto.getProductImageUrl() != null) ? dto.getProductImageUrl().trim() : null)
+                .productName(normalize(dto.getProductName()))
+                .productDescription(normalize(dto.getProductDescription()))
+                .productImageUrl((dto.getProductImageUrl() != null) ? normalize(dto.getProductImageUrl()) : null)
                 .category(category)
                 .build();
 
@@ -110,15 +136,22 @@ public class ProductService extends AbstractCrudService<Product, Long> {
     }
 
     /**
-     * Deletes a product by its ID.
+     * Deletes a product and associated product attributes by its ID
      *
      * @param productId the ID of the product to delete.
+     * @throws ResourceNotFoundException if the product does not exist.
      */
 
     @Transactional
     public void deleteProduct(Long productId) {
+
+        productAttributeService.getProductAttributesByProductId(productId)
+                .forEach(productAttribute ->
+                        productAttributeService.deleteProductAttribute(productAttribute.getId()));
+
         delete(productId);
     }
+
 
     /**
      * Updates an existing product.
@@ -130,25 +163,158 @@ public class ProductService extends AbstractCrudService<Product, Long> {
      */
 
     @Transactional
-    public ProductResponseDTO updateProduct(Long productId, ProductRequestDTO dto) {
-        Product productToUpdate = findById(productId);
+    public ProductResponseDTO updateProduct(Long productId, @Valid ProductUpdateDTO dto) {
+        Product product = findById(productId);
 
-        if (!productToUpdate.getProductName().equals(dto.getProductName()) &&
-                productRepository.existsByProductName(dto.getProductName())) {
-            throw new DuplicateResourceException("Product with name " + dto.getProductName() + " already exists.");
-        }
+        boolean updated = false;
 
-        Category category = categoryService.findById(dto.getCategoryId());
+        updated |= updateProductNameField(product, dto.getProductName());
+        updated |= updateCategoryField(product, dto.getCategoryId());
+        updated |= updateProductDescriptionField(product, dto.getProductDescription());
+        updated |= updateProductImageUrlField(product, dto.getProductImageUrl());
 
-        productToUpdate.setProductName(dto.getProductName().trim().toLowerCase());
-        productToUpdate.setProductDescription(dto.getProductDescription().trim().toLowerCase());
-        productToUpdate.setCategory(category);
-        productToUpdate.setProductImageUrl(
-                dto.getProductImageUrl() != null ? dto.getProductImageUrl().trim() : null
-        );
+        Product updatedProduct = updated ? update(productId, product) : product;
 
-        Product updatedProduct = productRepository.save(productToUpdate);
         return productMapper.toResponseDTO(updatedProduct);
     }
 
+    /**
+     * Uploads an image for a product.
+     *
+     * @param productId the ID of the product to upload the image for.
+     * @param image     the image file to upload.
+     * @return the ImageUploadResponseDTO representing the updated product.
+     * @throws ImageProcessingException if the image file is empty or null.
+     */
+
+    @Transactional
+    public ImageUploadResponseDTO uploadProductImage(Long productId, MultipartFile image) throws ImageProcessingException {
+        Product product = findById(productId);
+
+        byte[] imageBytes = imageUtils.validateAndExtractImageBytes(image);
+
+        product.setProductImage(imageBytes);
+
+        update(productId, product);
+
+        return ImageUploadResponseDTO.builder()
+                .message("Product image uploaded successfully for category '" + product.getProductName() + "' with ID " + productId)
+                .originalFilename(image.getOriginalFilename())
+                .fileType(image.getContentType())
+                .build();
+    }
+
+
+    /**
+     * Retrieves the image of a product by its ID.
+     *
+     * @param productId the ID of the product whose image is to be retrieved.
+     * @return a byte array representing the product image.
+     */
+
+    @Transactional
+    public byte[] getProductImage(Long productId) {
+        Product product = findById(productId);
+        byte[] productImage = product.getProductImage();
+        if (productImage == null) {
+            throw new ResourceNotFoundException("Product with ID " + productId + " does not have an image.");
+        }
+        return product.getProductImage();
+    }
+
+    /**
+     * Deletes the image of a product by its ID.
+     *
+     * @param productId the ID of the product whose image is to be deleted.
+     */
+
+    @Transactional
+    public void deleteProductImage(Long productId) {
+        Product product = findById(productId);
+        product.setProductImage(null);
+        update(productId, product);
+    }
+
+    /**
+     * Validates that the new product name is unique.
+     *
+     * @param newProductName the new product name to check for uniqueness
+     * @throws DuplicateResourceException if a product with the given name already exists
+     */
+
+    private void validateUniqueProductName(String newProductName) {
+        if (productRepository.existsByProductName(newProductName)) {
+            throw new DuplicateResourceException("Product with name " + newProductName + " already exists.");
+        }
+    }
+
+    /**
+     * Updates the product name field if it has changed.
+     *
+     * @param product        the product to update
+     * @param newProductName the new product name
+     * @return true if the product name was updated, false otherwise
+     * @throws DuplicateResourceException if a product with the given name already exists
+     */
+
+    private boolean updateProductNameField(Product product, String newProductName) {
+        String normalizedNewProductName = normalize(newProductName);
+        if (shouldUpdate(newProductName, product.getProductName())) {
+            validateUniqueProductName(newProductName);
+            product.setProductName(normalizedNewProductName);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Updates the category field of the product if it has changed.
+     *
+     * @param product       the product to update
+     * @param newCategoryId the new category ID
+     * @return true if the category was updated, false otherwise
+     */
+
+    private boolean updateCategoryField(Product product, Long newCategoryId) {
+
+        if (shouldUpdate(product.getCategory().getId(), newCategoryId)) {
+            Category newCategory = categoryService.findById(newCategoryId);
+            product.setCategory(newCategory);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Updates the product description field if it has changed.
+     *
+     * @param product               the product to update
+     * @param newProductDescription the new product description
+     */
+
+    private boolean updateProductDescriptionField(Product product, String newProductDescription) {
+        String normalizedNewProductDescription = normalize(newProductDescription);
+        if (shouldUpdate(newProductDescription, product.getProductDescription())) {
+            product.setProductDescription(normalizedNewProductDescription);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Updates the product image URL field if it has changed.
+     *
+     * @param product            the product to update
+     * @param newProductImageUrl the new product image URL
+     * @return true if the product image URL was updated, false otherwise
+     */
+
+    private boolean updateProductImageUrlField(Product product, String newProductImageUrl) {
+        String normalizedNewProductImageUrl = newProductImageUrl != null ? newProductImageUrl.trim() : null;
+        if (shouldUpdate(newProductImageUrl, product.getProductImageUrl())) {
+            product.setProductImageUrl(normalizedNewProductImageUrl);
+            return true;
+        }
+        return false;
+    }
 }

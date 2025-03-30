@@ -4,6 +4,10 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Data Transfer Object for Attribute Template response.
+ */
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

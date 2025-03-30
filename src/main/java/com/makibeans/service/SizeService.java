@@ -2,6 +2,7 @@ package com.makibeans.service;
 
 import com.makibeans.dto.SizeRequestDTO;
 import com.makibeans.dto.SizeResponseDTO;
+import com.makibeans.dto.SizeUpdateDTO;
 import com.makibeans.exceptions.DuplicateResourceException;
 import com.makibeans.exceptions.ResourceNotFoundException;
 import com.makibeans.filter.SearchFilter;
@@ -9,6 +10,9 @@ import com.makibeans.mapper.SizeMapper;
 import com.makibeans.model.Size;
 import com.makibeans.repository.ProductVariantRepository;
 import com.makibeans.repository.SizeRepository;
+import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
@@ -19,12 +23,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
+import static com.makibeans.util.UpdateUtils.normalize;
+import static com.makibeans.util.UpdateUtils.shouldUpdate;
+
+/**
+ * Service class for managing Sizes.
+ * Provides methods to retrieve, create, update, and delete sizes.
+ */
+
 @Service
 public class SizeService extends AbstractCrudService<Size, Long> {
 
     private final SizeRepository sizeRepository;
     private final SizeMapper sizeMapper;
     private final ProductVariantRepository productVariantRepository;
+    private final Logger logger = LoggerFactory.getLogger(SizeService.class);
 
     @Autowired
     public SizeService(JpaRepository<Size, Long> repository, SizeRepository sizeRepository, SizeMapper sizeMapper, ProductVariantRepository productVariantRepository) {
@@ -42,7 +55,7 @@ public class SizeService extends AbstractCrudService<Size, Long> {
      * @throws ResourceNotFoundException if the size does not exist.
      */
 
-    @Transactional
+    @Transactional(readOnly = true)
     public SizeResponseDTO getSizeById(Long id) {
         Size size = findById(id);
         return sizeMapper.toResponseDTO(size);
@@ -61,6 +74,13 @@ public class SizeService extends AbstractCrudService<Size, Long> {
                 .map(sizeMapper::toResponseDTO)
                 .toList();
     }
+
+    /**
+     * Finds sizes based on search query parameters.
+     *
+     * @param searchParams the search parameters to filter sizes
+     * @return a list of SizeResponseDTO representing the matching sizes
+     */
 
     @Transactional(readOnly = true)
     public List<SizeResponseDTO> findBySearchQuery(Map<String, String> searchParams) {
@@ -94,14 +114,14 @@ public class SizeService extends AbstractCrudService<Size, Long> {
 
     @Transactional
     public SizeResponseDTO createSize(SizeRequestDTO sizeRequestDTO) {
-        String normalizedName = sizeRequestDTO.getName().trim().toLowerCase();
+        String normalizedName = normalize(sizeRequestDTO.getName());
 
-        if (sizeRepository.existsByName(normalizedName)) {
-            throw new DuplicateResourceException("Size with name " + sizeRequestDTO.getName() + " already exists.");
-        }
+        validateSizeName(normalizedName);
 
         Size size = new Size(normalizedName);
+
         Size savedSize = create(size);
+
         return sizeMapper.toResponseDTO(savedSize);
     }
 
@@ -118,7 +138,7 @@ public class SizeService extends AbstractCrudService<Size, Long> {
     }
 
     /**
-     * Updates an existing Size.
+     * Updates an existing Size if changes are detected.
      *
      * @param sizeId        The ID of the size to update.
      * @param sizeRequestDTO The dto to update Size.
@@ -127,16 +147,46 @@ public class SizeService extends AbstractCrudService<Size, Long> {
      */
 
     @Transactional
-    public SizeResponseDTO updateSize(Long sizeId, SizeRequestDTO sizeRequestDTO) {
+    public SizeResponseDTO updateSize(Long sizeId, SizeUpdateDTO sizeRequestDTO) {
         Size size = findById(sizeId);
-        String name = sizeRequestDTO.getName();
 
-        if (!size.getName().equals(name) && sizeRepository.existsByName(name)) {
-            throw new DuplicateResourceException("A size with the name '" + name + "' already exists.");
-        }
+        boolean updated = updateSizeNameField(size, sizeRequestDTO.getName());
 
-        size.setName(name);
-        Size updatedSize = update(sizeId, size);
+        Size updatedSize = updated ? update(sizeId, size) : size;
+
         return sizeMapper.toResponseDTO(updatedSize);
+    }
+
+    /**
+     * Updates the name of the given Size if the new name is different from the current name.
+     *
+     * @param size the Size to update
+     * @param newName the new name to set
+     * @return true if the name was updated, false otherwise
+     * @throws DuplicateResourceException if a Size with the new name already exists
+     */
+
+    private boolean updateSizeNameField(Size size, String newName) {
+      String normalizedName = normalize(newName);
+        if (shouldUpdate(newName, size.getName())) {
+            validateSizeName(normalizedName);
+            size.setName(normalizedName);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Validates the uniqueness of the size name.
+     *
+     * @param name the name of the size to validate
+     * @throws DuplicateResourceException if a size with the same name already exists
+     */
+
+    private void validateSizeName(String name) {
+        if (sizeRepository.existsByName(name)) {
+            throw new DuplicateResourceException(
+                    String.format("Size with name '%s' already exists", name));
+        }
     }
 }

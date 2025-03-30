@@ -10,6 +10,11 @@ import lombok.ToString;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Represents a product attribute entity.
+ * This entity is used to store attributes for products.
+ */
+
 @Entity
 @NoArgsConstructor
 @Getter

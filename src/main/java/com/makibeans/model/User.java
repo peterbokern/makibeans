@@ -12,6 +12,11 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * Represents a user in the system.
+ * A user can have multiple roles.
+ */
+
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
@@ -27,17 +32,18 @@ public class User implements UserDetails {
 
     @NotBlank(message = "Username cannot be blank.")
     @Size(min = 3, max = 50, message = "Username must be between 3 and 50 characters.")
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false, unique = true, length = 50)
     private String username;
 
     @NotBlank(message = "Email cannot be blank.")
     @Email(message = "Invalid email format")
-    @Column(nullable = false, unique = true)
+    @Size(max = 255, message = "Email must be less than 255 characters.")
+    @Column(nullable = false, unique = true, length = 255)
     private String email;
 
     @NotBlank(message = "Password cannot be blank.")
-    @Size(min = 8, message = "Password must be at least 8 characters long.")
-    @Column(nullable = false)
+    @Size(min = 8, max = 255, message = "Password must be between 8 and 255 characters.")
+    @Column(nullable = false, length = 255)
     private String password;
 
     @ManyToMany(fetch = FetchType.EAGER)

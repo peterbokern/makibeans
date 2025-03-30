@@ -9,6 +9,11 @@ import org.springframework.security.core.GrantedAuthority;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * Represents a role in the system.
+ * A role can be assigned to multiple users.
+ */
+
 @Entity
 @Table(name = "roles")
 @Getter
@@ -30,6 +35,10 @@ public class Role implements GrantedAuthority {
 
     @ManyToMany(mappedBy = "roles")
     private Set<User> users = new HashSet<>();
+
+    public Role(String name) {
+        this.name = name;
+    }
 
     @Override
     public String getAuthority() {

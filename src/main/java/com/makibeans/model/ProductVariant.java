@@ -1,5 +1,6 @@
 package com.makibeans.model;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -9,6 +10,11 @@ import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+
+/**
+ * Represents a product variant entity.
+ * This entity is used to store variants for products.
+ */
 
 @NoArgsConstructor
 @Getter
@@ -36,6 +42,7 @@ public class ProductVariant {
     @Setter
     @NotNull(message = "Price cannot be null.")
     @Min(value = 0, message = "Price should be a minimum of 0.")
+    @Digits(integer = 10, fraction = 0, message = "Price must be a valid number with up to 10 digits.")
     @Column(name = "price_in_cents", nullable = false)
     private Long priceInCents;
 
@@ -47,6 +54,7 @@ public class ProductVariant {
     @Setter
     @NotNull(message = "Stock cannot be null.")
     @Min(value = 0, message = "Stock should be a minimum of 0.")
+    @Digits(integer = 10, fraction = 0, message = "Stock must be a valid number with up to 10 digits.")
     @Column(name = "stock", nullable = false)
     private Long stock;
 
