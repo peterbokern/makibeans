@@ -6,15 +6,22 @@ import com.makibeans.model.AttributeValue;
 import com.makibeans.util.MappingUtils;
 import org.mapstruct.*;
 
+/**
+ * Mapper for the entity {@link AttributeValue} and its DTOs {@link AttributeValueRequestDTO} and {@link AttributeValueResponseDTO}.
+ */
+
 @Mapper(componentModel = "spring", uses = MappingUtils.class)
 public interface AttributeValueMapper {
 
- /*   @Mapping(source = "attributeTemplate.id", target = "templateId")
-    @Mapping(source = "attributeTemplate.name", target = "attributeName")*/
+    /**
+     * Converts an AttributeValue entity to an AttributeValueResponseDTO.
+     *
+     * @param entity the AttributeValue entity to convert
+     * @return the converted AttributeValueResponseDTO
+     */
+
     AttributeValueResponseDTO toResponseDTO(AttributeValue entity);
 
-    @Mapping(source = "value", target = "value", qualifiedByName = "normalizeValue")
-    @Mapping(target = "attributeTemplate", ignore = true)
-    AttributeValue toEntity(AttributeValueRequestDTO dto);
+
 
 }

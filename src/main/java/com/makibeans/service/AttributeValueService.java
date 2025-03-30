@@ -10,8 +10,8 @@ import com.makibeans.mapper.AttributeValueMapper;
 import com.makibeans.model.AttributeTemplate;
 import com.makibeans.model.AttributeValue;
 import com.makibeans.repository.AttributeValueRepository;
-import com.makibeans.util.MappingUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,21 +20,31 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
+import static com.makibeans.util.UpdateUtils.normalize;
+import static com.makibeans.util.UpdateUtils.shouldUpdate;
+
+/**
+ * Service class for managing AttributeValues.
+ */
+
 @Service
 public class AttributeValueService extends AbstractCrudService<AttributeValue, Long> {
 
     private final AttributeValueRepository attributeValueRepository;
     private final AttributeTemplateService attributeTemplateService;
+    private final ProductAttributeService productAttributeService;
     private final AttributeValueMapper mapper;
 
 
     @Autowired
     public AttributeValueService(AttributeValueRepository attributeValueRepository,
                                  AttributeTemplateService attributeTemplateService,
+                                 @Lazy ProductAttributeService productAttributeService,
                                  AttributeValueMapper mapper) {
         super(attributeValueRepository);
         this.attributeValueRepository = attributeValueRepository;
         this.attributeTemplateService = attributeTemplateService;
+        this.productAttributeService = productAttributeService;
         this.mapper = mapper;
     }
 
@@ -54,23 +64,13 @@ public class AttributeValueService extends AbstractCrudService<AttributeValue, L
     }
 
     /**
-     * Retrieves all AttributeValues.
-     *
-     * @return the list of all AttributeValueResponseDTO's representing the found attribute values.
-     */
-
-    @Transactional(readOnly = true)
-    public List<AttributeValueResponseDTO> getAllAttributeValues() {
-        return findAll().stream().map(mapper::toResponseDTO).toList();
-    }
-
-    /**
      * Searches for AttributeValues based on the provided filters.
      * The search is performed on the value field of the AttributeValue.
      *
      * @param searchParams the map containing the search parameters (e.g., "search", "sort", "order")
      * @return a list of AttributeValueResponseDTOs representing the matched attribute values
      */
+
     @Transactional(readOnly = true)
     public List<AttributeValueResponseDTO> findBySearchQuery(Map<String, String> searchParams) {
 
@@ -81,15 +81,15 @@ public class AttributeValueService extends AbstractCrudService<AttributeValue, L
 
         Map<String, Comparator<AttributeValue>> sortFields = Map.of(
                 "id", Comparator.comparing(AttributeValue::getId, Comparator.nullsLast(Comparator.naturalOrder())),
-                "Value", Comparator.comparing(AttributeValue::getValue, String.CASE_INSENSITIVE_ORDER),
-                "attributeTemplate", Comparator.comparing(attributeValue-> attributeValue.getAttributeTemplate().getName()));
+                "value", Comparator.comparing(AttributeValue::getValue, String.CASE_INSENSITIVE_ORDER),
+                "attributeTemplate", Comparator.comparing(attributeValue -> attributeValue.getAttributeTemplate().getName()));
 
-                // Apply filtering and sorting using SearchFilter
-                List <AttributeValue > matchedValues = SearchFilter.apply(
-                        findAll(),
-                        searchParams,
-                        searchFields,
-                        sortFields);
+        // Apply filtering and sorting using SearchFilter
+        List<AttributeValue> matchedValues = SearchFilter.apply(
+                findAll(),
+                searchParams,
+                searchFields,
+                sortFields);
 
         return matchedValues.stream()
                 .map(mapper::toResponseDTO)
@@ -126,13 +126,12 @@ public class AttributeValueService extends AbstractCrudService<AttributeValue, L
     public AttributeValueResponseDTO createAttributeValue(AttributeValueRequestDTO requestDTO) {
 
         AttributeTemplate attributeTemplate = attributeTemplateService.findById(requestDTO.getTemplateId());
-        AttributeValue attributeValue = mapper.toEntity(requestDTO);
-        attributeValue.setAttributeTemplate(attributeTemplate);
-        String value = attributeValue.getValue();
 
-        if (attributeValueRepository.existsByValue(attributeTemplate, value)) {
-            throw new DuplicateResourceException("Attribute value '" + value + "' already exists for attribute " + attributeTemplate.getName() + ".");
-        }
+        String normalizedValue = normalize(requestDTO.getValue());
+
+        validateUniqueAttributeValue(attributeTemplate, normalizedValue);
+
+        AttributeValue attributeValue = new AttributeValue(attributeTemplate, normalizedValue);
 
         AttributeValue savedAttributeValue = create(attributeValue);
 
@@ -140,7 +139,7 @@ public class AttributeValueService extends AbstractCrudService<AttributeValue, L
     }
 
     /**
-     * Deletes an AttributeValue by ID.
+     * Deletes an AttributeValue by ID and removes it from product_attribute_value table
      *
      * @param id the ID of the attribute value to delete
      * @throws ResourceNotFoundException if the attribute value does not exist
@@ -148,6 +147,7 @@ public class AttributeValueService extends AbstractCrudService<AttributeValue, L
 
     @Transactional
     public void deleteAttributeValue(Long id) {
+        productAttributeService.deleteAttributeValuesByAttributeValueId(id);
         delete(id);
     }
 
@@ -165,17 +165,42 @@ public class AttributeValueService extends AbstractCrudService<AttributeValue, L
     public AttributeValueResponseDTO updateAttributeValue(Long id, AttributeValueUpdateDTO dto) {
 
         AttributeValue attributeValue = findById(id);
-        AttributeTemplate attributeTemplate = attributeValue.getAttributeTemplate();
-        String normalizedValue = MappingUtils.normalizeValue(dto.getValue());
 
-        if (!attributeValue.getValue().equalsIgnoreCase(normalizedValue) && attributeValueRepository.existsByValue(attributeTemplate, normalizedValue)) {
-            throw new DuplicateResourceException("Attribute value '" + normalizedValue + "' already exists for attribute template " + attributeTemplate + ".");
-        }
+        String newValue = normalize(dto.getValue());
 
-        attributeValue.setValue(normalizedValue);
+        updateAttributeValueField(attributeValue, newValue);
 
         AttributeValue updatedAttributeValue = update(id, attributeValue);
 
         return mapper.toResponseDTO(updatedAttributeValue);
+    }
+
+    /**
+     * Validates that an attribute value is unique within the given attribute template.
+     *
+     * @param attributeTemplate the attribute template to check within
+     * @param value             the value to validate
+     * @throws DuplicateResourceException if an attribute value with the same value already exists within the attribute template
+     */
+
+    private void validateUniqueAttributeValue(AttributeTemplate attributeTemplate, String value) {
+        if (attributeValueRepository.existsByValue(attributeTemplate, value)) {
+            throw new DuplicateResourceException("Attribute value '" + value + "' already exists for attribute " + attributeTemplate.getName() + ".");
+        }
+    }
+
+    /**
+     * Updates the value of the given AttributeValue if needed.
+     *
+     * @param attributeValue the AttributeValue to update
+     * @param newValue       the new value to set
+     * @throws DuplicateResourceException if another AttributeValue with the same value already exists
+     */
+
+    private void updateAttributeValueField(AttributeValue attributeValue, String newValue) {
+        if (shouldUpdate(newValue, attributeValue.getValue())) {
+            validateUniqueAttributeValue(attributeValue.getAttributeTemplate(), newValue);
+            attributeValue.setValue(newValue);
+        }
     }
 }

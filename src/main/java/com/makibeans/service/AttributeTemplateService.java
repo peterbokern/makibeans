@@ -2,15 +2,18 @@ package com.makibeans.service;
 
 import com.makibeans.dto.AttributeTemplateRequestDTO;
 import com.makibeans.dto.AttributeTemplateResponseDTO;
+import com.makibeans.dto.AttributeTemplateUpdateDTO;
 import com.makibeans.exceptions.DuplicateResourceException;
 import com.makibeans.exceptions.ResourceNotFoundException;
 import com.makibeans.filter.SearchFilter;
 import com.makibeans.mapper.AttributeTemplateMapper;
 import com.makibeans.model.AttributeTemplate;
 import com.makibeans.repository.AttributeTemplateRepository;
-import com.makibeans.util.FilterUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,17 +26,30 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static com.makibeans.util.UpdateUtils.normalize;
+import static com.makibeans.util.UpdateUtils.shouldUpdate;
+
+/**
+ * Service class for managing AttributeTemplate entities.
+ * Provides methods to perform CRUD operations and search for AttributeTemplates.
+ */
 @Service
 public class AttributeTemplateService extends AbstractCrudService<AttributeTemplate, Long> {
 
     private final AttributeTemplateRepository attributeTemplateRepository;
     private final AttributeTemplateMapper mapper;
+    private final Logger logger = LoggerFactory.getLogger(AttributeTemplateService.class);
+    private final ProductAttributeService productAttributeService;
 
     @Autowired
-    public AttributeTemplateService(JpaRepository<AttributeTemplate, Long> repository, AttributeTemplateRepository attributeTemplateRepository, AttributeTemplateMapper mapper) {
+    public AttributeTemplateService(
+            JpaRepository<AttributeTemplate, Long> repository,
+            AttributeTemplateRepository attributeTemplateRepository,
+            AttributeTemplateMapper mapper, @Lazy ProductAttributeService productAttributeService) {
         super(repository);
         this.attributeTemplateRepository = attributeTemplateRepository;
         this.mapper = mapper;
+        this.productAttributeService = productAttributeService;
     }
 
     /**
@@ -81,29 +97,30 @@ public class AttributeTemplateService extends AbstractCrudService<AttributeTempl
     }
 
     /**
-     * Creates a new AttributeTemplate.
+     * Creates a new AttributeTemplate and refreshed the cache of valid attribute keys.
      *
      * @param dto the DTO containing the attribute template details
      * @return the created AttributeTemplate entity as AttributeTemplateResponseDTO
      * @throws DuplicateResourceException if an AttributeTemplate with the same name already exists
      */
+
     @Transactional
     public AttributeTemplateResponseDTO createAttributeTemplate(AttributeTemplateRequestDTO dto) {
-        String normalizedName = dto.getName().trim().toLowerCase();
+        String normalizedName = normalize(dto.getName());
 
-        if (attributeTemplateRepository.existsByName(normalizedName)) {
-            throw new DuplicateResourceException("Attribute template with name '" + normalizedName + "' already exists.");
-        }
+        validateAttributeTemplateName(normalizedName);
 
         AttributeTemplate attributeTemplate = new AttributeTemplate(normalizedName);
+
         AttributeTemplate createdAttributeTemplate = create(attributeTemplate);
 
         refreshAttributeCache();
+
         return mapper.toResponseDTO(createdAttributeTemplate);
     }
 
     /**
-     * Deletes an AttributeTemplate by ID.
+     * Deletes an AttributeTemplate and associated product attributes by ID.
      *
      * @param id the ID of the attribute template to delete
      * @throws ResourceNotFoundException if the attribute template does not exist
@@ -111,8 +128,13 @@ public class AttributeTemplateService extends AbstractCrudService<AttributeTempl
 
     @Transactional
     public void deleteAttributeTemplate(Long id) {
+
+        productAttributeService.getProductAttributesByTemplateId(id)
+                .forEach(productAttribute ->
+                        productAttributeService.deleteProductAttribute(productAttribute.getId()));
         delete(id);
     }
+
 
     /**
      * Updates an existing AttributeTemplate.
@@ -125,19 +147,52 @@ public class AttributeTemplateService extends AbstractCrudService<AttributeTempl
      */
 
     @Transactional
-    public AttributeTemplateResponseDTO updateAttributeTemplate(Long id, AttributeTemplateRequestDTO dto) {
-        String normalizedName = dto.getName().trim().toLowerCase();
+    public AttributeTemplateResponseDTO updateAttributeTemplate(Long id, AttributeTemplateUpdateDTO dto) {
 
         AttributeTemplate attributeTemplate = findById(id);
 
-        if (!attributeTemplate.getName().equalsIgnoreCase(normalizedName)
-                && attributeTemplateRepository.existsByName(normalizedName)) {
-            throw new DuplicateResourceException("Attribute template with name '" + normalizedName + "' already exists.");
-        }
+        logger.info("Updating AttributeTemplate with ID {}: {}. Trying to change name from '{}' to {}.", id, attributeTemplate.getName(), attributeTemplate.getName(), dto.getName() == null ? null : dto.getName());
+
+        boolean updated = updateAttributeTemplateNameField(attributeTemplate, dto.getName());
+
+        AttributeTemplate saved = updated ? update(id, attributeTemplate) : attributeTemplate;
 
         refreshAttributeCache();
-        attributeTemplate.setName(normalizedName);
-        return mapper.toResponseDTO(update(id, attributeTemplate));
+
+        return mapper.toResponseDTO(saved);
+    }
+
+    /**
+     * Updates the name of the given AttributeTemplate if the new name is different from the current name.
+     *
+     * @param attributeTemplate the AttributeTemplate to update
+     * @param newName           the new name to set
+     * @return true if the name was updated, false otherwise
+     * @throws DuplicateResourceException if an AttributeTemplate with the new name already exists
+     */
+
+    private boolean updateAttributeTemplateNameField(AttributeTemplate attributeTemplate, String newName) {
+        String normalizedName = normalize(newName);
+        if (shouldUpdate(normalizedName, attributeTemplate.getName())) {
+            validateAttributeTemplateName(normalizedName);
+            attributeTemplate.setName(normalizedName);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Validates the uniqueness of the attribute template name.
+     *
+     * @param name the name of the attribute template to validate
+     * @throws DuplicateResourceException if an attribute template with the same name already exists
+     */
+
+    private void validateAttributeTemplateName(String name) {
+        if (attributeTemplateRepository.existsByName(name)) {
+            throw new DuplicateResourceException(
+                    String.format("Attribute template with name '%s' already exists.", name));
+        }
     }
 
     /**
@@ -148,6 +203,7 @@ public class AttributeTemplateService extends AbstractCrudService<AttributeTempl
      * @return a set of valid attribute keys in lowercase.
      */
 
+    @Transactional(readOnly = true)
     @Cacheable("validAttributeKeys")
     public Set<String> getValidAttributeKeys() {
         return findAll().stream()
@@ -159,7 +215,8 @@ public class AttributeTemplateService extends AbstractCrudService<AttributeTempl
      * Evicts all entries from the cache named "validAttributeKeys".
      * This method is used to refresh the cache when attribute templates are created, updated, or deleted.
      */
-    @CacheEvict(value = "validAttributeKeys", allEntries = true)
-    public void refreshAttributeCache() {}
 
+    @CacheEvict(value = "validAttributeKeys", allEntries = true)
+    public void refreshAttributeCache() {
+    }
 }

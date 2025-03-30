@@ -2,6 +2,7 @@ package com.makibeans.controller;
 
 import com.makibeans.dto.AttributeTemplateRequestDTO;
 import com.makibeans.dto.AttributeTemplateResponseDTO;
+import com.makibeans.dto.AttributeTemplateUpdateDTO;
 import com.makibeans.service.AttributeTemplateService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -28,6 +29,7 @@ public class AttributeTemplateController {
      * @param id the ID of the AttributeTemplate to retrieve
      * @return the ResponseEntity containing the AttributeTemplateResponseDTO
      */
+
     @GetMapping("/{id}")
     public ResponseEntity<AttributeTemplateResponseDTO> getAttributeTemplate(@PathVariable Long id) {
         AttributeTemplateResponseDTO responseDTO = attributeTemplateService.getAttributeTemplateById(id);
@@ -75,7 +77,7 @@ public class AttributeTemplateController {
     @PutMapping("/{id}")
     public ResponseEntity<AttributeTemplateResponseDTO> updateAttributeTemplate(
             @PathVariable Long id,
-            @Valid @RequestBody AttributeTemplateRequestDTO dto) {
+            @Valid @RequestBody AttributeTemplateUpdateDTO dto) {
         AttributeTemplateResponseDTO updatedDTO = attributeTemplateService.updateAttributeTemplate(id, dto);
         return ResponseEntity.ok(updatedDTO);
     }

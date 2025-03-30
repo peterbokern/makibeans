@@ -1,7 +1,5 @@
 package com.makibeans.model;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
@@ -12,15 +10,28 @@ import lombok.ToString;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Represents a category in the system.
+ * A category can have a parent category and multiple subcategories.
+ * It can also contain multiple products.
+ */
+
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor
-@Table(name = "category", uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"name", "parent_category_id"})})
+@Table(
+        name = "category",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"name", "parent_category_id"})
+        },
+        indexes = {
+                @Index(name = "idx_category_name", columnList = "name"),
+                @Index(name = "idx_category_description", columnList = "description")
+        }
+)
 
-@ToString(exclude = {"parentCategory", "subCategories", "products"})
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id") // 🚀 Prevent infinite loop
+@ToString(exclude = {"parentCategory", "subCategories", "categoryImage", "products"})
 public class Category {
 
     @Id
@@ -41,16 +52,25 @@ public class Category {
     private String imageUrl;
 
     @Setter
+    @Lob
+    @Column(name = "categoryImage", nullable = true)
+    private byte[] categoryImage;
+
+    @Setter
     @ManyToOne
     @JoinColumn(name = "parent_category_id", nullable = true)
     private Category parentCategory;
 
-    //Delete all subcategories of parent category when removed
-    @OneToMany(mappedBy = "parentCategory", cascade = CascadeType.ALL, orphanRemoval = true)
-    private final List<Category> subCategories = new ArrayList<>();
+    @OneToMany(mappedBy = "parentCategory",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.LAZY)
+    private List<Category> subCategories = new ArrayList<>();
 
-    @OneToMany(mappedBy = "category")
-    private final List<Product> products = new ArrayList<>();
+    @OneToMany(
+            mappedBy = "category",
+            fetch = FetchType.LAZY)
+    private List<Product> products = new ArrayList<>();
 
     public Category(String name, String description, String imageUrl) {
         this.name = name;
@@ -58,30 +78,9 @@ public class Category {
         this.imageUrl = imageUrl;
     }
 
-    public Category(String name, String description, String imageUrl, Category parentCategory) {
-        this.name = name;
-        this.description = description;
-        this.imageUrl = imageUrl;
-        this.parentCategory = parentCategory;
-    }
-
-    public void addProduct(Product product) {
-        products.add(product);
-        product.setCategory(this);
-    }
-
-    public void removeProduct(Product product) {
-        products.remove(product);
-        product.setCategory(null);
-    }
-
     public void addSubCategory(Category category) {
         subCategories.add(category);
         category.setParentCategory(this);
     }
-
-    public void removeSubCategory(Category category) {
-        subCategories.remove(category);
-        category.setParentCategory(null);
-    }
 }
+
