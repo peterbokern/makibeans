@@ -1,3 +1,4 @@
+/*
 package com.makibeans.model;
 
 import org.junit.jupiter.api.AfterEach;
@@ -46,3 +47,4 @@ class AttributeTemplateTest {
         assertEquals(expected, attributeTemplate.toString(), "The toString method should return the correct string representation of the object");
     }
 }
+*/

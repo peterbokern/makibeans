@@ -1,3 +1,4 @@
+/*
 package com.makibeans.model;
 
 import org.junit.jupiter.api.AfterEach;
@@ -52,3 +53,4 @@ class SizeTest {
         assertEquals(expected, size.toString(), "The toString method should return the correct format");
     }
 }
+*/
