@@ -67,7 +67,6 @@ public class RoleService extends AbstractCrudService<Role, Long> {
         create(role);
     }
 
-
     /**
      * Validates the uniqueness of a Role based on the given name.
      * Throws a DuplicateResourceException if a Role with the same name already exists.
@@ -75,6 +74,7 @@ public class RoleService extends AbstractCrudService<Role, Long> {
      * @param name the name of the Role to check
      * @throws DuplicateResourceException if a Role with the same name already exists
      */
+
     private void validateUniqueRoleName(String name) {
         if (roleRepository.existsByName(name)) {
             throw new DuplicateResourceException("Role with name " + name + " already exists.");

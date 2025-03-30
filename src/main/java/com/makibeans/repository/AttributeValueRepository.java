@@ -10,12 +10,28 @@ import java.beans.JavaBean;
 import java.util.List;
 import java.util.Optional;
 
-public interface AttributeValueRepository extends JpaRepository<AttributeValue, Long> {
-    Optional<AttributeValue> findByValue(String value);
+/**
+ * Repository for the attribute value entity.
+ */
 
-    //returns true if attribute value exists for atttribute template
+public interface AttributeValueRepository extends JpaRepository<AttributeValue, Long> {
+
+    /**
+     * Returns the attribute value with the given value.
+     *
+     * @param value The value of the attribute value.
+     * @return The attribute value with the given value.
+     */
+
     @Query("SELECT COUNT(av) > 0 FROM AttributeValue av WHERE av.attributeTemplate = :attributeTemplate AND av.value = :value")
     boolean existsByValue(AttributeTemplate attributeTemplate, String value);
+
+    /**
+     * Returns all attribute values for the given attribute template.
+     *
+     * @param attributeTemplate The attribute template.
+     * @return All attribute values for the given attribute template.
+     */
 
     //@EntityGraph(attributePaths = {"attributeTemplate"}) // Ensures `attributeTemplate` is fetched
     List<AttributeValue> findAllByAttributeTemplate(AttributeTemplate attributeTemplate);

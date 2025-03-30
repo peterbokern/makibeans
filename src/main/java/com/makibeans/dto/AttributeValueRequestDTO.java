@@ -7,6 +7,10 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Data Transfer Object for creating or updating an attribute value.
+ */
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

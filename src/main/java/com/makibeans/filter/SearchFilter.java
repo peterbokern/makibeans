@@ -8,6 +8,10 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
+/**
+ * Utility class for filtering and sorting a list of objects based on search parameters.
+ */
+
 public class SearchFilter {
 
     private static final Logger logger = LoggerFactory.getLogger(SearchFilter.class);

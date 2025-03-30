@@ -7,6 +7,10 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
+/**
+ * Data Transfer Object for ProductVariant requests.
+ */
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

@@ -10,6 +10,11 @@ import org.hibernate.annotations.OnDeleteAction;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Represents a product in the system.
+ * A product can have multiple attributes, variants, and images.
+ */
+
 @Entity
 @NoArgsConstructor
 @Getter

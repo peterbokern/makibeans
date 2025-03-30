@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
  * Data Transfer Object for updating a Product.
  * Contains fields for product name, description, image URL, and category ID.
  */
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

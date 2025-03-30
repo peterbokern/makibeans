@@ -4,8 +4,8 @@ import jakarta.validation.constraints.Size;
 import lombok.*;
 
 /**
- * DTO for updating size information.
- * Contains the name of the size.
+ * Data Transfer Object for updating a Size.
+ * Contains a field for the size name.
  */
 
 @Data

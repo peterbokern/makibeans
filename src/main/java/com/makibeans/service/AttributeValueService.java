@@ -10,7 +10,6 @@ import com.makibeans.mapper.AttributeValueMapper;
 import com.makibeans.model.AttributeTemplate;
 import com.makibeans.model.AttributeValue;
 import com.makibeans.repository.AttributeValueRepository;
-import com.makibeans.util.MappingUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -127,11 +126,12 @@ public class AttributeValueService extends AbstractCrudService<AttributeValue, L
     public AttributeValueResponseDTO createAttributeValue(AttributeValueRequestDTO requestDTO) {
 
         AttributeTemplate attributeTemplate = attributeTemplateService.findById(requestDTO.getTemplateId());
-        AttributeValue attributeValue = mapper.toEntity(requestDTO);
-        attributeValue.setAttributeTemplate(attributeTemplate);
-        String value = attributeValue.getValue();
 
-        validateUniqueAttributeValue(attributeTemplate, value);
+        String normalizedValue = normalize(requestDTO.getValue());
+
+        validateUniqueAttributeValue(attributeTemplate, normalizedValue);
+
+        AttributeValue attributeValue = new AttributeValue(attributeTemplate, normalizedValue);
 
         AttributeValue savedAttributeValue = create(attributeValue);
 

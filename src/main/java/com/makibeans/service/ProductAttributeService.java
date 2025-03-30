@@ -14,6 +14,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+/**
+ * Service class for managing ProductAttributes.
+ */
+
 @Service
 public class ProductAttributeService extends AbstractCrudService<ProductAttribute, Long>{
 
