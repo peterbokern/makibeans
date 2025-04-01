@@ -3,7 +3,6 @@ package com.makibeans.service;
 import com.makibeans.dto.CategoryRequestDTO;
 import com.makibeans.dto.CategoryResponseDTO;
 import com.makibeans.dto.CategoryUpdateDTO;
-import com.makibeans.dto.ImageUploadResponseDTO;
 import com.makibeans.exceptions.*;
 import com.makibeans.filter.SearchFilter;
 import com.makibeans.mapper.CategoryMapper;
@@ -119,23 +118,20 @@ public class CategoryService extends AbstractCrudService<Category, Long> {
         Long parentCategoryId = requestDTO.getParentCategoryId();
         String normalizedCategoryName = normalize(requestDTO.getName());
         String normalizedCategoryDescription = normalize(requestDTO.getDescription());
-        String normalizedImageUrl = normalize(requestDTO.getImageUrl());
         Category category;
 
         if (parentCategoryId == null) {
             validateUniqueRootCategoryName(normalizedCategoryName);
             category = new Category(
                     normalizedCategoryName,
-                    normalizedCategoryDescription,
-                    normalizedImageUrl);
+                    normalizedCategoryDescription);
         } else {
             Category parentCategory = findById(parentCategoryId);
 
             validateUniqueCategoryNameWithinHierarchy(parentCategory, normalizedCategoryName, null);
 
             category = new Category(normalizedCategoryName,
-                    normalizedCategoryDescription,
-                    normalizedImageUrl);
+                    normalizedCategoryDescription);
 
             category.setParentCategory(parentCategory);
 
@@ -191,7 +187,6 @@ public class CategoryService extends AbstractCrudService<Category, Long> {
 
         updated |= updateCategoryName(category, updateDTO.getName());
         updated |= updateCategoryDescription(category, updateDTO.getDescription());
-        updated |= updateCategoryImageUrl(category, updateDTO.getImageUrl());
         updated |= updateCategoryParent(category, updateDTO.getParentCategoryId());
 
         Category updatedCategory = updated ? update(id, category) : category;
@@ -207,17 +202,14 @@ public class CategoryService extends AbstractCrudService<Category, Long> {
      * @return the updated CategoryResponseDTO.
      * @throws ImageProcessingException if validation or reading fails.
      */
+
     @Transactional
-    public ImageUploadResponseDTO uploadCategoryImage(Long categoryId, MultipartFile image) {
+    public CategoryResponseDTO uploadCategoryImage(Long categoryId, MultipartFile image) {
         Category category = findById(categoryId);
         byte[] imageBytes = imageUtils.validateAndExtractImageBytes(image);
-        category.setCategoryImage(imageBytes);
+        category.setImage(imageBytes);
         update(categoryId, category);
-        return ImageUploadResponseDTO.builder()
-                .message("Category image uploaded successfully for category '" + category.getName() + "' with ID " + categoryId)
-                .originalFilename(image.getOriginalFilename())
-                .fileType(image.getContentType())
-                .build();
+        return categoryMapper.toResponseDTO(category);
     }
 
     /**
@@ -230,7 +222,7 @@ public class CategoryService extends AbstractCrudService<Category, Long> {
     @Transactional(readOnly = true)
     public byte[] getCategoryImage(Long categoryId) {
         Category category = findById(categoryId);
-        byte[] categoryImage = category.getCategoryImage();
+        byte[] categoryImage = category.getImage();
         if (categoryImage == null) {
             throw new ResourceNotFoundException("Category with ID " + categoryId + " does not have an image.");
         }
@@ -246,7 +238,7 @@ public class CategoryService extends AbstractCrudService<Category, Long> {
     @Transactional
     public void deleteCategoryImage(Long categoryId) {
         Category category = findById(categoryId);
-        category.setCategoryImage(null);
+        category.setImage(null);
         update(categoryId, category);
     }
 
@@ -355,20 +347,6 @@ public class CategoryService extends AbstractCrudService<Category, Long> {
     private boolean updateCategoryDescription(Category category, String newDescription) {
         if (shouldUpdate(newDescription, category.getDescription())) {
             category.setDescription(normalize(newDescription));
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * Updates the category image URL if needed.
-     *
-     * @param category  the category to update.
-     * @param newImageUrl the new image URL to set.
-     */
-    private boolean updateCategoryImageUrl(Category category, String newImageUrl) {
-        if (shouldUpdate(newImageUrl, category.getImageUrl())) {
-            category.setImageUrl(normalize(newImageUrl));
             return true;
         }
         return false;

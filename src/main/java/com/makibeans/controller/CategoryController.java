@@ -3,10 +3,12 @@ package com.makibeans.controller;
 import com.makibeans.dto.CategoryRequestDTO;
 import com.makibeans.dto.CategoryResponseDTO;
 import com.makibeans.dto.CategoryUpdateDTO;
-import com.makibeans.dto.ImageUploadResponseDTO;
 import com.makibeans.exceptions.ImageProcessingException;
 import com.makibeans.service.CategoryService;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -16,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 import java.util.Map;
 
+
 import static com.makibeans.util.FileTypeUtils.detectImageContentType;
 
 @RestController
@@ -23,6 +26,8 @@ import static com.makibeans.util.FileTypeUtils.detectImageContentType;
 public class CategoryController {
 
     private final CategoryService categoryService;
+    private final Logger logger = LoggerFactory.getLogger(CategoryController.class);
+
 
     public CategoryController(CategoryService categoryService) {
         this.categoryService = categoryService;
@@ -97,11 +102,25 @@ public class CategoryController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/{id}/image")
-    public ResponseEntity<ImageUploadResponseDTO> uploadCategoryImage(
+    public ResponseEntity<CategoryResponseDTO> uploadCategoryImage(
             @PathVariable("id") Long categoryId,
             @RequestParam("image") MultipartFile image) {
-        ImageUploadResponseDTO imageUploadResponseDTO = categoryService.uploadCategoryImage(categoryId, image);
-        return ResponseEntity.ok(imageUploadResponseDTO);
+
+        String originalFilename = image.getOriginalFilename() != null ? image.getOriginalFilename() : "unknown";
+        String fileType = image.getContentType() != null ? image.getContentType() : "application/octet-stream";
+
+        CategoryResponseDTO categoryResponseDTO = categoryService.uploadCategoryImage(categoryId, image);
+
+        logger.info("Uploaded image for category (id: {}, name: {}, filename: {}, type: {})", categoryId, categoryResponseDTO.getName(), originalFilename, fileType);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("X-Upload-Message", "Category image uploaded successfully for '" + categoryResponseDTO.getName() + "'");
+        headers.add("X-Original-Filename", originalFilename);
+        headers.add("X-File-Type", fileType);
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .body(categoryResponseDTO);
     }
 
     /**

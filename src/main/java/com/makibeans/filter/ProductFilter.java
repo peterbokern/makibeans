@@ -119,7 +119,7 @@ public class ProductFilter {
 
     /**
      * Applies all filters to the given stream of products.
-     *
+     * <p>
      * Instead of Stream.of() use Stream.<Type>>of(...) to explicitly define the type.
      * This is a stream of method references "Function<Stream<Product>, Stream<Product>>"
      * In the method reference, you declare the input and output type, in this case, both <Stream<Product>
@@ -140,7 +140,7 @@ public class ProductFilter {
     /**
      * Applies sorting to the given stream of products based on the provided sort criteria.
      * The sorting can be done by category name, price in cents, product name, or size name.
-     * If no sort criteria is provided, the default sorting is by price in cents.
+     * If no sort criteria is provided, the default sorting is by id
      *
      * @param products the stream of products to sort.
      * @return the sorted stream of products.
@@ -148,230 +148,224 @@ public class ProductFilter {
 
     private Stream<Product> applySorting(Stream<Product> products) {
 
-        if (sort != null) {
+        Comparator<Product> comparator;
 
-            Comparator<Product> comparator;
+        if (sort != null) {
 
             switch (sort) {
 
-                case "categoryName" ->
-                        comparator = Comparator
+                case "categoryName" -> comparator = Comparator
                         .comparing(product -> product.getCategory().getName(), String.CASE_INSENSITIVE_ORDER);
-                case "priceInCents" ->
-                        comparator = Comparator
+                case "priceInCents" -> comparator = Comparator
                         .comparing(product -> product.getProductVariants()
                                 .stream().mapToLong(ProductVariant::getPriceInCents)
                                 .min()
                                 .orElse(Integer.MAX_VALUE));
-                case "productName" ->
-                        comparator = Comparator
+                case "productName" -> comparator = Comparator
                         .comparing(Product::getProductName, String.CASE_INSENSITIVE_ORDER);
-                case "sizeName" ->
-                        comparator = Comparator
+                case "sizeName" -> comparator = Comparator
                         .comparing(product -> product.getProductVariants().stream()
                                 .map(v -> v.getSize().getName())
                                 .min(String.CASE_INSENSITIVE_ORDER).orElse(""));
-                default ->
-                        comparator = Comparator
-                        .comparing(product -> product.getProductVariants()
-                                .stream().mapToLong(ProductVariant::getPriceInCents)
-                                .min()
-                                .orElse(Integer.MAX_VALUE)); // default to priceInCents
+                default -> comparator = Comparator
+                        .comparing(Product::getId); // default to id
             }
-
-            //sort by comparator
-            if (comparator != null) {
-                comparator = order.equals("desc") ? comparator.reversed() : comparator;
-                products = products.sorted(comparator);
-            }
+        } else {
+            comparator = Comparator
+                    .comparing(Product::getId); // default to id
         }
 
-        return products;
+        //sort by comparator
+        comparator = order.equals("desc")
+                ? comparator.reversed()
+                : comparator;
+
+        return  products.sorted(comparator);
+}
+
+/**
+ * Applies pagination to the filtered list of products.
+ *
+ * @param filtered the list of filtered products.
+ * @return a ProductPageDTO representing the paginated products.
+ */
+
+private ProductPageDTO applyPagination(List<Product> filtered) {
+    //pagination
+    Long totalElements = (long) filtered.size();
+    int totalPages = (int) Math.ceil((double) totalElements / size);
+
+    List<ProductResponseDTO> pageContent = filtered.stream()
+            .skip((long) page * size)
+            .limit(size)
+            .map(productMapper::toResponseDTO)
+            .toList();
+
+    //return paginated content
+    return ProductPageDTO.builder()
+            .content(pageContent)
+            .page(page)
+            .totalPages(totalPages)
+            .size(size)
+            .totalElements(totalElements)
+            .build();
+}
+
+/**
+ * Applies category filters to the given stream of products.
+ *
+ * @param products the stream of products to filter.
+ * @return the filtered stream of products.
+ */
+
+private Stream<Product> applyCategoryFilters(Stream<Product> products) {
+    //filter by categoryId
+    if (!categoryIdValues.isEmpty()) {
+        products = products.filter(p -> categoryIdValues.contains(p.getCategory().getId()));
     }
 
-    /**
-     * Applies pagination to the filtered list of products.
-     *
-     * @param filtered the list of filtered products.
-     * @return a ProductPageDTO representing the paginated products.
-     */
-
-    private ProductPageDTO applyPagination(List<Product> filtered) {
-        //pagination
-        Long totalElements = (long) filtered.size();
-        int totalPages = (int) Math.ceil((double) totalElements / size);
-
-        List<ProductResponseDTO> pageContent = filtered.stream()
-                .skip((long) page * size)
-                .limit(size)
-                .map(productMapper::toResponseDTO)
-                .toList();
-
-        //return paginated content
-        return ProductPageDTO.builder()
-                .content(pageContent)
-                .page(page)
-                .totalPages(totalPages)
-                .size(size)
-                .totalElements(totalElements)
-                .build();
+    //filter by categoryName
+    if (!categoryNameValues.isEmpty()) {
+        products = products.filter(p -> categoryNameValues.contains(p.getCategory().getName().toLowerCase()));
     }
 
-    /**
-     * Applies category filters to the given stream of products.
-     *
-     * @param products the stream of products to filter.
-     * @return the filtered stream of products.
-     */
+    return products;
+}
 
-    private Stream<Product> applyCategoryFilters(Stream<Product> products) {
-        //filter by categoryId
-        if (!categoryIdValues.isEmpty()) {
-            products = products.filter(p -> categoryIdValues.contains(p.getCategory().getId()));
-        }
+/**
+ * Applies price filters to the given stream of products.
+ *
+ * @param products the stream of products to filter.
+ * @return the filtered stream of products.
+ */
 
-        //filter by categoryName
-        if (!categoryNameValues.isEmpty()) {
-            products = products.filter(p -> categoryNameValues.contains(p.getCategory().getName().toLowerCase()));
-        }
-
-        return products;
+private Stream<Product> applyPriceFilters(Stream<Product> products) {
+    //filter by minPrice
+    if (minPrice != null) {
+        products = products.filter(p -> p.getProductVariants().stream().anyMatch(v -> v.getPriceInCents() >= minPrice));
     }
 
-    /**
-     * Applies price filters to the given stream of products.
-     *
-     * @param products the stream of products to filter.
-     * @return the filtered stream of products.
-     */
-
-    private Stream<Product> applyPriceFilters(Stream<Product> products) {
-        //filter by minPrice
-        if (minPrice != null) {
-            products = products.filter(p -> p.getProductVariants().stream().anyMatch(v -> v.getPriceInCents() >= minPrice));
-        }
-
-        //filter by maxPrice
-        if (maxPrice != null) {
-            products = products.filter(p -> p.getProductVariants().stream().anyMatch(v -> v.getPriceInCents() <= maxPrice));
-        }
-
-        return products;
+    //filter by maxPrice
+    if (maxPrice != null) {
+        products = products.filter(p -> p.getProductVariants().stream().anyMatch(v -> v.getPriceInCents() <= maxPrice));
     }
 
-    /**
-     * Applies size filters to the given stream of products.
-     *
-     * @param products the stream of products to filter.
-     * @return the filtered stream of products.
-     */
+    return products;
+}
 
-    private Stream<Product> applySizeFilters(Stream<Product> products) {
+/**
+ * Applies size filters to the given stream of products.
+ *
+ * @param products the stream of products to filter.
+ * @return the filtered stream of products.
+ */
 
-        //filter by size id
-        if (!sizeIdValues.isEmpty()) {
-            products = products.filter(p -> p.getProductVariants().stream().anyMatch(v -> sizeIdValues.contains(v.getSize().getId())));
-        }
+private Stream<Product> applySizeFilters(Stream<Product> products) {
 
-        //filter by size name
-        if (!sizeNameValues.isEmpty()) {
-            products = products.filter(p -> p.getProductVariants().stream().anyMatch(v -> sizeNameValues.contains(v.getSize().getName().toLowerCase())));
-        }
-
-        return products;
+    //filter by size id
+    if (!sizeIdValues.isEmpty()) {
+        products = products.filter(p -> p.getProductVariants().stream().anyMatch(v -> sizeIdValues.contains(v.getSize().getId())));
     }
 
-    /**
-     * Applies SKU and stock filters to the given stream of products.
-     *
-     * @param products the stream of products to filter.
-     * @return the filtered stream of products.
-     */
-
-    private Stream<Product> applySKUandStockFilters(Stream<Product> products) {
-
-        // filter by SKU
-        if (!skuValues.isEmpty()) {
-            products = products.filter(p -> p.getProductVariants().stream().anyMatch(v -> skuValues.contains(v.getSku().toLowerCase())));
-        }
-
-        // filter by stock
-        if (stock != null) {
-            products = products.filter(p -> p.getProductVariants().stream().anyMatch(v -> v.getStock() >= stock));
-        }
-
-        return products;
+    //filter by size name
+    if (!sizeNameValues.isEmpty()) {
+        products = products.filter(p -> p.getProductVariants().stream().anyMatch(v -> sizeNameValues.contains(v.getSize().getName().toLowerCase())));
     }
 
-    /**
-     * Applies attribute filters to the given stream of products.
-     * Extracts unknown parameters (i.e., attribute filters) from the provided filters map
-     * and filters the products based on these attributes.
-     *
-     * @param products the stream of products to filter.
-     * @return the filtered stream of products.
-     */
+    return products;
+}
 
-    private Stream<Product> applyAttributeFilters(Stream<Product> products) {
+/**
+ * Applies SKU and stock filters to the given stream of products.
+ *
+ * @param products the stream of products to filter.
+ * @return the filtered stream of products.
+ */
 
-        //extracts the unknown params i.e. the attribute filters
-        Map<String, String> attributeFilters = filters.entrySet().stream().
-                filter(f -> !KNOWN_PARAMS.contains(f.getKey())).
-                collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+private Stream<Product> applySKUandStockFilters(Stream<Product> products) {
 
-        // filter by product attributes
-        products = products.filter(product ->
+    // filter by SKU
+    if (!skuValues.isEmpty()) {
+        products = products.filter(p -> p.getProductVariants().stream().anyMatch(v -> skuValues.contains(v.getSku().toLowerCase())));
+    }
 
-                // for each product, check all attribute filters (e.g. origin=chili,argentina)
-                attributeFilters.entrySet().stream().allMatch(attributeFilter -> {
+    // filter by stock
+    if (stock != null) {
+        products = products.filter(p -> p.getProductVariants().stream().anyMatch(v -> v.getStock() >= stock));
+    }
 
-                    // get list of cleaned attribute filter values, e.g. origin=chili,argentina => ["chili", "argentina"]
-                    List<String> values = FilterUtils.splitAndNormalize(attributeFilter.getValue());
+    return products;
+}
 
-                    // match product attributes: template name matches filter key AND at least one value matches
-                    return product.getProductAttributes().stream().anyMatch(productAttribute ->
-                            productAttribute.getAttributeTemplate().getName().equalsIgnoreCase(attributeFilter.getKey()) &&
-                                    productAttribute.getAttributeValues().stream().anyMatch(attributeValue ->
-                                            values.contains(attributeValue.getValue().toLowerCase()) // normalize comparison
-                                    ));
-                })
+/**
+ * Applies attribute filters to the given stream of products.
+ * Extracts unknown parameters (i.e., attribute filters) from the provided filters map
+ * and filters the products based on these attributes.
+ *
+ * @param products the stream of products to filter.
+ * @return the filtered stream of products.
+ */
+
+private Stream<Product> applyAttributeFilters(Stream<Product> products) {
+
+    //extracts the unknown params i.e. the attribute filters
+    Map<String, String> attributeFilters = filters.entrySet().stream().
+            filter(f -> !KNOWN_PARAMS.contains(f.getKey())).
+            collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+    // filter by product attributes
+    products = products.filter(product ->
+
+            // for each product, check all attribute filters (e.g. origin=chili,argentina)
+            attributeFilters.entrySet().stream().allMatch(attributeFilter -> {
+
+                // get list of cleaned attribute filter values, e.g. origin=chili,argentina => ["chili", "argentina"]
+                List<String> values = FilterUtils.splitAndNormalize(attributeFilter.getValue());
+
+                // match product attributes: template name matches filter key AND at least one value matches
+                return product.getProductAttributes().stream().anyMatch(productAttribute ->
+                        productAttribute.getAttributeTemplate().getName().equalsIgnoreCase(attributeFilter.getKey()) &&
+                                productAttribute.getAttributeValues().stream().anyMatch(attributeValue ->
+                                        values.contains(attributeValue.getValue().toLowerCase()) // normalize comparison
+                                ));
+            })
+    );
+
+    return products;
+}
+
+/**
+ * Applies a search query filter to the given stream of products.
+ * Filters products based on the search query, which can match the product name,
+ * description, attribute values, and attribute template names.
+ *
+ * @param products the stream of products to filter.
+ * @return the filtered stream of products.
+ */
+
+private Stream<Product> applySearchQueryFilter(Stream<Product> products) {
+
+    //filter by search query on product name, description, attribute values, and attribute template names
+    if (search != null && !search.isBlank()) {
+        String lowerQuery = search.toLowerCase();
+        products = products.filter(p ->
+                //search product name
+                p.getProductName().toLowerCase().contains(lowerQuery) ||
+
+                        //search product description
+                        p.getProductDescription().toLowerCase().contains(lowerQuery) ||
+
+                        //search product attribute values
+                        p.getProductAttributes().stream().anyMatch(pa ->
+                                pa.getAttributeValues().stream().anyMatch(v ->
+                                        v.getValue().toLowerCase().contains(lowerQuery))) ||
+
+                        //search attribute template names
+                        p.getProductAttributes().stream().anyMatch(pa ->
+                                pa.getAttributeTemplate().getName().toLowerCase().contains(lowerQuery))
         );
-
-        return products;
     }
 
-    /**
-     * Applies a search query filter to the given stream of products.
-     * Filters products based on the search query, which can match the product name,
-     * description, attribute values, and attribute template names.
-     *
-     * @param products the stream of products to filter.
-     * @return the filtered stream of products.
-     */
-
-    private Stream<Product> applySearchQueryFilter(Stream<Product> products) {
-
-        //filter by search query on product name, description, attribute values, and attribute template names
-        if (search != null && !search.isBlank()) {
-            String lowerQuery = search.toLowerCase();
-            products = products.filter(p ->
-                    //search product name
-                    p.getProductName().toLowerCase().contains(lowerQuery) ||
-
-                            //search product description
-                            p.getProductDescription().toLowerCase().contains(lowerQuery) ||
-
-                            //search product attribute values
-                            p.getProductAttributes().stream().anyMatch(pa ->
-                                    pa.getAttributeValues().stream().anyMatch(v ->
-                                            v.getValue().toLowerCase().contains(lowerQuery))) ||
-
-                            //search attribute template names
-                            p.getProductAttributes().stream().anyMatch(pa ->
-                                    pa.getAttributeTemplate().getName().toLowerCase().contains(lowerQuery))
-            );
-        }
-
-        return products;
-    }
+    return products;
+}
 }

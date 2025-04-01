@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 public class AttributeValueResponseDTO {
 
     private Long id;
-    private Long templateId;
-    private String attributeName;
+    private Long attributeTemplateId;
+    private String attributeTemplateName;
     private String value;
 }

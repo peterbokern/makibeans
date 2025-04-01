@@ -4,6 +4,7 @@ import com.makibeans.dto.BreadCrumbDTO;
 import com.makibeans.dto.CategoryRequestDTO;
 import com.makibeans.dto.CategoryResponseDTO;
 import com.makibeans.model.Category;
+import com.makibeans.model.Product;
 import com.makibeans.util.MappingUtils;
 import org.mapstruct.*;
 
@@ -28,7 +29,22 @@ public interface CategoryMapper {
     @Mapping(source = "subCategories", target = "subCategories")
     @Mapping(target = "breadCrumbs", ignore = true)
     @Mapping(source = "parentCategory.id", target = "parentCategoryId")
+    @Mapping(source = " . ", target = "imageUrl", qualifiedByName = "getImageUrl")
     CategoryResponseDTO toResponseDTO(Category category);
+
+    /**
+     * Returns the image URL of the given product.
+     *
+     * @param category the category to get the image URL from
+     * @return the image URL of the given product
+     */
+
+    @Named("getImageUrl")
+    default String getImageUrl(Category category) {
+        return category.getImage() != null
+                ? "/categories/" + category.getId() + "/image"
+                : "null";
+    }
 
     /**
      * Converts a list of Category entities to a list of CategoryResponseDTOs.

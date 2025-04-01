@@ -21,5 +21,5 @@ public class ProductAttributeResponseDTO {
     private String productName;*/
     private Long attributeTemplateId;
     private String attributeTemplateName;
-    private List<AttributeValueResponseDTO> attributeValues = new ArrayList<>();
+    private List<AttributeValueSimpleResponseDTO> values = new ArrayList<>();
 }
