@@ -77,6 +77,7 @@ public class AttributeTemplateService extends AbstractCrudService<AttributeTempl
 
     @Transactional(readOnly = true)
     public List<AttributeTemplateResponseDTO> findBySearchQuery(Map<String, String> searchParams) {
+        logger.debug("Searching AttributeTemplates with filters: {}", searchParams);
 
         Map<String, Function<AttributeTemplate, String>> searchFields = Map.of(
                 "name", AttributeTemplate::getName);
@@ -90,6 +91,8 @@ public class AttributeTemplateService extends AbstractCrudService<AttributeTempl
                 searchParams,
                 searchFields,
                 sortFields);
+
+        logger.info("Found {} matching AttributeTemplates", matchedTemplates.size());
 
         return matchedTemplates.stream()
                 .map(mapper::toResponseDTO)

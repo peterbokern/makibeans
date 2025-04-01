@@ -13,9 +13,9 @@ import java.util.List;
 public class ProductResponseDTO {
 
     private Long id;
-    private String productName;
-    private String productDescription;
-    private String productImageUrl;
+    private String name;
+    private String description;
+    private String imageUrl;
     private Long categoryId;
     private String categoryName;
     private List<ProductVariantResponseDTO> productVariants;
