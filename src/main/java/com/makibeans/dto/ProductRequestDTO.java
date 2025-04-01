@@ -20,7 +20,7 @@ public class ProductRequestDTO {
     @NotBlank(message = "Product description cannot be blank.")
     private String productDescription;
 
-    private String productImageUrl;
+/*    private String productImageUrl;*/
 
     @NotNull(message = "Category id should not be null")
     private Long categoryId;

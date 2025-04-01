@@ -123,49 +123,32 @@ public class DataInitializer implements CommandLineRunner {
     private void initCategories() {
         if (categoryService.findAll().isEmpty()) {
             List.of(
-            new CategoryRequestDTO("Coffee", "All types of coffee beans and blends",
-                    "https://fakeurl.com/coffee-beans", null),
-                    new CategoryRequestDTO("Brewing Equipment", "Gear for brewing coffee",
-                            "https://fakeurl.com/brewing-equipment", null),
-                    new CategoryRequestDTO("Accessories", "Accessories for your coffee ritual",
-                            "https://fakeurl.com/coffee-accessories", null),
+                    new CategoryRequestDTO("Coffee", "All types of coffee beans and blends", null),
+                    new CategoryRequestDTO("Brewing Equipment", "Gear for brewing coffee", null),
+                    new CategoryRequestDTO("Accessories", "Accessories for your coffee ritual", null),
 
-                    new CategoryRequestDTO("Espresso Beans", "Strong, dark-roasted beans perfect for espresso",
-                            "https://fakeurl.com/espresso-beans", 1L),
-                    new CategoryRequestDTO("Filter Coffee", "Medium-roasted beans for pour-over or drip",
-                            "https://fakeurl.com/filter-coffee", 1L),
-                    new CategoryRequestDTO("Decaf", "Decaffeinated coffee for late nights",
-                            "https://fakeurl.com/decaf-coffee", 1L),
+                    new CategoryRequestDTO("Espresso Beans", "Strong, dark-roasted beans perfect for espresso", 1L),
+                    new CategoryRequestDTO("Filter Coffee", "Medium-roasted beans for pour-over or drip", 1L),
+                    new CategoryRequestDTO("Decaf", "Decaffeinated coffee for late nights", 1L),
 
-                    new CategoryRequestDTO("Dark Roast", "Deep and bold espresso roast",
-                            "https://fakeurl.com/dark-roast", 4L),
-                    new CategoryRequestDTO("Medium Roast", "Balanced flavor and smooth finish",
-                            "https://fakeurl.com/medium-roast", 4L),
-                    new CategoryRequestDTO("Single Origin", "Unique beans from a specific region",
-                            "https://fakeurl.com/single-origin", 5L),
-                    new CategoryRequestDTO("Blends", "Flavorful blends for daily brews",
-                            "https://fakeurl.com/coffee-blends", 5L),
+                    new CategoryRequestDTO("Dark Roast", "Deep and bold espresso roast", 4L),
+                    new CategoryRequestDTO("Medium Roast", "Balanced flavor and smooth finish", 4L),
+                    new CategoryRequestDTO("Single Origin", "Unique beans from a specific region", 5L),
+                    new CategoryRequestDTO("Blends", "Flavorful blends for daily brews", 5L),
 
-                    new CategoryRequestDTO("French Press", "Immersion brewing gear",
-                            "https://fakeurl.com/french-press", 2L),
-                    new CategoryRequestDTO("Pour Over", "Tools for manual pour-over brewing",
-                            "https://fakeurl.com/pour-over", 2L),
-                    new CategoryRequestDTO("Espresso Machines", "Machines for pulling perfect shots",
-                            "https://fakeurl.com/espresso-machines", 2L),
-                    new CategoryRequestDTO("Manual", "Lever-based espresso machines",
-                            "https://fakeurl.com/manual-espresso-machines", 13L),
-                    new CategoryRequestDTO("Automatic", "Fully automated espresso brewing",
-                            "https://fakeurl.com/automatic-espresso-machines", 13L),
+                    new CategoryRequestDTO("French Press", "Immersion brewing gear", 2L),
+                    new CategoryRequestDTO("Pour Over", "Tools for manual pour-over brewing", 2L),
+                    new CategoryRequestDTO("Espresso Machines", "Machines for pulling perfect shots", 2L),
+                    new CategoryRequestDTO("Manual", "Lever-based espresso machines", 13L),
+                    new CategoryRequestDTO("Automatic", "Fully automated espresso brewing", 13L),
 
-                    new CategoryRequestDTO("Cups & Mugs", "Serve your coffee in style",
-                            "https://fakeurl.com/cups-mugs", 3L),
-                    new CategoryRequestDTO("Grinders", "Manual and electric grinders",
-                            "https://fakeurl.com/coffee-grinders", 3L),
-                    new CategoryRequestDTO("Scales", "Precision scales for brewing",
-                            "https://fakeurl.com/coffee-scales", 3L)
+                    new CategoryRequestDTO("Cups & Mugs", "Serve your coffee in style", 3L),
+                    new CategoryRequestDTO("Grinders", "Manual and electric grinders", 3L),
+                    new CategoryRequestDTO("Scales", "Precision scales for brewing", 3L)
             ).forEach(categoryService::createCategory);
         }
     }
+
 
 
     private void initProductVariants() {
@@ -198,36 +181,26 @@ public class DataInitializer implements CommandLineRunner {
     private void initProducts() {
         if (productService.findAll().isEmpty()) {
             List.of(
-                    new ProductRequestDTO("Ethiopian Dark Roast", "Bold and fruity beans from Ethiopia, perfect for espresso lovers.",
-                            "https://fakeurl.com/ethiopian-dark-roast", 7L), // Dark Roast
+                    new ProductRequestDTO("Ethiopian Dark Roast", "Bold and fruity beans from Ethiopia, perfect for espresso lovers.", 7L), // Dark Roast
 
-                    new ProductRequestDTO("Colombian Medium Roast", "Balanced, nutty flavor with a smooth finish.",
-                            "https://fakeurl.com/colombian-medium-roast", 8L), // Medium Roast
+                    new ProductRequestDTO("Colombian Medium Roast", "Balanced, nutty flavor with a smooth finish.", 8L), // Medium Roast
 
-                    new ProductRequestDTO("Single Origin Kenya AA", "Bright and acidic coffee with citrus notes.",
-                            "https://fakeurl.com/single-origin-kenya-aa", 9L), // Single Origin
+                    new ProductRequestDTO("Single Origin Kenya AA", "Bright and acidic coffee with citrus notes.", 9L), // Single Origin
 
-                    new ProductRequestDTO("House Blend Filter", "Smooth and mild blend for everyday pour-over brews.",
-                            "https://fakeurl.com/house-blend-filter", 10L), // Blends
+                    new ProductRequestDTO("House Blend Filter", "Smooth and mild blend for everyday pour-over brews.", 10L), // Blends
 
-                    new ProductRequestDTO("Brazilian Decaf", "Sweet and nutty decaf with no compromise on flavor.",
-                            "https://fakeurl.com/brazilian-decaf", 6L), // Decaf
+                    new ProductRequestDTO("Brazilian Decaf", "Sweet and nutty decaf with no compromise on flavor.", 6L), // Decaf
 
-                    new ProductRequestDTO("Bodum French Press", "Classic 8-cup French press made of borosilicate glass.",
-                            "https://fakeurl.com/bodum-french-press", 11L), // French Press
+                    new ProductRequestDTO("Bodum French Press", "Classic 8-cup French press made of borosilicate glass.", 11L), // French Press
 
-                    new ProductRequestDTO("Hario V60 Dripper", "Ceramic pour-over cone for precision brewing.",
-                            "https://fakeurl.com/hario-v60-dripper", 12L), // Pour Over
+                    new ProductRequestDTO("Hario V60 Dripper", "Ceramic pour-over cone for precision brewing.", 12L), // Pour Over
 
-                    new ProductRequestDTO("La Marzocco Linea Mini", "Professional-grade espresso machine for home baristas.",
-                            "https://fakeurl.com/la-marzocco-linea-mini", 15L), // Automatic Machine
+                    new ProductRequestDTO("La Marzocco Linea Mini", "Professional-grade espresso machine for home baristas.", 15L), // Automatic Machine
 
-                    new ProductRequestDTO("Hand Grinder", "Portable manual grinder with ceramic burrs.",
-                            "https://fakeurl.com/hand-grinder", 17L), // Grinders
+                    new ProductRequestDTO("Hand Grinder", "Portable manual grinder with ceramic burrs.", 17L), // Grinders
 
-                    new ProductRequestDTO("Coffee Scale", "Digital scale with timer for accurate brewing.",
-                            "https://fakeurl.com/coffee-scale", 18L) // Scales
-            ).forEach(productService::createProduct);
+                    new ProductRequestDTO("Coffee Scale", "Digital scale with timer for accurate brewing.", 18L))// Scales
+            .forEach(productService::createProduct);
         }
     }
 

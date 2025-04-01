@@ -1,7 +1,7 @@
 package com.makibeans.mapper;
 
-import com.makibeans.dto.AttributeValueRequestDTO;
 import com.makibeans.dto.AttributeValueResponseDTO;
+import com.makibeans.dto.AttributeValueRequestDTO;
 import com.makibeans.model.AttributeValue;
 import com.makibeans.util.MappingUtils;
 import org.mapstruct.*;
@@ -20,10 +20,7 @@ public interface AttributeValueMapper {
      * @return the converted AttributeValueResponseDTO
      */
 
-    @Mapping(source = "attributeTemplate.id", target = "templateId")
-    @Mapping(source = "attributeTemplate.name", target = "attributeName")
+    @Mapping(source = "attributeTemplate.id", target = "attributeTemplateId")
+    @Mapping(source = "attributeTemplate.name", target = "attributeTemplateName")
     AttributeValueResponseDTO toResponseDTO(AttributeValue entity);
-
-
-
 }
