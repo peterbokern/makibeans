@@ -6,6 +6,7 @@ import com.makibeans.service.ProductService;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -92,19 +93,32 @@ public class ProductController {
     /**
      * Uploads an image for a product (Admin only).
      *
-     * @param id    the ID of the product to upload the image for.
-     * @param image the image file to upload.
+     * @param productId the ID of the product to upload the image for.
+     * @param image     the image file to upload.
      * @throws ImageProcessingException if the image file is empty or null or if an I/O error occurs during image processing.
      */
 
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/{id}/image")
-    public ResponseEntity<ImageUploadResponseDTO> uploadProductImage(
-            @PathVariable Long id,
+    public ResponseEntity<ProductResponseDTO> uploadProductImage(
+            @PathVariable("id") Long productId,
             @RequestParam("image") MultipartFile image) {
-        logger.info("Uploading image for product with ID: {}", id);
-        ImageUploadResponseDTO imageUploadResponseDTO = productService.uploadProductImage(id, image);
-        return ResponseEntity.ok(imageUploadResponseDTO);
+
+        String originalFilename = image.getOriginalFilename() != null ? image.getOriginalFilename() : "unknown";
+        String fileType = image.getContentType() != null ? image.getContentType() : "application/octet-stream";
+
+        ProductResponseDTO productResponseDTO = productService.uploadProductImage(productId, image);
+
+        logger.info("Uploaded image for product (id: {}, name: {}, filename: {}, type: {})", productId, productResponseDTO.getName(), originalFilename, fileType);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("X-Upload-Message", "Category image uploaded successfully for '" + productResponseDTO.getName() + "'");
+        headers.add("X-Original-Filename", originalFilename);
+        headers.add("X-File-Type", fileType);
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .body(productResponseDTO);
     }
 
     /**

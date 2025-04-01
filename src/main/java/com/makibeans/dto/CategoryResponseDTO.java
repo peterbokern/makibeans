@@ -20,7 +20,6 @@ public class CategoryResponseDTO {
     private String imageUrl;
     private Long parentCategoryId;
 
-
     private List<CategoryResponseDTO> subCategories;
     private List<BreadCrumbDTO> breadCrumbs;
 }

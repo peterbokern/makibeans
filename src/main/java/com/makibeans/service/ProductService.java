@@ -127,11 +127,10 @@ public class ProductService extends AbstractCrudService<Product, Long> {
         Product product = Product.builder()
                 .productName(normalize(dto.getProductName()))
                 .productDescription(normalize(dto.getProductDescription()))
-                .productImageUrl((dto.getProductImageUrl() != null) ? normalize(dto.getProductImageUrl()) : null)
                 .category(category)
                 .build();
 
-        Product savedProduct = productRepository.save(product);
+        Product savedProduct = create(product);
         return productMapper.toResponseDTO(savedProduct);
     }
 
@@ -188,20 +187,16 @@ public class ProductService extends AbstractCrudService<Product, Long> {
      */
 
     @Transactional
-    public ImageUploadResponseDTO uploadProductImage(Long productId, MultipartFile image) throws ImageProcessingException {
+    public ProductResponseDTO uploadProductImage(Long productId, MultipartFile image) throws ImageProcessingException {
         Product product = findById(productId);
 
         byte[] imageBytes = imageUtils.validateAndExtractImageBytes(image);
 
         product.setProductImage(imageBytes);
 
-        update(productId, product);
+        Product updatedProduct = update(productId, product);
 
-        return ImageUploadResponseDTO.builder()
-                .message("Product image uploaded successfully for category '" + product.getProductName() + "' with ID " + productId)
-                .originalFilename(image.getOriginalFilename())
-                .fileType(image.getContentType())
-                .build();
+        return productMapper.toResponseDTO(updatedProduct);
     }
 
 

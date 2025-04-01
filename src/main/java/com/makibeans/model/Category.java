@@ -31,7 +31,7 @@ import java.util.List;
         }
 )
 
-@ToString(exclude = {"parentCategory", "subCategories", "categoryImage", "products"})
+@ToString(exclude = {"parentCategory", "subCategories", "image", "products"})
 public class Category {
 
     @Id
@@ -48,13 +48,9 @@ public class Category {
     private String description;
 
     @Setter
-    @Column(name = "image_url", nullable = true, length = 1000)
-    private String imageUrl;
-
-    @Setter
     @Lob
-    @Column(name = "categoryImage", nullable = true)
-    private byte[] categoryImage;
+    @Column(name = "image", nullable = true)
+    private byte[] image;
 
     @Setter
     @ManyToOne
@@ -72,10 +68,9 @@ public class Category {
             fetch = FetchType.LAZY)
     private List<Product> products = new ArrayList<>();
 
-    public Category(String name, String description, String imageUrl) {
+    public Category(String name, String description) {
         this.name = name;
         this.description = description;
-        this.imageUrl = imageUrl;
     }
 
     public void addSubCategory(Category category) {
