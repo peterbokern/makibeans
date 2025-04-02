@@ -72,10 +72,5 @@ public class Category {
         this.name = name;
         this.description = description;
     }
-
-    public void addSubCategory(Category category) {
-        subCategories.add(category);
-        category.setParentCategory(this);
-    }
 }
 
