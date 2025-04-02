@@ -55,12 +55,4 @@ public class ProductAttribute {
         this.attributeTemplate = attributeTemplate;
         this.product = product;
     }
-
-    public void addAttributeValue(AttributeValue attributeValue) {
-        attributeValues.add(attributeValue);
-    }
-
-    public void removeAttributeValue(AttributeValue attributeValue) {
-        attributeValues.remove(attributeValue);
-    }
 }

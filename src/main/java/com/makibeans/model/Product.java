@@ -19,6 +19,7 @@ import java.util.List;
 @NoArgsConstructor
 @Getter
 @ToString(exclude = {"productAttributes", "category", "productVariants", "productImage"})
+
 public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -75,25 +76,5 @@ public class Product {
         this.productImageUrl = productImageUrl;
         this.productImage = productImage;
         this.category = category;
-    }
-
-    public void addProductAttribute(ProductAttribute productAttribute) {
-        productAttributes.add(productAttribute);
-        productAttribute.setProduct(this);
-    }
-
-    public void removeProductAttribute(ProductAttribute productAttribute) {
-        productAttributes.remove(productAttribute);
-        productAttribute.setProduct(null);
-    }
-
-    public void addProductVariant(ProductVariant productVariant) {
-        productVariants.add(productVariant);
-        productVariant.setProduct(this);
-    }
-
-    public void removeProductVariant(ProductVariant productVariant) {
-        productVariants.remove(productVariant);
-        productVariant.setProduct(null);
     }
 }

@@ -21,7 +21,7 @@ import java.util.List;
         indexes = {@Index(name = "idx_attribute_template_name", columnList = "name")})
 @NoArgsConstructor
 @Getter
-@ToString
+@ToString(exclude = "attributeValues")
 public class AttributeTemplate {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

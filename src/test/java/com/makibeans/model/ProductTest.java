@@ -1,13 +1,14 @@
-/*
 package com.makibeans.model;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
-
 import static org.junit.jupiter.api.Assertions.*;
+
+/**
+ * Unit tests for the Product class.
+ */
 
 class ProductTest {
 
@@ -19,7 +20,9 @@ class ProductTest {
 
     @BeforeEach
     void setUp() {
-        product = new Product("Product", "Product description", "product_image_url", new Category("Category", "Category description", "image_url", null));
+        // Arrange
+        Category category = new Category("Category", "Category description");
+        product = new Product("Product", "Product description", "product_image_url", null, category);
         variant = new ProductVariant(product, new Size("Large"), 10L, "sku", 10L);
         variant2 = new ProductVariant(product, new Size("Small"), 10L, "sku", 10L);
         attribute1 = new ProductAttribute(new AttributeTemplate("Origin"), product);
@@ -37,132 +40,126 @@ class ProductTest {
 
     // Constructor Tests
     @Test
-    void shouldReturnNotNullWhenCreated() {
-        assertNotNull(product, "The product should not be null after creation");
+    void when_created_then_shouldNotBeNull() {
+        // Assert
+        assertNotNull(product);
     }
 
     @Test
-    void shouldReturnCorrectProductNameFromConstructor() {
-        assertEquals("Product", product.getProductName(), "The product name should be correctly initialized by the constructor");
+    void when_created_then_shouldSetName() {
+        // Assert
+        assertEquals("Product", product.getProductName());
     }
 
     @Test
-    void shouldReturnCorrectProductDescriptionFromConstructor() {
-        assertEquals("Product description", product.getProductDescription(), "The product description should be correctly initialized by the constructor");
+    void when_created_then_shouldSetDescription() {
+        // Assert
+        assertEquals("Product description", product.getProductDescription());
     }
 
     @Test
-    void shouldReturnCorrectCategoryFromConstructor() {
-        assertEquals("Category", product.getCategory().getName(), "The category name should be correctly initialized by the constructor");
+    void when_created_then_shouldSetCategory() {
+        // Assert
+        assertEquals("Category", product.getCategory().getName());
     }
 
     @Test
-    void shouldReturnCorrectProductImageUrlFromConstructor() {
-        assertEquals("product_image_url", product.getProductImageUrl(), "The product image URL should be correctly initialized by the constructor");
+    void when_created_then_shouldSetImageUrl() {
+        // Assert
+        assertEquals("product_image_url", product.getProductImageUrl());
     }
 
     // Setter Tests
     @Test
-    void shouldSetProductNameSuccessfully() {
+    void when_setName_then_shouldUpdateName() {
+        // Act
         product.setProductName("New Product");
-        assertEquals("New Product", product.getProductName(), "The product name should be set correctly via setter");
+
+        // Assert
+        assertEquals("New Product", product.getProductName());
     }
 
     @Test
-    void shouldSetProductDescriptionSuccessfully() {
+    void when_setDescription_then_shouldUpdateDescription() {
+        // Act
         product.setProductDescription("New Product Description");
-        assertEquals("New Product Description", product.getProductDescription(), "The product description should be set correctly via setter");
+
+        // Assert
+        assertEquals("New Product Description", product.getProductDescription());
     }
 
     @Test
-    void shouldSetCategorySuccessfully() {
-        Category newCategory = new Category("New Category", "New Category description", "new_image_url", null);
+    void when_setCategory_then_shouldUpdateCategory() {
+        // Arrange
+        Category newCategory = new Category("New Category", "New Category description");
+
+        // Act
         product.setCategory(newCategory);
-        assertEquals("New Category", product.getCategory().getName(), "The category should be set correctly via setter");
+
+        // Assert
+        assertEquals("New Category", product.getCategory().getName());
     }
 
     @Test
-    void shouldSetProductImageUrlSuccessfully() {
+    void when_setImageUrl_then_shouldUpdateImageUrl() {
+        // Act
         product.setProductImageUrl("new_product_image_url");
-        assertEquals("new_product_image_url", product.getProductImageUrl(), "The product image URL should be set correctly via setter");
+
+        // Assert
+        assertEquals("new_product_image_url", product.getProductImageUrl());
+    }
+
+    @Test
+    void when_setImage_then_shouldUpdateImage() {
+        // Arrange
+        byte[] image = new byte[]{1, 2, 3};
+
+        // Act
+        product.setProductImage(image);
+
+        // Assert
+        assertArrayEquals(image, product.getProductImage());
     }
 
     // Getter Tests
     @Test
-    void shouldReturnCorrectProductIdWhenRequested() {
-        assertNull(product.getId(), "The product ID should be null as it is autogenerated");
+    void when_getId_then_shouldReturnNullAsUnpersisted() {
+        // Assert
+        assertNull(product.getId());
     }
 
     @Test
-    void shouldReturnCorrectProductNameWhenRequested() {
-        assertEquals("Product", product.getProductName(), "The product name should be 'Product' as initialized");
+    void when_getName_then_shouldReturnCorrectValue() {
+        // Assert
+        assertEquals("Product", product.getProductName());
     }
 
     @Test
-    void shouldReturnCorrectProductDescriptionWhenRequested() {
-        assertEquals("Product description", product.getProductDescription(), "The product description should be 'Product description' as initialized");
+    void when_getDescription_then_shouldReturnCorrectValue() {
+        // Assert
+        assertEquals("Product description", product.getProductDescription());
     }
 
     @Test
-    void shouldReturnCorrectCategoryWhenRequested() {
-        assertEquals("Category", product.getCategory().getName(), "The category name should be 'Category' as initialized");
+    void when_getCategory_then_shouldReturnCorrectValue() {
+        // Assert
+        assertEquals("Category", product.getCategory().getName());
     }
 
     @Test
-    void shouldReturnCorrectProductImageUrlWhenRequested() {
-        assertEquals("product_image_url", product.getProductImageUrl(), "The product image URL should be 'product_image_url' as initialized");
-    }
-
-    @Test
-    void shouldReturnCorrectProductAttributesWhenRequested() {
-        product.addProductAttribute(attribute1);
-        product.addProductAttribute(attribute2);
-        assertEquals(List.of(attribute1, attribute2), product.getProductAttributes(), "The product should have 2 attributes");
-    }
-
-    @Test
-    void shouldReturnCorrectProductVariantsWhenRequested() {
-        product.addProductVariant(variant);
-        product.addProductVariant(variant2);
-        assertEquals(List.of(variant, variant2), product.getProductVariants(), "The product should have 2 variants");
-    }
-
-    // Relationship Tests
-    @Test
-    void shouldAddProductAttributeSuccessfully() {
-        product.addProductAttribute(attribute1);
-        assertTrue(product.getProductAttributes().contains(attribute1), "The product should have the attribute");
-        assertEquals(product, attribute1.getProduct(), "The attribute should have the correct product");
-    }
-
-    @Test
-    void shouldRemoveProductAttributeSuccessfully() {
-        product.addProductAttribute(attribute1);
-        product.removeProductAttribute(attribute1);
-        assertFalse(product.getProductAttributes().contains(attribute1), "The product should not have the attribute");
-        assertNull(attribute1.getProduct(), "The attribute should not have a product after removal");
-    }
-
-    @Test
-    void shouldAddProductVariantSuccessfully() {
-        product.addProductVariant(variant);
-        assertTrue(product.getProductVariants().contains(variant), "The product should have the variant");
-        assertEquals(product, variant.getProduct(), "The variant should have the correct product");
-    }
-
-    @Test
-    void shouldRemoveProductVariantSuccessfully() {
-        product.addProductVariant(variant);
-        product.removeProductVariant(variant);
-        assertFalse(product.getProductVariants().contains(variant), "The product should not have the variant");
-        assertNull(variant.getProduct(), "The variant should not have a product after removal");
+    void when_getImageUrl_then_shouldReturnCorrectValue() {
+        // Assert
+        assertEquals("product_image_url", product.getProductImageUrl());
     }
 
     // toString Method Test
     @Test
-    void testToString() {
+    void when_toString_then_shouldReturnExpectedFormat() {
+        // Act
+        String result = product.toString();
+
+        // Assert
         String expected = "Product(id=null, productName=Product, productDescription=Product description, productImageUrl=product_image_url)";
-        assertEquals(expected, product.toString(), "The toString method should return the correct format");
+        assertEquals(expected, result);
     }
 }
-*/

@@ -1,4 +1,3 @@
-/*
 package com.makibeans.model;
 
 import org.junit.jupiter.api.AfterEach;
@@ -7,147 +6,105 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Unit tests for the Category class.
+ */
+
 class CategoryTest {
 
     private Category parentCategory;
     private Category category;
-    private Product product;
 
     @BeforeEach
     void setUp() {
-        // Create a parent category
-        parentCategory = new Category("Parent Category", "Parent category description", "image_url");
-        // Create a category with the parent
-        category = new Category("Category", "Category description", "image_url");
+        // Arrange
+        parentCategory = new Category("Parent Category", "Parent category description");
+        category = new Category("Category", "Category description");
         category.setParentCategory(parentCategory);
-        // Create a product
-        product = new Product("Product", "Product description", "product_image_url", category);
     }
 
     @AfterEach
     void tearDown() {
         parentCategory = null;
         category = null;
-        product = null;
     }
 
     // Constructor Tests
     @Test
-    void shouldReturnCategoryNameFromConstructor() {
-        assertEquals("Category", category.getName(), "Category name should be initialized correctly from constructor");
+    void when_constructed_then_shouldNotBeNull() {
+        // Assert
+        assertNotNull(category, "Category should not be null after construction");
     }
 
     @Test
-    void shouldReturnCategoryDescriptionFromConstructor() {
-        assertEquals("Category description", category.getDescription(), "Category description should be initialized correctly from constructor");
+    void when_constructed_then_shouldSetName() {
+        // Assert
+        assertEquals("Category", category.getName(), "Category name should be correctly set by constructor");
     }
 
     @Test
-    void shouldReturnCategoryImageUrlFromConstructor() {
-        assertEquals("image_url", category.getImageUrl(), "Category image URL should be initialized correctly from constructor");
+    void when_constructed_then_shouldSetDescription() {
+        // Assert
+        assertEquals("Category description", category.getDescription(), "Category description should be correctly set by constructor");
     }
 
     @Test
-    void shouldReturnParentCategoryFromConstructor() {
-        assertEquals(parentCategory, category.getParentCategory(), "Category's parent category should be initialized correctly from constructor");
+    void when_constructed_then_shouldSetParentCategory() {
+        // Assert
+        assertEquals(parentCategory, category.getParentCategory(), "Parent category should be correctly set by constructor");
     }
 
     // Setter Tests
     @Test
-    void shouldSetCategoryNameSuccessfully() {
+    void when_setName_then_shouldUpdateName() {
+        // Act
         category.setName("New Category");
-        assertEquals("New Category", category.getName(), "Category name should be updated correctly via setter");
+
+        // Assert
+        assertEquals("New Category", category.getName(), "Category name should be updated via setter");
     }
 
     @Test
-    void shouldSetCategoryDescriptionSuccessfully() {
+    void when_setDescription_then_shouldUpdateDescription() {
+        // Act
         category.setDescription("Updated description");
-        assertEquals("Updated description", category.getDescription(), "Category description should be updated correctly via setter");
+
+        // Assert
+        assertEquals("Updated description", category.getDescription(), "Category description should be updated via setter");
     }
 
     @Test
-    void shouldSetCategoryImageUrlSuccessfully() {
-        category.setImageUrl("new_image_url");
-        assertEquals("new_image_url", category.getImageUrl(), "Category image URL should be updated correctly via setter");
+    void when_setImage_then_shouldUpdateImage() {
+        // Arrange
+        byte[] imageBytes = new byte[]{1, 2, 3};
+
+        // Act
+        category.setImage(imageBytes);
+
+        // Assert
+        assertArrayEquals(imageBytes, category.getImage(), "Category image should match the set byte array");
     }
 
     @Test
-    void shouldSetParentCategorySuccessfully() {
-        Category newParentCategory = new Category("New Parent Category", "New parent category description", "new_image_url", null);
-        category.setParentCategory(newParentCategory);
-        assertEquals(newParentCategory, category.getParentCategory(), "Category's parent category should be updated correctly via setter");
+    void when_setParentCategory_then_shouldUpdateParentCategory() {
+        // Arrange
+        Category newParent = new Category("New Parent", "New parent description");
+
+        // Act
+        category.setParentCategory(newParent);
+
+        // Assert
+        assertEquals(newParent, category.getParentCategory(), "Parent category should be updated via setter");
     }
 
-    // Getter Tests
+    // toString Method Test (preserved formatting)
     @Test
-    void shouldReturnCategoryNameWhenRequested() {
-        assertEquals("Category", category.getName(), "Category name should be returned correctly by getter");
-    }
+    void when_toString_then_shouldReturnCorrectFormat() {
+        // Act
+        String result = category.toString();
 
-    @Test
-    void shouldReturnCategoryDescriptionWhenRequested() {
-        assertEquals("Category description", category.getDescription(), "Category description should be returned correctly by getter");
-    }
-
-    @Test
-    void shouldReturnCategoryImageUrlWhenRequested() {
-        assertEquals("image_url", category.getImageUrl(), "Category image URL should be returned correctly by getter");
-    }
-
-    @Test
-    void shouldReturnParentCategoryWhenRequested() {
-        assertEquals(parentCategory, category.getParentCategory(), "Category's parent category should be returned correctly by getter");
-    }
-
-    // Relationship Tests (Add/Remove Product)
- */
-/*   @Test
-    void shouldAddProductSuccessfully() {
-        category.addProduct(product);
-        assertTrue(category.getProducts().contains(product), "Product should be added to the category");
-        assertEquals(category, product.getCategory(), "Product's category should be updated correctly");
-    }*//*
-
-
-*/
-/*
-    @Test
-    void shouldRemoveProductSuccessfully() {
-        category.addProduct(product);
-        category.removeProduct(product);
-        assertFalse(category.getProducts().contains(product), "Product should be removed from the category");
-        assertNull(product.getCategory(), "Product's category should be set to null after removal");
-    }
-*//*
-
-
-    // Relationship Tests (Add/Remove SubCategory)
- */
-/*   @Test
-    void shouldAddSubCategorySuccessfully() {
-        Category subCategory = new Category("SubCategory", "SubCategory description", "sub_image_url", category);
-        category.addSubCategory(subCategory);
-        assertTrue(category.getSubCategories().contains(subCategory), "Subcategory should be added to the category");
-        assertEquals(category, subCategory.getParentCategory(), "Subcategory's parent category should be updated correctly");
-    }*//*
-
-
-*/
-/*    @Test
-    void shouldRemoveSubCategorySuccessfully() {
-        Category subCategory = new Category("SubCategory", "SubCategory description", "sub_image_url", category);
-        category.addSubCategory(subCategory);
-        category.removeSubCategory(subCategory);
-        assertFalse(category.getSubCategories().contains(subCategory), "Subcategory should be removed from the category");
-        assertNull(subCategory.getParentCategory(), "Subcategory's parent category should be set to null after removal");
-    }*//*
-
-
-    // toString Method Test
-    @Test
-    void shouldReturnCorrectToString() {
-        String expected = "Category(id=null, name=Category, description=Category description, imageUrl=image_url)";
-        assertEquals(expected, category.toString(), "toString() should return the correct string representation of the Category object");
+        // Assert
+        String expected = "Category(id=null, name=Category, description=Category description)";
+        assertEquals(expected, result, "toString() should return expected string format");
     }
 }
-*/
