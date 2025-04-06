@@ -19,6 +19,14 @@ import java.util.List;
 @NoArgsConstructor
 @Getter
 @ToString(exclude = {"productAttributes", "category", "productVariants", "productImage"})
+@Table(name = "products",
+        indexes = {
+                @Index(name = "idx_product_name", columnList = "product_name"),
+                @Index(name = "idx_product_description", columnList = "product_description")
+        },
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"product_name"})
+        })
 
 public class Product {
     @Id

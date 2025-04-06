@@ -1,8 +1,8 @@
 package com.makibeans.service;
 
-import com.makibeans.dto.CategoryRequestDTO;
-import com.makibeans.dto.CategoryResponseDTO;
-import com.makibeans.dto.CategoryUpdateDTO;
+import com.makibeans.dto.category.CategoryRequestDTO;
+import com.makibeans.dto.category.CategoryResponseDTO;
+import com.makibeans.dto.category.CategoryUpdateDTO;
 import com.makibeans.exceptions.CategoryInUseException;
 import com.makibeans.exceptions.CircularReferenceException;
 import com.makibeans.exceptions.DuplicateResourceException;

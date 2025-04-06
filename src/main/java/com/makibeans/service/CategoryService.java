@@ -1,8 +1,8 @@
 package com.makibeans.service;
 
-import com.makibeans.dto.CategoryRequestDTO;
-import com.makibeans.dto.CategoryResponseDTO;
-import com.makibeans.dto.CategoryUpdateDTO;
+import com.makibeans.dto.category.CategoryRequestDTO;
+import com.makibeans.dto.category.CategoryResponseDTO;
+import com.makibeans.dto.category.CategoryUpdateDTO;
 import com.makibeans.exceptions.*;
 import com.makibeans.filter.SearchFilter;
 import com.makibeans.mapper.CategoryMapper;

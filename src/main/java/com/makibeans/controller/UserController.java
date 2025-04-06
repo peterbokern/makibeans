@@ -1,8 +1,8 @@
 package com.makibeans.controller;
 
-import com.makibeans.dto.UserRequestDTO;
-import com.makibeans.dto.UserResponseDTO;
-import com.makibeans.dto.UserUpdateDTO;
+import com.makibeans.dto.user.UserRequestDTO;
+import com.makibeans.dto.user.UserResponseDTO;
+import com.makibeans.dto.user.UserUpdateDTO;
 import com.makibeans.model.User;
 import com.makibeans.service.UserService;
 import jakarta.validation.Valid;

@@ -1,8 +1,8 @@
 package com.makibeans.service;
 
-import com.makibeans.dto.AttributeValueRequestDTO;
-import com.makibeans.dto.AttributeValueResponseDTO;
-import com.makibeans.dto.AttributeValueUpdateDTO;
+import com.makibeans.dto.attributevalue.AttributeValueRequestDTO;
+import com.makibeans.dto.attributevalue.AttributeValueResponseDTO;
+import com.makibeans.dto.attributevalue.AttributeValueUpdateDTO;
 import com.makibeans.exceptions.DuplicateResourceException;
 import com.makibeans.exceptions.ResourceNotFoundException;
 import com.makibeans.mapper.AttributeValueMapper;

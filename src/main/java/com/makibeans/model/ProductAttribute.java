@@ -18,7 +18,7 @@ import java.util.List;
 @Entity
 @NoArgsConstructor
 @Getter
-@Table(name = "product_attribute", indexes = {
+@Table(name = "product_attributes", indexes = {
         @Index(name = "idx_product_attribute_id", columnList = "product_id"),
         @Index(name = "idx_attribute_value_id", columnList = "template_id")
 })
@@ -44,7 +44,7 @@ public class ProductAttribute {
 
     @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(
-            name = "product_attribute_value",
+            name = "product_attribute_values",
             joinColumns = @JoinColumn(name = "product_attribute_id"),
             inverseJoinColumns = @JoinColumn(name = "attribute_value_id"),
             uniqueConstraints = @UniqueConstraint(columnNames = {"product_attribute_id", "attribute_value_id"})

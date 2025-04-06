@@ -1,6 +1,6 @@
 package com.makibeans.mapper;
 
-import com.makibeans.dto.ProductVariantResponseDTO;
+import com.makibeans.dto.productvariant.ProductVariantResponseDTO;
 import com.makibeans.model.ProductVariant;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

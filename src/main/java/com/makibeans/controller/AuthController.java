@@ -1,7 +1,7 @@
 package com.makibeans.controller;
 
-import com.makibeans.dto.LoginRequestDTO;
-import com.makibeans.dto.LoginResponseDTO;
+import com.makibeans.dto.login.LoginRequestDTO;
+import com.makibeans.dto.login.LoginResponseDTO;
 import com.makibeans.service.AuthService;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;

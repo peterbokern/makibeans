@@ -1,19 +1,18 @@
 package com.makibeans.service;
 
-import com.makibeans.dto.SizeRequestDTO;
-import com.makibeans.dto.SizeResponseDTO;
-import com.makibeans.dto.SizeUpdateDTO;
+import com.makibeans.dto.size.SizeRequestDTO;
+import com.makibeans.dto.size.SizeResponseDTO;
+import com.makibeans.dto.size.SizeUpdateDTO;
 import com.makibeans.exceptions.DuplicateResourceException;
 import com.makibeans.exceptions.ResourceNotFoundException;
 import com.makibeans.filter.SearchFilter;
 import com.makibeans.mapper.SizeMapper;
 import com.makibeans.model.Size;
-import com.makibeans.repository.ProductVariantRepository;
 import com.makibeans.repository.SizeRepository;
-import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,16 +35,17 @@ public class SizeService extends AbstractCrudService<Size, Long> {
 
     private final SizeRepository sizeRepository;
     private final SizeMapper sizeMapper;
-    private final ProductVariantRepository productVariantRepository;
     private final Logger logger = LoggerFactory.getLogger(SizeService.class);
     private final ProductVariantService productVariantService;
 
     @Autowired
-    public SizeService(JpaRepository<Size, Long> repository, SizeRepository sizeRepository, SizeMapper sizeMapper, ProductVariantRepository productVariantRepository, ProductVariantService productVariantService) {
+    public SizeService(JpaRepository<Size, Long> repository,
+                       SizeRepository sizeRepository,
+                       SizeMapper sizeMapper,
+                       @Lazy ProductVariantService productVariantService) {
         super(repository);
         this.sizeRepository = sizeRepository;
         this.sizeMapper = sizeMapper;
-        this.productVariantRepository = productVariantRepository;
         this.productVariantService = productVariantService;
     }
 

@@ -1,6 +1,9 @@
 package com.makibeans.controller;
 
-import com.makibeans.dto.*;
+import com.makibeans.dto.product.ProductPageDTO;
+import com.makibeans.dto.product.ProductRequestDTO;
+import com.makibeans.dto.product.ProductResponseDTO;
+import com.makibeans.dto.product.ProductUpdateDTO;
 import com.makibeans.exceptions.ImageProcessingException;
 import com.makibeans.service.ProductService;
 import jakarta.validation.Valid;
@@ -87,7 +90,7 @@ public class ProductController {
     @PostMapping
     public ResponseEntity<ProductResponseDTO> createProduct(@Valid @RequestBody ProductRequestDTO requestDTO) {
         ProductResponseDTO responseDTO = productService.createProduct(requestDTO);
-        return ResponseEntity.ok(responseDTO);
+        return ResponseEntity.status(201).body(responseDTO);
     }
 
     /**
@@ -149,7 +152,7 @@ public class ProductController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
         productService.deleteProduct(id);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 
     /**
@@ -163,6 +166,6 @@ public class ProductController {
     @DeleteMapping("/{id}/image")
     public ResponseEntity<Void> deleteProductImage(@PathVariable Long id) {
         productService.deleteProductImage(id);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 }

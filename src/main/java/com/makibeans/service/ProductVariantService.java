@@ -1,8 +1,8 @@
 package com.makibeans.service;
 
-import com.makibeans.dto.ProductVariantRequestDTO;
-import com.makibeans.dto.ProductVariantResponseDTO;
-import com.makibeans.dto.ProductVariantUpdateDTO;
+import com.makibeans.dto.productvariant.ProductVariantRequestDTO;
+import com.makibeans.dto.productvariant.ProductVariantResponseDTO;
+import com.makibeans.dto.productvariant.ProductVariantUpdateDTO;
 import com.makibeans.exceptions.DuplicateResourceException;
 import com.makibeans.exceptions.ResourceNotFoundException;
 import com.makibeans.mapper.ProductVariantMapper;
@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static com.makibeans.util.UpdateUtils.shouldUpdate;

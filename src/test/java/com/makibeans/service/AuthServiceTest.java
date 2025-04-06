@@ -2,8 +2,8 @@ package com.makibeans.service;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.makibeans.dto.LoginRequestDTO;
-import com.makibeans.dto.LoginResponseDTO;
+import com.makibeans.dto.login.LoginRequestDTO;
+import com.makibeans.dto.login.LoginResponseDTO;
 import com.makibeans.exceptions.InvalidCredentialsException;
 import com.makibeans.exceptions.ResourceNotFoundException;
 import com.makibeans.mapper.AuthMapper;

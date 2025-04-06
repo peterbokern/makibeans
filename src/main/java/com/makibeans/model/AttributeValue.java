@@ -15,7 +15,7 @@ import lombok.ToString;
 @Entity
 @Getter
 @NoArgsConstructor
-@Table(name = "attribute_value", indexes = {
+@Table(name = "attribute_values", indexes = {
         @Index(name = "attribute_value_template_id_index", columnList = "template_id"),
         @Index(name = "idx_attribute_value_value", columnList = "value")
 })

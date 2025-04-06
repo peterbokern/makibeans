@@ -1,8 +1,8 @@
 package com.makibeans.controller;
 
-import com.makibeans.dto.AttributeTemplateRequestDTO;
-import com.makibeans.dto.AttributeTemplateResponseDTO;
-import com.makibeans.dto.AttributeTemplateUpdateDTO;
+import com.makibeans.dto.attributetemplate.AttributeTemplateRequestDTO;
+import com.makibeans.dto.attributetemplate.AttributeTemplateResponseDTO;
+import com.makibeans.dto.attributetemplate.AttributeTemplateUpdateDTO;
 import com.makibeans.service.AttributeTemplateService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;

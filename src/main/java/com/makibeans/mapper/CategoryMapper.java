@@ -1,10 +1,9 @@
 package com.makibeans.mapper;
 
-import com.makibeans.dto.BreadCrumbDTO;
-import com.makibeans.dto.CategoryRequestDTO;
-import com.makibeans.dto.CategoryResponseDTO;
+import com.makibeans.dto.category.BreadCrumbDTO;
+import com.makibeans.dto.category.CategoryRequestDTO;
+import com.makibeans.dto.category.CategoryResponseDTO;
 import com.makibeans.model.Category;
-import com.makibeans.model.Product;
 import com.makibeans.util.MappingUtils;
 import org.mapstruct.*;
 
@@ -29,7 +28,7 @@ public interface CategoryMapper {
     @Mapping(source = "subCategories", target = "subCategories")
     @Mapping(target = "breadCrumbs", ignore = true)
     @Mapping(source = "parentCategory.id", target = "parentCategoryId")
-    @Mapping(source = " . ", target = "imageUrl", qualifiedByName = "getImageUrl")
+    @Mapping(source = ".", target = "imageUrl", qualifiedByName = "getImageUrl")
     CategoryResponseDTO toResponseDTO(Category category);
 
     /**
