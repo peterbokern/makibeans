@@ -24,7 +24,15 @@ import java.util.Set;
 @Setter
 @EqualsAndHashCode(exclude = "roles")
 @ToString(exclude = "roles")
-@Table(name = "users")
+@Table(name = "users",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"username"}),
+                @UniqueConstraint(columnNames = {"email"})
+        },
+        indexes = {
+                @Index(name = "idx_user_username", columnList = "username"),
+                @Index(name = "idx_user_email", columnList = "email")
+        })
 public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

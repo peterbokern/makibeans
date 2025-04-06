@@ -1,6 +1,6 @@
 package com.makibeans.mapper;
 
-import com.makibeans.dto.AttributeTemplateResponseDTO;
+import com.makibeans.dto.attributetemplate.AttributeTemplateResponseDTO;
 import com.makibeans.model.AttributeTemplate;
 import org.mapstruct.Mapper;
 

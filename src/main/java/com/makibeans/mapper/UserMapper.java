@@ -1,7 +1,7 @@
 package com.makibeans.mapper;
 
-import com.makibeans.dto.UserRequestDTO;
-import com.makibeans.dto.UserResponseDTO;
+import com.makibeans.dto.user.UserRequestDTO;
+import com.makibeans.dto.user.UserResponseDTO;
 import com.makibeans.model.Role;
 import com.makibeans.model.User;
 import org.mapstruct.Mapper;

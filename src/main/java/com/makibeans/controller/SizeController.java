@@ -1,8 +1,8 @@
 package com.makibeans.controller;
 
-import com.makibeans.dto.SizeRequestDTO;
-import com.makibeans.dto.SizeResponseDTO;
-import com.makibeans.dto.SizeUpdateDTO;
+import com.makibeans.dto.size.SizeRequestDTO;
+import com.makibeans.dto.size.SizeResponseDTO;
+import com.makibeans.dto.size.SizeUpdateDTO;
 import com.makibeans.service.SizeService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;

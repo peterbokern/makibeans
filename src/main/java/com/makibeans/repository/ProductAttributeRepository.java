@@ -31,7 +31,7 @@ public interface ProductAttributeRepository extends JpaRepository<ProductAttribu
      */
 
     @Modifying
-    @Query(value = "DELETE FROM product_attribute_value WHERE attribute_value_id = :attributeValueId", nativeQuery = true)
+    @Query(value = "DELETE FROM product_attribute_values WHERE attribute_value_id = :attributeValueId", nativeQuery = true)
     void deleteAttributeValuesByAttributeValueId(@Param("attributeValueId") Long attributeValueId);
 
     /**
@@ -41,7 +41,7 @@ public interface ProductAttributeRepository extends JpaRepository<ProductAttribu
      */
 
     @Modifying
-    @Query(value = "DELETE FROM product_attribute_value WHERE product_attribute_id = :productAttributeId", nativeQuery = true)
+    @Query(value = "DELETE FROM product_attribute_values WHERE product_attribute_id = :productAttributeId", nativeQuery = true)
     void deleteAttributeValuesByProductAttributeId(@Param("productAttributeId") Long productAttributeId);
 
     /**

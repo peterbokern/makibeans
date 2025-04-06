@@ -1,15 +1,13 @@
 package com.makibeans.filter;
 
-import com.makibeans.dto.ProductPageDTO;
-import com.makibeans.dto.ProductResponseDTO;
+import com.makibeans.dto.product.ProductPageDTO;
+import com.makibeans.dto.product.ProductResponseDTO;
 import com.makibeans.mapper.ProductMapper;
 import com.makibeans.model.Product;
 import com.makibeans.model.ProductVariant;
 import com.makibeans.service.AttributeTemplateService;
 import com.makibeans.util.FilterUtils;
 import lombok.Builder;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.util.*;
 import java.util.function.Function;

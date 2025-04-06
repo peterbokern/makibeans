@@ -22,6 +22,7 @@ import java.util.Set;
 @AllArgsConstructor
 @EqualsAndHashCode(exclude = "users")
 @ToString(exclude = "users")
+
 public class Role implements GrantedAuthority {
 
     @Id

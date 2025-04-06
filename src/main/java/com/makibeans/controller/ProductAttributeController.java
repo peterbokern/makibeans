@@ -1,7 +1,7 @@
 package com.makibeans.controller;
 
-import com.makibeans.dto.ProductAttributeRequestDTO;
-import com.makibeans.dto.ProductAttributeResponseDTO;
+import com.makibeans.dto.productattribute.ProductAttributeRequestDTO;
+import com.makibeans.dto.productattribute.ProductAttributeResponseDTO;
 import com.makibeans.service.ProductAttributeService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;

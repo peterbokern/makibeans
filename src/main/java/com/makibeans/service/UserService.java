@@ -1,12 +1,13 @@
 package com.makibeans.service;
 
-import com.makibeans.dto.*;
+import com.makibeans.dto.user.UserRequestDTO;
+import com.makibeans.dto.user.UserResponseDTO;
+import com.makibeans.dto.user.UserUpdateDTO;
 import com.makibeans.exceptions.DuplicateResourceException;
 import com.makibeans.exceptions.ResourceNotFoundException;
 import com.makibeans.filter.SearchFilter;
 import com.makibeans.mapper.UserMapper;
 import com.makibeans.model.Role;
-import com.makibeans.model.Size;
 import com.makibeans.model.User;
 import com.makibeans.repository.UserRepository;
 import com.makibeans.security.JwtUtil;

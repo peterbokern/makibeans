@@ -1,6 +1,6 @@
 package com.makibeans.mapper;
 
-import com.makibeans.dto.SizeResponseDTO;
+import com.makibeans.dto.size.SizeResponseDTO;
 import com.makibeans.model.Size;
 import com.makibeans.util.MappingUtils;
 import org.mapstruct.Mapper;

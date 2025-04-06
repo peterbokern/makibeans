@@ -1,7 +1,7 @@
 package com.makibeans.mapper;
 
-import com.makibeans.dto.AttributeValueResponseDTO;
-import com.makibeans.dto.AttributeValueRequestDTO;
+import com.makibeans.dto.attributevalue.AttributeValueResponseDTO;
+import com.makibeans.dto.attributevalue.AttributeValueRequestDTO;
 import com.makibeans.model.AttributeValue;
 import com.makibeans.util.MappingUtils;
 import org.mapstruct.*;

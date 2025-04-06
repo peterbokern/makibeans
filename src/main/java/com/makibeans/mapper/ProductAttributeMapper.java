@@ -1,7 +1,7 @@
 package com.makibeans.mapper;
 
-import com.makibeans.dto.ProductAttributeResponseDTO;
-import com.makibeans.dto.AttributeValueSimpleResponseDTO;
+import com.makibeans.dto.productattribute.ProductAttributeResponseDTO;
+import com.makibeans.dto.attributevalue.AttributeValueSimpleResponseDTO;
 import com.makibeans.model.ProductAttribute;
 import org.mapstruct.*;
 

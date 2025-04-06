@@ -1,8 +1,8 @@
 package com.makibeans.controller;
 
-import com.makibeans.dto.ProductVariantRequestDTO;
-import com.makibeans.dto.ProductVariantResponseDTO;
-import com.makibeans.dto.ProductVariantUpdateDTO;
+import com.makibeans.dto.productvariant.ProductVariantRequestDTO;
+import com.makibeans.dto.productvariant.ProductVariantResponseDTO;
+import com.makibeans.dto.productvariant.ProductVariantUpdateDTO;
 import com.makibeans.service.ProductVariantService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;

@@ -1,6 +1,8 @@
 package com.makibeans.service;
 
-import com.makibeans.dto.*;
+import com.makibeans.dto.size.SizeRequestDTO;
+import com.makibeans.dto.size.SizeResponseDTO;
+import com.makibeans.dto.size.SizeUpdateDTO;
 import com.makibeans.exceptions.DuplicateResourceException;
 import com.makibeans.exceptions.ResourceNotFoundException;
 import com.makibeans.mapper.SizeMapper;

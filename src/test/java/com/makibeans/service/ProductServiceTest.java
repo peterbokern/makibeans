@@ -1,9 +1,9 @@
 package com.makibeans.service;
 
-import com.makibeans.dto.ProductPageDTO;
-import com.makibeans.dto.ProductRequestDTO;
-import com.makibeans.dto.ProductResponseDTO;
-import com.makibeans.dto.ProductUpdateDTO;
+import com.makibeans.dto.product.ProductPageDTO;
+import com.makibeans.dto.product.ProductRequestDTO;
+import com.makibeans.dto.product.ProductResponseDTO;
+import com.makibeans.dto.product.ProductUpdateDTO;
 import com.makibeans.exceptions.DuplicateResourceException;
 import com.makibeans.exceptions.ResourceNotFoundException;
 import com.makibeans.mapper.ProductMapper;

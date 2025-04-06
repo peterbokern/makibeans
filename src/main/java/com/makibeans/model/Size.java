@@ -14,7 +14,13 @@ import lombok.ToString;
 @Entity
 @NoArgsConstructor
 @Getter
-@Table(name = "size")
+@Table(name = "sizes",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"name"})
+        },
+        indexes = {
+                @Index(name = "idx_size_name", columnList = "name")
+        })
 @ToString
 public class Size {
 

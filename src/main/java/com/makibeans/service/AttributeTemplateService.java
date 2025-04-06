@@ -1,8 +1,8 @@
 package com.makibeans.service;
 
-import com.makibeans.dto.AttributeTemplateRequestDTO;
-import com.makibeans.dto.AttributeTemplateResponseDTO;
-import com.makibeans.dto.AttributeTemplateUpdateDTO;
+import com.makibeans.dto.attributetemplate.AttributeTemplateRequestDTO;
+import com.makibeans.dto.attributetemplate.AttributeTemplateResponseDTO;
+import com.makibeans.dto.attributetemplate.AttributeTemplateUpdateDTO;
 import com.makibeans.exceptions.DuplicateResourceException;
 import com.makibeans.exceptions.ResourceNotFoundException;
 import com.makibeans.filter.SearchFilter;

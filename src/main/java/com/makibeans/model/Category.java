@@ -21,7 +21,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @Table(
-        name = "category",
+        name = "categories",
         uniqueConstraints = {
                 @UniqueConstraint(columnNames = {"name", "parent_category_id"})
         },

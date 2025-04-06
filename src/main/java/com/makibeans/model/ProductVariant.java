@@ -20,6 +20,13 @@ import org.hibernate.annotations.OnDeleteAction;
 @Getter
 @Entity
 @ToString(exclude = {"product", "size"})
+@Table(name = "product_variants",
+        indexes = {
+                @Index(name = "idx_product_variant_price", columnList = "price_in_cents")
+        },
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"sku"})
+        })
 public class ProductVariant {
 
     @Id

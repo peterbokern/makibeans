@@ -17,7 +17,7 @@ import java.util.List;
 
 @Entity
 @Table(
-        name = "attribute_template",
+        name = "attribute_templates",
         indexes = {@Index(name = "idx_attribute_template_name", columnList = "name")})
 @NoArgsConstructor
 @Getter
