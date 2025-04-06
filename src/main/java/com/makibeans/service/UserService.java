@@ -44,8 +44,7 @@ public class UserService extends AbstractCrudService<User, Long> {
 
     @Autowired
     public UserService(JpaRepository<User, Long> repository,
-                       UserRepository userRepository,
-                       PasswordEncoder passwordEncoder, UserMapper userMapper, RoleService roleService, JwtUtil jwtUtil, UserDetailsServiceImpl userDetailsServiceImpl) {
+                       UserRepository userRepository, PasswordEncoder passwordEncoder, UserMapper userMapper, RoleService roleService, JwtUtil jwtUtil, UserDetailsServiceImpl userDetailsServiceImpl) {
         super(repository);
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;

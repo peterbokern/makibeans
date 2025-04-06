@@ -22,7 +22,7 @@ class ProductTest {
     void setUp() {
         // Arrange
         Category category = new Category("Category", "Category description");
-        product = new Product("Product", "Product description", "product_image_url", null, category);
+        product = new Product("Product", "Product description", null, category);
         variant = new ProductVariant(product, new Size("Large"), 10L, "sku", 10L);
         variant2 = new ProductVariant(product, new Size("Small"), 10L, "sku", 10L);
         attribute1 = new ProductAttribute(new AttributeTemplate("Origin"), product);
@@ -63,12 +63,6 @@ class ProductTest {
         assertEquals("Category", product.getCategory().getName());
     }
 
-    @Test
-    void when_created_then_shouldSetImageUrl() {
-        // Assert
-        assertEquals("product_image_url", product.getProductImageUrl());
-    }
-
     // Setter Tests
     @Test
     void when_setName_then_shouldUpdateName() {
@@ -98,15 +92,6 @@ class ProductTest {
 
         // Assert
         assertEquals("New Category", product.getCategory().getName());
-    }
-
-    @Test
-    void when_setImageUrl_then_shouldUpdateImageUrl() {
-        // Act
-        product.setProductImageUrl("new_product_image_url");
-
-        // Assert
-        assertEquals("new_product_image_url", product.getProductImageUrl());
     }
 
     @Test
@@ -146,12 +131,6 @@ class ProductTest {
         assertEquals("Category", product.getCategory().getName());
     }
 
-    @Test
-    void when_getImageUrl_then_shouldReturnCorrectValue() {
-        // Assert
-        assertEquals("product_image_url", product.getProductImageUrl());
-    }
-
     // toString Method Test
     @Test
     void when_toString_then_shouldReturnExpectedFormat() {
@@ -159,7 +138,7 @@ class ProductTest {
         String result = product.toString();
 
         // Assert
-        String expected = "Product(id=null, productName=Product, productDescription=Product description, productImageUrl=product_image_url)";
+        String expected = "Product(id=null, productName=Product, productDescription=Product description)";
         assertEquals(expected, result);
     }
 }

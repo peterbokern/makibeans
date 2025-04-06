@@ -116,6 +116,17 @@ public class ProductVariantService extends AbstractCrudService<ProductVariant, L
     }
 
     /**
+     * Deletes all Product Variants associated with a given Size ID.
+     *
+     * @param sizeId the ID of the Size whose associated Product Variants are to be deleted
+     */
+
+    @Transactional
+    public void deleteProductVariantBySizeId(Long sizeId) {
+        productVariantRepository.deleteBySizeId(sizeId);
+    }
+
+    /**
      * Updates an existing Product Variant.
      *
      * @param productVariantId the ID of the Product Variant to update

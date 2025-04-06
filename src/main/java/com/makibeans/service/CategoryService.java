@@ -138,7 +138,7 @@ public class CategoryService extends AbstractCrudService<Category, Long> {
             parentCategory.getSubCategories().add(category);
         }
 
-        Category createdCategory = categoryRepository.save(category);
+        Category createdCategory = create(category);
 
         return categoryMapper.toResponseDTO(createdCategory);
     }

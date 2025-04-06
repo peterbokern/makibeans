@@ -125,6 +125,7 @@ public class ProductAttributeService extends AbstractCrudService<ProductAttribut
 
     @Transactional
     public void deleteProductAttribute(Long productAttributeId) {
+        findById(productAttributeId);
         productAttributeRepository.deleteAttributeValuesByProductAttributeId(productAttributeId);
         delete(productAttributeId);
     }

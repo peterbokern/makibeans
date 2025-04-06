@@ -21,8 +21,5 @@ public class CategoryUpdateDTO {
     @Size(max = 255, message = "Description must be less than 255 characters.")
     private String description;
 
-    @Size(max = 255, message = "Image URL must be less than 255 characters.")
-    private String imageUrl;
-
     private Long parentCategoryId;
 }
