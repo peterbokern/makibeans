@@ -4,6 +4,7 @@ import com.makibeans.dto.LoginRequestDTO;
 import com.makibeans.dto.LoginResponseDTO;
 import com.makibeans.exceptions.InvalidCredentialsException;
 import com.makibeans.exceptions.ResourceNotFoundException;
+import com.makibeans.mapper.AuthMapper;
 import com.makibeans.mapper.UserMapper;
 import com.makibeans.model.User;
 import com.makibeans.security.JwtUtil;
@@ -22,13 +23,14 @@ public class AuthService {
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
-    private final UserMapper userMapper;
+    private final AuthMapper authMapper;
 
-    public AuthService(UserService userService, PasswordEncoder passwordEncoder, JwtUtil jwtUtil, UserMapper userMapper) {
+
+    public AuthService(UserService userService, PasswordEncoder passwordEncoder, JwtUtil jwtUtil, AuthMapper authMapper) {
         this.userService = userService;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
-        this.userMapper = userMapper;
+        this.authMapper = authMapper;
     }
 
     /**
@@ -55,9 +57,6 @@ public class AuthService {
 
         String token = jwtUtil.generateToken(user);
 
-        return new LoginResponseDTO(
-                user.getUsername(),
-                user.getEmail(),
-                token);
+        return authMapper.toResponseDTO(user, token);
     }
 }

@@ -20,7 +20,7 @@ class ProductVariantTest {
     void setUp() {
         // Arrange
         Category category = new Category("Category", "Category description");
-        product = new Product("Product", "Product description", "product_image_url", null, category);
+        product = new Product("Product", "Product description", null, category);
         size = new Size("Large");
         productVariant = new ProductVariant(product, size, 1999L, "sku123", 100L);
     }
@@ -74,7 +74,7 @@ class ProductVariantTest {
     void when_setProduct_then_shouldUpdateProduct() {
         // Arrange
         Category newCategory = new Category("New Category", "New description");
-        Product newProduct = new Product("New Product", "New description", "new_image_url", null, newCategory);
+        Product newProduct = new Product("New Product", "New description", null, newCategory);
 
         // Act
         productVariant.setProduct(newProduct);

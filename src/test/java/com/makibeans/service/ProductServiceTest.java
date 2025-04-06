@@ -1,230 +1,388 @@
-/*
 package com.makibeans.service;
 
-import com.makibeans.exeptions.DuplicateResourceException;
-import com.makibeans.exeptions.ResourceNotFoundException;
+import com.makibeans.dto.ProductPageDTO;
+import com.makibeans.dto.ProductRequestDTO;
+import com.makibeans.dto.ProductResponseDTO;
+import com.makibeans.dto.ProductUpdateDTO;
+import com.makibeans.exceptions.DuplicateResourceException;
+import com.makibeans.exceptions.ResourceNotFoundException;
+import com.makibeans.mapper.ProductMapper;
 import com.makibeans.model.Category;
 import com.makibeans.model.Product;
+import com.makibeans.model.ProductAttribute;
 import com.makibeans.repository.ProductRepository;
+import com.makibeans.util.ImageUtils;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Optional;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.openMocks;
 
+@ExtendWith(MockitoExtension.class)
 class ProductServiceTest {
 
     @Mock
-    private ProductRepository productRepository;
-
+    ProductRepository productRepository;
     @Mock
-    private CategoryService categoryService;
+    CategoryService categoryService;
+    @Mock
+    AttributeTemplateService attributeTemplateService;
+    @Mock
+    ProductMapper productMapper;
+    @Mock
+    ProductAttributeService productAttributeService;
+    @Mock
+    ImageUtils imageUtils;
 
     @InjectMocks
-    private ProductService productService;
+    ProductService productService;
+
+    Product product;
+    Category category;
 
     @BeforeEach
     void setUp() {
-        openMocks(this);
+        category = new Category("Coffee", "Rich flavor");
+        product = new Product("Espresso", "Smooth and rich", null, category);
     }
 
-    // Create Product Tests
-    @Test
-    void testCreateProductWithValidData() {
-        // Arrange
-        Category category = new Category("Coffee", "Description", "imageUrl");
+    @AfterEach
+    void tearDown() {
+        product = null;
+        category = null;
+    }
 
+    // ========================================
+    // CREATE
+    // ========================================
+
+    @Test
+    void should_CreateProduct_When_ValidInput() {
+        // Arrange
+        ProductRequestDTO requestDTO = new ProductRequestDTO("Espresso", "Smooth", 1L);
+        ProductResponseDTO expectedResponseDTO = new ProductResponseDTO(
+                1L, "Espresso", "Smooth and rich", null, 1L, "Coffee",
+                List.of(), List.of()
+        );
+
+        when(productRepository.existsByProductName("Espresso")).thenReturn(false);
         when(categoryService.findById(1L)).thenReturn(category);
-        when(productRepository.findByProductName("Espresso")).thenReturn(null);  // No duplicate found
-        when(productRepository.save(any(Product.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(productRepository.save(any(Product.class))).thenReturn(product);
+        when(productMapper.toResponseDTO(product)).thenReturn(expectedResponseDTO);
 
         // Act
-        Product result = productService.createProduct("Espresso", "Rich flavor", 1L, "imageUrl");
+        ProductResponseDTO actualResponseDTO = productService.createProduct(requestDTO);
 
         // Assert
-        assertNotNull(result, "Product should not be null");
-        assertEquals("Espresso", result.getProductName(), "Product name mismatch");
-        assertEquals("Rich flavor", result.getProductDescription(), "Product description mismatch");
-        assertEquals(category, result.getCategory(), "Category mismatch");
-        assertEquals("imageUrl", result.getProductImageUrl(), "Image URL mismatch");
+        assertNotNull(actualResponseDTO, "The returned ProductResponseDTO should not be null");
+        assertEquals(expectedResponseDTO, actualResponseDTO, "Expected the returned ProductResponseDTO to match the mapped one");
 
         // Verify
+        verify(productRepository).existsByProductName("Espresso");
         verify(categoryService).findById(1L);
-        verify(productRepository).findByProductName("Espresso");
-        verify(productRepository).save(any(Product.class));
-        verifyNoMoreInteractions(productRepository);
+        verify(productRepository).save(any());
+        verify(productMapper).toResponseDTO(product);
+        verifyNoMoreInteractions(productRepository, categoryService, productMapper);
     }
 
     @Test
-    void testCreateProductWithNullProductName() {
-        assertThrows(IllegalArgumentException.class,
-                () -> productService.createProduct(null, "Description", 1L, "imageUrl"),
-                "Expected IllegalArgumentException when product name is null");
-
-        verifyNoInteractions(productRepository);
-    }
-
-    @Test
-    void testCreateProductWithEmptyProductName() {
-        assertThrows(IllegalArgumentException.class,
-                () -> productService.createProduct("", "Description", 1L, "imageUrl"),
-                "Expected IllegalArgumentException when product name is empty");
-
-        verifyNoInteractions(productRepository);
-    }
-
-    @Test
-    void testCreateProductWithNullDescription() {
-        assertThrows(IllegalArgumentException.class,
-                () -> productService.createProduct("productName", null, 1L, "imageUrl"),
-                "Expected IllegalArgumentException when product description is null");
-
-        verifyNoInteractions(productRepository);
-    }
-
-    @Test
-    void testCreateProductWithEmptyDescription() {
-        assertThrows(IllegalArgumentException.class,
-                () -> productService.createProduct("productName", "", 1L, "imageUrl"),
-                "Expected IllegalArgumentException when product description is empty");
-
-        verifyNoInteractions(productRepository);
-    }
-
-    @Test
-    void testCreateProductWithNullCategoryId() {
-        assertThrows(IllegalArgumentException.class,
-                () -> productService.createProduct("productName", "description", null, "imageUrl"),
-                "Expected IllegalArgumentException when category ID is null");
-
-        verifyNoInteractions(productRepository);
-    }
-
-    @Test
-    void testCreateProductWithDuplicateName() {
+    void should_ThrowDuplicateResourceException_When_NameAlreadyExists() {
         // Arrange
-        Product duplicateProduct = new Product("Espresso", "Description", "imageUrl", new Category("Coffee", "Description", "imageUrl"));
-        when(productRepository.findByProductName("Espresso")).thenReturn(duplicateProduct);  // Mock duplicate product
+        ProductRequestDTO requestDTO = new ProductRequestDTO("Espresso", "Smooth", 1L);
+        when(productRepository.existsByProductName("Espresso")).thenReturn(true);
 
         // Act & Assert
-        assertThrows(DuplicateResourceException.class,
-                () -> productService.createProduct("Espresso", "Description", 1L, "imageUrl"),
-                "Expected DuplicateResourceException when a product with the same name exists");
+        assertThrows(DuplicateResourceException.class, () -> productService.createProduct(requestDTO));
 
         // Verify
-        verify(productRepository).findByProductName("Espresso");
+        verify(productRepository).existsByProductName("Espresso");
         verifyNoMoreInteractions(productRepository);
     }
 
-    // Delete Product Tests
+    // ========================================
+    // DELETE
+    // ========================================
+
     @Test
-    void testDeleteProductWithValidId() {
-        //Arrange
-        Product product = new Product("name", "description", "imageUrl", new Category("Coffee", "Description", "imageUrl"));
+    void should_DeleteProduct_When_IdExists() {
+        // Arrange
         when(productRepository.findById(1L)).thenReturn(Optional.of(product));
+        ProductAttribute productAttribute = mock(ProductAttribute.class);
+        when(productAttribute.getId()).thenReturn(99L);
+        when(productAttributeService.getProductAttributesByProductId(1L)).thenReturn(List.of(productAttribute));
 
         // Act
         productService.deleteProduct(1L);
 
         // Verify
         verify(productRepository).findById(1L);
+        verify(productAttributeService).getProductAttributesByProductId(1L);
+        verify(productAttributeService).deleteProductAttribute(99L);
         verify(productRepository).delete(product);
-        verifyNoMoreInteractions(productRepository);
+        verifyNoMoreInteractions(productRepository, productAttributeService);
     }
 
     @Test
-    void testDeleteProductWithNullId() {
-        //act & assert
-        assertThrows(IllegalArgumentException.class, () -> productService.deleteProduct(null), "Should throw IllegalArgumentException for null id");
-
-        //verify
-        verifyNoInteractions(productRepository);
-
-    }
-
-    @Test
-    void testDeleteProductWithInvalidId() {
-        //arrange
-        when(productRepository.findById(1L)).thenReturn(Optional.empty());
-
-        //act & assert
-        assertThrows(ResourceNotFoundException.class, () -> productService.deleteProduct(1L));
-
-        verify(productRepository).findById(1L);
-        verifyNoMoreInteractions(productRepository);
-
-    }
-
-    @Test
-    void testUpdateProductWithValidData() {
+    void should_ThrowResourceNotFoundException_When_DeletingNonexistentProduct() {
         // Arrange
-        Category category = new Category("Coffee", "Description", "imageUrl");
-        Product existingProduct = new Product("Espresso", "Rich flavor", "imageUrl", category);
+        when(productRepository.findById(99L)).thenReturn(Optional.empty());
 
-        // Simulate JPA-generated ID using a spy
-        Product existingProductSpy = Mockito.spy(existingProduct);
-        when(existingProductSpy.getId()).thenReturn(1L);
-
-        when(categoryService.findById(1L)).thenReturn(category);
-        when(productRepository.findById(1L)).thenReturn(Optional.of(existingProductSpy));
-        when(productRepository.findByProductName("Latte")).thenReturn(null);  // No duplicate found
-        when(productRepository.save(any(Product.class))).thenAnswer(invocation -> invocation.getArgument(0));
-
-        // Act
-        Product updatedProduct = productService.updateProduct(1L, "Latte", "Smooth taste", 1L, "newImageUrl");
-
-        // Assert
-        assertNotNull(updatedProduct, "Updated product should not be null");
-        assertEquals("Latte", updatedProduct.getProductName(), "Updated product name mismatch");
-        assertEquals("Smooth taste", updatedProduct.getProductDescription(), "Updated product description mismatch");
-        assertEquals("newImageUrl", updatedProduct.getProductImageUrl(), "Updated product image URL mismatch");
+        // Act & Assert
+        assertThrows(
+                ResourceNotFoundException.class,
+                () -> productService.deleteProduct(99L),
+                "Expected ResourceNotFoundException when deleting a non-existent product");
 
         // Verify
-        verify(categoryService).findById(1L);
-        verify(productRepository).findById(1L);
-        verify(productRepository).findByProductName("Latte");
-        verify(productRepository).save(any(Product.class));
-        verifyNoMoreInteractions(productRepository);  // Now all interactions are accounted for
+        verify(productRepository).findById(99L);
+        verifyNoMoreInteractions(productRepository);
     }
 
+    // ========================================
+    // GET BY ID
+    // ========================================
+
     @Test
-    void testUpdateProductWithNonExistingProduct() {
+    void should_ReturnProduct_When_IdExists() {
+        // Arrange
+        ProductResponseDTO expectedResponse = new ProductResponseDTO(1L, "Espresso", "Smooth and rich", null, 1L, "Coffee", List.of(), List.of());
+
+        when(productRepository.findById(1L)).thenReturn(Optional.of(product));
+        when(productMapper.toResponseDTO(product)).thenReturn(expectedResponse);
+        when(productRepository.findById(1L)).thenReturn(Optional.of(product));
+        when(productMapper.toResponseDTO(product)).thenReturn(expectedResponse);
+
+        // Act
+        ProductResponseDTO actualResponse = productService.getProductById(1L);
+
+        // Assert
+        assertNotNull(actualResponse, "Returned ProductResponseDTO should not be null");
+        assertEquals(expectedResponse, actualResponse, "Expected the actual ProductResponseDTO to match the mapped response");
+
+        // Verify
+        verify(productRepository).findById(1L);
+        verify(productMapper).toResponseDTO(product);
+        verifyNoMoreInteractions(productRepository, productMapper);
+    }
+
+
+    @Test
+    void should_ReturnProducts_When_CategoryIdExists() {
+        // Arrange
+        when(productRepository.findProductsByCategoryId(1L)).thenReturn(List.of(product));
+
+        // Act
+        List<Product> result = productService.getProductsByCategoryId(1L);
+
+        // Assert
+        assertEquals(1, result.size());
+        verify(productRepository).findProductsByCategoryId(1L);
+    }
+
+
+    @Test
+    void should_ThrowResourceNotFoundException_When_ProductNotFound() {
+        // Arrange
         when(productRepository.findById(1L)).thenReturn(Optional.empty());
-        assertThrows(ResourceNotFoundException.class, () -> productService.updateProduct(1L, "Latte", "Smooth taste", 1L, "newImageUrl"));
+
+        // Act & Assert
+        assertThrows(ResourceNotFoundException.class, () -> productService.getProductById(1L));
+
+        // Verify
         verify(productRepository).findById(1L);
+    }
+
+    // ========================================
+    // UPDATE
+    // ========================================
+
+    @Test
+    void should_UpdateProduct_When_ValidChanges() {
+        // Arrange
+        ProductUpdateDTO updateDTO = new ProductUpdateDTO("Latte", "Tasty", null, 1L);
+        ProductResponseDTO expectedResponseDTO = new ProductResponseDTO();
+
+        when(productRepository.findById(1L)).thenReturn(Optional.of(product));
+        when(productRepository.existsByProductName("Latte")).thenReturn(false);
+        when(productRepository.save(any(Product.class))).thenReturn(product);
+        when(productMapper.toResponseDTO(product)).thenReturn(expectedResponseDTO);
+
+        // Act
+        ProductResponseDTO actualResponseDTO = productService.updateProduct(1L, updateDTO);
+
+        // Assert
+        assertNotNull(actualResponseDTO);
+        assertEquals(expectedResponseDTO, actualResponseDTO);
+
+        // Verify
+        verify(productRepository).findById(1L);
+        verify(productRepository).existsByProductName("Latte");
+        verify(productRepository).save(any(Product.class));
+        verify(productMapper).toResponseDTO(product);
+        verifyNoMoreInteractions(productRepository, productMapper);
     }
 
     @Test
-    void testUpdateProductWithDuplicateName() {
-        //arrange
-        Category category = new Category("Coffee", "Description", "imageUrl");
-        Product existingProduct = new Product("Espresso", "Rich flavor", "imageUrl", category);
-        Product duplicateProduct = new Product("Espresso", "Another flavor", "imageUrl", category);
+    void should_NotUpdateProduct_When_NoFieldsChanged() {
+        // Arrange
+        ProductUpdateDTO updateDTO = new ProductUpdateDTO("Espresso", "Smooth and rich", null, category.getId());
+        Product product = new Product("Espresso", "Smooth and rich", null, category);
+        ProductResponseDTO expectedResponseDTO = new ProductResponseDTO(1L, "Espresso", "Smooth and rich", null, 1L, "Coffee", List.of(), List.of());
 
-        // Use spy to mock the getId(), since ID is set by JPA it will return null giving nullpointer exception
-        Product existingProductSpy = Mockito.spy(existingProduct);
-        Product duplicateProductSpy = Mockito.spy(duplicateProduct);
-        when(existingProductSpy.getId()).thenReturn(1L);
-        when(duplicateProductSpy.getId()).thenReturn(2L);
+        when(productRepository.findById(1L)).thenReturn(Optional.of(product));
+        when(productMapper.toResponseDTO(product)).thenReturn(expectedResponseDTO);
 
-        when(productRepository.findById(1L)).thenReturn(Optional.of(existingProductSpy));
-        when(productRepository.findByProductName("Espresso")).thenReturn(duplicateProductSpy);
+        // Act
+        ProductResponseDTO actualResponseDTO = productService.updateProduct(1L, updateDTO);
 
-        //act & assert
-        assertThrows(DuplicateResourceException.class,
-                () -> productService.updateProduct(1L, "Espresso", "Smooth taste", 1L, "newImageUrl"));
+        // Assert
+        assertNotNull(actualResponseDTO, "Expected result to not be null when fields are unchanged");
+        assertEquals(expectedResponseDTO, actualResponseDTO, "Expected the returned ProductResponseDTO to match the mapped one");
 
-        //verify
+        // Verify
         verify(productRepository).findById(1L);
-        verify(productRepository).findByProductName("Espresso");
+        verify(productMapper).toResponseDTO(product);
+        verifyNoMoreInteractions(productRepository, productMapper);
     }
 
+
+    @Test
+    void should_ThrowResourceNotFoundException_When_UpdatingNonexistentProduct() {
+        // Arrange
+        ProductUpdateDTO updateDTO = new ProductUpdateDTO("Latte", "Tasty", null, 1L);
+        when(productRepository.findById(1L)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(ResourceNotFoundException.class,
+                () -> productService.updateProduct(1L, updateDTO),
+                "Expected ResourceNotFoundException when trying to update a non-existent product");
+
+        // Verify
+        verify(productRepository).findById(1L);
+        verifyNoMoreInteractions(productRepository);
+    }
+
+    // ========================================
+    // IMAGE HANDLING
+    // ========================================
+
+    @Test
+    void should_ReturnProductImage_When_ImageExists() {
+        // Arrange
+        byte[] imageData = new byte[]{1, 2, 3};
+        product.setProductImage(imageData);
+        when(productRepository.findById(1L)).thenReturn(Optional.of(product));
+
+        // Act
+        byte[] result = productService.getProductImage(1L);
+
+        // Assert
+        assertNotNull(result, "Returned byte array should not be null");
+        assertArrayEquals(imageData, result, "Expected the returned byte array to match the image data");
+
+        // Verify
+        verify(productRepository).findById(1L);
+        verifyNoMoreInteractions(productRepository);
+    }
+
+    @Test
+    void should_UploadImage_When_Valid() throws Exception {
+        // Arrange
+        MultipartFile image = mock(MultipartFile.class);
+        byte[] bytes = new byte[]{1, 2, 3};
+
+        ProductResponseDTO expectedResponseDTO = new ProductResponseDTO(
+                1L, "Espresso", "Smooth and rich", null, 1L, "Coffee", List.of(), List.of());
+
+        when(productRepository.findById(1L)).thenReturn(Optional.of(product));
+        when(imageUtils.validateAndExtractImageBytes(image)).thenReturn(bytes);
+        when(productRepository.save(any())).thenReturn(product);
+        when(productMapper.toResponseDTO(product)).thenReturn(expectedResponseDTO);
+
+        // Act
+        ProductResponseDTO result = productService.uploadProductImage(1L, image);
+
+        // Assert
+        assertNotNull(result, "Returned ProductResponseDTO should not be null");
+        assertEquals(expectedResponseDTO, result, "Expected the returned ProductResponseDTO to match");
+        assertArrayEquals(bytes, product.getProductImage(), "Expected image bytes to be set correctly on the product");
+
+        // Verify
+        verify(productRepository).findById(1L);
+        verify(imageUtils).validateAndExtractImageBytes(image);
+        verify(productRepository).save(product);
+        verify(productMapper).toResponseDTO(product);
+        verifyNoMoreInteractions(productRepository, productMapper, imageUtils);
+    }
+
+    @Test
+    void should_ThrowResourceNotFoundException_When_GettingMissingImage() {
+        // Arrange
+        when(productRepository.findById(1L)).thenReturn(Optional.of(product));
+
+        // Act & Assert
+        assertThrows(
+                ResourceNotFoundException.class,
+                () -> productService.getProductImage(1L),
+                "Expected ResourceNotFoundException when getting a missing image");
+
+        // Verify
+        verify(productRepository).findById(1L);
+        verifyNoMoreInteractions(productRepository);
+    }
+
+    @Test
+    void should_DeleteProductImage() {
+        // Arrange
+        product.setProductImage(new byte[]{1, 2, 3});
+        when(productRepository.findById(1L)).thenReturn(Optional.of(product));
+
+        // Act
+        productService.deleteProductImage(1L);
+
+        // Verify
+        verify(productRepository).findById(1L);
+        verify(productRepository).save(any(Product.class));
+        verifyNoMoreInteractions(productRepository);
+    }
+
+    // ========================================
+    // FILTER
+    // ========================================
+
+    @Test
+    void should_ReturnFilteredProducts_When_ValidFilters() {
+        // Arrange
+        Map<String, String> filters = Map.of("query", "espresso");
+        Product espresso = new Product("Espresso", "Strong coffee", null, category);
+        ReflectionTestUtils.setField(espresso, "id", 1L);
+        ProductResponseDTO responseDTO = new ProductResponseDTO(1L, "Espresso", "Strong coffee", null, null, null, List.of(), List.of());
+
+        when(productRepository.findAll()).thenReturn(List.of(espresso));
+        when(attributeTemplateService.getValidAttributeKeys()).thenReturn(Set.of());
+        when(productMapper.toResponseDTO(espresso)).thenReturn(responseDTO);
+
+        // Act
+        ProductPageDTO result = productService.findBySearchQuery(filters);
+
+        // Assert
+        assertNotNull(result, "The ProductPageDTO result should not be null");
+        assertEquals(1, result.getContent().size(), "Expected one product in the filtered result");
+        assertEquals(responseDTO, result.getContent().get(0), "Expected the product in the result to match the mapped DTO");
+
+        // Verify
+        verify(productRepository).findAll();
+        verify(attributeTemplateService).getValidAttributeKeys();
+        verify(productMapper).toResponseDTO(espresso);
+        verifyNoMoreInteractions(productRepository, attributeTemplateService, productMapper, productAttributeService, imageUtils);
+    }
 }
-*/

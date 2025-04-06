@@ -147,6 +147,7 @@ public class AttributeValueService extends AbstractCrudService<AttributeValue, L
 
     @Transactional
     public void deleteAttributeValue(Long id) {
+        findById(id);
         productAttributeService.deleteAttributeValuesByAttributeValueId(id);
         delete(id);
     }
@@ -156,7 +157,7 @@ public class AttributeValueService extends AbstractCrudService<AttributeValue, L
      *
      * @param id  the ID of the attribute value to update
      * @param dto the DTO containing the updated attribute value details
-     * @return the updated AttributeValue entity
+     * @return the updated AttributeValueResponseDTO representing the updated attribute value
      * @throws ResourceNotFoundException  if the attribute value does not exist
      * @throws DuplicateResourceException if another AttributeValue with the same value already exists
      */
@@ -168,9 +169,9 @@ public class AttributeValueService extends AbstractCrudService<AttributeValue, L
 
         String newValue = normalize(dto.getValue());
 
-        updateAttributeValueField(attributeValue, newValue);
+        boolean updated = updateAttributeValueField(attributeValue, newValue);
 
-        AttributeValue updatedAttributeValue = update(id, attributeValue);
+        AttributeValue updatedAttributeValue = updated ? update(id, attributeValue) : attributeValue;
 
         return mapper.toResponseDTO(updatedAttributeValue);
     }
@@ -194,13 +195,16 @@ public class AttributeValueService extends AbstractCrudService<AttributeValue, L
      *
      * @param attributeValue the AttributeValue to update
      * @param newValue       the new value to set
+     * @return true if the value was updated, false otherwise
      * @throws DuplicateResourceException if another AttributeValue with the same value already exists
      */
 
-    private void updateAttributeValueField(AttributeValue attributeValue, String newValue) {
+    private boolean updateAttributeValueField(AttributeValue attributeValue, String newValue) {
         if (shouldUpdate(newValue, attributeValue.getValue())) {
             validateUniqueAttributeValue(attributeValue.getAttributeTemplate(), newValue);
             attributeValue.setValue(newValue);
+            return true;
         }
+        return false;
     }
 }

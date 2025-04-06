@@ -42,10 +42,6 @@ public class Product {
     Category category;
 
     @Setter
-    @Column(name = "product_image_url", nullable = true, length = 1000)
-    String productImageUrl;
-
-    @Setter
     @Lob
     @Column(name = "product_image", nullable = true)
     private byte[] productImage;
@@ -68,12 +64,10 @@ public class Product {
     @Builder
     public Product(String productName,
                    String productDescription,
-                   String productImageUrl,
                      byte[] productImage,
                    Category category) {
         this.productName = productName;
         this.productDescription = productDescription;
-        this.productImageUrl = productImageUrl;
         this.productImage = productImage;
         this.category = category;
     }

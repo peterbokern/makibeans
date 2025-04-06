@@ -131,11 +131,21 @@ public class AttributeTemplateService extends AbstractCrudService<AttributeTempl
 
     @Transactional
     public void deleteAttributeTemplate(Long id) {
+        findById(id);
+        deleteProductAttributesByTemplateId(id);
+        delete(id);
+    }
 
+    /**
+     * Deletes all product attributes associated with the given attribute template ID.
+     *
+     * @param id the ID of the attribute template whose product attributes are to be deleted
+     */
+
+    private void deleteProductAttributesByTemplateId(Long id) {
         productAttributeService.getProductAttributesByTemplateId(id)
                 .forEach(productAttribute ->
                         productAttributeService.deleteProductAttribute(productAttribute.getId()));
-        delete(id);
     }
 
 
@@ -158,11 +168,11 @@ public class AttributeTemplateService extends AbstractCrudService<AttributeTempl
 
         boolean updated = updateAttributeTemplateNameField(attributeTemplate, dto.getName());
 
-        AttributeTemplate saved = updated ? update(id, attributeTemplate) : attributeTemplate;
+        AttributeTemplate updatedAttributeTemplate = updated ? update(id, attributeTemplate) : attributeTemplate;
 
         refreshAttributeCache();
 
-        return mapper.toResponseDTO(saved);
+        return mapper.toResponseDTO(updatedAttributeTemplate);
     }
 
     /**

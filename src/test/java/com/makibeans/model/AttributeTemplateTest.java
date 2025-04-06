@@ -4,7 +4,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * Unit tests for the AttributeTemplate class.
@@ -29,7 +30,7 @@ class AttributeTemplateTest {
         // Assert
         assertNotNull(attributeTemplate, "AttributeTemplate should not be null after construction");
     }
-    
+
     @Test
     void when_constructedWithName_then_shouldReturnCorrectName() {
         // Act

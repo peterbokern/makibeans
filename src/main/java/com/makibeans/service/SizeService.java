@@ -38,13 +38,15 @@ public class SizeService extends AbstractCrudService<Size, Long> {
     private final SizeMapper sizeMapper;
     private final ProductVariantRepository productVariantRepository;
     private final Logger logger = LoggerFactory.getLogger(SizeService.class);
+    private final ProductVariantService productVariantService;
 
     @Autowired
-    public SizeService(JpaRepository<Size, Long> repository, SizeRepository sizeRepository, SizeMapper sizeMapper, ProductVariantRepository productVariantRepository) {
+    public SizeService(JpaRepository<Size, Long> repository, SizeRepository sizeRepository, SizeMapper sizeMapper, ProductVariantRepository productVariantRepository, ProductVariantService productVariantService) {
         super(repository);
         this.sizeRepository = sizeRepository;
         this.sizeMapper = sizeMapper;
         this.productVariantRepository = productVariantRepository;
+        this.productVariantService = productVariantService;
     }
 
     /**
@@ -133,7 +135,7 @@ public class SizeService extends AbstractCrudService<Size, Long> {
 
     @Transactional
     public void deleteSize(Long sizeId){
-        productVariantRepository.deleteBySizeId(sizeId);
+        productVariantService.deleteProductVariantBySizeId(sizeId);
         delete(sizeId);
     }
 

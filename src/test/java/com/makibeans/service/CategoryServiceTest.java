@@ -1,250 +1,404 @@
-/*
 package com.makibeans.service;
 
 import com.makibeans.dto.CategoryRequestDTO;
 import com.makibeans.dto.CategoryResponseDTO;
+import com.makibeans.dto.CategoryUpdateDTO;
+import com.makibeans.exceptions.CategoryInUseException;
 import com.makibeans.exceptions.CircularReferenceException;
 import com.makibeans.exceptions.DuplicateResourceException;
 import com.makibeans.exceptions.ResourceNotFoundException;
 import com.makibeans.mapper.CategoryMapper;
 import com.makibeans.model.Category;
+import com.makibeans.model.Product;
 import com.makibeans.repository.CategoryRepository;
+import com.makibeans.util.ImageUtils;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Collections;
-import java.util.Optional;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
+
+/**
+ * Unit tests for CategoryService
+ */
 
 @ExtendWith(MockitoExtension.class)
 class CategoryServiceTest {
 
-    @Mock
-    private CategoryRepository categoryRepository;
+    @Mock private CategoryRepository categoryRepository;
+    @Mock private CategoryMapper categoryMapper;
+    @Mock private ProductService productService;
+    @Mock private ImageUtils imageUtils;
 
-    @Mock
-    private CategoryMapper categoryMapper;
+    @InjectMocks private CategoryService categoryService;
 
-    @InjectMocks
-    private CategoryService categoryService;
+    private Category rootCategory;
+    private Category subCategory;
+
+    @BeforeEach
+    void setUp() {
+        rootCategory = new Category("Coffee", "Rich coffee flavors");
+        subCategory = new Category("Beans", "Arabica and Robusta");
+        subCategory.setParentCategory(rootCategory);
+    }
+
+    // ========================================
+    // CREATE
+    // ========================================
 
     @Test
-    void whenCreatingValidRootCategory_thenReturnsCategory() {
-        CategoryRequestDTO requestDTO = new CategoryRequestDTO("Coffee", "Description", "imageUrl", null);
-        Category category = new Category("Coffee", "Description", "imageUrl");
-        CategoryResponseDTO responseDTO =
-                new CategoryResponseDTO(1L, "Coffee", "Description", "imageUrl", null, Collections.emptyList(), Collections.emptyList());
+    void should_CreateRootCategory_When_ValidInput() {
+        // Arrange
+        CategoryRequestDTO request = new CategoryRequestDTO("Coffee", "Rich", null);
+        Category savedCategory = new Category("coffee", "rich");
+        CategoryResponseDTO expectedResponseDTO = new CategoryResponseDTO(1L, "coffee", "rich", null, null, List.of(), List.of());
 
-        when(categoryMapper.toEntity(any())).thenReturn(category);
-        when(categoryRepository.existsByNameAndParentCategory("Coffee", null)).thenReturn(false);
-        when(categoryRepository.save(any(Category.class))).thenReturn(category);
-        when(categoryMapper.toResponseDTO(any())).thenReturn(responseDTO);
+        when(categoryRepository.existsByNameAndParentCategory("coffee", null)).thenReturn(false);
+        when(categoryRepository.save(any(Category.class))).thenReturn(savedCategory);
+        when(categoryMapper.toResponseDTO(savedCategory)).thenReturn(expectedResponseDTO);
 
-        CategoryResponseDTO result = categoryService.createCategory(requestDTO);
+        // Act
+        CategoryResponseDTO result = categoryService.createCategory(request);
 
-        assertNotNull(result);
-        assertEquals("Coffee", result.getName());
-        assertNull(result.getParentCategoryId());
+        // Assert
+        assertNotNull(result, "Expected category response not to be null");
+        assertEquals(expectedResponseDTO, result, "Expected category name to be 'coffee'");
 
-        verifyNoMoreInteractions(categoryRepository, categoryMapper);
+        // Verify
+        verify(categoryRepository).existsByNameAndParentCategory("coffee", null);
+        verify(categoryRepository).save(any(Category.class));
+        verify(categoryMapper).toResponseDTO(savedCategory);
+        verifyNoMoreInteractions(categoryRepository, categoryMapper, productService, imageUtils);
     }
 
     @Test
-    void whenCreatingValidSubCategory_thenReturnsCategory() {
-        CategoryRequestDTO requestDTO = new CategoryRequestDTO("Beans", "Subcategory", "imageUrl", 1L);
-        Category parentCategory = new Category("Coffee", "Description", "imageUrl");
-        Category subCategory = new Category("Beans", "Subcategory", "imageUrl", parentCategory);
-        CategoryResponseDTO responseDTO =
-                new CategoryResponseDTO(2L, "Beans", "Subcategory", "imageUrl", 1L, Collections.emptyList(), Collections.emptyList());
+    void should_ThrowDuplicateResourceException_When_RootCategoryAlreadyExists() {
+        // Arrange
+        CategoryRequestDTO request = new CategoryRequestDTO("Coffee", "Rich", null);
+        when(categoryRepository.existsByNameAndParentCategory("coffee", null)).thenReturn(true);
 
-        when(categoryRepository.findById(1L)).thenReturn(Optional.of(parentCategory));
-        when(categoryMapper.toEntity(any())).thenReturn(subCategory);
-        when(categoryRepository.save(any(Category.class))).thenReturn(subCategory);
-        when(categoryMapper.toResponseDTO(any())).thenReturn(responseDTO);
+        // Act & Assert
+        assertThrows(
+                DuplicateResourceException.class,
+                () -> categoryService.createCategory(request),
+                "Expected DuplicateResourceException");
 
-        CategoryResponseDTO result = categoryService.createCategory(requestDTO);
-
-        assertNotNull(result);
-        assertEquals("Beans", result.getName());
-        assertEquals(1L, result.getParentCategoryId());
-
-        verifyNoMoreInteractions(categoryRepository, categoryMapper);
+        // Verify
+        verify(categoryRepository).existsByNameAndParentCategory("coffee", null);
+        verifyNoMoreInteractions(categoryRepository, categoryMapper, productService, imageUtils);
     }
 
     @Test
-    void whenCreatingSubCategoryWithNonExistentParent_thenThrowsException() {
-        CategoryRequestDTO requestDTO = new CategoryRequestDTO("NonExistent", "Description", "imageUrl", 999L);
-        when(categoryRepository.findById(999L)).thenReturn(Optional.empty());
+    void should_CreateSubCategory_When_ValidParent() {
+        // Arrange
+        CategoryRequestDTO request = new CategoryRequestDTO("Beans", "Roasted", 1L);
+        Category savedCategory = new Category("beans", "roasted");
+        savedCategory.setParentCategory(rootCategory);
+        CategoryResponseDTO expectedResponseDTO = new CategoryResponseDTO(2L, "beans", "roasted", null, 1L, List.of(), List.of());
 
-        assertThrows(ResourceNotFoundException.class,
-                () -> categoryService.createCategory(requestDTO),
-                "Expected ResourceNotFoundException when parent category ID does not exist.");
+        when(categoryRepository.findById(1L)).thenReturn(Optional.of(rootCategory));
+        when(categoryRepository.save(any())).thenReturn(savedCategory);
+        when(categoryMapper.toResponseDTO(savedCategory)).thenReturn(expectedResponseDTO);
 
-        verifyNoMoreInteractions(categoryRepository);
+        // Act
+        CategoryResponseDTO result = categoryService.createCategory(request);
+
+        // Assert
+        assertNotNull(result, "Expected category response not to be null");
+        assertEquals("beans", result.getName(), "Expected subcategory name to be 'beans'");
+        assertEquals(1L, result.getParentCategoryId(), "Expected parent category ID to be 1");
+
+        // Verify
+        verify(categoryRepository).findById(1L);
+        verify(categoryRepository).save(any());
+        verify(categoryMapper).toResponseDTO(savedCategory);
+        verifyNoMoreInteractions(categoryRepository, categoryMapper, productService, imageUtils);
+    }
+
+    // ========================================
+    // DELETE
+    // ========================================
+
+    @Test
+    void should_ThrowCategoryInUseException_When_CategoryHasProducts() {
+        // Arrange
+        rootCategory.setId(1L);
+        Product product = mock(Product.class);
+        when(productService.getProductsByCategoryId(1L)).thenReturn(List.of(product));
+        when(categoryRepository.findByParentCategoryId(1L)).thenReturn(List.of());
+
+        // Act & Assert
+        assertThrows(
+                CategoryInUseException.class,
+                () -> categoryService.deleteCategory(1L),
+                "Expected CategoryInUseException when products exist");
+
+        // Verify
+        verify(productService).getProductsByCategoryId(1L);
+        verify(categoryRepository).findByParentCategoryId(1L);
+        verifyNoMoreInteractions(categoryRepository, categoryMapper, productService, imageUtils);
+    }
+
+    // ========================================
+    // UPDATE
+    // ========================================
+
+    @Test
+    void should_UpdateCategoryNameAndDescription() {
+        // Arrange
+        CategoryUpdateDTO updateDTO = new CategoryUpdateDTO("Updated", "New desc", null);
+        CategoryResponseDTO expectedResponseDTO = new CategoryResponseDTO(1L, "updated", "new desc", null, null, List.of(), List.of());
+
+        when(categoryRepository.findById(1L)).thenReturn(Optional.of(rootCategory));
+        when(categoryRepository.save(rootCategory)).thenReturn(rootCategory);
+        when(categoryMapper.toResponseDTO(rootCategory)).thenReturn(expectedResponseDTO);
+
+        // Act
+        CategoryResponseDTO result = categoryService.updateCategory(1L, updateDTO);
+
+        // Assert
+        assertNotNull(result, "Expected updated category response not to be null");
+        assertEquals("updated", result.getName(), "Expected updated name to be 'updated'");
+
+        // Verify
+        verify(categoryRepository).findById(1L);
+        verify(categoryRepository).save(rootCategory);
+        verify(categoryMapper).toResponseDTO(rootCategory);
+        verifyNoMoreInteractions(categoryRepository, categoryMapper, productService, imageUtils);
     }
 
     @Test
-    void whenValidatingUniqueCategoryNameWithDuplicateInSiblings_thenThrowsException() {
-        Category parentCategory = new Category("Coffee", "Description", "imageUrl");
-        Category siblingCategory = new Category("Beans", "Description", "imageUrl");
-        parentCategory.addSubCategory(siblingCategory);
+    void should_ThrowResourceNotFoundException_When_UpdatingNonExistentCategory() {
+        // Arrange
+        CategoryUpdateDTO updateDTO = new CategoryUpdateDTO("Name", "Desc", null);
+        when(categoryRepository.findById(99L)).thenReturn(Optional.empty());
 
-        assertThrows(DuplicateResourceException.class,
-                () -> categoryService.validateUniqueCategoryNameWithinHierarchy(parentCategory, "Beans", null),
-                "Expected DuplicateResourceException when name already exists in sibling categories.");
+        // Act & Assert
+        assertThrows(
+                ResourceNotFoundException.class,
+                () -> categoryService.updateCategory(99L, updateDTO),
+                "Expected ResourceNotFoundException");
 
-        verifyNoMoreInteractions(categoryRepository, categoryMapper);
+        // Verify
+        verify(categoryRepository).findById(99L);
+        verifyNoMoreInteractions(categoryRepository, categoryMapper, productService, imageUtils);
+    }
+
+    // ========================================
+    // VALIDATION
+    // ========================================
+
+    @Test
+    void should_ThrowCircularReferenceException_When_CircularReferenceDetected() {
+        // Arrange
+        Category root = new Category("Root", "Top level");
+        Category child = new Category("Child", "Child category");
+        child.setParentCategory(root);
+        root.getSubCategories().add(child);
+        root.setParentCategory(child); // create circular reference
+
+        // Act & Assert
+        assertThrows(
+                CircularReferenceException.class, () ->
+                categoryService.validateCircularReference(child, root),
+                "Expected CircularReferenceException for circular reference");
+
+        // Verify
+        verifyNoInteractions(categoryRepository, categoryMapper, productService, imageUtils);
     }
 
     @Test
-    void whenValidatingUniqueCategoryNameWithDuplicateInAncestors_thenThrowsException() {
-        Category grandParentCategory = new Category("Coffee", "Description", "imageUrl");
-        Category parentCategory = new Category("Beans", "Description", "imageUrl");
-        grandParentCategory.addSubCategory(parentCategory);
+    void should_ThrowDuplicateResourceException_When_DuplicateNameInSubCategories() {
+        // Arrange
+        Category duplicate = new Category("Beans", "Desc");
+        rootCategory.getSubCategories().add(duplicate);
 
-        assertThrows(DuplicateResourceException.class,
-                () -> categoryService.validateUniqueCategoryNameWithinHierarchy(parentCategory, "Coffee", null),
-                "Expected DuplicateResourceException when name already exists in ancestor categories.");
+        // Act & Assert
+        assertThrows(
+                DuplicateResourceException.class,
+                () -> categoryService.validateUniqueCategoryNameWithinHierarchy(rootCategory, "Beans", null),
+                "Expected DuplicateResourceException");
 
-        verifyNoMoreInteractions(categoryRepository, categoryMapper);
+        // Verify
+        verifyNoInteractions(categoryRepository, categoryMapper, productService, imageUtils);
     }
 
     @Test
-    void whenValidatingCircularReference_thenThrowsException() {
-        Category parentCategory = new Category("Coffee", "Description", "imageUrl");
-        Category subCategory = new Category("Beans", "Description", "imageUrl");
-        parentCategory.addSubCategory(subCategory);
-        subCategory.addSubCategory(parentCategory);
+    void should_ThrowDuplicateResourceException_When_DuplicateNameInHierarchy() {
+        // Arrange
+        rootCategory.setName("Coffee");
+        subCategory.setName("Sub");
+        subCategory.setParentCategory(rootCategory);
 
-        assertThrows(CircularReferenceException.class,
-                () -> categoryService.validateCircularReference(parentCategory, subCategory),
-                "Expected CircularReferenceException when category creates a circular reference.");
+        // Act & Assert
+        assertThrows(
+                DuplicateResourceException.class,
+                () -> categoryService.validateUniqueCategoryNameWithinHierarchy(subCategory, "Coffee", null),
+                "Expected DuplicateResourceException");
+    }
 
-        verifyNoMoreInteractions(categoryRepository, categoryMapper);
+    // ========================================
+    // GET BY ID
+    // ========================================
+
+    @Test
+    void should_ReturnCategoryResponseDTO_When_IdExists() {
+        // Arrange
+        rootCategory.setId(1L);
+        CategoryResponseDTO expectedResponseDTO = new CategoryResponseDTO(1L, "coffee", "desc", null, null, List.of(), List.of());
+
+        when(categoryRepository.findById(1L)).thenReturn(Optional.of(rootCategory));
+        when(categoryMapper.toResponseDTO(rootCategory)).thenReturn(expectedResponseDTO);
+
+        // Act
+        CategoryResponseDTO result = categoryService.getCategoryById(1L);
+
+        // Assert
+        assertEquals("coffee", result.getName(), "Expected category name to be 'coffee'");
+
+        // Verify
+        verify(categoryRepository).findById(1L);
+        verify(categoryMapper).toResponseDTO(rootCategory);
+        verifyNoMoreInteractions(categoryRepository, categoryMapper, productService, imageUtils);
     }
 
     @Test
-    void whenUpdatingValidCategory_thenReturnsUpdatedCategory() {
-        Long categoryId = 1L;
-        CategoryRequestDTO requestDTO = new CategoryRequestDTO("Tea", "Updated Description", "updatedImageUrl", null);
-        Category category = new Category("Coffee", "Description", "imageUrl");
-        CategoryResponseDTO responseDTO =
-                new CategoryResponseDTO(categoryId, "Tea", "Updated Description", "updatedImageUrl", null, Collections.emptyList(), Collections.emptyList());
+    void should_ThrowResourceNotFoundException_When_IdInvalid() {
+        // Arrange
+        when(categoryRepository.findById(99L)).thenReturn(Optional.empty());
 
-        when(categoryRepository.findById(categoryId)).thenReturn(Optional.of(category));
-        when(categoryRepository.save(any(Category.class))).thenReturn(category);
-        when(categoryMapper.toResponseDTO(any())).thenReturn(responseDTO);
+        // Act & Assert
+        assertThrows(
+                ResourceNotFoundException.class,
+                () -> categoryService.getCategoryById(99L),
+                "Expected ResourceNotFoundException");
 
-        CategoryResponseDTO result = categoryService.updateCategory(categoryId, requestDTO);
+        // Verify
+        verify(categoryRepository).findById(99L);
+        verifyNoMoreInteractions(categoryRepository, categoryMapper, productService, imageUtils);
+    }
 
-        assertNotNull(result);
-        assertEquals("Tea", result.getName());
-        assertEquals("Updated Description", result.getDescription());
+    // ========================================
+    // IMAGE HANDLING
+    // ========================================
 
-        verifyNoMoreInteractions(categoryRepository, categoryMapper);
+    @Test
+    void should_UploadImage_When_ValidCategoryAndImage() {
+        // Arrange
+        rootCategory.setId(1L);
+        MultipartFile mockImage = mock(MultipartFile.class);
+        byte[] imageBytes = new byte[]{1, 2, 3};
+        CategoryResponseDTO expectedResponseDTO = new CategoryResponseDTO(1L, "coffee", "desc", null, null, List.of(), List.of());
+
+        when(categoryRepository.findById(1L)).thenReturn(Optional.of(rootCategory));
+        when(imageUtils.validateAndExtractImageBytes(mockImage)).thenReturn(imageBytes);
+        when(categoryRepository.save(rootCategory)).thenReturn(rootCategory);
+        when(categoryMapper.toResponseDTO(rootCategory)).thenReturn(expectedResponseDTO);
+
+        // Act
+        CategoryResponseDTO result = categoryService.uploadCategoryImage(1L, mockImage);
+
+        // Assert
+        assertNotNull(result, "Expected uploaded image result not to be null");
+        assertEquals(expectedResponseDTO, result, "Expected category response to match");
+
+        // Verify
+        verify(categoryRepository).findById(1L);
+        verify(imageUtils).validateAndExtractImageBytes(mockImage);
+        verify(categoryRepository).save(rootCategory);
+        verify(categoryMapper).toResponseDTO(rootCategory);
+        verifyNoMoreInteractions(categoryRepository, categoryMapper, productService, imageUtils);
     }
 
     @Test
-    void whenUpdatingNonExistingCategory_thenThrowsException() {
-        Long categoryId = 1L;
-        CategoryRequestDTO requestDTO = new CategoryRequestDTO("Tea", "Updated Description", "updatedImageUrl", null);
+    void should_DeleteCategoryImage_When_ImageExists() {
+        // Arrange
+        rootCategory.setId(1L);
+        rootCategory.setImage(new byte[]{1, 2, 3});
+        when(categoryRepository.findById(1L)).thenReturn(Optional.of(rootCategory));
+        when(categoryRepository.save(rootCategory)).thenReturn(rootCategory);
 
-        when(categoryRepository.findById(categoryId)).thenReturn(Optional.empty());
+        // Act
+        categoryService.deleteCategoryImage(1L);
 
-        assertThrows(ResourceNotFoundException.class,
-                () -> categoryService.updateCategory(categoryId, requestDTO));
+        // Assert
+        assertNull(rootCategory.getImage(), "Expected category image to be null after deletion");
 
-        verifyNoMoreInteractions(categoryRepository, categoryMapper);
+        // Verify
+        verify(categoryRepository).findById(1L);
+        verify(categoryRepository).save(rootCategory);
+        verifyNoMoreInteractions(categoryRepository, categoryMapper, productService, imageUtils);
     }
 
     @Test
-    void whenUpdatingCategoryWithNonExistentParentId_thenThrowsResourceNotFoundException() {
-        Long categoryId = 1L;
-        CategoryRequestDTO requestDTO = new CategoryRequestDTO("Tea", "Updated Description", "updatedImageUrl", 999L);
-        Category category = new Category("Coffee", "Description", "imageUrl");
+    void should_ReturnCategoryImage_When_ImageExists() {
+        // Arrange
+        byte[] imageBytes = new byte[]{1, 2, 3};
+        rootCategory.setId(1L);
+        rootCategory.setImage(imageBytes);
+        when(categoryRepository.findById(1L)).thenReturn(Optional.of(rootCategory));
 
-        when(categoryRepository.findById(categoryId)).thenReturn(Optional.of(category));
-        when(categoryRepository.findById(999L)).thenReturn(Optional.empty());
+        // Act
+        byte[] result = categoryService.getCategoryImage(1L);
 
-        assertThrows(ResourceNotFoundException.class,
-                () -> categoryService.updateCategory(categoryId, requestDTO),
-                "Expected ResourceNotFoundException when the new parent category does not exist.");
+        // Assert
+        assertNotNull(result, "Expected image bytes not to be null");
+        assertArrayEquals(imageBytes, result, "Expected image bytes to match");
 
-        verifyNoMoreInteractions(categoryRepository, categoryMapper);
+        // Verify
+        verify(categoryRepository).findById(1L);
+        verifyNoMoreInteractions(categoryRepository, categoryMapper, productService, imageUtils);
     }
 
     @Test
-    void whenUpdatingCategoryToBeRoot_thenBecomesRootCategory() {
-        Long categoryId = 2L;
-        CategoryRequestDTO requestDTO = new CategoryRequestDTO("Beans", "Some Description", "someImageUrl", null);
-        Category parentCategory = new Category("Coffee", "Description", "imageUrl");
-        Category subCategory = new Category("Beans", "Some Description", "someImageUrl", parentCategory);
+    void should_ThrowResourceNotFoundException_When_GetCategoryImageButImageIsNull() {
+        // Arrange
+        rootCategory.setImage(null);
+        when(categoryRepository.findById(1L)).thenReturn(Optional.of(rootCategory));
 
-        when(categoryRepository.findById(categoryId)).thenReturn(Optional.of(subCategory));
-        when(categoryRepository.save(any(Category.class))).thenReturn(subCategory);
-        when(categoryMapper.toResponseDTO(any())).thenReturn(
-                new CategoryResponseDTO(categoryId, "Beans", "Some Description", "someImageUrl", null, Collections.emptyList(), Collections.emptyList())
-        );
+        // Act & Assert
+        assertThrows(
+                ResourceNotFoundException.class,
+                () -> categoryService.getCategoryImage(1L),
+                "Expected ResourceNotFoundException when image is null");
 
-        CategoryResponseDTO result = categoryService.updateCategory(categoryId, requestDTO);
-
-        assertNotNull(result);
-        assertNull(result.getParentCategoryId(), "Expected category to become a root when new parent ID is null.");
-
-        verifyNoMoreInteractions(categoryRepository, categoryMapper);
+        // Verify
+        verify(categoryRepository).findById(1L);
+        verifyNoMoreInteractions(categoryRepository, categoryMapper, productService, imageUtils);
     }
 
-    @Test
-    void whenUpdatingCategoryCausesCircularReference_thenThrowsException() {
-        Long categoryId = 1L;
-        Long subCategoryId = 2L;
-        Category parentCategory = new Category("Coffee", "Description", "imageUrl");
-        parentCategory.setId(categoryId);
-        Category subCategory = new Category("Beans", "Some Description", "someImageUrl", parentCategory);
-        subCategory.setId(subCategoryId);
-
-        parentCategory.addSubCategory(subCategory);
-
-        CategoryRequestDTO requestDTO = new CategoryRequestDTO("Coffee", "Updated Description", "updatedImageUrl", subCategoryId);
-
-        when(categoryRepository.findById(categoryId)).thenReturn(Optional.of(parentCategory));
-        when(categoryRepository.findById(subCategoryId)).thenReturn(Optional.of(subCategory));
-
-        assertThrows(CircularReferenceException.class,
-                () -> categoryService.updateCategory(categoryId, requestDTO),
-                "Expected CircularReferenceException when updating the category creates a circular reference.");
-
-        verifyNoMoreInteractions(categoryRepository, categoryMapper);
-    }
+    // ========================================
+    // FILTER
+    // ========================================
 
     @Test
-    void whenDeletingValidCategory_thenRemovesCategory() {
-        Long categoryId = 1L;
-        Category category = new Category("Coffee", "Description", "imageUrl");
+    void should_FilterCategories_ByName() {
+        // Arrange
+        Map<String, String> params = Map.of("name", "espresso");
+        Category category = new Category("Espresso", "Strong coffee");
+        CategoryResponseDTO expectedDTO = new CategoryResponseDTO(1L, "espresso", "strong coffee", null, null, List.of(), List.of());
 
-        when(categoryRepository.findById(categoryId)).thenReturn(Optional.of(category));
+        when(categoryRepository.findAll()).thenReturn(List.of(category));
+        when(categoryMapper.toResponseDTO(category)).thenReturn(expectedDTO);
 
-        categoryService.deleteCategory(categoryId);
+        // Act
+        List<CategoryResponseDTO> result = categoryService.findBySearchQuery(params);
 
-        verify(categoryRepository).delete(category);
-        verifyNoMoreInteractions(categoryRepository, categoryMapper);
-    }
+        // Assert
+        assertNotNull(result, "Result should not be null");
+        assertEquals(1, result.size(), "Expected one matching category from filter");
+        assertEquals(expectedDTO, result.get(0), "Returned category should match expected DTO");
 
-    @Test
-    void whenDeletingNonExistingCategory_thenThrowsException() {
-        Long categoryId = 1L;
-        when(categoryRepository.findById(categoryId)).thenReturn(Optional.empty());
-
-        assertThrows(ResourceNotFoundException.class,
-                () -> categoryService.deleteCategory(categoryId));
-
+        // Verify
+        verify(categoryRepository).findAll();
+        verify(categoryMapper).toResponseDTO(category);
         verifyNoMoreInteractions(categoryRepository, categoryMapper);
     }
 }
-*/

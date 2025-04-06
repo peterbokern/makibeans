@@ -24,7 +24,7 @@ class ProductAttributeTest {
     void setUp() {
         // Arrange
         Category category = new Category("Category", "Category description");
-        product = new Product("Product", "Product description", "product_image_url", null, category);
+        product = new Product("Product", "Product description", null, category);
         attributeTemplate = new AttributeTemplate("Size");
         productAttribute = new ProductAttribute(attributeTemplate, product);
 
@@ -64,7 +64,7 @@ class ProductAttributeTest {
     @Test
     void when_setProduct_then_shouldUpdateProduct() {
         // Arrange
-        Product newProduct = new Product("New Product", "New Product description", "new_product_image_url", null, new Category("New Category", "New Description"));
+        Product newProduct = new Product("New Product", "New Product description", null, new Category("New Category", "New Description"));
 
         // Act
         productAttribute.setProduct(newProduct);

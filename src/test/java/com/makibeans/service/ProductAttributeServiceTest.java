@@ -1,4 +1,3 @@
-/*
 package com.makibeans.service;
 
 import com.makibeans.dto.ProductAttributeRequestDTO;
@@ -8,19 +7,16 @@ import com.makibeans.exceptions.ResourceNotFoundException;
 import com.makibeans.mapper.ProductAttributeMapper;
 import com.makibeans.model.*;
 import com.makibeans.repository.ProductAttributeRepository;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
+import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -31,28 +27,18 @@ class ProductAttributeServiceTest {
     AttributeValue attributeValue;
     ProductAttribute productAttribute;
 
-    @Mock
-    ProductAttributeRepository productAttributeRepository;
+    @Mock ProductAttributeRepository productAttributeRepository;
+    @Mock ProductService productService;
+    @Mock AttributeTemplateService attributeTemplateService;
+    @Mock AttributeValueService attributeValueService;
+    @Mock ProductAttributeMapper productAttributeMapper;
 
-    @Mock
-    ProductService productService;
-
-    @Mock
-    AttributeTemplateService attributeTemplateService;
-
-    @Mock
-    AttributeValueService attributeValueService;
-
-    @Mock
-    ProductAttributeMapper productAttributeMapper;
-
-    @InjectMocks
-    ProductAttributeService productAttributeService;
+    @InjectMocks ProductAttributeService productAttributeService;
 
     @BeforeEach
     void setup() {
-        product = new Product("productName", "productDescription", "productImageUrl",
-                new Category("categoryName", "categoryDescription", "categoryImageUrl"));
+        Category category = new Category("categoryName", "categoryDescription");
+        product = new Product("productName", "productDescription", null, category);
         attributeTemplate = new AttributeTemplate("attributeTemplateName");
         attributeValue = new AttributeValue(attributeTemplate, "attributeValue");
         productAttribute = new ProductAttribute(attributeTemplate, product);
@@ -67,10 +53,10 @@ class ProductAttributeServiceTest {
     }
 
     @Test
-    void whenGetProductAttributeById_thenSuccess() {
+    void should_ReturnProductAttribute_When_IdExists() {
         // Arrange
         when(productAttributeRepository.findById(1L)).thenReturn(Optional.of(productAttribute));
-        ProductAttributeResponseDTO expectedDTO = new ProductAttributeResponseDTO(1L, 1L, "productName", 1L, "attributeTemplateName", List.of());
+        ProductAttributeResponseDTO expectedDTO = new ProductAttributeResponseDTO(1L, 1L, "attributeTemplateName", List.of());
         when(productAttributeMapper.toResponseDTO(productAttribute)).thenReturn(expectedDTO);
 
         // Act
@@ -87,12 +73,15 @@ class ProductAttributeServiceTest {
     }
 
     @Test
-    void whenGetProductAttributeByIdNotFound_thenThrowResourceNotFoundException() {
+    void should_ThrowResourceNotFoundException_When_ProductAttributeNotFoundById() {
         // Arrange
         when(productAttributeRepository.findById(99L)).thenReturn(Optional.empty());
 
         // Act & Assert
-        assertThrows(ResourceNotFoundException.class, () -> productAttributeService.getProductAttributeById(99L));
+        assertThrows(
+                ResourceNotFoundException.class,
+                () -> productAttributeService.getProductAttributeById(99L),
+                "Expected ResourceNotFoundException when product attribute is not found by ID");
 
         // Verify
         verify(productAttributeRepository).findById(99L);
@@ -100,19 +89,19 @@ class ProductAttributeServiceTest {
     }
 
     @Test
-    void whenGetAllProductAttributes_thenSuccess() {
+    void should_ReturnAllProductAttributes() {
         // Arrange
-        List<ProductAttribute> productAttributes = List.of(productAttribute);
-        List<ProductAttributeResponseDTO> expectedDTOs = List.of(new ProductAttributeResponseDTO(1L, 1L, "productName", 1L, "attributeTemplateName", List.of()));
-        when(productAttributeRepository.findAll()).thenReturn(productAttributes);
-        when(productAttributeMapper.toResponseDTO(productAttribute)).thenReturn(expectedDTOs.get(0));
+        ProductAttributeResponseDTO expectedResponseDTO = new ProductAttributeResponseDTO(1L, 1L, "Ethiopia", List.of());
+        when(productAttributeRepository.findAll()).thenReturn(List.of(productAttribute));
+        when(productAttributeMapper.toResponseDTO(productAttribute)).thenReturn(expectedResponseDTO);
 
         // Act
         List<ProductAttributeResponseDTO> result = productAttributeService.getAllProductAttributes();
 
         // Assert
-        assertNotNull(result);
-        assertEquals(expectedDTOs, result);
+        assertNotNull(result, "Result list should not be null");
+        assertEquals(1, result.size(), "Result list should contain exactly 1 element");
+        assertEquals(expectedResponseDTO, result.get(0), "The first ProductAttributeResponseDTO should match the expected");
 
         // Verify
         verify(productAttributeRepository).findAll();
@@ -121,40 +110,41 @@ class ProductAttributeServiceTest {
     }
 
     @Test
-    void whenCreateProductAttribute_thenSuccess() {
+    void should_CreateProductAttribute_When_Valid() {
         // Arrange
         ProductAttributeRequestDTO requestDTO = new ProductAttributeRequestDTO(1L, 1L);
-        when(attributeTemplateService.findById(1L)).thenReturn(attributeTemplate);
+        ProductAttributeResponseDTO expectedResponseDTO = new ProductAttributeResponseDTO(1L, 1L, "Origin", List.of());
+
         when(productService.findById(1L)).thenReturn(product);
+        when(attributeTemplateService.findById(1L)).thenReturn(attributeTemplate);
         when(productAttributeRepository.existsByProductIdAndAttributeTemplateId(1L, 1L)).thenReturn(false);
-        when(productAttributeRepository.save(any(ProductAttribute.class))).thenReturn(productAttribute);
-        ProductAttributeResponseDTO expectedDTO = new ProductAttributeResponseDTO();
-        when(productAttributeMapper.toResponseDTO(any(ProductAttribute.class))).thenReturn(expectedDTO);
+        when(productAttributeRepository.save(any())).thenReturn(productAttribute);
+        when(productAttributeMapper.toResponseDTO(productAttribute)).thenReturn(expectedResponseDTO);
 
         // Act
         ProductAttributeResponseDTO result = productAttributeService.createProductAttribute(requestDTO);
 
         // Assert
-        assertNotNull(result);
-        assertEquals(expectedDTO, result);
+        assertNotNull(result, "Result should not be null");
+        assertEquals(expectedResponseDTO, result, "Returned ProductAttributeResponseDTO should match the expected value");
 
         // Verify
-        verify(attributeTemplateService).findById(1L);
         verify(productService).findById(1L);
+        verify(attributeTemplateService).findById(1L);
         verify(productAttributeRepository).existsByProductIdAndAttributeTemplateId(1L, 1L);
-        verify(productAttributeRepository).save(any(ProductAttribute.class));
-        verify(productAttributeMapper).toResponseDTO(any(ProductAttribute.class));
-        verifyNoMoreInteractions(productAttributeRepository, attributeTemplateService, productService, productAttributeMapper);
+        verify(productAttributeRepository).save(any());
+        verify(productAttributeMapper).toResponseDTO(productAttribute);
+        verifyNoMoreInteractions(productAttributeRepository, productService, attributeTemplateService, productAttributeMapper);
     }
 
+
     @Test
-    void whenCreateProductAttributeAndAlreadyExists_thenThrowDuplicateResourceException() {
+    void should_ThrowDuplicateResourceException_When_ProductAttributeAlreadyExists() {
         // Arrange
-        ProductAttributeRequestDTO requestDTO = new ProductAttributeRequestDTO(1L, 1L);
         when(productAttributeRepository.existsByProductIdAndAttributeTemplateId(1L, 1L)).thenReturn(true);
 
         // Act & Assert
-        assertThrows(DuplicateResourceException.class, () -> productAttributeService.createProductAttribute(requestDTO));
+        assertThrows(DuplicateResourceException.class, () -> productAttributeService.createProductAttribute(new ProductAttributeRequestDTO(1L, 1L)));
 
         // Verify
         verify(productAttributeRepository).existsByProductIdAndAttributeTemplateId(1L, 1L);
@@ -162,26 +152,31 @@ class ProductAttributeServiceTest {
     }
 
     @Test
-    void whenDeleteProductAttributeWithValidId_thenSuccess() {
+    void should_DeleteProductAttribute_When_IdExists() {
         // Arrange
+        ReflectionTestUtils.setField(productAttribute, "id", 1L);
         when(productAttributeRepository.findById(1L)).thenReturn(Optional.of(productAttribute));
 
         // Act
         productAttributeService.deleteProductAttribute(1L);
 
         // Verify
-        verify(productAttributeRepository).findById(1L);
-        verify(productAttributeRepository).delete(any(ProductAttribute.class));
+        verify(productAttributeRepository, times(2)).findById(1L);
+        verify(productAttributeRepository).deleteAttributeValuesByProductAttributeId(1L);
+        verify(productAttributeRepository).delete(productAttribute);
         verifyNoMoreInteractions(productAttributeRepository);
     }
 
     @Test
-    void whenDeleteProductAttributeWithInvalidId_thenThrowResourceNotFoundException() {
+    void should_ThrowResourceNotFoundException_When_DeletingNonexistentProductAttribute() {
         // Arrange
         when(productAttributeRepository.findById(99L)).thenReturn(Optional.empty());
 
         // Act & Assert
-        assertThrows(ResourceNotFoundException.class, () -> productAttributeService.deleteProductAttribute(99L));
+        assertThrows(
+                ResourceNotFoundException.class,
+                () -> productAttributeService.deleteProductAttribute(99L),
+                "Expected ResourceNotFoundException when product attribute is not found by ID");
 
         // Verify
         verify(productAttributeRepository).findById(99L);
@@ -189,7 +184,7 @@ class ProductAttributeServiceTest {
     }
 
     @Test
-    void whenAddAttributeValue_thenSuccess() {
+    void should_AddAttributeValue_When_NotAlreadyAssociated() {
         // Arrange
         when(productAttributeRepository.findById(1L)).thenReturn(Optional.of(productAttribute));
         when(attributeValueService.findById(1L)).thenReturn(attributeValue);
@@ -197,35 +192,29 @@ class ProductAttributeServiceTest {
         // Act
         productAttributeService.addAttributeValue(1L, 1L);
 
+        // Assert
+        // Assert
+        assertTrue(productAttribute.getAttributeValues().contains(attributeValue), "AttributeValue should be added to ProductAttribute");
+
         // Verify
         verify(productAttributeRepository).findById(1L);
         verify(attributeValueService).findById(1L);
-        verify(productAttributeRepository).save(any(ProductAttribute.class));
+        verify(productAttributeRepository).save(productAttribute);
         verifyNoMoreInteractions(productAttributeRepository, attributeValueService);
     }
 
     @Test
-    void whenAddAttributeValueAndProductAttributeNotFound_thenThrowResourceNotFoundException() {
-        // Arrange
-        when(productAttributeRepository.findById(99L)).thenReturn(Optional.empty());
-
-        // Act & Assert
-        assertThrows(ResourceNotFoundException.class, () -> productAttributeService.addAttributeValue(99L, 1L));
-
-        // Verify
-        verify(productAttributeRepository).findById(99L);
-        verifyNoMoreInteractions(productAttributeRepository);
-    }
-
-    @Test
-    void whenAddAttributeValueAndAttributeValueAlreadyExists_thenThrowDuplicateResourceException() {
+    void should_ThrowDuplicateResourceException_When_AttributeValueAlreadyAssociated() {
         // Arrange
         productAttribute.getAttributeValues().add(attributeValue);
         when(productAttributeRepository.findById(1L)).thenReturn(Optional.of(productAttribute));
         when(attributeValueService.findById(1L)).thenReturn(attributeValue);
 
         // Act & Assert
-        assertThrows(DuplicateResourceException.class, () -> productAttributeService.addAttributeValue(1L, 1L));
+        assertThrows(
+                DuplicateResourceException.class,
+                () -> productAttributeService.addAttributeValue(1L, 1L),
+                "Expected DuplicateResourceException when AttributeValue is already associated with ProductAttribute");
 
         // Verify
         verify(productAttributeRepository).findById(1L);
@@ -234,7 +223,7 @@ class ProductAttributeServiceTest {
     }
 
     @Test
-    void whenRemoveAttributeValue_thenSuccess() {
+    void should_RemoveAttributeValue_When_Associated() {
         // Arrange
         productAttribute.getAttributeValues().add(attributeValue);
         when(productAttributeRepository.findById(1L)).thenReturn(Optional.of(productAttribute));
@@ -243,35 +232,45 @@ class ProductAttributeServiceTest {
         // Act
         productAttributeService.removeAttributeValue(1L, 1L);
 
+        // Assert
+        assertFalse(productAttribute.getAttributeValues().contains(attributeValue), "AttributeValue should be removed from ProductAttribute");
+
         // Verify
         verify(productAttributeRepository).findById(1L);
         verify(attributeValueService).findById(1L);
-        verify(productAttributeRepository).save(any(ProductAttribute.class));
+        verify(productAttributeRepository).save(productAttribute);
         verifyNoMoreInteractions(productAttributeRepository, attributeValueService);
     }
 
     @Test
-    void whenRemoveAttributeValueAndProductAttributeNotFound_thenThrowResourceNotFoundException() {
+    void should_ThrowResourceNotFoundException_When_AttributeValueNotAssociated() {
         // Arrange
-        when(productAttributeRepository.findById(99L)).thenReturn(Optional.empty());
+        when(productAttributeRepository.findById(1L)).thenReturn(Optional.of(productAttribute));
+        when(attributeValueService.findById(1L)).thenReturn(attributeValue);
 
         // Act & Assert
-        assertThrows(ResourceNotFoundException.class, () -> productAttributeService.removeAttributeValue(99L, 1L));
+        assertThrows(
+                ResourceNotFoundException.class,
+                () -> productAttributeService.removeAttributeValue(1L, 1L),
+                "Expected ResourceNotFoundException when AttributeValue is not associated with ProductAttribute");
 
         // Verify
-        verify(productAttributeRepository).findById(99L);
-        verifyNoMoreInteractions(productAttributeRepository);
+        verify(productAttributeRepository).findById(1L);
+        verify(attributeValueService).findById(1L);
+        verifyNoMoreInteractions(productAttributeRepository, attributeValueService);
     }
 
     @Test
-    void whenRemoveAttributeValueAndAttributeValueNotFound_thenThrowResourceNotFoundException() {
+    void should_ThrowResourceNotFoundException_When_AttributeValueToRemoveNotFound() {
         // Arrange
         when(productAttributeRepository.findById(1L)).thenReturn(Optional.of(productAttribute));
-        doThrow(new ResourceNotFoundException("AttributeValue with ID 99 not found"))
-                .when(attributeValueService).findById(99L);
+        when(attributeValueService.findById(99L)).thenThrow(new ResourceNotFoundException("Not found"));
 
         // Act & Assert
-        assertThrows(ResourceNotFoundException.class, () -> productAttributeService.removeAttributeValue(1L, 99L));
+        assertThrows(
+                ResourceNotFoundException.class,
+                () -> productAttributeService.removeAttributeValue(1L, 99L),
+                "Expected ResourceNotFoundException when AttributeValue to remove is not found");
 
         // Verify
         verify(productAttributeRepository).findById(1L);
@@ -280,18 +279,48 @@ class ProductAttributeServiceTest {
     }
 
     @Test
-    void whenRemoveAttributeValueAndAttributeValueNotAssociated_thenThrowResourceNotFoundException() {
+    void should_ReturnProductAttributes_ByTemplateId() {
         // Arrange
-        when(productAttributeRepository.findById(1L)).thenReturn(Optional.of(productAttribute));
-        when(attributeValueService.findById(1L)).thenReturn(attributeValue);
+        when(productAttributeRepository.findByAttributeTemplateId(1L)).thenReturn(List.of(productAttribute));
 
-        // Act & Assert
-        assertThrows(ResourceNotFoundException.class, () -> productAttributeService.removeAttributeValue(1L, 1L));
+        // Act
+        List<ProductAttribute> result = productAttributeService.getProductAttributesByTemplateId(1L);
+
+        // Assert
+        assertNotNull(result, "Result should not be null");
+        assertEquals(1, result.size(), "Expected one ProductAttribute in the result list");
+        assertEquals(productAttribute, result.get(0), "Returned ProductAttribute should match the expected one");
 
         // Verify
-        verify(productAttributeRepository).findById(1L);
-        verify(attributeValueService).findById(1L);
-        verifyNoMoreInteractions(productAttributeRepository, attributeValueService);
+        verify(productAttributeRepository).findByAttributeTemplateId(1L);
+        verifyNoMoreInteractions(productAttributeRepository);
+    }
+
+    @Test
+    void should_ReturnProductAttributes_ByProductId() {
+        // Arrange
+        when(productAttributeRepository.findByProductId(1L)).thenReturn(List.of(productAttribute));
+
+        // Act
+        List<ProductAttribute> result = productAttributeService.getProductAttributesByProductId(1L);
+
+        // Assert
+        assertNotNull(result, "Result should not be null");
+        assertEquals(1, result.size(), "Expected one ProductAttribute in the result list");
+        assertEquals(productAttribute, result.get(0), "Returned ProductAttribute should match the expected one");
+
+        // Verify
+        verify(productAttributeRepository).findByProductId(1L);
+        verifyNoMoreInteractions(productAttributeRepository);
+    }
+
+    @Test
+    void should_DeleteAttributeValues_ByAttributeValueId() {
+        // Act
+        productAttributeService.deleteAttributeValuesByAttributeValueId(1L);
+
+        // Verify
+        verify(productAttributeRepository).deleteAttributeValuesByAttributeValueId(1L);
+        verifyNoMoreInteractions(productAttributeRepository);
     }
 }
-*/

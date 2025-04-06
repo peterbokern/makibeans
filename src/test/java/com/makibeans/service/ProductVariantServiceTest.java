@@ -1,182 +1,244 @@
-/*
 package com.makibeans.service;
 
 import com.makibeans.dto.ProductVariantRequestDTO;
+import com.makibeans.dto.ProductVariantResponseDTO;
 import com.makibeans.dto.ProductVariantUpdateDTO;
-import com.makibeans.exeptions.DuplicateResourceException;
-import com.makibeans.exeptions.ResourceNotFoundException;
+import com.makibeans.exceptions.DuplicateResourceException;
+import com.makibeans.exceptions.ResourceNotFoundException;
+import com.makibeans.mapper.ProductVariantMapper;
+import com.makibeans.model.Category;
 import com.makibeans.model.Product;
 import com.makibeans.model.ProductVariant;
 import com.makibeans.model.Size;
 import com.makibeans.repository.ProductVariantRepository;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.*;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class ProductVariantServiceTest {
 
-    @Mock
-    private ProductVariantRepository productVariantRepository;
+    @Mock ProductVariantRepository productVariantRepository;
+    @Mock ProductService productService;
+    @Mock SizeService sizeService;
+    @Mock ProductVariantMapper productVariantMapper;
 
-    @Mock
-    private ProductService productService;
+    @InjectMocks ProductVariantService productVariantService;
 
-    @Mock
-    private SizeService sizeService;
-
-    @InjectMocks
-    private ProductVariantService productVariantService;
-
-    private ProductVariant productVariant;
-    private ProductVariantRequestDTO productVariantRequestDTO;
-    private ProductVariantUpdateDTO productVariantUpdateDTO;
-    private Product product;
-    private Size size;
+    Product product;
+    Size size;
+    ProductVariant variant;
 
     @BeforeEach
-    void setUp() {
-        product = new Product("Test Product", "Description", "image-url", null);
-        size = new Size("Large");
-        productVariant = new ProductVariant(product, size, 1000L, "SKU-1234", 10L);
-        productVariantRequestDTO = new ProductVariantRequestDTO(1L, 1L,1000L, 10L);
-        productVariantUpdateDTO = new ProductVariantUpdateDTO(1500L, 5L);
-
+    void setup() {
+        size = new Size("Small");
+        product = new Product("Espresso", "Smooth", null, new Category("Coffee", "Rich"));
+        variant = new ProductVariant(product, size, 1000L, "ESP-SM-0001", 10L);
     }
 
-    @AfterEach
-    void tearDown() {
-        productVariant = null;
-        productVariantRequestDTO = null;
-        productVariantUpdateDTO = null;
-        product = null;
-        size = null;
+    // ========================================
+    // GET BY ID
+    // ========================================
+
+    @Test
+    void should_ReturnVariant_When_IdExists() {
+        // Arrange
+        ProductVariant variant = new ProductVariant(product, size, 1000L, "ESP-SM-0001", 10L);
+        ProductVariantResponseDTO expectedResponseDTO = new ProductVariantResponseDTO(null, product.getId(), size.getName(), "ESP-SM-0001", 1000L, 10L);
+
+        when(productVariantRepository.findById(1L)).thenReturn(Optional.of(variant));
+        when(productVariantMapper.toResponseDTO(variant)).thenReturn(expectedResponseDTO);
+
+        // Act
+        ProductVariantResponseDTO actualResponseDTO = productVariantService.getProductVariantById(1L);
+
+        // Assert
+        assertNotNull(actualResponseDTO);
+        assertEquals(expectedResponseDTO, actualResponseDTO, "Expected to return the correct ProductVariantResponseDTO");
+
+        // Verify
+        verify(productVariantRepository).findById(1L);
+        verify(productVariantMapper).toResponseDTO(variant);
     }
 
     @Test
-    void shouldCreateProductVariant_whenValidRequest() {
+    void should_ThrowResourceNotFoundException_When_VariantNotFound() {
         // Arrange
+        when(productVariantRepository.findById(99L)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(
+                ResourceNotFoundException.class,
+                () -> productVariantService.getProductVariantById(99L),
+                "Expected ResourceNotFoundException when ProductVariant ID does not exist");
+
+        // Verify
+        verify(productVariantRepository).findById(99L);
+        verifyNoMoreInteractions(productVariantRepository);
+    }
+
+    // ========================================
+    // GET ALL
+    // ========================================
+
+    @Test
+    void should_ReturnAllVariants() {
+        // Arrange
+        ProductVariant variant1 = new ProductVariant(product, size, 1000L, "ESP-SM-0001", 10L);
+        ProductVariant variant2 = new ProductVariant(product, size, 1200L, "ESP-SM-0002", 20L);
+        ProductVariantResponseDTO responseDTO1 = new ProductVariantResponseDTO(null, product.getId(), size.getName(), "ESP-SM-0001", 1000L, 10L);
+        ProductVariantResponseDTO responseDTO2 = new ProductVariantResponseDTO(null, product.getId(), size.getName(), "ESP-SM-0002", 1200L, 20L);
+
+
+        when(productVariantRepository.findAll()).thenReturn(List.of(variant1, variant2));
+        when(productVariantMapper.toResponseDTO(variant1)).thenReturn(responseDTO1);
+        when(productVariantMapper.toResponseDTO(variant2)).thenReturn(responseDTO2);
+
+        // Act
+        List<ProductVariantResponseDTO> result = productVariantService.getAllProductVariants();
+
+        // Assert
+        assertEquals(2, result.size());
+        assertNotNull(result, "Result should not be null");
+        assertEquals(responseDTO1, result.get(0), "Expected to return the correct ProductVariantResponseDTO");
+        assertEquals(responseDTO2, result.get(1), "Expected to return the correct ProductVariantResponseDTO");
+
+        // Verify
+        verify(productVariantRepository).findAll();
+        verify(productVariantMapper).toResponseDTO(variant1);
+        verify(productVariantMapper).toResponseDTO(variant2);
+        verifyNoMoreInteractions(productVariantRepository);
+    }
+
+    // ========================================
+    // CREATE
+    // ========================================
+
+    @Test
+    void should_CreateVariant_When_Valid() {
+        // Arrange
+        ProductVariantRequestDTO requestDTO = new ProductVariantRequestDTO(1L, 1L, 1200L, 20L);
+        ProductVariant variant = new ProductVariant(product, size, 1200L, "ESP-SM-0002", 20L);
+        ProductVariantResponseDTO expectedResponseDTO = new ProductVariantResponseDTO(null, product.getId(), size.getName(), "ESP-SM-0002", 1200L, 20L);
+
         when(productService.findById(1L)).thenReturn(product);
         when(sizeService.findById(1L)).thenReturn(size);
         when(productVariantRepository.existsByProductAndSize(product, size)).thenReturn(false);
-        when(productVariantRepository.save(any(ProductVariant.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(productVariantRepository.save(any(ProductVariant.class))).thenReturn(variant);
+        when(productVariantMapper.toResponseDTO(variant)).thenReturn(expectedResponseDTO);
 
         // Act
-        ProductVariant result = productVariantService.createProductVariant(productVariantRequestDTO);
+        ProductVariantResponseDTO result = productVariantService.createProductVariant(requestDTO);
 
         // Assert
-        assertNotNull(result, "The created ProductVariant should not be null.");
-        assertEquals(product, result.getProduct(), "Product should match.");
-        assertEquals(size, result.getSize(), "Size should match.");
-        assertEquals(1000L, result.getPriceInCents(), "Price should be correct.");
-        assertEquals(10L, result.getStock(), "Stock should be correct.");
-        assertNotNull(result.getSku(), "SKU should be generated.");
+        assertNotNull(result, "Expected result to be not null");
+        assertEquals(expectedResponseDTO, result, "Expected to return the correct ProductVariantResponseDTO");
 
-        // Verify interactions
+        // Verify
         verify(productService).findById(1L);
         verify(sizeService).findById(1L);
         verify(productVariantRepository).existsByProductAndSize(product, size);
         verify(productVariantRepository).save(any(ProductVariant.class));
-        verifyNoMoreInteractions(productVariantRepository, productService, sizeService);
+        verify(productVariantMapper).toResponseDTO(variant);
     }
 
     @Test
-    void shouldThrowDuplicateResourceException_whenCreatingExistingProductVariant() {
+    void should_ThrowDuplicateResourceException_When_DuplicateVariantExists() {
         // Arrange
+        ProductVariantRequestDTO dto = new ProductVariantRequestDTO(1L, 1L, 1200L, 20L);
         when(productService.findById(1L)).thenReturn(product);
         when(sizeService.findById(1L)).thenReturn(size);
         when(productVariantRepository.existsByProductAndSize(product, size)).thenReturn(true);
 
         // Act & Assert
-        assertThrows(DuplicateResourceException.class,
-                () -> productVariantService.createProductVariant(productVariantRequestDTO),
-                "Expected DuplicateResourceException when creating a duplicate ProductVariant.");
+        assertThrows(
+                DuplicateResourceException.class,
+                () -> productVariantService.createProductVariant(dto),
+                "Expected DuplicateResourceException when ProductVariant already exists");
 
-        // Verify interactions
-        verify(productService).findById(1L);
-        verify(sizeService).findById(1L);
+        // Verify
         verify(productVariantRepository).existsByProductAndSize(product, size);
         verifyNoMoreInteractions(productVariantRepository);
     }
 
+    // ========================================
+    // UPDATE
+    // ========================================
+
     @Test
-    void shouldDeleteProductVariant_whenExists() {
+    void should_UpdateVariant_When_Valid() {
         // Arrange
-        when(productVariantRepository.findById(1L)).thenReturn(Optional.of(productVariant));
+        ProductVariantUpdateDTO dto = new ProductVariantUpdateDTO(1300L, 15L);
+        ProductVariantResponseDTO expectedDTO = new ProductVariantResponseDTO(null, product.getId(), size.getName(), "ESP-SM-0001", 1300L, 15L);
+
+        when(productVariantRepository.findById(1L)).thenReturn(Optional.of(variant));
+        when(productVariantRepository.save(any())).thenReturn(variant);
+        when(productVariantMapper.toResponseDTO(variant)).thenReturn(expectedDTO);
+
+        // Act
+        ProductVariantResponseDTO result = productVariantService.updateProductVariant(1L, dto);
+
+        // Assert
+        assertNotNull(result, "Result should not be null");
+        assertEquals(expectedDTO, result, "Expected updated ProductVariantResponseDTO to match");
+
+        // Verify
+        verify(productVariantRepository).findById(1L);
+        verify(productVariantRepository).save(variant);
+        verify(productVariantMapper).toResponseDTO(variant);
+    }
+
+
+    @Test
+    void should_ThrowResourceNotFoundException_When_UpdatingNonexistentVariant() {
+        // Arrange
+        ProductVariantUpdateDTO dto = new ProductVariantUpdateDTO(1300L, 15L);
+        when(productVariantRepository.findById(99L)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(ResourceNotFoundException.class, () -> productVariantService.updateProductVariant(99L, dto));
+
+        // Verify
+        verify(productVariantRepository).findById(99L);
+    }
+
+    // ========================================
+    // DELETE
+    // ========================================
+
+    @Test
+    void should_DeleteVariant_When_IdExists() {
+        // Arrange
+        when(productVariantRepository.findById(1L)).thenReturn(Optional.of(variant));
 
         // Act
         productVariantService.deleteProductVariant(1L);
 
-        // Verify interactions
+        // Assert - no exception means success
+
+        // Verify
         verify(productVariantRepository).findById(1L);
-        verify(productVariantRepository).delete(productVariant);
-        verifyNoMoreInteractions(productVariantRepository);
+        verify(productVariantRepository).delete(variant);
     }
 
     @Test
-    void shouldThrowResourceNotFoundException_whenDeletingNonExistentProductVariant() {
+    void should_DeleteVariantsBySizeId() {
         // Arrange
-        when(productVariantRepository.findById(99L)).thenReturn(Optional.empty());
-
-        // Act & Assert
-        assertThrows(ResourceNotFoundException.class,
-                () -> productVariantService.deleteProductVariant(99L),
-                "Expected ResourceNotFoundException when deleting a non-existent ProductVariant.");
-
-        // Verify interactions
-        verify(productVariantRepository).findById(99L);
-        verifyNoMoreInteractions(productVariantRepository);
-    }
-
-    @Test
-    void shouldUpdateProductVariant_whenValidRequest() {
-        // Arrange
-        when(productVariantRepository.findById(1L)).thenReturn(Optional.of(productVariant));
-        when(productVariantRepository.save(any(ProductVariant.class))).thenAnswer(invocation -> invocation.getArgument(0));
-
-        // Argument captor
-        ArgumentCaptor<ProductVariant> productVariantCaptor = ArgumentCaptor.forClass(ProductVariant.class);
+        Long sizeId = 1L;
 
         // Act
-        ProductVariant updatedVariant = productVariantService.updateProductVariant(1L, productVariantUpdateDTO);
+        productVariantService.deleteProductVariantBySizeId(sizeId);
 
-        // Assert
-        assertNotNull(updatedVariant, "Updated ProductVariant should not be null.");
-        assertEquals(1500L, updatedVariant.getPriceInCents(), "Price should be updated.");
-        assertEquals(5L, updatedVariant.getStock(), "Stock should be updated.");
-
-        // Verify interactions
-        verify(productVariantRepository).findById(1L);
-        verify(productVariantRepository).save(productVariantCaptor.capture());
-
-        // Capture the updated object
-        ProductVariant capturedVariant = productVariantCaptor.getValue();
-        assertEquals(1500L, capturedVariant.getPriceInCents(), "Captured price should be updated.");
-        assertEquals(5L, capturedVariant.getStock(), "Captured stock should be updated.");
-
-        verifyNoMoreInteractions(productVariantRepository);
-    }
-
-    @Test
-    void shouldThrowResourceNotFoundException_whenUpdatingNonExistentProductVariant() {
-        // Arrange
-        when(productVariantRepository.findById(99L)).thenReturn(Optional.empty());
-
-        // Act & Assert
-        assertThrows(ResourceNotFoundException.class,
-                () -> productVariantService.updateProductVariant(99L, productVariantUpdateDTO),
-                "Expected ResourceNotFoundException when trying to update a non-existent ProductVariant.");
-
-        // Verify interactions
-        verify(productVariantRepository).findById(99L);
-        verifyNoMoreInteractions(productVariantRepository);
+        // Verify
+        verify(productVariantRepository).deleteBySizeId(sizeId);
     }
 }
-*/

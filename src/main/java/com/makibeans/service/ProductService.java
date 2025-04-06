@@ -143,11 +143,7 @@ public class ProductService extends AbstractCrudService<Product, Long> {
 
     @Transactional
     public void deleteProduct(Long productId) {
-
-        productAttributeService.getProductAttributesByProductId(productId)
-                .forEach(productAttribute ->
-                        productAttributeService.deleteProductAttribute(productAttribute.getId()));
-
+        deleteProductAttributes(productId);
         delete(productId);
     }
 
@@ -170,7 +166,6 @@ public class ProductService extends AbstractCrudService<Product, Long> {
         updated |= updateProductNameField(product, dto.getProductName());
         updated |= updateCategoryField(product, dto.getCategoryId());
         updated |= updateProductDescriptionField(product, dto.getProductDescription());
-        updated |= updateProductImageUrlField(product, dto.getProductImageUrl());
 
         Product updatedProduct = updated ? update(productId, product) : product;
 
@@ -297,19 +292,13 @@ public class ProductService extends AbstractCrudService<Product, Long> {
     }
 
     /**
-     * Updates the product image URL field if it has changed.
+     * Deletes all product attributes associated with a product.
      *
-     * @param product            the product to update
-     * @param newProductImageUrl the new product image URL
-     * @return true if the product image URL was updated, false otherwise
+     * @param productId the ID of the product whose attributes are to be deleted.
      */
-
-    private boolean updateProductImageUrlField(Product product, String newProductImageUrl) {
-        String normalizedNewProductImageUrl = newProductImageUrl != null ? newProductImageUrl.trim() : null;
-        if (shouldUpdate(newProductImageUrl, product.getProductImageUrl())) {
-            product.setProductImageUrl(normalizedNewProductImageUrl);
-            return true;
-        }
-        return false;
+    private void deleteProductAttributes(Long productId) {
+        productAttributeService.getProductAttributesByProductId(productId)
+                .forEach(productAttribute ->
+                        productAttributeService.deleteProductAttribute(productAttribute.getId()));
     }
 }
