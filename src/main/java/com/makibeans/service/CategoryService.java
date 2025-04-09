@@ -160,7 +160,7 @@ public class CategoryService extends AbstractCrudService<Category, Long> {
         if (!products.isEmpty()) {
             String productsString = products
                     .stream()
-                    .map(Product::getProductName )
+                    .map(Product::getName)
                     .toList()
                     .toString();
 
@@ -316,7 +316,7 @@ public class CategoryService extends AbstractCrudService<Category, Long> {
             products.addAll(subCategoryProducts);
         }
 
-        logger.info("Found {} products{}", products.size(), products.stream().map(Product::getProductName).toList());
+        logger.info("Found {} products{}", products.size(), products.stream().map(Product::getName).toList());
 
         return products;
     }

@@ -279,7 +279,7 @@ class ProductServiceTest {
     void should_ReturnProductImage_When_ImageExists() {
         // Arrange
         byte[] imageData = new byte[]{1, 2, 3};
-        product.setProductImage(imageData);
+        product.setImage(imageData);
         when(productRepository.findById(1L)).thenReturn(Optional.of(product));
 
         // Act
@@ -314,7 +314,7 @@ class ProductServiceTest {
         // Assert
         assertNotNull(result, "Returned ProductResponseDTO should not be null");
         assertEquals(expectedResponseDTO, result, "Expected the returned ProductResponseDTO to match");
-        assertArrayEquals(bytes, product.getProductImage(), "Expected image bytes to be set correctly on the product");
+        assertArrayEquals(bytes, product.getImage(), "Expected image bytes to be set correctly on the product");
 
         // Verify
         verify(productRepository).findById(1L);
@@ -343,7 +343,7 @@ class ProductServiceTest {
     @Test
     void should_DeleteProductImage() {
         // Arrange
-        product.setProductImage(new byte[]{1, 2, 3});
+        product.setImage(new byte[]{1, 2, 3});
         when(productRepository.findById(1L)).thenReturn(Optional.of(product));
 
         // Act

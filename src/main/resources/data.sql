@@ -84,7 +84,7 @@ values ('coffee', 'all types of coffee beans and blends', null),
 -- ================
 -- insert products
 -- ================
-insert into products (product_name, product_description, category_id)
+insert into products (name, description, category_id)
 values ('ethiopian dark roast', 'bold and fruity beans from ethiopia, perfect for espresso lovers.', 7),
        ('colombian medium roast', 'balanced, nutty flavor with a smooth finish.', 8),
        ('single origin kenya aa', 'bright and acidic coffee with citrus notes.', 9),

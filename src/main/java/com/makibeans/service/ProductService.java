@@ -128,8 +128,8 @@ public class ProductService extends AbstractCrudService<Product, Long> {
         Category category = categoryService.findById(dto.getCategoryId());
 
         Product product = Product.builder()
-                .productName(normalize(dto.getProductName()))
-                .productDescription(normalize(dto.getProductDescription()))
+                .name(normalize(dto.getProductName()))
+                .description(normalize(dto.getProductDescription()))
                 .category(category)
                 .build();
 
@@ -190,7 +190,7 @@ public class ProductService extends AbstractCrudService<Product, Long> {
 
         byte[] imageBytes = imageUtils.validateAndExtractImageBytes(image);
 
-        product.setProductImage(imageBytes);
+        product.setImage(imageBytes);
 
         Product updatedProduct = update(productId, product);
 
@@ -208,11 +208,11 @@ public class ProductService extends AbstractCrudService<Product, Long> {
     @Transactional
     public byte[] getProductImage(Long productId) {
         Product product = findById(productId);
-        byte[] productImage = product.getProductImage();
+        byte[] productImage = product.getImage();
         if (productImage == null) {
             throw new ResourceNotFoundException("Product with ID " + productId + " does not have an image.");
         }
-        return product.getProductImage();
+        return product.getImage();
     }
 
     /**
@@ -224,7 +224,7 @@ public class ProductService extends AbstractCrudService<Product, Long> {
     @Transactional
     public void deleteProductImage(Long productId) {
         Product product = findById(productId);
-        product.setProductImage(null);
+        product.setImage(null);
         update(productId, product);
     }
 
@@ -236,7 +236,7 @@ public class ProductService extends AbstractCrudService<Product, Long> {
      */
 
     private void validateUniqueProductName(String newProductName) {
-        if (productRepository.existsByProductName(newProductName)) {
+        if (productRepository.existsByName(newProductName)) {
             throw new DuplicateResourceException("Product with name " + newProductName + " already exists.");
         }
     }
@@ -252,9 +252,9 @@ public class ProductService extends AbstractCrudService<Product, Long> {
 
     private boolean updateProductNameField(Product product, String newProductName) {
         String normalizedNewProductName = normalize(newProductName);
-        if (shouldUpdate(newProductName, product.getProductName())) {
+        if (shouldUpdate(newProductName, product.getName())) {
             validateUniqueProductName(newProductName);
-            product.setProductName(normalizedNewProductName);
+            product.setName(normalizedNewProductName);
             return true;
         }
         return false;
@@ -287,8 +287,8 @@ public class ProductService extends AbstractCrudService<Product, Long> {
 
     private boolean updateProductDescriptionField(Product product, String newProductDescription) {
         String normalizedNewProductDescription = normalize(newProductDescription);
-        if (shouldUpdate(newProductDescription, product.getProductDescription())) {
-            product.setProductDescription(normalizedNewProductDescription);
+        if (shouldUpdate(newProductDescription, product.getDescription())) {
+            product.setDescription(normalizedNewProductDescription);
             return true;
         }
         return false;
