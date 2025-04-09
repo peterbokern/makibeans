@@ -14,8 +14,8 @@ import org.mapstruct.Named;
 public interface ProductMapper {
 
     @Mapping(source = "id", target = "id")
-    @Mapping(source = "productName", target = "name")
-    @Mapping(source = "productDescription", target = "description")
+    @Mapping(source = "name", target = "name")
+    @Mapping(source = "description", target = "description")
     @Mapping(source = "productVariants", target = "productVariants")
     @Mapping(source = "productAttributes", target = "productAttributes")
     @Mapping(source = "category.id", target = "categoryId")
@@ -25,7 +25,7 @@ public interface ProductMapper {
 
     @Named("getImageUrl")
     default String getImageUrl(Product product) {
-        return product.getProductImage() != null
+        return product.getImage() != null
                 ? "/products/" + product.getId() + "/image"
                 : "null";
     }

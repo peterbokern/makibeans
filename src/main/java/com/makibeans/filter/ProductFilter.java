@@ -160,7 +160,7 @@ public class ProductFilter {
                                 .min()
                                 .orElse(Integer.MAX_VALUE));
                 case "productName" -> comparator = Comparator
-                        .comparing(Product::getProductName, String.CASE_INSENSITIVE_ORDER);
+                        .comparing(Product::getName, String.CASE_INSENSITIVE_ORDER);
                 case "sizeName" -> comparator = Comparator
                         .comparing(product -> product.getProductVariants().stream()
                                 .map(v -> v.getSize().getName())
@@ -348,10 +348,10 @@ private Stream<Product> applySearchQueryFilter(Stream<Product> products) {
         String lowerQuery = search.toLowerCase();
         products = products.filter(p ->
                 //search product name
-                p.getProductName().toLowerCase().contains(lowerQuery) ||
+                p.getName().toLowerCase().contains(lowerQuery) ||
 
                         //search product description
-                        p.getProductDescription().toLowerCase().contains(lowerQuery) ||
+                        p.getDescription().toLowerCase().contains(lowerQuery) ||
 
                         //search product attribute values
                         p.getProductAttributes().stream().anyMatch(pa ->

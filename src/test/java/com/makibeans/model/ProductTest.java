@@ -48,13 +48,13 @@ class ProductTest {
     @Test
     void when_created_then_shouldSetName() {
         // Assert
-        assertEquals("Product", product.getProductName());
+        assertEquals("Product", product.getName());
     }
 
     @Test
     void when_created_then_shouldSetDescription() {
         // Assert
-        assertEquals("Product description", product.getProductDescription());
+        assertEquals("Product description", product.getDescription());
     }
 
     @Test
@@ -67,19 +67,19 @@ class ProductTest {
     @Test
     void when_setName_then_shouldUpdateName() {
         // Act
-        product.setProductName("New Product");
+        product.setName("New Product");
 
         // Assert
-        assertEquals("New Product", product.getProductName());
+        assertEquals("New Product", product.getName());
     }
 
     @Test
     void when_setDescription_then_shouldUpdateDescription() {
         // Act
-        product.setProductDescription("New Product Description");
+        product.setDescription("New Product Description");
 
         // Assert
-        assertEquals("New Product Description", product.getProductDescription());
+        assertEquals("New Product Description", product.getDescription());
     }
 
     @Test
@@ -100,10 +100,10 @@ class ProductTest {
         byte[] image = new byte[]{1, 2, 3};
 
         // Act
-        product.setProductImage(image);
+        product.setImage(image);
 
         // Assert
-        assertArrayEquals(image, product.getProductImage());
+        assertArrayEquals(image, product.getImage());
     }
 
     // Getter Tests
@@ -116,13 +116,13 @@ class ProductTest {
     @Test
     void when_getName_then_shouldReturnCorrectValue() {
         // Assert
-        assertEquals("Product", product.getProductName());
+        assertEquals("Product", product.getName());
     }
 
     @Test
     void when_getDescription_then_shouldReturnCorrectValue() {
         // Assert
-        assertEquals("Product description", product.getProductDescription());
+        assertEquals("Product description", product.getDescription());
     }
 
     @Test

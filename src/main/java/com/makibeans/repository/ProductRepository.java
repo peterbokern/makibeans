@@ -17,11 +17,11 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     /**
      * Checks if a product with the given name exists.
      *
-     * @param productName the name of the product
+     * @param name the name of the product
      * @return true if a product with the given name exists, false otherwise
      */
 
-    boolean existsByProductName(String productName);
+    boolean existsByName(String name);
 
     /**
      * Finds products by category ID.

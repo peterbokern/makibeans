@@ -4,8 +4,6 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,14 +16,14 @@ import java.util.List;
 @Entity
 @NoArgsConstructor
 @Getter
-@ToString(exclude = {"productAttributes", "category", "productVariants", "productImage"})
+@ToString(exclude = {"productAttributes", "category", "productVariants", "image"})
 @Table(name = "products",
         indexes = {
-                @Index(name = "idx_product_name", columnList = "product_name"),
-                @Index(name = "idx_product_description", columnList = "product_description")
+                @Index(name = "idx_product_name", columnList = "name"),
+                @Index(name = "idx_product_description", columnList = "description")
         },
         uniqueConstraints = {
-                @UniqueConstraint(columnNames = {"product_name"})
+                @UniqueConstraint(columnNames = {"name"})
         })
 
 public class Product {
@@ -34,14 +32,14 @@ public class Product {
     Long id;
 
     @Setter
-    @Column(name = "product_name", unique = true, nullable = false, length = 100)
+    @Column(name = "name", unique = true, nullable = false, length = 100)
     @NotBlank(message = "Product name cannot be blank.")
-    String productName;
+    String name;
 
     @Setter
-    @Column(name = "product_description", nullable = false, length = 1000)
+    @Column(name = "description", nullable = false, length = 1000)
     @NotBlank(message = "Product description cannot be blank.")
-    String productDescription;
+    String description;
 
     @Setter
     @ManyToOne(fetch = FetchType.LAZY)
@@ -51,8 +49,8 @@ public class Product {
 
     @Setter
     @Lob
-    @Column(name = "product_image", nullable = true)
-    private byte[] productImage;
+    @Column(name = "image", nullable = true)
+    private byte[] image;
 
     //Ensures that adding & removing attributes and variants will be cascaded to the database
     @OneToMany(
@@ -70,13 +68,13 @@ public class Product {
     private List<ProductVariant> productVariants = new ArrayList<>();
 
     @Builder
-    public Product(String productName,
-                   String productDescription,
-                     byte[] productImage,
+    public Product(String name,
+                   String description,
+                     byte[] image,
                    Category category) {
-        this.productName = productName;
-        this.productDescription = productDescription;
-        this.productImage = productImage;
+        this.name = name;
+        this.description = description;
+        this.image = image;
         this.category = category;
     }
 }

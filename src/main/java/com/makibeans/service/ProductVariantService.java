@@ -157,7 +157,7 @@ public class ProductVariantService extends AbstractCrudService<ProductVariant, L
      */
 
     private String generateSKU(Product product, Size size) {
-        String productCode = product.getProductName().replaceAll("\\s+", "").toUpperCase();
+        String productCode = product.getName().replaceAll("\\s+", "").toUpperCase();
         String sizeCode = size.getName().replaceAll("\\s+", "").toUpperCase();
         String uniqueNumber = String.format("%04d", ThreadLocalRandom.current().nextInt(10000));
 

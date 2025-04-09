@@ -199,7 +199,7 @@ public class ProductAttributeService extends AbstractCrudService<ProductAttribut
                     attributeValue.getId(),
                     attributeValue.getValue(),
                     productAttribute.getId(),
-                    productAttribute.getProduct().getProductName()));
+                    productAttribute.getProduct().getName()));
         }
     }
 
@@ -218,7 +218,7 @@ public class ProductAttributeService extends AbstractCrudService<ProductAttribut
                     attributeValue.getId(),
                     attributeValue.getValue(),
                     productAttribute.getId(),
-                    productAttribute.getProduct().getProductName()));
+                    productAttribute.getProduct().getName()));
         }
     }
 
