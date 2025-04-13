@@ -8,23 +8,25 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.4.4</version> <!-- Updated to the latest stable version -->
+        <version>3.4.3</version>
         <relativePath/>
     </parent>
 
     <groupId>com.makibeans</groupId>
-    <artifactId>demo</artifactId>
+    <artifactId>makibeans</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>demo</name>
+    <name>Makibeans</name>
     <description>Makibeans Webshop</description>
 
     <properties>
         <java.version>21</java.version>
+        <maven.compiler.release>21</maven.compiler.release>
         <org.mapstruct.version>1.6.3</org.mapstruct.version>
         <org.projectlombok.version>1.18.30</org.projectlombok.version>
-        <io.jsonwebtoken.version>0.12.6</io.jsonwebtoken.version>
+        <io.jsonwebtoken.version>0.11.5</io.jsonwebtoken.version>
         <org.apache.tika.version>3.1.0</org.apache.tika.version>
         <me.paulschwarz.spring-dotenv.version>4.0.0</me.paulschwarz.spring-dotenv.version>
+        <org.springdoc.version>2.7.0</org.springdoc.version>
     </properties>
 
     <dependencies>
@@ -50,7 +52,7 @@
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
 
-        <!-- PostgreSQL -->
+        <!-- Database -->
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
@@ -82,18 +84,18 @@
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-api</artifactId>
-            <version>0.11.5</version>
+            <version>${io.jsonwebtoken.version}</version>
         </dependency>
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-impl</artifactId>
-            <version>0.11.5</version>
+            <version>${io.jsonwebtoken.version}</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-jackson</artifactId>
-            <version>0.11.5</version>
+            <version>${io.jsonwebtoken.version}</version>
             <scope>runtime</scope>
         </dependency>
 
@@ -104,11 +106,18 @@
             <version>${org.apache.tika.version}</version>
         </dependency>
 
-        <!-- dotenv -->
+        <!-- Dotenv -->
         <dependency>
             <groupId>me.paulschwarz</groupId>
             <artifactId>spring-dotenv</artifactId>
             <version>${me.paulschwarz.spring-dotenv.version}</version>
+        </dependency>
+
+        <!-- Swagger / OpenAPI -->
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>${org.springdoc.version}</version>
         </dependency>
 
         <!-- Testing -->
@@ -126,14 +135,13 @@
 
     <build>
         <plugins>
-            <!-- Compiler plugin -->
+            <!-- Maven Compiler Plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.11.0</version>
                 <configuration>
-                    <source>${java.version}</source>
-                    <target>${java.version}</target>
+                    <release>${maven.compiler.release}</release>
                     <annotationProcessorPaths>
                         <path>
                             <groupId>org.projectlombok</groupId>
@@ -149,11 +157,12 @@
                 </configuration>
             </plugin>
 
-            <!-- Spring Boot plugin -->
+            <!-- Spring Boot Maven Plugin -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
         </plugins>
     </build>
+
 </project>
