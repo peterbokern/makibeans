@@ -13,7 +13,7 @@ truncate table user_roles restart identity cascade;
 truncate table users restart identity cascade;
 truncate table roles restart identity cascade;
 
--- ============
+/*-- ============
 -- insert roles
 -- ============
 insert into roles (name)
@@ -24,14 +24,14 @@ values ('role_user'),
 -- insert admin user
 -- ==============
 insert into users (username, email, password)
-values ('maki_admin', 'maki_admin@makibeans.com', 'maki_admin');
+values ('maki_admin', 'maki_admin@makibeans.com', 'maki_admin');*/
 
 -- ==================
 -- assign user roles
 -- ==================
-insert into user_roles (user_id, role_id)
+/*insert into user_roles (user_id, role_id)
 values (1, 2);
-
+*/
 -- ========================
 -- insert attribute templates
 -- ========================
@@ -98,7 +98,7 @@ values ('coffee', 'all types of coffee beans and blends', null),
 -- ================
 -- insert products
 -- ================
-insert into products (product_name, product_description, category_id)
+insert into products (name, description, category_id)
 values ('ethiopian dark roast', 'bold and fruity beans from ethiopia, perfect for espresso lovers.', 7),
        ('colombian medium roast', 'balanced, nutty flavor with a smooth finish.', 8),
        ('single origin kenya aa', 'bright and acidic coffee with citrus notes.', 9),
