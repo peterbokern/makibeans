@@ -138,7 +138,7 @@ class ProductTest {
         String result = product.toString();
 
         // Assert
-        String expected = "Product(id=null, productName=Product, productDescription=Product description)";
+        String expected = "Product(id=null, name=Product, description=Product description)";
         assertEquals(expected, result);
     }
 }

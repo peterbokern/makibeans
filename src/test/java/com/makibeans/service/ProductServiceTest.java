@@ -74,7 +74,7 @@ class ProductServiceTest {
                 List.of(), List.of()
         );
 
-        when(productRepository.existsByProductName("Espresso")).thenReturn(false);
+        when(productRepository.existsByName("Espresso")).thenReturn(false);
         when(categoryService.findById(1L)).thenReturn(category);
         when(productRepository.save(any(Product.class))).thenReturn(product);
         when(productMapper.toResponseDTO(product)).thenReturn(expectedResponseDTO);
@@ -87,7 +87,7 @@ class ProductServiceTest {
         assertEquals(expectedResponseDTO, actualResponseDTO, "Expected the returned ProductResponseDTO to match the mapped one");
 
         // Verify
-        verify(productRepository).existsByProductName("Espresso");
+        verify(productRepository).existsByName("Espresso");
         verify(categoryService).findById(1L);
         verify(productRepository).save(any());
         verify(productMapper).toResponseDTO(product);
@@ -98,13 +98,13 @@ class ProductServiceTest {
     void should_ThrowDuplicateResourceException_When_NameAlreadyExists() {
         // Arrange
         ProductRequestDTO requestDTO = new ProductRequestDTO("Espresso", "Smooth", 1L);
-        when(productRepository.existsByProductName("Espresso")).thenReturn(true);
+        when(productRepository.existsByName("Espresso")).thenReturn(true);
 
         // Act & Assert
         assertThrows(DuplicateResourceException.class, () -> productService.createProduct(requestDTO));
 
         // Verify
-        verify(productRepository).existsByProductName("Espresso");
+        verify(productRepository).existsByName("Espresso");
         verifyNoMoreInteractions(productRepository);
     }
 
@@ -212,7 +212,7 @@ class ProductServiceTest {
         ProductResponseDTO expectedResponseDTO = new ProductResponseDTO();
 
         when(productRepository.findById(1L)).thenReturn(Optional.of(product));
-        when(productRepository.existsByProductName("Latte")).thenReturn(false);
+        when(productRepository.existsByName("Latte")).thenReturn(false);
         when(productRepository.save(any(Product.class))).thenReturn(product);
         when(productMapper.toResponseDTO(product)).thenReturn(expectedResponseDTO);
 
@@ -225,7 +225,7 @@ class ProductServiceTest {
 
         // Verify
         verify(productRepository).findById(1L);
-        verify(productRepository).existsByProductName("Latte");
+        verify(productRepository).existsByName("Latte");
         verify(productRepository).save(any(Product.class));
         verify(productMapper).toResponseDTO(product);
         verifyNoMoreInteractions(productRepository, productMapper);

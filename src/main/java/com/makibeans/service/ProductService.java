@@ -123,13 +123,13 @@ public class ProductService extends AbstractCrudService<Product, Long> {
     @Transactional
     public ProductResponseDTO createProduct(ProductRequestDTO dto) {
 
-        validateUniqueProductName(dto.getProductName());
+        validateUniqueProductName(dto.getName());
 
         Category category = categoryService.findById(dto.getCategoryId());
 
         Product product = Product.builder()
-                .name(normalize(dto.getProductName()))
-                .description(normalize(dto.getProductDescription()))
+                .name(normalize(dto.getName()))
+                .description(normalize(dto.getDescription()))
                 .category(category)
                 .build();
 
@@ -166,9 +166,9 @@ public class ProductService extends AbstractCrudService<Product, Long> {
 
         boolean updated = false;
 
-        updated |= updateProductNameField(product, dto.getProductName());
+        updated |= updateProductNameField(product, dto.getName());
         updated |= updateCategoryField(product, dto.getCategoryId());
-        updated |= updateProductDescriptionField(product, dto.getProductDescription());
+        updated |= updateProductDescriptionField(product, dto.getDescription());
 
         Product updatedProduct = updated ? update(productId, product) : product;
 
@@ -236,7 +236,7 @@ public class ProductService extends AbstractCrudService<Product, Long> {
      */
 
     private void validateUniqueProductName(String newProductName) {
-        if (productRepository.existsByName(newProductName)) {
+        if (productRepository.existsByName(normalize(newProductName))) {
             throw new DuplicateResourceException("Product with name " + newProductName + " already exists.");
         }
     }

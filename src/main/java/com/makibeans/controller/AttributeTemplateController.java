@@ -4,6 +4,8 @@ import com.makibeans.dto.attributetemplate.AttributeTemplateRequestDTO;
 import com.makibeans.dto.attributetemplate.AttributeTemplateResponseDTO;
 import com.makibeans.dto.attributetemplate.AttributeTemplateUpdateDTO;
 import com.makibeans.service.AttributeTemplateService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +17,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/attribute-templates")
+@Tag(name = "Attribute Templates", description = "CRUD operations for Attribute Templates")
 public class AttributeTemplateController {
 
     private final AttributeTemplateService attributeTemplateService;
@@ -29,7 +32,7 @@ public class AttributeTemplateController {
      * @param id the ID of the AttributeTemplate to retrieve
      * @return the ResponseEntity containing the AttributeTemplateResponseDTO
      */
-
+    @Operation(summary = "Get Attribute Template by ID")
     @GetMapping("/{id}")
     public ResponseEntity<AttributeTemplateResponseDTO> getAttributeTemplate(@PathVariable Long id) {
         AttributeTemplateResponseDTO responseDTO = attributeTemplateService.getAttributeTemplateById(id);
@@ -42,13 +45,18 @@ public class AttributeTemplateController {
      * @param params the map containing the search parameters
      * @return the ResponseEntity containing the list of AttributeTemplateResponseDTOs
      */
-
+    @Operation(summary = "Retrieve Attribute Templates",
+            description = "Fetch attribute templates with optional filtering and sorting. " +
+                    "Parameters include:\n" +
+                    "- `search`: Partial text search for template names.\n" +
+                    "- `name`: Exact match for a template name.\n" +
+                    "- `sort`: Field to sort by (`id`, `name`).\n" +
+                    "- `order`: Sort order (`asc`, `desc`).")
     @GetMapping
     public ResponseEntity<List<AttributeTemplateResponseDTO>> getTemplates(@RequestParam Map<String, String> params) {
         List<AttributeTemplateResponseDTO> attributeTemplateResponseDTOS =  attributeTemplateService.findBySearchQuery(params);
         return ResponseEntity.ok(attributeTemplateResponseDTOS);
     }
-
 
     /**
      * Creates a new AttributeTemplate.
@@ -56,7 +64,7 @@ public class AttributeTemplateController {
      * @param dto the DTO containing the details of the AttributeTemplate to create
      * @return the ResponseEntity containing the created AttributeTemplateResponseDTO
      */
-
+    @Operation(summary = "Create a new Attribute Template")
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<AttributeTemplateResponseDTO> createAttributeTemplate(
@@ -72,7 +80,7 @@ public class AttributeTemplateController {
      * @param dto the DTO containing the updated details
      * @return the ResponseEntity containing the updated AttributeTemplateResponseDTO
      */
-
+    @Operation(summary = "Update an existing Attribute Template")
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<AttributeTemplateResponseDTO> updateAttributeTemplate(
@@ -88,7 +96,7 @@ public class AttributeTemplateController {
      * @param id the ID of the AttributeTemplate to delete
      * @return the ResponseEntity with appropriate HTTP status
      */
-
+    @Operation(summary = "Delete an Attribute Template by ID")
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteAttributeTemplate(@PathVariable Long id) {
