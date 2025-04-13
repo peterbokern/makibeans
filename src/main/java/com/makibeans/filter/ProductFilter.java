@@ -38,7 +38,7 @@ public class ProductFilter {
     private final Set<String> validAttributeKeys;
 
     private static final Set<String> KNOWN_PARAMS = Set.of(
-            "categoryId", "categoryName", "minPrice", "maxPrice",
+            "categoryId", "categoryName", "minPrice", "maxPrice", "price",
             "sizeId", "sizeName", "sku", "stock", "query", "sort", "order", "page", "size", "search"
     );
 
@@ -154,11 +154,11 @@ public class ProductFilter {
 
                 case "categoryName" -> comparator = Comparator
                         .comparing(product -> product.getCategory().getName(), String.CASE_INSENSITIVE_ORDER);
-                case "priceInCents" -> comparator = Comparator
+                case "price", "minPrice"-> comparator = Comparator
                         .comparing(product -> product.getProductVariants()
                                 .stream().mapToLong(ProductVariant::getPriceInCents)
                                 .min()
-                                .orElse(Integer.MAX_VALUE));
+                                .orElse(order.equals("desc") ? Long.MIN_VALUE : Long.MAX_VALUE));
                 case "productName" -> comparator = Comparator
                         .comparing(Product::getName, String.CASE_INSENSITIVE_ORDER);
                 case "sizeName" -> comparator = Comparator

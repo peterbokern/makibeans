@@ -16,10 +16,10 @@ import lombok.NoArgsConstructor;
 public class ProductUpdateDTO {
 
     @Size(min = 3, max = 100)
-    private String productName;
+    private String name;
 
     @Size(min = 5, max = 1000)
-    private String productDescription;
+    private String description;
 
     @Size(max = 1000)
     private String productImageUrl;

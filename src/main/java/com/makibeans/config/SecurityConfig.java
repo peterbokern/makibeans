@@ -101,6 +101,14 @@ public class SecurityConfig {
                         // Auth endpoints
                         .requestMatchers("/auth/**").permitAll()
 
+                        // Swagger and OpenAPI documentation
+                        .requestMatchers(
+                                "/v3/api-docs/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html"
+                        ).permitAll()
+
+
                         // Admin-only for modifying resources
                         .requestMatchers(
                                 "/users/admin/**", // Admin registration
