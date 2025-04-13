@@ -15,10 +15,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ProductRequestDTO {
     @NotBlank(message = "Product name cannot be blank.")
-    private String productName;
+    private String name;
 
     @NotBlank(message = "Product description cannot be blank.")
-    private String productDescription;
+    private String description;
 
 /*    private String productImageUrl;*/
 
