@@ -44,10 +44,10 @@ customer) and provides features such as user management, product management, fil
 To run this web API, you'll need:
 
 - Java JDK 21
-- Maven 3.9+
-- PostgreSQL (port 5433)
+- Relational database: PostgreSQL (currently configured on port 5433, but you can change it in the `.env` file and `application.properties`)
 - Postman (for API testing)
-- A `.env` file with secrets (see step 3)
+- A `.env` file with secrets including database username and password and SSL (see step 3)
+- Maven 3.9+ (or the Maven wrapper `mvnw` included in the project)
 
 > All secrets in the `.env` file are automatically loaded into `application.properties` using the Spring dotenv
 > integration. You can reference them using `${}` placeholders such as `${db.username}`.
@@ -60,10 +60,10 @@ To run this web API, you'll need:
 
 1. Open a terminal on your machine.
 2. Start PostgreSQL (e.g., via Postgres.app or pgAdmin).
-3. Connect to an existing database (such as `students`) using:
+3. Connect to an existing database <database_name> (e.g., `students`) using the following command:
 
 ```bash
-psql -p 5433 -d students
+psql -p 5433 -d <database_name>
 ```
 
 4. Create a new database user the application will use to connect:
@@ -94,26 +94,11 @@ GRANT ALL PRIVILEGES ON DATABASE makibeans TO <db_username>;
 > connecting the application to the database. Application users (like admin and regular_user) are created automatically
 > when the app starts.
 
----
-
-### Step 2: Create `.env` file
-
-In the root of your project, create a `.env` file with the following content:
-
-```env
-db_username=makiboss
-db_password=supersecure
-jwt_secret=your_jwt_secret
-server_ssl_key_store_password=keystorepass
-server_ssl_key_password=keypass
-```
-
----
 
 ### Step 3: Generate SSL Certificate (only required once)
 
 In Spring Boot, HTTPS can be enabled using an SSL certificate. For development purposes, we use a self-signed
-certificate that we generate ourselves.
+certificate that we generate ourselves. You can also disable SSL in `application.properties` for testing.
 
 Open a terminal and enter the following command:
 
@@ -129,13 +114,27 @@ In your `application.properties` file, add the following configuration:
 ```properties
 server.ssl.key-store=classpath:certificate.jks
 server.ssl.key-store-type=pkcs12
-server.ssl.key-store-password=p4ssw0rd
-server.ssl.key-password=p4ssw0rd
+server.ssl.key-store-password=${keystorepass}
+server.ssl.key-password=${keypass}
 server.ssl.key-alias=certificate
 server.port=8443
 ```
+> Note: The password for the keystore and key are kept in the `.env` file.
+---
 
-Then continue with starting the application.
+### Step 3: Create `.env` file
+
+In the root of your project, create a `.env` file with the following content:
+
+```env
+db_username=<db_username>
+db_password=<db_password>
+jwt_secret=<your_jwt_secret>
+server_ssl_key_store_password=keystorepass
+server_ssl_key_password=keypass
+```
+
+> Note : for the JWT key, A good practice is to use a randomly generated string of at least 32 characters. For example, you can use a secure password generator to create a string with a mix of uppercase, lowercase, numbers, and special characters.
 
 ---
 
@@ -379,9 +378,7 @@ mvn spring-boot:run
 
 ```sql
 DROP DATABASE makibeans;
-DROP
-USER
-<db_username>;
+DROP USER <db_username>;
 ```
 
 ---
