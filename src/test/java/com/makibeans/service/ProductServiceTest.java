@@ -68,13 +68,13 @@ class ProductServiceTest {
     @Test
     void should_CreateProduct_When_ValidInput() {
         // Arrange
-        ProductRequestDTO requestDTO = new ProductRequestDTO("Espresso", "Smooth", 1L);
+        ProductRequestDTO requestDTO = new ProductRequestDTO("espresso", "smooth", 1L);
         ProductResponseDTO expectedResponseDTO = new ProductResponseDTO(
-                1L, "Espresso", "Smooth and rich", null, 1L, "Coffee",
+                1L, "espresso", "emooth and rich", null, 1L, "coffee",
                 List.of(), List.of()
         );
 
-        when(productRepository.existsByName("Espresso")).thenReturn(false);
+        when(productRepository.existsByName("espresso")).thenReturn(false);
         when(categoryService.findById(1L)).thenReturn(category);
         when(productRepository.save(any(Product.class))).thenReturn(product);
         when(productMapper.toResponseDTO(product)).thenReturn(expectedResponseDTO);
@@ -87,7 +87,7 @@ class ProductServiceTest {
         assertEquals(expectedResponseDTO, actualResponseDTO, "Expected the returned ProductResponseDTO to match the mapped one");
 
         // Verify
-        verify(productRepository).existsByName("Espresso");
+        verify(productRepository).existsByName("espresso");
         verify(categoryService).findById(1L);
         verify(productRepository).save(any());
         verify(productMapper).toResponseDTO(product);
@@ -97,14 +97,13 @@ class ProductServiceTest {
     @Test
     void should_ThrowDuplicateResourceException_When_NameAlreadyExists() {
         // Arrange
-        ProductRequestDTO requestDTO = new ProductRequestDTO("Espresso", "Smooth", 1L);
-        when(productRepository.existsByName("Espresso")).thenReturn(true);
+        ProductRequestDTO requestDTO = new ProductRequestDTO("espresso", "smooth", 1L);
+        when(productRepository.existsByName("espresso")).thenReturn(true);
 
         // Act & Assert
         assertThrows(DuplicateResourceException.class, () -> productService.createProduct(requestDTO));
-
         // Verify
-        verify(productRepository).existsByName("Espresso");
+        verify(productRepository).existsByName("espresso");
         verifyNoMoreInteractions(productRepository);
     }
 
@@ -212,7 +211,7 @@ class ProductServiceTest {
         ProductResponseDTO expectedResponseDTO = new ProductResponseDTO();
 
         when(productRepository.findById(1L)).thenReturn(Optional.of(product));
-        when(productRepository.existsByName("Latte")).thenReturn(false);
+        when(productRepository.existsByName("latte")).thenReturn(false);
         when(productRepository.save(any(Product.class))).thenReturn(product);
         when(productMapper.toResponseDTO(product)).thenReturn(expectedResponseDTO);
 
@@ -225,7 +224,7 @@ class ProductServiceTest {
 
         // Verify
         verify(productRepository).findById(1L);
-        verify(productRepository).existsByName("Latte");
+        verify(productRepository).existsByName("latte");
         verify(productRepository).save(any(Product.class));
         verify(productMapper).toResponseDTO(product);
         verifyNoMoreInteractions(productRepository, productMapper);
@@ -234,9 +233,9 @@ class ProductServiceTest {
     @Test
     void should_NotUpdateProduct_When_NoFieldsChanged() {
         // Arrange
-        ProductUpdateDTO updateDTO = new ProductUpdateDTO("Espresso", "Smooth and rich", null, category.getId());
-        Product product = new Product("Espresso", "Smooth and rich", null, category);
-        ProductResponseDTO expectedResponseDTO = new ProductResponseDTO(1L, "Espresso", "Smooth and rich", null, 1L, "Coffee", List.of(), List.of());
+        ProductUpdateDTO updateDTO = new ProductUpdateDTO("espresso", "Smooth and rich", null, category.getId());
+        Product product = new Product("espresso", "Smooth and rich", null, category);
+        ProductResponseDTO expectedResponseDTO = new ProductResponseDTO(1L, "espresso", "smooth and rich", null, 1L, "coffee", List.of(), List.of());
 
         when(productRepository.findById(1L)).thenReturn(Optional.of(product));
         when(productMapper.toResponseDTO(product)).thenReturn(expectedResponseDTO);
