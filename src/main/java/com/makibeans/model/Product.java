@@ -1,5 +1,6 @@
 package com.makibeans.model;
 
+import com.makibeans.model.base.Auditable;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -26,7 +27,7 @@ import java.util.List;
                 @UniqueConstraint(columnNames = {"name"})
         })
 
-public class Product {
+public class Product extends Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;

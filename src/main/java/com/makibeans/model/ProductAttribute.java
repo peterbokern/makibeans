@@ -1,5 +1,6 @@
 package com.makibeans.model;
 
+import com.makibeans.model.base.Auditable;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -24,7 +25,7 @@ import java.util.List;
 })
 
 @ToString(exclude = {"product", "attributeValues"})
-public class ProductAttribute {
+public class ProductAttribute extends Auditable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

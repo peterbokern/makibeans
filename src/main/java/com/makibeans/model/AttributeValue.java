@@ -1,4 +1,5 @@
 package com.makibeans.model;
+import com.makibeans.model.base.Auditable;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -21,7 +22,7 @@ import lombok.ToString;
 })
 
 @ToString(exclude = "attributeTemplate")
-public class AttributeValue {
+public class AttributeValue extends Auditable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

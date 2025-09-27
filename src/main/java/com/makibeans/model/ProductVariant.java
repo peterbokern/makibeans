@@ -1,4 +1,5 @@
 package com.makibeans.model;
+import com.makibeans.model.base.Auditable;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.Min;
@@ -27,7 +28,7 @@ import org.hibernate.annotations.OnDeleteAction;
         uniqueConstraints = {
                 @UniqueConstraint(columnNames = {"sku"})
         })
-public class ProductVariant {
+public class ProductVariant extends Auditable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

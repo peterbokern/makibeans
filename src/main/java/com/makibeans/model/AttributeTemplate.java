@@ -1,5 +1,6 @@
 package com.makibeans.model;
 
+import com.makibeans.model.base.Auditable;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -22,7 +23,7 @@ import java.util.List;
 @NoArgsConstructor
 @Getter
 @ToString(exclude = "attributeValues")
-public class AttributeTemplate {
+public class AttributeTemplate extends Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

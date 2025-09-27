@@ -1,5 +1,7 @@
 package com.makibeans.dto.product;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.makibeans.dto.base.AuditableResponseDTO;
 import com.makibeans.dto.productvariant.ProductVariantResponseDTO;
 import com.makibeans.dto.productattribute.ProductAttributeResponseDTO;
 import lombok.*;
@@ -9,10 +11,12 @@ import java.util.List;
  * Data Transfer Object for ProductResponse.
  */
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ProductResponseDTO {
+@JsonPropertyOrder({"id", "name", "description", "imageUrl", "categoryId", "categoryName", "productVariants", "productAttributes", "createdBy", "createdAt", "updatedBy", "updatedAt"})
+public class ProductResponseDTO extends AuditableResponseDTO {
 
     private Long id;
     private String name;

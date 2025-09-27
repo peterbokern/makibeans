@@ -1,5 +1,6 @@
 package com.makibeans.model;
 
+import com.makibeans.model.base.Auditable;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
@@ -22,7 +23,7 @@ import lombok.ToString;
                 @Index(name = "idx_size_name", columnList = "name")
         })
 @ToString
-public class Size {
+public class Size extends Auditable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

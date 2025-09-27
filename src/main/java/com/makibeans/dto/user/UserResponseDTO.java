@@ -1,7 +1,10 @@
 package com.makibeans.dto.user;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.makibeans.dto.base.AuditableResponseDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.util.Set;
@@ -11,10 +14,12 @@ import java.util.Set;
  * Contains the id, username, email, and roles.
  */
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserResponseDTO {
+@JsonPropertyOrder({"id", "username", "email", "roles", "createdBy", "createdAt", "updatedBy", "updatedAt"})
+public class UserResponseDTO extends AuditableResponseDTO {
     private Long id;
     private String username;
     private String email;

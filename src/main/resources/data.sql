@@ -131,3 +131,49 @@ values (1, 1, 2000, 50, 'ETH-100G-001'),
        (4, 2, 2400, 45, 'HBL-250G-008'),
        (5, 1, 1600, 70, 'BZD-100G-009'),
        (5, 2, 2100, 50, 'BZD-250G-010');
+
+-- ====================
+-- Add auditing columns to all tables
+-- ====================
+
+UPDATE attribute_templates
+SET created_at = COALESCE(created_at, now()),
+    updated_at = COALESCE(updated_at, now()),
+    created_by = COALESCE(created_by, 'system'),
+    updated_by = COALESCE(updated_by, 'system');
+
+UPDATE attribute_values
+SET created_at = COALESCE(created_at, now()),
+    updated_at = COALESCE(updated_at, now()),
+    created_by = COALESCE(created_by, 'system'),
+    updated_by = COALESCE(updated_by, 'system');
+
+UPDATE sizes
+SET created_at = COALESCE(created_at, now()),
+    updated_at = COALESCE(updated_at, now()),
+    created_by = COALESCE(created_by, 'system'),
+    updated_by = COALESCE(updated_by, 'system');
+
+UPDATE categories
+SET created_at = COALESCE(created_at, now()),
+    updated_at = COALESCE(updated_at, now()),
+    created_by = COALESCE(created_by, 'system'),
+    updated_by = COALESCE(updated_by, 'system');
+
+UPDATE products
+SET created_at = COALESCE(created_at, now()),
+    updated_at = COALESCE(updated_at, now()),
+    created_by = COALESCE(created_by, 'system'),
+    updated_by = COALESCE(updated_by, 'system');
+
+UPDATE product_attributes
+SET created_at = COALESCE(created_at, now()),
+    updated_at = COALESCE(updated_at, now()),
+    created_by = COALESCE(created_by, 'system'),
+    updated_by = COALESCE(updated_by, 'system');
+
+UPDATE product_variants
+SET created_at = COALESCE(created_at, now()),
+    updated_at = COALESCE(updated_at, now()),
+    created_by = COALESCE(created_by, 'system'),
+    updated_by = COALESCE(updated_by, 'system');

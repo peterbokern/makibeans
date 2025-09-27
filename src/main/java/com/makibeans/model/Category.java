@@ -1,5 +1,6 @@
 package com.makibeans.model;
 
+import com.makibeans.model.base.Auditable;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
@@ -32,7 +33,7 @@ import java.util.List;
 )
 
 @ToString(exclude = {"parentCategory", "subCategories", "image", "products"})
-public class Category {
+public class Category extends Auditable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

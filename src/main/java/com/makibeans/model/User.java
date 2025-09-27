@@ -1,5 +1,6 @@
 package com.makibeans.model;
 
+import com.makibeans.model.base.Auditable;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -22,7 +23,7 @@ import java.util.Set;
 @AllArgsConstructor
 @Getter
 @Setter
-@EqualsAndHashCode(exclude = "roles")
+@EqualsAndHashCode(exclude = "roles", callSuper = false)
 @ToString(exclude = "roles")
 @Table(name = "users",
         uniqueConstraints = {
@@ -33,7 +34,7 @@ import java.util.Set;
                 @Index(name = "idx_user_username", columnList = "username"),
                 @Index(name = "idx_user_email", columnList = "email")
         })
-public class User implements UserDetails {
+public class User extends Auditable implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
