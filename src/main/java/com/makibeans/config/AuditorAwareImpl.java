@@ -8,6 +8,11 @@ import org.springframework.stereotype.Component;
 
 import java.util.Optional;
 
+/**
+ * Implementation of {@link AuditorAware} to provide the current auditor's username.
+ * This is used for auditing purposes, such as tracking who created or modified an entity.
+ */
+
 @Component
 public class AuditorAwareImpl implements AuditorAware<String> {
 
