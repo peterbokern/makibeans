@@ -1,14 +1,11 @@
 package com.makibeans.repository;
 
-import com.makibeans.model.AttributeTemplate;
+import com.makibeans.model.Attribute;
 import com.makibeans.model.AttributeValue;
-import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
-import java.beans.JavaBean;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Repository for the attribute value entity.
@@ -17,23 +14,23 @@ import java.util.Optional;
 public interface AttributeValueRepository extends JpaRepository<AttributeValue, Long> {
 
     /**
-     * Returns the attribute value with the given value.
+     * Checks if an attribute value with the given value exists for the specified attribute.
      *
-     * @param value The value of the attribute value.
-     * @return The attribute value with the given value.
+     * @param attribute The attribute to check.
+     * @param value The value to check for.
+     * @return true if an attribute value with the given value exists for the attribute, false otherwise.
      */
 
-    @Query("SELECT COUNT(av) > 0 FROM AttributeValue av WHERE av.attributeTemplate = :attributeTemplate AND av.value = :value")
-    boolean existsByValue(AttributeTemplate attributeTemplate, String value);
+    //REMOVED: @Query("SELECT COUNT(av) > 0 FROM AttributeValue av WHERE av.attribute = :attribute AND av.value = :value")
+    boolean existsByAttributeAndValue(Attribute attribute, String value);
 
     /**
      * Returns all attribute values for the given attribute template.
      *
-     * @param attributeTemplate The attribute template.
+     * @param attribute The attribute template.
      * @return All attribute values for the given attribute template.
      */
 
-    //@EntityGraph(attributePaths = {"attributeTemplate"}) // Ensures `attributeTemplate` is fetched
-    List<AttributeValue> findAllByAttributeTemplate(AttributeTemplate attributeTemplate);
+    List<AttributeValue> findAllByAttribute(Attribute attribute);
 
 }

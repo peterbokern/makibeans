@@ -39,7 +39,7 @@ public class ProductService extends AbstractCrudService<Product, Long> {
     private final ProductRepository productRepository;
     private final CategoryService categoryService;
     private final ProductMapper productMapper;
-    private final AttributeTemplateService attributeTemplateService;
+    private final AttributeService attributeService;
     private final ProductAttributeService productAttributeService;
     private final Logger logger = LoggerFactory.getLogger(ProductService.class);
     private final ImageUtils imageUtils;
@@ -51,13 +51,13 @@ public class ProductService extends AbstractCrudService<Product, Long> {
             ProductRepository productRepository,
             CategoryService categoryService,
             ProductMapper productMapper,
-            AttributeTemplateService attributeTemplateService,
+            AttributeService attributeService,
             @Lazy ProductAttributeService productAttributeService, ImageUtils imageUtils) {
         super(repository);
         this.productRepository = productRepository;
         this.categoryService = categoryService;
         this.productMapper = productMapper;
-        this.attributeTemplateService = attributeTemplateService;
+        this.attributeService = attributeService;
         this.productAttributeService = productAttributeService;
         this.imageUtils = imageUtils;
     }
@@ -107,7 +107,7 @@ public class ProductService extends AbstractCrudService<Product, Long> {
                 .filters(filters)
                 .products(findAll())
                 .productMapper(productMapper)
-                .validAttributeKeys(attributeTemplateService.getValidAttributeKeys())
+                .validAttributeKeys(attributeService.getValidAttributeKeys())
                 .build();
         return productFilter.apply();
     }
@@ -146,7 +146,7 @@ public class ProductService extends AbstractCrudService<Product, Long> {
 
     @Transactional
     public void deleteProduct(Long productId) {
-        deleteProductAttributes(productId);
+        //deleteProductAttributes(productId); no longer needed due to CascadeType.ALL and orphanRemoval = true on productAttributes in Product entity
         delete(productId);
     }
 
@@ -294,14 +294,14 @@ public class ProductService extends AbstractCrudService<Product, Long> {
         return false;
     }
 
-    /**
+    /** TO BE REMOVED - NO LONGER NEEDED DUE TO CascadeType.ALL and orphanRemoval = true on productAttributes in Product entity
      * Deletes all product attributes associated with a product.
      *
      * @param productId the ID of the product whose attributes are to be deleted.
      */
-    private void deleteProductAttributes(Long productId) {
+    /*private void deleteProductAttributes(Long productId) {
         productAttributeService.getProductAttributesByProductId(productId)
                 .forEach(productAttribute ->
                         productAttributeService.deleteProductAttribute(productAttribute.getId()));
-    }
+    }*/
 }

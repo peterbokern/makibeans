@@ -1,14 +1,15 @@
 package com.makibeans.service;
 
-import com.makibeans.dto.attribute.AttributeTemplateRequestDTO;
-import com.makibeans.dto.attribute.AttributeTemplateResponseDTO;
-import com.makibeans.dto.attribute.AttributeTemplateUpdateDTO;
+import com.makibeans.dto.attribute.AttributeRequestDTO;
+import com.makibeans.dto.attribute.AttributeResponseDTO;
+import com.makibeans.dto.attribute.AttributeUpdateDTO;
 import com.makibeans.exceptions.DuplicateResourceException;
 import com.makibeans.exceptions.ResourceNotFoundException;
 import com.makibeans.filter.SearchFilter;
 import com.makibeans.mapper.AttributeMapper;
 import com.makibeans.model.Attribute;
-import com.makibeans.repository.AttributeTemplateRepository;
+import com.makibeans.repository.AttributeRepository;
+import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.CacheEvict;
@@ -34,22 +35,21 @@ import static com.makibeans.util.UpdateUtils.shouldUpdate;
  * Provides methods to perform CRUD operations and search for AttributeTemplates.
  */
 @Service
-public class AttributeTemplateService extends AbstractCrudService<Attribute, Long> {
+public class AttributeService extends AbstractCrudService<Attribute, Long> {
 
-    private final AttributeTemplateRepository attributeTemplateRepository;
     private final AttributeMapper mapper;
-    private final Logger logger = LoggerFactory.getLogger(AttributeTemplateService.class);
+    private final Logger logger = LoggerFactory.getLogger(AttributeService.class);
     private final ProductAttributeService productAttributeService;
+    private final AttributeRepository attributeRepository;
 
     @Autowired
-    public AttributeTemplateService(
+    public AttributeService(
             JpaRepository<Attribute, Long> repository,
-            AttributeTemplateRepository attributeTemplateRepository,
-            AttributeMapper mapper, @Lazy ProductAttributeService productAttributeService) {
+            AttributeMapper mapper, @Lazy ProductAttributeService productAttributeService, AttributeRepository attributeRepository) {
         super(repository);
-        this.attributeTemplateRepository = attributeTemplateRepository;
         this.mapper = mapper;
         this.productAttributeService = productAttributeService;
+        this.attributeRepository = attributeRepository;
     }
 
     /**
@@ -62,7 +62,7 @@ public class AttributeTemplateService extends AbstractCrudService<Attribute, Lon
      */
 
     @Transactional(readOnly = true)
-    public AttributeTemplateResponseDTO getAttributeTemplateById(Long id) {
+    public AttributeResponseDTO getAttributeById(Long id) {
         Attribute attribute = findById(id);
         return mapper.toResponseDTO(attribute);
     }
@@ -76,7 +76,7 @@ public class AttributeTemplateService extends AbstractCrudService<Attribute, Lon
      */
 
     @Transactional(readOnly = true)
-    public List<AttributeTemplateResponseDTO> findBySearchQuery(Map<String, String> searchParams) {
+    public List<AttributeResponseDTO> findBySearchQuery(Map<String, String> searchParams) {
         logger.debug("Searching AttributeTemplates with filters: {}", searchParams);
 
         Map<String, Function<Attribute, String>> searchFields = Map.of(
@@ -108,7 +108,7 @@ public class AttributeTemplateService extends AbstractCrudService<Attribute, Lon
      */
 
     @Transactional
-    public AttributeTemplateResponseDTO createAttributeTemplate(AttributeTemplateRequestDTO dto) {
+    public AttributeResponseDTO createAttribute(AttributeRequestDTO dto) {
         String normalizedName = normalize(dto.getName());
 
         validateAttributeTemplateName(normalizedName);
@@ -130,7 +130,7 @@ public class AttributeTemplateService extends AbstractCrudService<Attribute, Lon
      */
 
     @Transactional
-    public void deleteAttributeTemplate(Long id) {
+    public void deleteAttribute(Long id) {
         findById(id);
         deleteProductAttributesByTemplateId(id);
         delete(id);
@@ -160,7 +160,7 @@ public class AttributeTemplateService extends AbstractCrudService<Attribute, Lon
      */
 
     @Transactional
-    public AttributeTemplateResponseDTO updateAttributeTemplate(Long id, AttributeTemplateUpdateDTO dto) {
+    public AttributeResponseDTO updateAttribute(Long id, @Valid AttributeUpdateDTO dto) {
 
         Attribute attribute = findById(id);
 
@@ -202,7 +202,7 @@ public class AttributeTemplateService extends AbstractCrudService<Attribute, Lon
      */
 
     private void validateAttributeTemplateName(String name) {
-        if (attributeTemplateRepository.existsByName(name)) {
+        if (attributeRepository.existsByName(name)) {
             throw new DuplicateResourceException(
                     String.format("Attribute template with name '%s' already exists.", name));
         }

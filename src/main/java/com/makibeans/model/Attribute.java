@@ -18,30 +18,30 @@ import java.util.List;
 
 @Entity
 @Table(
-        name = "attribute_templates",
-        indexes = {@Index(name = "idx_attribute_template_name", columnList = "name")})
+        name = "attributes",
+        indexes = {@Index(name = "idx_attribute_name", columnList = "name")})
 @NoArgsConstructor
 @Getter
 @ToString(exclude = "attributeValues")
-public class AttributeTemplate extends Auditable {
+public class Attribute extends Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Setter
-    @NotBlank(message = "Name of attribute template cannot be blank.")
-    @Size(min = 3, max = 50, message = "Name of attribute template must be between 3 and 50 characters.")
+    @NotBlank(message = "Name of attribute cannot be blank.")
+    @Size(min = 3, max = 50, message = "Name of attribute  must be between 3 and 50 characters.")
     @Column(name = "name", nullable = false, unique = true, length = 50)
     private String name;
 
     @OneToMany(
-            mappedBy = "attributeTemplate",
+            mappedBy = "attribute",
             cascade = CascadeType.REMOVE, //remove all dependent attribute values
             orphanRemoval = true,
             fetch = FetchType.LAZY) //only load attribute values when needed
     private List<AttributeValue> attributeValues;
 
-    public AttributeTemplate(String name) {
+    public Attribute(String name) {
         this.name = name;
     }
 }

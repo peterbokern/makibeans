@@ -117,7 +117,7 @@ public abstract class AbstractCrudService<T, ID> {
     /**
      * Gets a human-readable name of the entity type for logging purposes.
      *
-     * @return the entity name (e.g., "AttributeTemplate" from "AttributeTemplateService")
+     * @return the entity name (e.g., "Attribute" from "AttributeService")
      */
 
     private String getEntityName() {

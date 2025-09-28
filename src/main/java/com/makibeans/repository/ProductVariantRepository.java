@@ -36,4 +36,13 @@ public interface ProductVariantRepository extends JpaRepository<ProductVariant, 
     @Query("DELETE FROM ProductVariant pv WHERE pv.size.id = :sizeId")
     void deleteBySizeId(@Param("sizeId") Long sizeId);
 
+    /**
+     * Checks whether a {@link ProductVariant} exists
+     * that references the given size id.
+     *
+     * @param sizeId the id of the related size
+     * @return true if at least one entity exists, false otherwise
+     */
+    boolean existsBySizeId(Long sizeId);
+
 }

@@ -2,7 +2,7 @@
 -- ========================
 -- insert attribute templates
 -- ========================
-insert into attribute_templates (name)
+insert into attributes(name)
 values ('origin'),
        ('flavor'),
        ('intensity');
@@ -10,7 +10,7 @@ values ('origin'),
 -- ========================
 -- insert attribute values
 -- ========================
-insert into attribute_values (template_id, value)
+insert into attribute_values (attribute_id, value)
 values (1, 'colombia'),
        (1, 'ethiopia'),
        (1, 'kenya'),
@@ -80,7 +80,7 @@ values ('ethiopian dark roast', 'bold and fruity beans from ethiopia, perfect fo
 -- ========================
 -- insert product attributes
 -- ========================
-insert into product_attributes (product_id, template_id)
+insert into product_attributes (product_id, attribute_id)
 values (1, 1),
        (1, 2),
        (1, 3),
@@ -136,7 +136,7 @@ values (1, 1, 2000, 50, 'ETH-100G-001'),
 -- Add auditing columns to all tables
 -- ====================
 
-UPDATE attribute_templates
+UPDATE attributes
 SET created_at = COALESCE(created_at, now()),
     updated_at = COALESCE(updated_at, now()),
     created_by = COALESCE(created_by, 'system'),

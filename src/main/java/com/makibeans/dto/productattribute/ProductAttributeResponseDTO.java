@@ -19,13 +19,13 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@JsonPropertyOrder({"id", "attributeTemplateId", "attributeTemplateName", "values", "createdBy", "createdAt", "updatedBy", "updatedAt"})
+@JsonPropertyOrder({"id", "attributeId", "attributeName", "values", "createdBy", "createdAt", "updatedBy", "updatedAt"})
 public class ProductAttributeResponseDTO extends AuditableResponseDTO {
 
     private Long id;
    /* private Long productId;
     private String productName;*/
-    private Long attributeTemplateId;
-    private String attributeTemplateName;
+    private Long attributeId;
+    private String attributeName;
     private List<AttributeValueSimpleResponseDTO> values = new ArrayList<>();
 }

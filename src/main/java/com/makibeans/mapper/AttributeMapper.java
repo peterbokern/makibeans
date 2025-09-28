@@ -1,11 +1,11 @@
 package com.makibeans.mapper;
 
-import com.makibeans.dto.attributetemplate.AttributeTemplateResponseDTO;
+import com.makibeans.dto.attribute.AttributeResponseDTO;
 import com.makibeans.model.Attribute;
 import org.mapstruct.Mapper;
 
 /**
- * Mapper for the entity {@link Attribute} and its DTO {@link AttributeTemplateResponseDTO}.
+ * Mapper for the entity {@link Attribute} and its DTO {@link AttributeResponseDTO}.
  */
 
 @Mapper(componentModel = "spring")
@@ -18,5 +18,5 @@ public interface AttributeMapper {
      * @return the converted AttributeTemplateResponseDTO
      */
 
-    AttributeTemplateResponseDTO toResponseDTO(Attribute entity);
+    AttributeResponseDTO toResponseDTO(Attribute entity);
 }

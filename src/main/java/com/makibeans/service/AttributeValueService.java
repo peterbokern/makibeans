@@ -4,12 +4,14 @@ import com.makibeans.dto.attributevalue.AttributeValueRequestDTO;
 import com.makibeans.dto.attributevalue.AttributeValueResponseDTO;
 import com.makibeans.dto.attributevalue.AttributeValueUpdateDTO;
 import com.makibeans.exceptions.DuplicateResourceException;
+import com.makibeans.exceptions.ResourceInUseException;
 import com.makibeans.exceptions.ResourceNotFoundException;
 import com.makibeans.filter.SearchFilter;
 import com.makibeans.mapper.AttributeValueMapper;
-import com.makibeans.model.AttributeTemplate;
+import com.makibeans.model.Attribute;
 import com.makibeans.model.AttributeValue;
 import com.makibeans.repository.AttributeValueRepository;
+import com.makibeans.repository.ProductAttributeValueRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -31,21 +33,21 @@ import static com.makibeans.util.UpdateUtils.shouldUpdate;
 public class AttributeValueService extends AbstractCrudService<AttributeValue, Long> {
 
     private final AttributeValueRepository attributeValueRepository;
-    private final AttributeTemplateService attributeTemplateService;
-    private final ProductAttributeService productAttributeService;
+    private final AttributeService attributeService;
     private final AttributeValueMapper mapper;
+    private final ProductAttributeValueRepository productAttributeValueRepository;
 
 
     @Autowired
     public AttributeValueService(AttributeValueRepository attributeValueRepository,
-                                 AttributeTemplateService attributeTemplateService,
-                                 @Lazy ProductAttributeService productAttributeService,
+                                 AttributeService attributeService,
+                                 ProductAttributeValueRepository productAttributeValueRepository,
                                  AttributeValueMapper mapper) {
         super(attributeValueRepository);
         this.attributeValueRepository = attributeValueRepository;
-        this.attributeTemplateService = attributeTemplateService;
-        this.productAttributeService = productAttributeService;
+        this.attributeService = attributeService;
         this.mapper = mapper;
+        this.productAttributeValueRepository = productAttributeValueRepository;
     }
 
     /**
@@ -76,13 +78,13 @@ public class AttributeValueService extends AbstractCrudService<AttributeValue, L
 
         Map<String, Function<AttributeValue, String>> searchFields = Map.of(
                 "value", AttributeValue::getValue,
-                "attributeTemplate", attributeValue -> attributeValue.getAttributeTemplate().getName()
+                "attributeTemplate", attributeValue -> attributeValue.getAttribute().getName()
         );
 
         Map<String, Comparator<AttributeValue>> sortFields = Map.of(
                 "id", Comparator.comparing(AttributeValue::getId, Comparator.nullsLast(Comparator.naturalOrder())),
                 "value", Comparator.comparing(AttributeValue::getValue, String.CASE_INSENSITIVE_ORDER),
-                "attributeTemplate", Comparator.comparing(attributeValue -> attributeValue.getAttributeTemplate().getName()));
+                "attributeTemplate", Comparator.comparing(attributeValue -> attributeValue.getAttribute().getName()));
 
         // Apply filtering and sorting using SearchFilter
         List<AttributeValue> matchedValues = SearchFilter.apply(
@@ -97,7 +99,7 @@ public class AttributeValueService extends AbstractCrudService<AttributeValue, L
     }
 
     /**
-     * Retrieves all AttributeValues by given AttributeTemplate id
+     * Retrieves all AttributeValues by given Attribute id
      *
      * @param templateId the attributeTemplate id to search on
      * @return the list of all AttributeValueResponseDTO's representing the found attribute values.
@@ -106,9 +108,9 @@ public class AttributeValueService extends AbstractCrudService<AttributeValue, L
     @Transactional(readOnly = true)
     public List<AttributeValueResponseDTO> getAllAttributeValuesByTemplateId(Long templateId) {
 
-        AttributeTemplate attributeTemplate = attributeTemplateService.findById(templateId);
+        Attribute attribute = attributeService.findById(templateId);
 
-        return attributeValueRepository.findAllByAttributeTemplate(attributeTemplate)
+        return attributeValueRepository.findAllByAttribute(attribute)
                 .stream()
                 .map(mapper::toResponseDTO)
                 .toList();
@@ -125,13 +127,13 @@ public class AttributeValueService extends AbstractCrudService<AttributeValue, L
     @Transactional
     public AttributeValueResponseDTO createAttributeValue(AttributeValueRequestDTO requestDTO) {
 
-        AttributeTemplate attributeTemplate = attributeTemplateService.findById(requestDTO.getTemplateId());
+        Attribute attribute = attributeService.findById(requestDTO.getAttributeId());
 
         String normalizedValue = normalize(requestDTO.getValue());
 
-        validateUniqueAttributeValue(attributeTemplate, normalizedValue);
+        validateUniqueAttributeValue(attribute, normalizedValue);
 
-        AttributeValue attributeValue = new AttributeValue(attributeTemplate, normalizedValue);
+        AttributeValue attributeValue = new AttributeValue(attribute, normalizedValue);
 
         AttributeValue savedAttributeValue = create(attributeValue);
 
@@ -148,7 +150,12 @@ public class AttributeValueService extends AbstractCrudService<AttributeValue, L
     @Transactional
     public void deleteAttributeValue(Long id) {
         findById(id);
-        productAttributeService.deleteAttributeValuesByAttributeValueId(id);
+        //TODO: check which products still use this attribute value and notify the user. Maybe create DTO with the list of affected products
+        if (productAttributeValueRepository.existsByAttributeValueId(id)) {
+            throw new ResourceInUseException("Cannot delete attribute value with id " + id + " as it is referenced by product attributes.");
+        }
+        //TODO: remove since not needed with the existsBy check above
+        //productAttributeService.deleteAttributeValuesByAttributeValueId(id);
         delete(id);
     }
 
@@ -179,14 +186,14 @@ public class AttributeValueService extends AbstractCrudService<AttributeValue, L
     /**
      * Validates that an attribute value is unique within the given attribute template.
      *
-     * @param attributeTemplate the attribute template to check within
+     * @param attribute the attribute template to check within
      * @param value             the value to validate
      * @throws DuplicateResourceException if an attribute value with the same value already exists within the attribute template
      */
 
-    private void validateUniqueAttributeValue(AttributeTemplate attributeTemplate, String value) {
-        if (attributeValueRepository.existsByValue(attributeTemplate, value)) {
-            throw new DuplicateResourceException("Attribute value '" + value + "' already exists for attribute " + attributeTemplate.getName() + ".");
+    private void validateUniqueAttributeValue(Attribute attribute, String value) {
+        if (attributeValueRepository.existsByAttributeAndValue(attribute, value)) {
+            throw new DuplicateResourceException("Attribute value '" + value + "' already exists for attribute " + attribute.getName() + ".");
         }
     }
 
@@ -201,7 +208,7 @@ public class AttributeValueService extends AbstractCrudService<AttributeValue, L
 
     private boolean updateAttributeValueField(AttributeValue attributeValue, String newValue) {
         if (shouldUpdate(newValue, attributeValue.getValue())) {
-            validateUniqueAttributeValue(attributeValue.getAttributeTemplate(), newValue);
+            validateUniqueAttributeValue(attributeValue.getAttribute(), newValue);
             attributeValue.setValue(newValue);
             return true;
         }

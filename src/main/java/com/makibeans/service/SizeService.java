@@ -4,6 +4,7 @@
     import com.makibeans.dto.size.SizeResponseDTO;
     import com.makibeans.dto.size.SizeUpdateDTO;
     import com.makibeans.exceptions.DuplicateResourceException;
+    import com.makibeans.exceptions.ResourceInUseException;
     import com.makibeans.exceptions.ResourceNotFoundException;
     import com.makibeans.filter.SearchFilter;
     import com.makibeans.mapper.SizeMapper;
@@ -135,7 +136,12 @@
 
         @Transactional
         public void deleteSize(Long sizeId){
-            productVariantService.deleteProductVariantBySizeId(sizeId);
+            if (productVariantService.existsBySizeId(sizeId)) {
+                throw new ResourceInUseException(
+                        String.format("Size with id '%d' is in use by one or more Product Variants and cannot be deleted.", sizeId));
+            }
+            //TODO Remove not needed because of check above
+            //productVariantService.deleteProductVariantBySizeId(sizeId);
             delete(sizeId);
         }
 

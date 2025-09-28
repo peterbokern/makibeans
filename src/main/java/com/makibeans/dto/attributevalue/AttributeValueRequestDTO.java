@@ -17,7 +17,7 @@ import lombok.NoArgsConstructor;
 public class AttributeValueRequestDTO {
 
     @NotNull(message = "Template ID cannot be null.")
-    private Long templateId;
+    private Long attributeId;
 
     @NotBlank(message = "Attribute value cannot be blank.")
     @Size(min = 1, max = 255, message = "Attribute value must be between 1 and 255 characters.")

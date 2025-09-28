@@ -32,9 +32,12 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
      * @param id The ID of the category.
      * @return The products associated with the category.
      */
+    //REMOVE?
 
+/*
     @Query("select c FROM Category c LEFT JOIN FETCH c.products WHERE c.id = :id")
     Collection<? extends Product> findWithProductsById(@Param("id") Long id);
+*/
 
     /**
      * Returns the list of categories with the given parent category ID.

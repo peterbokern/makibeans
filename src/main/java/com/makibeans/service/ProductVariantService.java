@@ -228,4 +228,15 @@ public class ProductVariantService extends AbstractCrudService<ProductVariant, L
             );
         }
     }
+
+    /**
+     * Checks whether a {@link ProductVariant} exists
+     * that references the given size id.
+     *
+     * @param sizeId the id of the related size
+     * @return true if at least one entity exists, false otherwise
+     */
+    boolean existsBySizeId(Long sizeId) {
+        return productVariantRepository.existsBySizeId(sizeId);
+    }
 }

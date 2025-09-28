@@ -68,9 +68,9 @@ public class AttributeValueController {
     }
 
     /**
-     * Retrieves all AttributeValues associated with a given AttributeTemplate ID.
+     * Retrieves all AttributeValues associated with a given Attribute ID.
      *
-     * @param templateId the ID of the AttributeTemplate
+     * @param templateId the ID of the Attribute
      * @return a ResponseEntity containing a list of AttributeValueResponseDTOs linked to the template
      */
     @Operation(summary = "Get all Attribute Values by Template ID")

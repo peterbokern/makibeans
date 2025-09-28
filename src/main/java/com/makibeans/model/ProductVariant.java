@@ -37,14 +37,15 @@ public class ProductVariant extends Auditable {
     @Setter
     @NotNull(message = "Product cannot be null.")
     @ManyToOne
-    @JoinColumn(name = "product_id", nullable = false)
+    @JoinColumn(name = "product_id", nullable = false, foreignKey = @ForeignKey(name = "fk_product_variant_product"))
+    @OnDelete(action = OnDeleteAction.CASCADE) // If a product is deleted, all its variants are also deleted at the database level. This is different from JPA's orphanRemoval = true, which operates at the JPA (Java) level, not directly in the database. Your usage is appropriate for enforcing referential integrity in the database.
     private Product product;
 
     @Setter
     @NotNull(message = "Size cannot be null.")
     @ManyToOne
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    @JoinColumn(name = "size_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.RESTRICT) // Prevent deletion of a Size if it is referenced by any ProductVariant
+    @JoinColumn(name = "size_id", nullable = false, foreignKey = @ForeignKey(name = "fk_product_variant_size"))
     private Size size;
 
     @Setter

@@ -1,4 +1,4 @@
-package com.makibeans.dto.attributetemplate;
+package com.makibeans.dto.attribute;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;

@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.OnDelete;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,7 +56,8 @@ public class Category extends Auditable {
 
     @Setter
     @ManyToOne
-    @JoinColumn(name = "parent_category_id", nullable = true)
+    @JoinColumn(name = "parent_category_id", nullable = true, foreignKey = @ForeignKey(name = "fk_category_parent_category"))
+    @OnDelete(action = org.hibernate.annotations.OnDeleteAction.CASCADE) // If a parent category is deleted, all its subcategories are also deleted at the database level. This is different from JPA's orphanRemoval = true, which operates at the JPA (Java) level, not directly in the database. Your usage is appropriate for enforcing referential integrity in the database.
     private Category parentCategory;
 
     @OneToMany(mappedBy = "parentCategory",

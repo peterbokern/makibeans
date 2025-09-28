@@ -25,8 +25,8 @@ class ProductTest {
         product = new Product("Product", "Product description", null, category);
         variant = new ProductVariant(product, new Size("Large"), 10L, "sku", 10L);
         variant2 = new ProductVariant(product, new Size("Small"), 10L, "sku", 10L);
-        attribute1 = new ProductAttribute(new AttributeTemplate("Origin"), product);
-        attribute2 = new ProductAttribute(new AttributeTemplate("Color"), product);
+        attribute1 = new ProductAttribute(new Attribute("Origin"), product);
+        attribute2 = new ProductAttribute(new Attribute("Color"), product);
     }
 
     @AfterEach

@@ -113,7 +113,7 @@ values ('ethiopian dark roast', 'bold and fruity beans from ethiopia, perfect fo
 -- ========================
 -- insert product attributes
 -- ========================
-insert into product_attributes (product_id, template_id)
+insert into product_attributes (product_id, attribute_id)
 values (1, 1),
        (1, 2),
        (1, 3),

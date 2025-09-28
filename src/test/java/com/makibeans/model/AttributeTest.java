@@ -8,33 +8,33 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
- * Unit tests for the AttributeTemplate class.
+ * Unit tests for the Attribute class.
  */
 
-class AttributeTemplateTest {
+class AttributeTest {
 
-    private AttributeTemplate attributeTemplate;
+    private Attribute attribute;
 
     @BeforeEach
     void setUp() {
-        attributeTemplate = new AttributeTemplate("Origin");
+        attribute = new Attribute("Origin");
     }
 
     @AfterEach
     void tearDown() {
-        attributeTemplate = null;
+        attribute = null;
     }
 
     @Test
     void when_constructed_then_shouldNotBeNull() {
         // Assert
-        assertNotNull(attributeTemplate, "AttributeTemplate should not be null after construction");
+        assertNotNull(attribute, "Attribute should not be null after construction");
     }
 
     @Test
     void when_constructedWithName_then_shouldReturnCorrectName() {
         // Act
-        String name = attributeTemplate.getName();
+        String name = attribute.getName();
 
         // Assert
         assertEquals("Origin", name, "The name should be set correctly by the constructor");
@@ -46,16 +46,16 @@ class AttributeTemplateTest {
         String newName = "Flavor";
 
         // Act
-        attributeTemplate.setName(newName);
+        attribute.setName(newName);
 
         // Assert
-        assertEquals("Flavor", attributeTemplate.getName(), "The name should be updated correctly via setter");
+        assertEquals("Flavor", attribute.getName(), "The name should be updated correctly via setter");
     }
 
     @Test
     void when_getName_then_shouldReturnCurrentName() {
         // Act
-        String name = attributeTemplate.getName();
+        String name = attribute.getName();
 
         // Assert
         assertEquals("Origin", name, "The name should match the initialized value");
@@ -64,10 +64,10 @@ class AttributeTemplateTest {
     @Test
     void when_toString_then_shouldReturnExpectedString() {
         // Act
-        String result = attributeTemplate.toString();
+        String result = attribute.toString();
 
         // Assert
-        String expected = "AttributeTemplate(id=null, name=Origin)";
+        String expected = "Attribute(id=null, name=Origin)";
         assertEquals(expected, result, "The toString method should return the correct string representation");
     }
 }

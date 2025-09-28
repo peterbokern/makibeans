@@ -1,9 +1,9 @@
 package com.makibeans.controller;
 
-import com.makibeans.dto.attribute.AttributeTemplateRequestDTO;
-import com.makibeans.dto.attribute.AttributeTemplateResponseDTO;
-import com.makibeans.dto.attribute.AttributeTemplateUpdateDTO;
-import com.makibeans.service.AttributeTemplateService;
+import com.makibeans.dto.attribute.AttributeRequestDTO;
+import com.makibeans.dto.attribute.AttributeResponseDTO;
+import com.makibeans.dto.attribute.AttributeUpdateDTO;
+import com.makibeans.service.AttributeService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -16,14 +16,14 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/attribute-templates")
-@Tag(name = "Attribute Templates", description = "CRUD operations for Attribute Templates")
-public class AttributeTemplateController {
+@RequestMapping("/attributes")
+@Tag(name = "Attribute", description = "CRUD operations for Attribute Templates")
+public class AttributeController {
 
-    private final AttributeTemplateService attributeTemplateService;
+    private final AttributeService attributeService;
 
-    public AttributeTemplateController(AttributeTemplateService attributeTemplateService) {
-        this.attributeTemplateService = attributeTemplateService;
+    public AttributeController(AttributeService attributeService) {
+        this.attributeService = attributeService;
     }
 
     /**
@@ -32,10 +32,10 @@ public class AttributeTemplateController {
      * @param id the ID of the Attribute to retrieve
      * @return the ResponseEntity containing the AttributeTemplateResponseDTO
      */
-    @Operation(summary = "Get Attribute Template by ID")
+    @Operation(summary = "Get Attribute by ID")
     @GetMapping("/{id}")
-    public ResponseEntity<AttributeTemplateResponseDTO> getAttributeTemplate(@PathVariable Long id) {
-        AttributeTemplateResponseDTO responseDTO = attributeTemplateService.getAttributeTemplateById(id);
+    public ResponseEntity<AttributeResponseDTO> getAttribute(@PathVariable Long id) {
+        AttributeResponseDTO responseDTO = attributeService.getAttributeById(id);
         return ResponseEntity.ok(responseDTO);
     }
 
@@ -45,16 +45,16 @@ public class AttributeTemplateController {
      * @param params the map containing the search parameters
      * @return the ResponseEntity containing the list of AttributeTemplateResponseDTOs
      */
-    @Operation(summary = "Retrieve Attribute Templates",
-            description = "Fetch attribute templates with optional filtering and sorting. " +
+    @Operation(summary = "Retrieve Attributes",
+            description = "Fetch attributes with optional filtering and sorting. " +
                     "Parameters include:\n" +
                     "- `search`: Partial text search for template names.\n" +
                     "- `name`: Exact match for a template name.\n" +
                     "- `sort`: Field to sort by (`id`, `name`).\n" +
                     "- `order`: Sort order (`asc`, `desc`).")
     @GetMapping
-    public ResponseEntity<List<AttributeTemplateResponseDTO>> getTemplates(@RequestParam Map<String, String> params) {
-        List<AttributeTemplateResponseDTO> attributeTemplateResponseDTOS =  attributeTemplateService.findBySearchQuery(params);
+    public ResponseEntity<List<AttributeResponseDTO>> getAttributes(@RequestParam Map<String, String> params) {
+        List<AttributeResponseDTO> attributeTemplateResponseDTOS =  attributeService.findBySearchQuery(params);
         return ResponseEntity.ok(attributeTemplateResponseDTOS);
     }
 
@@ -67,9 +67,9 @@ public class AttributeTemplateController {
     @Operation(summary = "Create a new Attribute Template")
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
-    public ResponseEntity<AttributeTemplateResponseDTO> createAttributeTemplate(
-            @Valid @RequestBody AttributeTemplateRequestDTO dto) {
-        AttributeTemplateResponseDTO createdDTO = attributeTemplateService.createAttributeTemplate(dto);
+    public ResponseEntity<AttributeResponseDTO> createAttribute(
+            @Valid @RequestBody AttributeRequestDTO dto) {
+        AttributeResponseDTO createdDTO = attributeService.createAttribute(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdDTO);
     }
 
@@ -83,10 +83,10 @@ public class AttributeTemplateController {
     @Operation(summary = "Update an existing Attribute Template")
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
-    public ResponseEntity<AttributeTemplateResponseDTO> updateAttributeTemplate(
+    public ResponseEntity<AttributeResponseDTO> updateAttribute(
             @PathVariable Long id,
-            @Valid @RequestBody AttributeTemplateUpdateDTO dto) {
-        AttributeTemplateResponseDTO updatedDTO = attributeTemplateService.updateAttributeTemplate(id, dto);
+            @Valid @RequestBody AttributeUpdateDTO dto) {
+        AttributeResponseDTO updatedDTO = attributeService.updateAttribute(id, dto);
         return ResponseEntity.ok(updatedDTO);
     }
 
@@ -99,8 +99,8 @@ public class AttributeTemplateController {
     @Operation(summary = "Delete an Attribute Template by ID")
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteAttributeTemplate(@PathVariable Long id) {
-        attributeTemplateService.deleteAttributeTemplate(id);
+    public ResponseEntity<Void> deleteAttribute(@PathVariable Long id) {
+        attributeService.deleteAttribute(id);
         return ResponseEntity.noContent().build();
     }
 }

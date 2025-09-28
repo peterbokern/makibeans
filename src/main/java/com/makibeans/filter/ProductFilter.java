@@ -5,7 +5,7 @@ import com.makibeans.dto.product.ProductResponseDTO;
 import com.makibeans.mapper.ProductMapper;
 import com.makibeans.model.Product;
 import com.makibeans.model.ProductVariant;
-import com.makibeans.service.AttributeTemplateService;
+import com.makibeans.service.AttributeService;
 import com.makibeans.util.FilterUtils;
 import lombok.Builder;
 
@@ -43,7 +43,7 @@ public class ProductFilter {
     );
 
     @Builder
-    public ProductFilter(Map<String, String> filters, List<Product> products, ProductMapper productMapper, AttributeTemplateService attributeTemplateService, Set<String> validAttributeKeys) {
+    public ProductFilter(Map<String, String> filters, List<Product> products, ProductMapper productMapper, AttributeService attributeService, Set<String> validAttributeKeys) {
         this.filters = filters;
         this.products = products;
         this.productMapper = productMapper;
@@ -322,9 +322,9 @@ private Stream<Product> applyAttributeFilters(Stream<Product> products) {
 
                 // match product attributes: template name matches filter key AND at least one value matches
                 return product.getProductAttributes().stream().anyMatch(productAttribute ->
-                        productAttribute.getAttributeTemplate().getName().equalsIgnoreCase(attributeFilter.getKey()) &&
-                                productAttribute.getAttributeValues().stream().anyMatch(attributeValue ->
-                                        values.contains(attributeValue.getValue().toLowerCase()) // normalize comparison
+                        productAttribute.getAttribute().getName().equalsIgnoreCase(attributeFilter.getKey()) &&
+                                productAttribute.getProductAttributeValueLinks().stream().anyMatch(productAttributeValue ->
+                                        values.contains(productAttributeValue.getAttributeValue().getValue().toLowerCase()) // normalize comparison
                                 ));
             })
     );
@@ -355,12 +355,12 @@ private Stream<Product> applySearchQueryFilter(Stream<Product> products) {
 
                         //search product attribute values
                         p.getProductAttributes().stream().anyMatch(pa ->
-                                pa.getAttributeValues().stream().anyMatch(v ->
-                                        v.getValue().toLowerCase().contains(lowerQuery))) ||
+                                pa.getProductAttributeValueLinks().stream().anyMatch(v ->
+                                        v.getAttributeValue().getValue().toLowerCase().contains(lowerQuery))) ||
 
                         //search attribute template names
                         p.getProductAttributes().stream().anyMatch(pa ->
-                                pa.getAttributeTemplate().getName().toLowerCase().contains(lowerQuery))
+                                pa.getAttribute().getName().toLowerCase().contains(lowerQuery))
         );
     }
 

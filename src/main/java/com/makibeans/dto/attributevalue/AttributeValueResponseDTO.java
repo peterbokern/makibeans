@@ -19,7 +19,7 @@ import lombok.NoArgsConstructor;
 public class AttributeValueResponseDTO extends AuditableResponseDTO {
 
     private Long id;
-    private Long attributeTemplateId;
-    private String attributeTemplateName;
+    private Long attributeId;
+    private String attributeName;
     private String value;
 }

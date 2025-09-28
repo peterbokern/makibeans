@@ -23,16 +23,16 @@ public class ProductAttributeService extends AbstractCrudService<ProductAttribut
 
     private final ProductAttributeRepository productAttributeRepository;
     private final ProductService productService;
-    private final AttributeTemplateService attributeTemplateService;
+    private final AttributeService attributeService;
     private final ProductAttributeMapper productAttributeMapper;
     private final AttributeValueService attributeValueService;
 
     @Autowired
-    public ProductAttributeService(JpaRepository<ProductAttribute, Long> repository, ProductAttributeRepository productAttributeRepository, ProductService productService, AttributeTemplateService attributeTemplateService, ProductAttributeMapper productAttributeMapper, AttributeValueService attributeValueService) {
+    public ProductAttributeService(JpaRepository<ProductAttribute, Long> repository, ProductAttributeRepository productAttributeRepository, ProductService productService, AttributeService attributeService, ProductAttributeMapper productAttributeMapper, AttributeValueService attributeValueService) {
         super(repository);
         this.productAttributeRepository = productAttributeRepository;
         this.productService = productService;
-        this.attributeTemplateService = attributeTemplateService;
+        this.attributeService = attributeService;
         this.productAttributeMapper = productAttributeMapper;
         this.attributeValueService = attributeValueService;
     }
@@ -64,16 +64,16 @@ public class ProductAttributeService extends AbstractCrudService<ProductAttribut
     }
 
     /**
-     * Retrieves a list of ProductAttributes by the given AttributeTemplate ID.
+     * Retrieves a list of ProductAttributes by the given Attribute ID.
      *
-     * @param templateId the ID of the AttributeTemplate.
-     * @return a list of ProductAttributes associated with the given AttributeTemplate ID.
+     * @param templateId the ID of the Attribute.
+     * @return a list of ProductAttributes associated with the given Attribute ID.
      * @throws IllegalArgumentException if the templateId is null.
      */
 
     @Transactional(readOnly = true)
     public List<ProductAttribute> getProductAttributesByTemplateId(Long templateId) {
-        return productAttributeRepository.findByAttributeTemplateId(templateId);
+        return productAttributeRepository.findByAttributeId(templateId);
     }
 
     /**
@@ -102,14 +102,14 @@ public class ProductAttributeService extends AbstractCrudService<ProductAttribut
     public ProductAttributeResponseDTO createProductAttribute(ProductAttributeRequestDTO requestDTO) {
 
         Long productId = requestDTO.getProductId();
-        Long templateId = requestDTO.getTemplateId();
+        Long templateId = requestDTO.getAttributeId();
 
         Product product = productService.findById(productId);
-        AttributeTemplate attributeTemplate = attributeTemplateService.findById(templateId);
+        Attribute attribute = attributeService.findById(templateId);
 
         validateUniqueProductAttribute(productId, templateId);
 
-        ProductAttribute productAttribute = new ProductAttribute(attributeTemplate, product);
+        ProductAttribute productAttribute = new ProductAttribute(attribute, product);
         ProductAttribute savedProductAttribute = create(productAttribute);
 
         return productAttributeMapper.toResponseDTO(savedProductAttribute);
@@ -126,7 +126,8 @@ public class ProductAttributeService extends AbstractCrudService<ProductAttribut
     @Transactional
     public void deleteProductAttribute(Long productAttributeId) {
         findById(productAttributeId);
-        productAttributeRepository.deleteAttributeValuesByProductAttributeId(productAttributeId);
+        //REMOVE not required as orphanRemoval = true is set on the relationship in ProductAttribute entity
+        //productAttributeRepository.deleteAttributeValuesByProductAttributeId(productAttributeId);
         delete(productAttributeId);
     }
 
@@ -156,9 +157,16 @@ public class ProductAttributeService extends AbstractCrudService<ProductAttribut
 
         AttributeValue attributeValue = attributeValueService.findById(attributeValueId);
 
+        // Ensure the AttributeValue's template matches the ProductAttribute's template
+        if(!productAttribute.getAttribute().getId().equals(attributeValue.getAttribute().getId())){
+            throw new IllegalArgumentException("Attribute Value's template does not match Product Attribute's template.");
+        }
+
         validateAttributeValueNotAlreadyAssociated(productAttribute, attributeValue);
 
-        productAttribute.getAttributeValues().add(attributeValue);
+        ProductAttributeValue link = new ProductAttributeValue(attributeValue, productAttribute);
+
+        productAttribute.getProductAttributeValueLinks().add(link);
 
         update(productAttributeId, productAttribute);
     }
@@ -179,7 +187,7 @@ public class ProductAttributeService extends AbstractCrudService<ProductAttribut
 
         validateAttributeValueAssociation(productAttribute, attributeValue);
 
-        productAttribute.getAttributeValues().remove(attributeValue);
+        productAttribute.getProductAttributeValueLinks().removeIf(link -> link.getAttributeValue().getId().equals(attributeValueId));
 
         update(productAttributeId, productAttribute);
     }
@@ -193,7 +201,7 @@ public class ProductAttributeService extends AbstractCrudService<ProductAttribut
      */
 
     private void validateAttributeValueAssociation(ProductAttribute productAttribute, AttributeValue attributeValue) {
-        if (!productAttribute.getAttributeValues().contains(attributeValue)) {
+        if (productAttribute.getProductAttributeValueLinks().stream().noneMatch(link -> link.getAttributeValue().equals(attributeValue))) {
             throw new ResourceNotFoundException(String.format(
                     "AttributeValue (ID: %d, Value: '%s') is not associated with ProductAttribute (ID: %d, Product: '%s').",
                     attributeValue.getId(),
@@ -212,7 +220,7 @@ public class ProductAttributeService extends AbstractCrudService<ProductAttribut
      */
 
     private void validateAttributeValueNotAlreadyAssociated(ProductAttribute productAttribute, AttributeValue attributeValue) {
-        if (productAttribute.getAttributeValues().contains(attributeValue)) {
+        if (productAttribute.getProductAttributeValueLinks().stream().anyMatch(link -> link.getAttributeValue().equals(attributeValue))) {
             throw new DuplicateResourceException(String.format(
                     "AttributeValue (ID: %d, Value: '%s') is already associated with ProductAttribute (ID: %d, Product: '%s').",
                     attributeValue.getId(),
@@ -231,7 +239,7 @@ public class ProductAttributeService extends AbstractCrudService<ProductAttribut
      */
 
     private void validateUniqueProductAttribute(Long productId, Long templateId) {
-        if (productAttributeRepository.existsByProductIdAndAttributeTemplateId(productId, templateId)) {
+        if (productAttributeRepository.existsByProductIdAndAttributeId(productId, templateId)) {
             throw new DuplicateResourceException("Product Attribute with product id " + productId + " and template id " + templateId + " already exists.");
         }
     }

@@ -35,7 +35,7 @@ class ProductServiceTest {
     @Mock
     CategoryService categoryService;
     @Mock
-    AttributeTemplateService attributeTemplateService;
+    AttributeService attributeService;
     @Mock
     ProductMapper productMapper;
     @Mock
@@ -367,7 +367,7 @@ class ProductServiceTest {
         ProductResponseDTO responseDTO = new ProductResponseDTO(1L, "Espresso", "Strong coffee", null, null, null, List.of(), List.of());
 
         when(productRepository.findAll()).thenReturn(List.of(espresso));
-        when(attributeTemplateService.getValidAttributeKeys()).thenReturn(Set.of());
+        when(attributeService.getValidAttributeKeys()).thenReturn(Set.of());
         when(productMapper.toResponseDTO(espresso)).thenReturn(responseDTO);
 
         // Act
@@ -380,8 +380,8 @@ class ProductServiceTest {
 
         // Verify
         verify(productRepository).findAll();
-        verify(attributeTemplateService).getValidAttributeKeys();
+        verify(attributeService).getValidAttributeKeys();
         verify(productMapper).toResponseDTO(espresso);
-        verifyNoMoreInteractions(productRepository, attributeTemplateService, productMapper, productAttributeService, imageUtils);
+        verifyNoMoreInteractions(productRepository, attributeService, productMapper, productAttributeService, imageUtils);
     }
 }

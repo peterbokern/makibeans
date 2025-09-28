@@ -118,6 +118,11 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body("Missing required query parameter: " + name);
     }
 
+    @ExceptionHandler(ResourceInUseException.class)
+    public ResponseEntity<String> handleResourceInUse(ResourceInUseException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
+    }
+
     // --- Catch-All ---
 
     @ExceptionHandler(Exception.class)

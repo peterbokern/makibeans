@@ -12,7 +12,7 @@ class AttributeValueTest {
 
     @BeforeEach
     void setUp() {
-        attributeValue = new AttributeValue(new AttributeTemplate("Size"), "Large");
+        attributeValue = new AttributeValue(new Attribute("Size"), "Large");
     }
 
     @AfterEach
@@ -29,7 +29,7 @@ class AttributeValueTest {
     @Test
     void when_constructed_then_shouldReturnCorrectTemplateName() {
         // Act
-        String templateName = attributeValue.getAttributeTemplate().getName();
+        String templateName = attributeValue.getAttribute().getName();
 
         // Assert
         assertEquals("Size", templateName, "The attribute template name should be correctly initialized by the constructor");
