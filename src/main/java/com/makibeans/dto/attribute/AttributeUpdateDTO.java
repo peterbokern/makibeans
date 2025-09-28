@@ -6,13 +6,13 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * Data Transfer Object for updating an AttributeTemplate.
+ * Data Transfer Object for updating an Attribute.
  */
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class AttributeTemplateUpdateDTO {
+public class AttributeUpdateDTO {
 
     @Size(min = 3, max = 50, message = "Attribute template name must be between 3 and 50 characters.")
     private String name;

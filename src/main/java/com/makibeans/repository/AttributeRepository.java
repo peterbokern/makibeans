@@ -1,15 +1,13 @@
 package com.makibeans.repository;
 
-import com.makibeans.model.AttributeTemplate;
+import com.makibeans.model.Attribute;
 import org.springframework.data.jpa.repository.JpaRepository;
-
-import java.util.Optional;
 
 /**
  * Repository for the attribute template entity.
  */
 
-public interface AttributeTemplateRepository extends JpaRepository<AttributeTemplate, Long> {
+public interface AttributeRepository extends JpaRepository<Attribute, Long> {
 
     /**
      * Returns the attribute template with the given name.

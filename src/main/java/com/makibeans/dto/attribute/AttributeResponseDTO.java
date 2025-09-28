@@ -18,7 +18,7 @@ import java.time.Instant;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonPropertyOrder({"id", "name", "createdBy", "createdAt", "updatedBy", "updatedAt"})
-public class AttributeTemplateResponseDTO extends AuditableResponseDTO {
+public class AttributeResponseDTO extends AuditableResponseDTO {
     private Long id;
     private String name;
 }

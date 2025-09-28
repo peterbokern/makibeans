@@ -1,13 +1,13 @@
 package com.makibeans.service;
 
-import com.makibeans.dto.attributetemplate.AttributeTemplateRequestDTO;
-import com.makibeans.dto.attributetemplate.AttributeTemplateResponseDTO;
-import com.makibeans.dto.attributetemplate.AttributeTemplateUpdateDTO;
+import com.makibeans.dto.attribute.AttributeTemplateRequestDTO;
+import com.makibeans.dto.attribute.AttributeTemplateResponseDTO;
+import com.makibeans.dto.attribute.AttributeTemplateUpdateDTO;
 import com.makibeans.exceptions.DuplicateResourceException;
 import com.makibeans.exceptions.ResourceNotFoundException;
 import com.makibeans.filter.SearchFilter;
-import com.makibeans.mapper.AttributeTemplateMapper;
-import com.makibeans.model.AttributeTemplate;
+import com.makibeans.mapper.AttributeMapper;
+import com.makibeans.model.Attribute;
 import com.makibeans.repository.AttributeTemplateRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,22 +30,22 @@ import static com.makibeans.util.UpdateUtils.normalize;
 import static com.makibeans.util.UpdateUtils.shouldUpdate;
 
 /**
- * Service class for managing AttributeTemplate entities.
+ * Service class for managing Attribute entities.
  * Provides methods to perform CRUD operations and search for AttributeTemplates.
  */
 @Service
-public class AttributeTemplateService extends AbstractCrudService<AttributeTemplate, Long> {
+public class AttributeTemplateService extends AbstractCrudService<Attribute, Long> {
 
     private final AttributeTemplateRepository attributeTemplateRepository;
-    private final AttributeTemplateMapper mapper;
+    private final AttributeMapper mapper;
     private final Logger logger = LoggerFactory.getLogger(AttributeTemplateService.class);
     private final ProductAttributeService productAttributeService;
 
     @Autowired
     public AttributeTemplateService(
-            JpaRepository<AttributeTemplate, Long> repository,
+            JpaRepository<Attribute, Long> repository,
             AttributeTemplateRepository attributeTemplateRepository,
-            AttributeTemplateMapper mapper, @Lazy ProductAttributeService productAttributeService) {
+            AttributeMapper mapper, @Lazy ProductAttributeService productAttributeService) {
         super(repository);
         this.attributeTemplateRepository = attributeTemplateRepository;
         this.mapper = mapper;
@@ -53,23 +53,23 @@ public class AttributeTemplateService extends AbstractCrudService<AttributeTempl
     }
 
     /**
-     * Retrieves an AttributeTemplate by its unique identifier.
+     * Retrieves an Attribute by its unique identifier.
      *
-     * @param id the unique identifier of the AttributeTemplate to retrieve.
+     * @param id the unique identifier of the Attribute to retrieve.
      * @return the AttributeTemplateResponseDTO representing the found attribute template.
      * @throws IllegalArgumentException  if the provided id is null
-     * @throws ResourceNotFoundException if no AttributeTemplate is found with the given id.
+     * @throws ResourceNotFoundException if no Attribute is found with the given id.
      */
 
     @Transactional(readOnly = true)
     public AttributeTemplateResponseDTO getAttributeTemplateById(Long id) {
-        AttributeTemplate attributeTemplate = findById(id);
-        return mapper.toResponseDTO(attributeTemplate);
+        Attribute attribute = findById(id);
+        return mapper.toResponseDTO(attribute);
     }
 
     /**
      * Searches for AttributeTemplates based on the provided filters.
-     * The search is performed on the name of the AttributeTemplate.
+     * The search is performed on the name of the Attribute.
      *
      * @param searchParams the map containing the search params
      * @return a list of AttributeTemplateResponseDTOs representing the matched attribute templates
@@ -79,14 +79,14 @@ public class AttributeTemplateService extends AbstractCrudService<AttributeTempl
     public List<AttributeTemplateResponseDTO> findBySearchQuery(Map<String, String> searchParams) {
         logger.debug("Searching AttributeTemplates with filters: {}", searchParams);
 
-        Map<String, Function<AttributeTemplate, String>> searchFields = Map.of(
-                "name", AttributeTemplate::getName);
+        Map<String, Function<Attribute, String>> searchFields = Map.of(
+                "name", Attribute::getName);
 
-        Map<String, Comparator<AttributeTemplate>> sortFields = Map.of(
-                "id", Comparator.comparing(AttributeTemplate::getId, Comparator.nullsLast(Comparator.naturalOrder())),
-                "name", Comparator.comparing(AttributeTemplate::getName, String.CASE_INSENSITIVE_ORDER));
+        Map<String, Comparator<Attribute>> sortFields = Map.of(
+                "id", Comparator.comparing(Attribute::getId, Comparator.nullsLast(Comparator.naturalOrder())),
+                "name", Comparator.comparing(Attribute::getName, String.CASE_INSENSITIVE_ORDER));
 
-        List<AttributeTemplate> matchedTemplates = SearchFilter.apply(
+        List<Attribute> matchedTemplates = SearchFilter.apply(
                 findAll(),
                 searchParams,
                 searchFields,
@@ -100,11 +100,11 @@ public class AttributeTemplateService extends AbstractCrudService<AttributeTempl
     }
 
     /**
-     * Creates a new AttributeTemplate and refreshed the cache of valid attribute keys.
+     * Creates a new Attribute and refreshed the cache of valid attribute keys.
      *
      * @param dto the DTO containing the attribute template details
-     * @return the created AttributeTemplate entity as AttributeTemplateResponseDTO
-     * @throws DuplicateResourceException if an AttributeTemplate with the same name already exists
+     * @return the created Attribute entity as AttributeTemplateResponseDTO
+     * @throws DuplicateResourceException if an Attribute with the same name already exists
      */
 
     @Transactional
@@ -113,17 +113,17 @@ public class AttributeTemplateService extends AbstractCrudService<AttributeTempl
 
         validateAttributeTemplateName(normalizedName);
 
-        AttributeTemplate attributeTemplate = new AttributeTemplate(normalizedName);
+        Attribute attribute = new Attribute(normalizedName);
 
-        AttributeTemplate createdAttributeTemplate = create(attributeTemplate);
+        Attribute createdAttribute = create(attribute);
 
         refreshAttributeCache();
 
-        return mapper.toResponseDTO(createdAttributeTemplate);
+        return mapper.toResponseDTO(createdAttribute);
     }
 
     /**
-     * Deletes an AttributeTemplate and associated product attributes by ID.
+     * Deletes an Attribute and associated product attributes by ID.
      *
      * @param id the ID of the attribute template to delete
      * @throws ResourceNotFoundException if the attribute template does not exist
@@ -150,45 +150,45 @@ public class AttributeTemplateService extends AbstractCrudService<AttributeTempl
 
 
     /**
-     * Updates an existing AttributeTemplate.
+     * Updates an existing Attribute.
      *
      * @param id  the ID of the attribute template to update
      * @param dto the DTO containing the updated attribute template name
-     * @return the updated AttributeTemplate entity as AttributeTemplateResponseDTO
+     * @return the updated Attribute entity as AttributeTemplateResponseDTO
      * @throws ResourceNotFoundException  if the attribute template does not exist
-     * @throws DuplicateResourceException if another AttributeTemplate already exists with the same name
+     * @throws DuplicateResourceException if another Attribute already exists with the same name
      */
 
     @Transactional
     public AttributeTemplateResponseDTO updateAttributeTemplate(Long id, AttributeTemplateUpdateDTO dto) {
 
-        AttributeTemplate attributeTemplate = findById(id);
+        Attribute attribute = findById(id);
 
-        logger.info("Updating AttributeTemplate with ID {}: {}. Trying to change name from '{}' to {}.", id, attributeTemplate.getName(), attributeTemplate.getName(), dto.getName() == null ? null : dto.getName());
+        logger.info("Updating Attribute with ID {}: {}. Trying to change name from '{}' to {}.", id, attribute.getName(), attribute.getName(), dto.getName() == null ? null : dto.getName());
 
-        boolean updated = updateAttributeTemplateNameField(attributeTemplate, dto.getName());
+        boolean updated = updateAttributeTemplateNameField(attribute, dto.getName());
 
-        AttributeTemplate updatedAttributeTemplate = updated ? update(id, attributeTemplate) : attributeTemplate;
+        Attribute updatedAttribute = updated ? update(id, attribute) : attribute;
 
         refreshAttributeCache();
 
-        return mapper.toResponseDTO(updatedAttributeTemplate);
+        return mapper.toResponseDTO(updatedAttribute);
     }
 
     /**
-     * Updates the name of the given AttributeTemplate if the new name is different from the current name.
+     * Updates the name of the given Attribute if the new name is different from the current name.
      *
-     * @param attributeTemplate the AttributeTemplate to update
+     * @param attribute the Attribute to update
      * @param newName           the new name to set
      * @return true if the name was updated, false otherwise
-     * @throws DuplicateResourceException if an AttributeTemplate with the new name already exists
+     * @throws DuplicateResourceException if an Attribute with the new name already exists
      */
 
-    private boolean updateAttributeTemplateNameField(AttributeTemplate attributeTemplate, String newName) {
+    private boolean updateAttributeTemplateNameField(Attribute attribute, String newName) {
         String normalizedName = normalize(newName);
-        if (shouldUpdate(normalizedName, attributeTemplate.getName())) {
+        if (shouldUpdate(normalizedName, attribute.getName())) {
             validateAttributeTemplateName(normalizedName);
-            attributeTemplate.setName(normalizedName);
+            attribute.setName(normalizedName);
             return true;
         }
         return false;

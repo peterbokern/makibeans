@@ -1,8 +1,8 @@
 package com.makibeans.controller;
 
-import com.makibeans.dto.attributetemplate.AttributeTemplateRequestDTO;
-import com.makibeans.dto.attributetemplate.AttributeTemplateResponseDTO;
-import com.makibeans.dto.attributetemplate.AttributeTemplateUpdateDTO;
+import com.makibeans.dto.attribute.AttributeTemplateRequestDTO;
+import com.makibeans.dto.attribute.AttributeTemplateResponseDTO;
+import com.makibeans.dto.attribute.AttributeTemplateUpdateDTO;
 import com.makibeans.service.AttributeTemplateService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -27,9 +27,9 @@ public class AttributeTemplateController {
     }
 
     /**
-     * Retrieves an AttributeTemplate by its ID.
+     * Retrieves an Attribute by its ID.
      *
-     * @param id the ID of the AttributeTemplate to retrieve
+     * @param id the ID of the Attribute to retrieve
      * @return the ResponseEntity containing the AttributeTemplateResponseDTO
      */
     @Operation(summary = "Get Attribute Template by ID")
@@ -59,9 +59,9 @@ public class AttributeTemplateController {
     }
 
     /**
-     * Creates a new AttributeTemplate.
+     * Creates a new Attribute.
      *
-     * @param dto the DTO containing the details of the AttributeTemplate to create
+     * @param dto the DTO containing the details of the Attribute to create
      * @return the ResponseEntity containing the created AttributeTemplateResponseDTO
      */
     @Operation(summary = "Create a new Attribute Template")
@@ -74,9 +74,9 @@ public class AttributeTemplateController {
     }
 
     /**
-     * Updates an existing AttributeTemplate.
+     * Updates an existing Attribute.
      *
-     * @param id  the ID of the AttributeTemplate to update
+     * @param id  the ID of the Attribute to update
      * @param dto the DTO containing the updated details
      * @return the ResponseEntity containing the updated AttributeTemplateResponseDTO
      */
@@ -91,9 +91,9 @@ public class AttributeTemplateController {
     }
 
     /**
-     * Deletes an AttributeTemplate by its ID.
+     * Deletes an Attribute by its ID.
      *
-     * @param id the ID of the AttributeTemplate to delete
+     * @param id the ID of the Attribute to delete
      * @return the ResponseEntity with appropriate HTTP status
      */
     @Operation(summary = "Delete an Attribute Template by ID")
