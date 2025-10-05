@@ -1,6 +1,7 @@
 package com.makibeans.service;
 
 import com.makibeans.exceptions.ResourceNotFoundException;
+import com.makibeans.model.audit.Auditable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -16,7 +17,8 @@ import java.util.List;
  * @param <ID> the type of the entity's identifier
  */
 
-public abstract class AbstractCrudService<T, ID> {
+//TODO REMOVE logging and replace with event listeners
+public abstract class AbstractCrudService<T, ID> implements CrudService<T, ID> {
 
     protected final JpaRepository<T, ID> repository;
     protected final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -33,6 +35,7 @@ public abstract class AbstractCrudService<T, ID> {
      * @throws IllegalArgumentException if the entity is null
      */
 
+    @Override
     @Transactional
     public T create(T entity) {
         if (entity == null) {
@@ -51,6 +54,9 @@ public abstract class AbstractCrudService<T, ID> {
      * @throws IllegalArgumentException if the ID or entity is null
      */
 
+
+    //TODO update method can be removed if using mapstruct
+    @Override
     @Transactional
     public T update(ID id, T entity) {
         if (id == null) {
@@ -71,6 +77,7 @@ public abstract class AbstractCrudService<T, ID> {
      * @throws ResourceNotFoundException if the entity does not exist
      */
 
+    @Override
     @Transactional
     public void delete(ID id) {
         if (id == null) {
@@ -81,12 +88,45 @@ public abstract class AbstractCrudService<T, ID> {
         repository.delete(entity);
     }
 
+    @Override
+    @Transactional
+    public void softDelete(ID id) {
+        if (id == null) {
+            throw new IllegalArgumentException(getEntityName() + " ID cannot be null.");
+        }
+        T entity = findById(id);
+        if (entity instanceof Auditable auditable) {
+            auditable.setDeleted(true);
+            repository.save(entity);
+            logger.info("Soft deleted {} with ID {}: {}", getEntityName(), id, entity);
+        } else {
+            throw new IllegalArgumentException(getEntityName() + " does not support soft deletion.");
+        }
+    }
+
+    @Override
+    @Transactional
+    public void restore(ID id) {
+        if (id == null) {
+            throw new IllegalArgumentException(getEntityName() + " ID cannot be null.");
+        }
+        T entity = findById(id);
+        if (entity instanceof Auditable auditable) {
+            auditable.setDeleted(false);
+            repository.save(entity);
+            logger.info("Restored {} with ID {}: {}", getEntityName(), id, entity);
+        } else {
+            throw new IllegalArgumentException(getEntityName() + " does not support restoration.");
+        }
+    }
+
     /**
      * Retrieves all entities of this type.
      *
      * @return a list of all entities
      */
 
+    @Override
     @Transactional(readOnly = true)
     public List<T> findAll() {
         List<T> entities = repository.findAll();
@@ -103,7 +143,7 @@ public abstract class AbstractCrudService<T, ID> {
      * @throws ResourceNotFoundException if no entity is found with the given ID
      */
 
-
+    @Override
     @Transactional(readOnly = true)
     public T findById(ID id) {
         if (id == null) {
@@ -120,7 +160,15 @@ public abstract class AbstractCrudService<T, ID> {
      * @return the entity name (e.g., "Attribute" from "AttributeService")
      */
 
-    private String getEntityName() {
-        return getClass().getSimpleName().replace("Service", "");
+    @Override
+    public String getEntityName() {
+        String name = getClass().getSimpleName();
+        // Handle both Service and ServiceImpl endings gracefully
+        if (name.endsWith("ServiceImpl")) {
+            name = name.replace("ServiceImpl", "");
+        } else if (name.endsWith("Service")) {
+            name = name.replace("Service", "");
+        }
+        return name;
     }
 }

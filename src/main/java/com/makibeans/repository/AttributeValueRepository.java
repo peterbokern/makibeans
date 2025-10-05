@@ -33,4 +33,20 @@ public interface AttributeValueRepository extends JpaRepository<AttributeValue, 
 
     List<AttributeValue> findAllByAttribute(Attribute attribute);
 
+    /**
+     * Returns all non-deleted attribute values for the given attribute ID.
+     *
+     * @param attributeId The ID of the attribute template.
+     * @return All non-deleted attribute values for the given attribute ID.
+     */
+    List<AttributeValue> findByAttributeIdAndDeletedFalse(Long attributeId);
+
+    /**
+     * Counts the number of non-deleted attribute values for the given attribute ID.
+     *
+     * @param AttributeId The ID of the attribute template.
+     * @return The number of non-deleted attribute values for the given attribute ID.
+     */
+    Long countAttributeValuesByAttributeIdAndDeletedIsFalse(Long AttributeId);
+
 }

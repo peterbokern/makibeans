@@ -76,7 +76,7 @@ public class AttributeValueController {
     @Operation(summary = "Get all Attribute Values by Template ID")
     @GetMapping("/by-template-id/{templateId}")
     public ResponseEntity<List<AttributeValueResponseDTO>> getAllAttributeValuesByTemplateId(@PathVariable Long templateId) {
-        List<AttributeValueResponseDTO> attributeValueResponseDTOS = attributeValueService.getAllAttributeValuesByTemplateId(templateId);
+        List<AttributeValueResponseDTO> attributeValueResponseDTOS = attributeValueService.getAllAttributeValuesByAttributeId(templateId);
         return ResponseEntity.ok(attributeValueResponseDTOS);
     }
 

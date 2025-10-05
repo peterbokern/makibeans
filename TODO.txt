@@ -1,0 +1,103 @@
+Gaps / conflicts to fix
+1) Delete-cascade policy conflict (will bite you)
+
+You have @OnDelete(CASCADE) from Attribute → AttributeValue, and @OnDelete(RESTRICT) (or equivalent) from ProductAttributeValue → AttributeValue.
+
+Result: deleting an Attribute tries to delete its AttributeValues, but those values are referenced by ProductAttributeValue, so the cascade hits a RESTRICT and fails.
+
+Fix (pick one policy and be consistent):
+
+Recommended (audit-friendly): Soft-delete Attribute and AttributeValue (and prevent deletion when in use). Keep RESTRICT semantics.
+
+In service: if attribute is in use → 409/ATTRIBUTE_IN_USE (you already like this pattern).
+
+If you must hard-delete: cascade all the way down (Attribute → AttributeValue → ProductAttributeValue → maybe ProductAttribute). This destroys history—usually not desirable.
+
+2) Enforce “value belongs to the same attribute”
+
+It must be impossible to link a value from a different attribute into a product-attribute.
+
+Add a database-level guarantee, not only service checks:
+
+Option A (lean, safe): Keep product_attribute(attribute_id) and ensure
+product_attribute_value.attribute_value_id → attribute_value.id and
+attribute_value.attribute_id = product_attribute.attribute_id.
+
+At DB level you can enforce with a small redundancy:
+
+-- Add attribute_id shadow on product_attribute_value for a pair of FKs
+ALTER TABLE product_attribute_value
+  ADD COLUMN attribute_id BIGINT NOT NULL;
+
+ALTER TABLE product_attribute_value
+  ADD CONSTRAINT fk_pav_attr
+    FOREIGN KEY (attribute_id) REFERENCES attributes(id);
+
+ALTER TABLE product_attribute_value
+  ADD CONSTRAINT fk_pav_attr_matches_pa
+    FOREIGN KEY (product_attribute_id, attribute_id)
+    REFERENCES product_attribute(id, attribute_id);
+
+ALTER TABLE product_attribute_value
+  ADD CONSTRAINT fk_pav_attr_matches_av
+    FOREIGN KEY (attribute_value_id, attribute_id)
+    REFERENCES attribute_values(id, attribute_id);
+
+
+Then set attribute_id automatically in JPA or via trigger. This guarantees alignment without application code races.
+
+Option B (service-only): Validate in service before persisting. Works, but the DB can still be corrupted by other writers.
+
+3) Uniqueness & indexes (performance + integrity)
+
+Attribute.name → UNIQUE (you already have)
+
+AttributeValue(attribute_id, value) → UNIQUE
+
+CategoryAttribute(category_id, attribute_id) → UNIQUE (you have)
+
+ProductAttribute(product_id, attribute_id) → UNIQUE (add if missing)
+
+ProductAttributeValue(product_attribute_id, attribute_value_id) → PK (composite) or UNIQUE if you use a surrogate key.
+
+Also add indexes you’ll query by:
+
+product_attribute(product_id); product_attribute(attribute_id)
+
+product_attribute_value(product_attribute_id); product_attribute_value(attribute_value_id)
+
+category_attribute(category_id)
+
+4) Single vs multi-select behavior
+
+Decide at Attribute level:
+
+allowsMultiple BOOLEAN NOT NULL DEFAULT FALSE
+
+Then enforce:
+
+If FALSE, restrict a product to max one ProductAttributeValue per ProductAttribute.
+
+DB option: partial unique index on (product_attribute_id) when allows_multiple = false (needs a mirrored flag)
+
+Simpler: enforce in service and keep it consistent with UI constraints.
+
+5) Don’t materialize inherited links unless needed
+
+You confirmed: no physical duplication for inherited category attributes. Good.
+
+For UI: compute applicable attributes as the union of CategoryAttribute for the product’s category (and optionally ancestors).
+
+Only create a ProductAttribute when the product actually stores a value (or you need product-specific flags/overrides).
+
+6) Nice-to-haves you’ll appreciate later
+
+Display order on CategoryAttribute (e.g., sort_order SMALLINT).
+
+Attribute type (TEXT, SELECT, NUMBER, BOOLEAN) for validation & UI.
+
+A free-text value path (e.g., ProductAttributeText) if you have attributes that aren’t closed vocabularies.
+
+Localization: AttributeValue might need slug and optional i18n fields if you go multilingual.
+
+Soft delete across the board for auditability (you’re already using Auditable; align deletes).

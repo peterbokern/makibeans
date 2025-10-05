@@ -1,6 +1,6 @@
 package com.makibeans.model;
 
-import com.makibeans.model.base.Auditable;
+import com.makibeans.model.audit.Auditable;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;

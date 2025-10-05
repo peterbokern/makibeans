@@ -1,6 +1,7 @@
-package com.makibeans.service;
+package com.makibeans.service.impl;
 
 import com.makibeans.exceptions.ResourceNotFoundException;
+import com.makibeans.service.UserService;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

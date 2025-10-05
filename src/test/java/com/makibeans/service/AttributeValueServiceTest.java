@@ -258,7 +258,7 @@ class AttributeValueServiceTest {
         when(mapper.toResponseDTO(value)).thenReturn(expectedResponseDTO);
 
         // Act
-        List<AttributeValueResponseDTO> result = attributeValueService.getAllAttributeValuesByTemplateId(1L);
+        List<AttributeValueResponseDTO> result = attributeValueService.getAllAttributeValuesByAttributeId(1L);
 
         // Assert
         assertNotNull(result, "Expected result to be not null");

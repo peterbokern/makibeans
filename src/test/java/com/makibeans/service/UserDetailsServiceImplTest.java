@@ -3,6 +3,7 @@ package com.makibeans.service;
 import com.makibeans.exceptions.ResourceNotFoundException;
 import com.makibeans.model.Role;
 import com.makibeans.model.User;
+import com.makibeans.service.impl.UserDetailsServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

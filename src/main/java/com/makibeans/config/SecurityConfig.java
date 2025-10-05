@@ -2,7 +2,7 @@ package com.makibeans.config;
 
 import com.makibeans.security.JwtAuthenticationEntryPoint;
 import com.makibeans.security.JwtAuthenticationFilter;
-import com.makibeans.service.UserDetailsServiceImpl;
+import com.makibeans.service.impl.UserDetailsServiceImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;

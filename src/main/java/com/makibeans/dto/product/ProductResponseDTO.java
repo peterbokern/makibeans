@@ -1,7 +1,7 @@
 package com.makibeans.dto.product;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.makibeans.dto.base.AuditableResponseDTO;
+import com.makibeans.dto.audit.AuditableResponseDTO;
 import com.makibeans.dto.productvariant.ProductVariantResponseDTO;
 import com.makibeans.dto.productattribute.ProductAttributeResponseDTO;
 import lombok.*;

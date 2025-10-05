@@ -1,4 +1,4 @@
-package com.makibeans.dto.attributevalue;
+package com.makibeans.dto.categoryattribute;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.makibeans.dto.audit.AuditableResponseDTO;
@@ -7,19 +7,16 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-/**
- * Data Transfer Object for AttributeValue responses.
- */
-
 @EqualsAndHashCode(callSuper = true)
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@JsonPropertyOrder({"id", "attributeTemplateId", "attributeTemplateName", "value", "createdBy", "createdAt", "updatedBy", "updatedAt"})
-public class AttributeValueResponseDTO extends AuditableResponseDTO {
-
+@JsonPropertyOrder({"id", "categoryId", "categoryName", "attributeId", "attributeName","required", "createdBy", "createdAt", "updatedBy", "updatedAt", "deleted", "deletedAt", "deletedBy"})
+public class CategoryAttributeResponseDTO extends AuditableResponseDTO {
     private Long id;
+    private Long categoryId;
+    private String categoryName;
     private Long attributeId;
     private String attributeName;
-    private String value;
+    private Boolean required;
 }

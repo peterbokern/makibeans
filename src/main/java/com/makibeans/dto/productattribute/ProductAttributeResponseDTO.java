@@ -2,7 +2,7 @@ package com.makibeans.dto.productattribute;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.makibeans.dto.attributevalue.AttributeValueSimpleResponseDTO;
-import com.makibeans.dto.base.AuditableResponseDTO;
+import com.makibeans.dto.audit.AuditableResponseDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

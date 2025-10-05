@@ -1,5 +1,6 @@
 package com.makibeans.repository;
 
+import com.makibeans.model.AttributeValue;
 import com.makibeans.model.ProductAttribute;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -63,6 +64,26 @@ public interface ProductAttributeRepository extends JpaRepository<ProductAttribu
      */
 
     List<ProductAttribute> findByProductId(Long productId);
+
+    /**
+     * Returns all non-deleted attribute values for the given attribute ID.
+     *
+     * @param attributeId The ID of the attribute template.
+     * @return All non-deleted attribute values for the given attribute ID.
+     */
+    List<ProductAttribute> findByAttributeIdAndDeletedFalse(Long attributeId);
+
+    /**
+     * Counts the number of non-deleted attribute values for the given attribute ID.
+     *
+     * @param AttributeId The ID of the attribute template.
+     * @return The number of non-deleted attribute values for the given attribute ID.
+     */
+    Long countAttributeValuesByAttributeIdAndDeletedIsFalse(Long AttributeId);
+
+    //count distinct product ids by attribute ue id and not deleted
+    @Query("SELECT COUNT (DISTINCT pa.product.id) FROM ProductAttribute pa WHERE pa.attribute.id = :attributeId AND pa.deleted = false" )
+    Long countDistinctProductsByAttributeIdAndDeletedFalse(@Param("attributeId") Long attributeId);
 
 
 }

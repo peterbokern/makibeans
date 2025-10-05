@@ -13,7 +13,6 @@ import com.makibeans.model.AttributeValue;
 import com.makibeans.repository.AttributeValueRepository;
 import com.makibeans.repository.ProductAttributeValueRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -106,7 +105,7 @@ public class AttributeValueService extends AbstractCrudService<AttributeValue, L
      */
 
     @Transactional(readOnly = true)
-    public List<AttributeValueResponseDTO> getAllAttributeValuesByTemplateId(Long templateId) {
+    public List<AttributeValueResponseDTO> getAllAttributeValuesByAttributeId(Long templateId) {
 
         Attribute attribute = attributeService.findById(templateId);
 
@@ -114,6 +113,23 @@ public class AttributeValueService extends AbstractCrudService<AttributeValue, L
                 .stream()
                 .map(mapper::toResponseDTO)
                 .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<AttributeValue> getAllNonDeletedAttributeValuesByAttributeId(Long attributeId) {
+        return attributeValueRepository.findByAttributeIdAndDeletedFalse(attributeId);
+    }
+
+    /**
+     * Counts the number of non-deleted AttributeValues associated with a specific Attribute ID.
+     *
+     * @param attributeId the ID of the attribute
+     * @return the count of non-deleted AttributeValues associated with the given Attribute ID
+     */
+
+    @Transactional
+    public Long countNonDeletedAttributeValuesByAttributeId(Long attributeId) {
+        return attributeValueRepository.countAttributeValuesByAttributeIdAndDeletedIsFalse(attributeId);
     }
 
     /**
@@ -157,6 +173,21 @@ public class AttributeValueService extends AbstractCrudService<AttributeValue, L
         //TODO: remove since not needed with the existsBy check above
         //productAttributeService.deleteAttributeValuesByAttributeValueId(id);
         delete(id);
+    }
+
+    /**
+     * Soft deletes all AttributeValues associated with the given Attribute ID.
+     * If any of the AttributeValues are referenced by ProductAttributes, a ResourceInUseException is thrown.
+     *
+     * @param attributeId the ID of the attribute whose values are to be soft deleted
+     * @throws ResourceInUseException if any AttributeValue is referenced by ProductAttributes
+     */
+
+    @Transactional
+    public void softDeleteByAttributeId(Long attributeId) {
+        List<AttributeValue> attributeValues = this.getAllNonDeletedAttributeValuesByAttributeId(attributeId);
+        //TODO check if any of the attribute values are in use by product attributes
+        attributeValues.forEach(attributeValue -> attributeValue.setDeleted(true));
     }
 
     /**

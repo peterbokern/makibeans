@@ -1,6 +1,6 @@
 package com.makibeans.model;
 
-import com.makibeans.model.base.Auditable;
+import com.makibeans.model.audit.Auditable;
 import com.makibeans.model.id.ProductAttributeValueId;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

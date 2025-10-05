@@ -11,6 +11,7 @@ import com.makibeans.model.Role;
 import com.makibeans.model.User;
 import com.makibeans.repository.UserRepository;
 import com.makibeans.security.JwtUtil;
+import com.makibeans.service.impl.UserDetailsServiceImpl;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -184,6 +185,7 @@ public class UserService extends AbstractCrudService<User, Long> {
 
         Role userRole = roleService.findByName(roleName);
         user.addRole(userRole);
+        user.setDeleted(false);
 
         User createdUser = create(user);
 

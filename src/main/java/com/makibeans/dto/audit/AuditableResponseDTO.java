@@ -1,6 +1,5 @@
-package com.makibeans.dto.base;
+package com.makibeans.dto.audit;
 
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.Data;
 import java.time.Instant;
 
@@ -13,4 +12,7 @@ public abstract class AuditableResponseDTO {
     private Instant createdAt;
     private String updatedBy;
     private Instant updatedAt;
+    private Boolean deleted;
+    private Instant deletedAt;
+    private String deletedBy;
 }

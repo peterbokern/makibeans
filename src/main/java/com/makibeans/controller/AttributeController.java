@@ -100,7 +100,7 @@ public class AttributeController {
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteAttribute(@PathVariable Long id) {
-        attributeService.deleteAttribute(id);
+        attributeService.softDeleteAttribute(id);
         return ResponseEntity.noContent().build();
     }
 }

@@ -3,6 +3,7 @@ package com.makibeans.service;
 import com.makibeans.dto.attribute.AttributeRequestDTO;
 import com.makibeans.dto.attribute.AttributeResponseDTO;
 import com.makibeans.dto.attribute.AttributeUpdateDTO;
+import com.makibeans.dto.attribute.AttributeUsageResponseDTO;
 import com.makibeans.exceptions.DuplicateResourceException;
 import com.makibeans.exceptions.ResourceNotFoundException;
 import com.makibeans.filter.SearchFilter;
@@ -39,17 +40,17 @@ public class AttributeService extends AbstractCrudService<Attribute, Long> {
 
     private final AttributeMapper mapper;
     private final Logger logger = LoggerFactory.getLogger(AttributeService.class);
-    private final ProductAttributeService productAttributeService;
     private final AttributeRepository attributeRepository;
+    private final AttributeValueService attributeValueService;
 
     @Autowired
     public AttributeService(
             JpaRepository<Attribute, Long> repository,
-            AttributeMapper mapper, @Lazy ProductAttributeService productAttributeService, AttributeRepository attributeRepository) {
+            AttributeMapper mapper, AttributeRepository attributeRepository, @Lazy AttributeValueService attributeValueService) {
         super(repository);
         this.mapper = mapper;
-        this.productAttributeService = productAttributeService;
         this.attributeRepository = attributeRepository;
+        this.attributeValueService = attributeValueService;
     }
 
     /**
@@ -99,6 +100,12 @@ public class AttributeService extends AbstractCrudService<Attribute, Long> {
                 .toList();
     }
 
+    @Transactional
+    public AttributeUsageResponseDTO getAttributeUsage(Long attrinbuteID) {
+        findById(attrinbuteID);
+        return null;
+    }
+
     /**
      * Creates a new Attribute and refreshed the cache of valid attribute keys.
      *
@@ -130,22 +137,21 @@ public class AttributeService extends AbstractCrudService<Attribute, Long> {
      */
 
     @Transactional
-    public void deleteAttribute(Long id) {
+    public void softDeleteAttribute(Long id) {
         findById(id);
-        deleteProductAttributesByTemplateId(id);
-        delete(id);
+        softDeleteAttributeValuesByAttributeId(id);
+        //TODO also soft delete product attributes
+        softDelete(id);
     }
 
     /**
-     * Deletes all product attributes associated with the given attribute template ID.
+     * Soft deletes all AttributeValues associated with the given Attribute ID.
      *
-     * @param id the ID of the attribute template whose product attributes are to be deleted
+     * @param AttributeId the ID of the Attribute whose values are to be soft deleted
      */
-
-    private void deleteProductAttributesByTemplateId(Long id) {
-        productAttributeService.getProductAttributesByTemplateId(id)
-                .forEach(productAttribute ->
-                        productAttributeService.deleteProductAttribute(productAttribute.getId()));
+    @Transactional
+    public void softDeleteAttributeValuesByAttributeId(Long AttributeId) {
+        attributeValueService.softDeleteByAttributeId(AttributeId);
     }
 
 
