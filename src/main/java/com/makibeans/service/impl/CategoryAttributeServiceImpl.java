@@ -1,32 +1,31 @@
 package com.makibeans.service.impl;
 
+import com.makibeans.search.*;
 import com.makibeans.dto.categoryattribute.CategoryAttributeRequestDTO;
 import com.makibeans.dto.categoryattribute.CategoryAttributeResponseDTO;
 import com.makibeans.dto.categoryattribute.CategoryAttributeUpdateDTO;
-import com.makibeans.dto.search.SearchRequestDTO;
 import com.makibeans.exceptions.DuplicateResourceException;
 import com.makibeans.mapper.CategoryAttributeMapper;
 import com.makibeans.model.Attribute;
 import com.makibeans.model.Category;
 import com.makibeans.model.CategoryAttribute;
 import com.makibeans.repository.CategoryAttributeRepository;
+import com.makibeans.search.filters.CategoryAttributeFilter;
 import com.makibeans.service.AbstractCrudService;
 import com.makibeans.service.AttributeService;
 import com.makibeans.service.CategoryAttributeService;
 import com.makibeans.service.CategoryService;
-import com.makibeans.util.FilterBuilder;
-import com.makibeans.util.SearchUtils;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.List;
-import java.util.Map;
 
 /**
  * Service class for managing CategoryAttribute entities.
@@ -38,17 +37,18 @@ public class CategoryAttributeServiceImpl extends AbstractCrudService<CategoryAt
     private final CategoryAttributeRepository categoryAttributeRepository;
     private final CategoryService categoryService;
     private final AttributeService attributeService;
-    private final CategoryAttributeMapper categoryAttributeMapper;
+    private final CategoryAttributeMapper mapper;
+
 
     @Autowired
     public CategoryAttributeServiceImpl(JpaRepository<CategoryAttribute, Long> repository,
                                         CategoryAttributeRepository categoryAttributeRepository, CategoryService categoryService, AttributeService attributeService,
-                                        CategoryAttributeMapper categoryAttributeMapper) {
+                                        CategoryAttributeMapper mapper) {
         super(repository);
         this.categoryAttributeRepository = categoryAttributeRepository;
         this.categoryService = categoryService;
         this.attributeService = attributeService;
-        this.categoryAttributeMapper = categoryAttributeMapper;
+        this.mapper = mapper;
     }
 
     /**
@@ -75,7 +75,7 @@ public class CategoryAttributeServiceImpl extends AbstractCrudService<CategoryAt
                 .build();
 
         CategoryAttribute savedCategoryAttribute = categoryAttributeRepository.save(categoryAttribute);
-        return categoryAttributeMapper.toResponseDTO(savedCategoryAttribute);
+        return mapper.toResponseDTO(savedCategoryAttribute);
 
     }
 
@@ -94,9 +94,9 @@ public class CategoryAttributeServiceImpl extends AbstractCrudService<CategoryAt
         CategoryAttribute categoryAttribute = findById(id);
 
         //Because the entity is loaded and managed inside a @Transactional method, JPA/Hibernate uses dirty checking. If the mapper actually changes one or more fields (values differ), an UPDATE is issued on flush/commit. If nothing changes (all values remain equal), no SQL UPDATE is executed. No explicit save call is needed.
-        categoryAttributeMapper.updateEntityFromDTO(updateDTO, categoryAttribute);
+        mapper.updateEntityFromDTO(updateDTO, categoryAttribute);
 
-        return categoryAttributeMapper.toResponseDTO(categoryAttribute);
+        return mapper.toResponseDTO(categoryAttribute);
     }
 
     /**
@@ -124,7 +124,7 @@ public class CategoryAttributeServiceImpl extends AbstractCrudService<CategoryAt
     @Transactional(readOnly = true)
     public CategoryAttributeResponseDTO getById(Long id) {
         CategoryAttribute categoryAttribute = findById(id);
-        return categoryAttributeMapper.toResponseDTO(categoryAttribute);
+        return mapper.toResponseDTO(categoryAttribute);
     }
 
 /**
@@ -135,47 +135,22 @@ public class CategoryAttributeServiceImpl extends AbstractCrudService<CategoryAt
      * @return a paginated list of CategoryAttribute response DTOs matching the search criteria
      * @throws IllegalArgumentException if the req is null
      */
-    @Override
-    @Transactional
-    public Page<CategoryAttributeResponseDTO> search(SearchRequestDTO req) {
-        // sort whitelist
-        Map<String, String> sortMap = Map.of(
-                "id", "id",
-                "required", "required",
-                "attributeId", "attribute.id",
-                "attributeName", "attribute.name",
-                "categoryId", "category.id",
-                "categoryName", "category.name"
-        );
+@Override
+public Page<CategoryAttributeResponseDTO> search(SearchRequest<CategoryAttributeFilter> req) {
+    Specification<CategoryAttribute> spec =
+            SpecificationFactory.fromRequest(req, CategoryAttributeFilter.class);
 
-        Pageable pageable = SearchUtils.buildPageable(req, sortMap);
+    Sort sort = new SortResolver(CategoryAttributeFilter.class)
+            .resolve(req.getSortBy(), req.getSortDirection());
 
-        // free-text fields (LIKE across these, OR’ed)
-        var textFields = List.of("attribute.name", "category.name");
+    Pageable pageable = PageRequest.of(
+            req.getPage() != null ? req.getPage() : 0,
+            req.getSize() != null ? req.getSize() : 20,
+            sort
+    );
 
-        // filters (choose exact vs like per key)
-        var filters = new FilterBuilder<CategoryAttribute>()
-                .eq("categoryId",  "category.id")      // single or list → eq/IN
-                .eq("attributeId", "attribute.id")     // single or list → eq/IN
-                .in("categoryIds", "category.id")      // explicit IN key
-                .in("attributeIds","attribute.id")     // explicit IN key
-                .bool("required",  "required")
-                .like("categoryName",  "category.name")
-                .like("attributeName", "attribute.name")
-                .build();
-
-        Specification<CategoryAttribute> spec =
-                SearchUtils.buildSpecification(req, textFields, filters);
-
-        // Exclude deleted unless explicitly included
-        if (!req.getIncludeDeleted()) {
-            spec = spec.and((root, query, cb) -> cb.isFalse(root.get("deleted")));
-        }
-
-        return categoryAttributeRepository.findAll(spec, pageable)
-                .map(categoryAttributeMapper::toResponseDTO);
-    }
-
+    return categoryAttributeRepository.findAll(spec, pageable).map(mapper::toResponseDTO);
+}
     /**
      * Retrieves all CategoryAttributes associated with a specific category.
      *
@@ -189,7 +164,7 @@ public class CategoryAttributeServiceImpl extends AbstractCrudService<CategoryAt
         Category category = categoryService.findById(categoryId);
         List<CategoryAttribute> categoryAttributes = categoryAttributeRepository.findAllByCategoryId(category.getId());
         return categoryAttributes.stream()
-                .map(categoryAttributeMapper::toResponseDTO)
+                .map(mapper::toResponseDTO)
                 .toList();
     }
 
@@ -206,7 +181,7 @@ public class CategoryAttributeServiceImpl extends AbstractCrudService<CategoryAt
         Attribute attribute = attributeService.findById(attributeId);
         List<CategoryAttribute> categoryAttributes = categoryAttributeRepository.findAllByAttributeId(attribute.getId());
         return categoryAttributes.stream()
-                .map(categoryAttributeMapper::toResponseDTO)
+                .map(mapper::toResponseDTO)
                 .toList();
     }
 
@@ -219,7 +194,7 @@ public class CategoryAttributeServiceImpl extends AbstractCrudService<CategoryAt
     @Transactional(readOnly = true)
     public List<CategoryAttributeResponseDTO> getAll() {
         return categoryAttributeRepository.findAll().stream()
-                .map(categoryAttributeMapper::toResponseDTO)
+                .map(mapper::toResponseDTO)
                 .toList();
     }
 }

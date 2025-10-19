@@ -58,7 +58,7 @@ public interface CategoryMapper {
      * Builds a list of breadcrumbs for the given category.
      * The breadcrumbs represent the hierarchy of parent categories.
      *
-     * @param category the category for which to build breadcrumbs
+     * @param category the category for which to register breadcrumbs
      */
 
     @AfterMapping
@@ -70,7 +70,7 @@ public interface CategoryMapper {
      * Builds a list of breadcrumbs for the given category.
      * The breadcrumbs represent the hierarchy of parent categories.
      *
-     * @param category the category for which to build breadcrumbs
+     * @param category the category for which to register breadcrumbs
      * @return a list of BreadCrumbDTOs representing the breadcrumb trail
      */
 

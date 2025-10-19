@@ -1,5 +1,6 @@
 package com.makibeans.config;
 
+import com.makibeans.web.UnknownQueryParamInterceptor;
 import org.springframework.boot.autoconfigure.web.servlet.DispatcherServletPath;
 import org.springframework.boot.web.servlet.MultipartConfigFactory;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
@@ -7,6 +8,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.util.unit.DataSize;
 import org.springframework.web.servlet.DispatcherServlet;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
  * Web configuration class for customizing the DispatcherServlet and enabling multipart support.
@@ -16,7 +19,7 @@ import org.springframework.web.servlet.DispatcherServlet;
  */
 
 @Configuration
-public class WebConfig {
+public class WebConfig implements WebMvcConfigurer {
 
     @Bean
     public ServletRegistrationBean<DispatcherServlet> dispatcherServletRegistration(DispatcherServlet dispatcherServlet) {
@@ -34,5 +37,12 @@ public class WebConfig {
     @Bean
     public DispatcherServletPath dispatcherServletPath() {
         return () -> "/";
+    }
+
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(new UnknownQueryParamInterceptor())
+                .addPathPatterns("/**")
+                .excludePathPatterns("/swagger-ui/**", "/v3/api-docs/**");
     }
 }

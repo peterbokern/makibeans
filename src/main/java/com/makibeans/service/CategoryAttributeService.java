@@ -3,7 +3,8 @@ package com.makibeans.service;
 import com.makibeans.dto.categoryattribute.CategoryAttributeRequestDTO;
 import com.makibeans.dto.categoryattribute.CategoryAttributeResponseDTO;
 import com.makibeans.dto.categoryattribute.CategoryAttributeUpdateDTO;
-import com.makibeans.dto.search.SearchRequestDTO;
+import com.makibeans.search.filters.CategoryAttributeFilter;
+import com.makibeans.search.SearchRequest;
 import org.springframework.data.domain.Page;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,5 +24,5 @@ public interface CategoryAttributeService {
     List<CategoryAttributeResponseDTO> getAll();
 
     @Transactional(readOnly = true)
-    Page<CategoryAttributeResponseDTO> search(SearchRequestDTO req);
+    Page<CategoryAttributeResponseDTO> search(SearchRequest<CategoryAttributeFilter> req);
 }

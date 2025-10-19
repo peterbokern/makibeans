@@ -1,22 +1,28 @@
 package com.makibeans.controller;
 
-import com.makibeans.dto.search.SearchRequestDTO;
-import io.swagger.v3.oas.annotations.Operation;
-import org.springframework.data.domain.Page;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.makibeans.dto.categoryattribute.CategoryAttributeRequestDTO;
 import com.makibeans.dto.categoryattribute.CategoryAttributeResponseDTO;
 import com.makibeans.dto.categoryattribute.CategoryAttributeUpdateDTO;
+import com.makibeans.search.filters.CategoryAttributeFilter;
+import com.makibeans.search.SearchRequest;
+import com.makibeans.search.utils.SearchRequestUtils;
 import com.makibeans.service.CategoryAttributeService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
+/**
+ * Minimal, clean, scalable controller.
+ * - Public reads (list, getById).
+ * - Admin-only writes (create, update, delete).
+ * - GET and POST /search share the same SearchRequest model.
+ * - Simple merge of pageable/sort defaults to keep behavior identical.
+ */
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/category-attributes")
@@ -24,84 +30,80 @@ public class CategoryAttributeController {
 
     private final CategoryAttributeService service;
 
-    // ---- READS ----
-    @GetMapping
-    @Operation(
-            summary = "Retrieve all Category Attributes",
-            description = "Fetches all Category Attributes without pagination or filters. "
-                    + "Primarily for small lists or dropdowns in admin panels.")
-    public ResponseEntity<List<CategoryAttributeResponseDTO>> getAll() {
-        List<CategoryAttributeResponseDTO> result = service.getAll();
-        return ResponseEntity.ok(result);
-    }
+    // ----------------------------- READS (public) -----------------------------
 
     /**
-     * Searches for category-attribute associations with pagination and filtering.
-     *
-     * @param req the \`SearchRequestDTO\` containing search parameters
-     * @return a paginated list of matching \`CategoryAttributeResponseDTO\`s
+     * GET: paginated list with query params bound into the same Filter DTO used by POST.
+     * Example: /api/category-attributes?categoryId=1,2&attributeName=origin&sort=id,desc&page=0&size=20
      */
-
-    @PostMapping("/search")
-    @Operation(summary = "Search Category Attributes",
-            description = "Performs a paginated and filtered search for Category Attributes using JSON body parameters.")
-    public ResponseEntity<Page<CategoryAttributeResponseDTO>> search(
-            @Valid @RequestBody SearchRequestDTO req) {
-
-        Page<CategoryAttributeResponseDTO> result = service.search(req);
-        return ResponseEntity.ok(result);
+    @GetMapping
+    public ResponseEntity<Page<CategoryAttributeResponseDTO>> getAll(
+            @Valid @ModelAttribute CategoryAttributeFilter filters,
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false, defaultValue = "false") Boolean includeDeleted,
+            @PageableDefault(size = 20, sort = "id") Pageable pageable
+    ) {
+        SearchRequest<CategoryAttributeFilter> req = SearchRequestUtils.assemble(filters, search, includeDeleted, pageable);
+        return ResponseEntity.ok(service.search(req));
     }
 
     /**
-     * Retrieves a specific category-attribute association by its ID.
-     *
-     * @param id the unique identifier of the category-attribute association
-     * @return the matching \`CategoryAttributeResponseDTO\`
+     * GET by id (simple read).
      */
     @GetMapping("/{id}")
-    public CategoryAttributeResponseDTO get(@PathVariable Long id) {
-        return service.getById(id);
+    public ResponseEntity<CategoryAttributeResponseDTO> getById(@PathVariable Long id) {
+        return ResponseEntity.ok(service.getById(id));
     }
 
-    // ---- WRITES ----
+    /**
+     * POST: JSON search with same SearchRequest used by GET.
+     */
+    @PostMapping("/search")
+    public ResponseEntity<Page<CategoryAttributeResponseDTO>> search(
+            @Valid @RequestBody SearchRequest<CategoryAttributeFilter> req,
+            @PageableDefault(size = 20, sort = "id") Pageable pageable
+    ) {
+        SearchRequest<CategoryAttributeFilter> merged = SearchRequestUtils.mergeWithPageable(req, pageable);
+        if (merged.getIncludeDeleted() == null) merged.setIncludeDeleted(false);
+        return ResponseEntity.ok(service.search(merged));
+    }
+
+    // ----------------------------- WRITES (admin) -----------------------------
 
     /**
-     * Creates a new category-attribute association.
-     * Requires ADMIN role.
-     *
-     * @param dto the \`CategoryAttributeRequestDTO\` containing details of the association to create
-     * @return the created \`CategoryAttributeResponseDTO\`
+     * CREATE (admin).
      */
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public CategoryAttributeResponseDTO create(@Valid @RequestBody CategoryAttributeRequestDTO dto) {
-        return service.create(dto);
+    public ResponseEntity<CategoryAttributeResponseDTO> create(
+            @Valid @RequestBody CategoryAttributeRequestDTO body
+    ) {
+        CategoryAttributeResponseDTO created = service.create(body);
+        return ResponseEntity.ok(created);
     }
 
     /**
-     * Updates an existing category-attribute association.
-     * Requires ADMIN role.
-     *
-     * @param id  the unique identifier of the association to update
-     * @param dto the \`CategoryAttributeUpdateDTO\` containing updated details
-     * @return the updated \`CategoryAttributeResponseDTO\`
+     * UPDATE (admin) — full or partial depending on your service semantics.
+     * If you support PATCH semantics, keep this as PUT for idempotent full update,
+     * and add a separate @PatchMapping if you need it.
      */
-    @PatchMapping("/{id}")
+    @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public CategoryAttributeResponseDTO update(@PathVariable Long id,
-                                               @Valid @RequestBody CategoryAttributeUpdateDTO dto) {
-        return service.updateCategoryAttribute(id, dto);
+    public ResponseEntity<CategoryAttributeResponseDTO> update(
+            @PathVariable Long id,
+            @Valid @RequestBody CategoryAttributeUpdateDTO body
+    ) {
+        CategoryAttributeResponseDTO updated = service.update(id, body);
+        return ResponseEntity.ok(updated);
     }
 
     /**
-     * Deletes a category-attribute association by its ID.
-     * Requires ADMIN role.
-     *
-     * @param id the unique identifier of the association to delete
+     * DELETE (admin) — either soft or hard delete as implemented in your service.
      */
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public void delete(@PathVariable Long id) {
-        service.deleteCategoryAttribute(id);
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        service.delete(id);
+        return ResponseEntity.noContent().build();
     }
 }
