@@ -29,8 +29,8 @@ class ProductAttributeServiceTest {
     ProductAttribute productAttribute;
 
     @Mock ProductAttributeRepository productAttributeRepository;
-    @Mock ProductService productService;
-    @Mock AttributeService attributeTemplateService;
+    @Mock ProductServiceImpl productService;
+    @Mock AttributeServiceImpl attributeTemplateService;
     @Mock AttributeValueService attributeValueService;
     @Mock ProductAttributeMapper productAttributeMapper;
 

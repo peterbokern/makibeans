@@ -9,6 +9,7 @@ import com.makibeans.mapper.UserMapper;
 import com.makibeans.model.Role;
 import com.makibeans.model.User;
 import com.makibeans.repository.UserRepository;
+import com.makibeans.service.impl.UserServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,7 +31,8 @@ class UserServiceTest {
     @Mock PasswordEncoder passwordEncoder;
     @Mock RoleService roleService;
 
-    @InjectMocks UserService userService;
+    @InjectMocks
+    UserServiceImpl userService;
 
     User user;
     UserRequestDTO requestDTO;

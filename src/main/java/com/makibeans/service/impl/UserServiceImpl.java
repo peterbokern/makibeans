@@ -1,4 +1,4 @@
-package com.makibeans.service;
+package com.makibeans.service.impl;
 
 import com.makibeans.dto.user.UserRequestDTO;
 import com.makibeans.dto.user.UserResponseDTO;
@@ -11,7 +11,8 @@ import com.makibeans.model.Role;
 import com.makibeans.model.User;
 import com.makibeans.repository.UserRepository;
 import com.makibeans.security.JwtUtil;
-import com.makibeans.service.impl.UserDetailsServiceImpl;
+import com.makibeans.service.RoleService;
+import com.makibeans.service.service.CrudService;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,18 +37,18 @@ import static com.makibeans.util.UpdateUtils.shouldUpdate;
  */
 
 @Service
-public class UserService extends AbstractCrudService<User, Long> {
+public class UserServiceImpl extends CrudService<User, Long> {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
     private final RoleService roleService;
-    private final Logger logger = LoggerFactory.getLogger(UserService.class);
+    private final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 
     @Autowired
-    public UserService(JpaRepository<User, Long> repository,
-                       UserRepository userRepository, PasswordEncoder passwordEncoder, UserMapper userMapper, RoleService roleService, JwtUtil jwtUtil, UserDetailsServiceImpl userDetailsServiceImpl) {
-        super(repository);
+    public UserServiceImpl(JpaRepository<User, Long> repository,
+                           UserRepository userRepository, PasswordEncoder passwordEncoder, UserMapper userMapper, RoleService roleService, JwtUtil jwtUtil, UserDetailsServiceImpl userDetailsServiceImpl) {
+
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.userMapper = userMapper;
@@ -189,7 +190,7 @@ public class UserService extends AbstractCrudService<User, Long> {
 
         User createdUser = create(user);
 
-        logger.info("User {} created with role {}", user.getUsername(), roleName);
+
 
         return userMapper.toResponseDTO(createdUser);
     }

@@ -1,6 +1,9 @@
 package com.makibeans.repository;
 
 import com.makibeans.model.Size;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 /**
@@ -16,6 +19,8 @@ public interface SizeRepository extends JpaRepository<Size, Long> {
      * @param name the name of the Size
      * @return true if a Size with the given name exists, false otherwise
      */
-    boolean existsByName(String name);
+    boolean existsByNameIgnoreCase(String name);
+
+    Page<Size> findAll(Specification<Size> spec, Pageable pageable);
 
 }

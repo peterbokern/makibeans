@@ -3,125 +3,107 @@ package com.makibeans.controller;
 import com.makibeans.dto.attributevalue.AttributeValueRequestDTO;
 import com.makibeans.dto.attributevalue.AttributeValueResponseDTO;
 import com.makibeans.dto.attributevalue.AttributeValueUpdateDTO;
-import com.makibeans.service.AttributeValueService;
+import com.makibeans.search.SearchRequest;
+import com.makibeans.search.filters.AttributeValueFilter;
+import com.makibeans.search.utils.SearchRequestUtils;
+import com.makibeans.service.service.AttributeValueService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.Map;
-
 /**
- * REST controller for managing Attribute Values.
- * Provides endpoints for retrieving, creating, updating, and deleting attribute values.
+ * AttributeValue REST controller.
+ * Aligned with AttributeController:
+ * - GET accepts @ModelAttribute filters + search + includeDeleted + Pageable
+ * - POST /search accepts a SearchRequest body
+ * - Public reads, admin-protected writes
  */
 @RestController
-@RequestMapping("/attribute-values")
-@Tag(name = "Attribute Values", description = "CRUD operations for Attribute Values")
+@RequestMapping("/api/attribute-values")
+@RequiredArgsConstructor
+@Tag(name = "Attribute Values", description = "Manage attribute values")
 public class AttributeValueController {
 
-    private final AttributeValueService attributeValueService;
+    private final AttributeValueService service;
 
-    /**
-     * Constructs an AttributeValueController with the given service.
-     *
-     * @param attributeValueService the service handling Attribute Value operations
-     */
-    public AttributeValueController(AttributeValueService attributeValueService) {
-        this.attributeValueService = attributeValueService;
-    }
+    // ---------- READS ----------
 
-    /**
-     * Retrieves an AttributeValue by its unique identifier.
-     *
-     * @param id the unique identifier of the AttributeValue
-     * @return a ResponseEntity containing the AttributeValueResponseDTO
-     */
-    @Operation(summary = "Get Attribute Value by ID")
     @GetMapping("/{id}")
-    public ResponseEntity<AttributeValueResponseDTO> getAttributeValue(@PathVariable Long id) {
-        AttributeValueResponseDTO responseDTO = attributeValueService.getAttributeValueById(id);
-        return ResponseEntity.ok(responseDTO);
+    @Operation(summary = "Get attribute value by id")
+    public ResponseEntity<AttributeValueResponseDTO> getById(@PathVariable Long id) {
+        return ResponseEntity.ok(service.getById(id));
     }
 
-    /**
-     * Retrieves all AttributeValues, or filters them based on search parameters.
-     *
-     * @param params optional search, sort, and order parameters
-     * @return a ResponseEntity containing a list of AttributeValueResponseDTOs
-     */
-    @Operation(summary = "Get all or search Attribute Values",
-            description = "Fetch attribute templates with optional filtering and sorting. " +
-                    "Parameters include:\n" +
-                    "- `search`: Partial match on the fields `name` or `attributeTemplate`.\n" +
-                    "- `name`: Exact match on the attribute template name.\n" +
-                    "- `sort`: Field to sort by (`id`, `name`).\n" +
-                    "- `order`: Sort order (`asc`, `desc`).")
     @GetMapping
-    public ResponseEntity<List<AttributeValueResponseDTO>> getAttributeValues(@RequestParam Map<String, String> params) {
-        List<AttributeValueResponseDTO> attributeValueResponseDTOS = attributeValueService.findBySearchQuery(params);
-        return ResponseEntity.ok(attributeValueResponseDTOS);
+    @Operation(summary = "Get attribute values (paged)", description = "Search/sort/paginate attribute values using query params.")
+    public ResponseEntity<Page<AttributeValueResponseDTO>> getAll(
+            @Valid @ModelAttribute AttributeValueFilter filters,
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false, defaultValue = "false") Boolean includeDeleted,
+            @PageableDefault(size = 20, sort = "id") Pageable pageable
+    ) {
+        SearchRequest<AttributeValueFilter> req = SearchRequestUtils.assemble(filters, search, includeDeleted, pageable);
+        return ResponseEntity.ok(service.search(req));
     }
 
-    /**
-     * Retrieves all AttributeValues associated with a given Attribute ID.
-     *
-     * @param templateId the ID of the Attribute
-     * @return a ResponseEntity containing a list of AttributeValueResponseDTOs linked to the template
-     */
-    @Operation(summary = "Get all Attribute Values by Template ID")
-    @GetMapping("/by-template-id/{templateId}")
-    public ResponseEntity<List<AttributeValueResponseDTO>> getAllAttributeValuesByTemplateId(@PathVariable Long templateId) {
-        List<AttributeValueResponseDTO> attributeValueResponseDTOS = attributeValueService.getAllAttributeValuesByAttributeId(templateId);
-        return ResponseEntity.ok(attributeValueResponseDTOS);
+    @PostMapping("/search")
+    @Operation(summary = "Search attribute values (POST)", description = "Same as GET but accepts a JSON body for complex filters.")
+    public ResponseEntity<Page<AttributeValueResponseDTO>> search(
+            @Valid @RequestBody SearchRequest<AttributeValueFilter> request,
+            @PageableDefault(size = 20, sort = "id") Pageable pageable
+    ) {
+        SearchRequest<AttributeValueFilter> merged = SearchRequestUtils.mergeWithPageable(request, pageable);
+        return ResponseEntity.ok(service.search(merged));
     }
 
-    /**
-     * Creates a new AttributeValue.
-     *
-     * @param dto the DTO containing the details of the new AttributeValue
-     * @return a ResponseEntity containing the created AttributeValueResponseDTO
-     */
-    @Operation(summary = "Create a new Attribute Value")
-    @PreAuthorize("hasRole('ADMIN')")
+    // ---------- WRITES (ADMIN) ----------
+
     @PostMapping
-    public ResponseEntity<AttributeValueResponseDTO> createAttributeValue(@Valid @RequestBody AttributeValueRequestDTO dto) {
-        AttributeValueResponseDTO response = attributeValueService.createAttributeValue(dto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Create attribute value", description = "Admin only.")
+    public ResponseEntity<AttributeValueResponseDTO> create(@Valid @RequestBody AttributeValueRequestDTO body) {
+        // Keeping service naming aligned would prefer service.create(body)
+        // but we call the current method to avoid breaking changes.
+        AttributeValueResponseDTO created = service.create(body);
+        return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
-    /**
-     * Updates an existing AttributeValue.
-     *
-     * @param id  the ID of the AttributeValue to update
-     * @param dto the DTO containing the updated details
-     * @return a ResponseEntity containing the updated AttributeValueResponseDTO
-     */
-    @Operation(summary = "Update an existing Attribute Value")
-    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
-    public ResponseEntity<AttributeValueResponseDTO> updateAttributeValue(
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Update attribute value", description = "Admin only. Full update semantics.")
+    public ResponseEntity<AttributeValueResponseDTO> update(
             @PathVariable Long id,
-            @Valid @RequestBody AttributeValueUpdateDTO dto) {
-        AttributeValueResponseDTO updatedDTO = attributeValueService.updateAttributeValue(id, dto);
-        return ResponseEntity.ok(updatedDTO);
+            @Valid @RequestBody AttributeValueUpdateDTO body
+    ) {
+        AttributeValueResponseDTO updated = service.update(id, body);
+        return ResponseEntity.ok(updated);
     }
 
-    /**
-     * Deletes an AttributeValue by its unique identifier.
-     *
-     * @param id the unique identifier of the AttributeValue to delete
-     * @return a ResponseEntity with no content if the deletion was successful
-     */
-    @Operation(summary = "Delete an Attribute Value by ID")
+    @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Partially update attribute value", description = "Admin only. Partial update semantics.")
+    public ResponseEntity<AttributeValueResponseDTO> patch(
+            @PathVariable Long id,
+            @Valid @RequestBody AttributeValueUpdateDTO body
+    ) {
+        // MapStruct ignores nulls, so we can reuse same update method
+        AttributeValueResponseDTO updated = service.update(id, body);
+        return ResponseEntity.ok(updated);
+    }
+
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteAttributeValue(@PathVariable Long id) {
-        attributeValueService.deleteAttributeValue(id);
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Delete attribute value", description = "Admin only. Soft/hard delete per service implementation.")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        service.delete(id);
         return ResponseEntity.noContent().build();
     }
 }

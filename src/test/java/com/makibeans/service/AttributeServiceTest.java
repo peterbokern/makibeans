@@ -24,7 +24,7 @@
 //import static org.mockito.Mockito.*;
 //
 ///**
-// * Unit tests for the AttributeService class.
+// * Unit tests for the AttributeServiceImpl class.
 // */
 //
 //@ExtendWith(MockitoExtension.class)
@@ -40,7 +40,7 @@
 //    private ProductAttributeService productAttributeService;
 //
 //    @InjectMocks
-//    private AttributeService attributeService;
+//    private AttributeServiceImpl attributeService;
 //
 //    private AttributeTemplateRequestDTO requestDTO;
 //    private AttributeTemplateUpdateDTO updateDTO;

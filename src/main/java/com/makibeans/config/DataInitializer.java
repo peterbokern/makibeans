@@ -2,7 +2,7 @@ package com.makibeans.config;
 
 import com.makibeans.dto.user.UserRequestDTO;
 import com.makibeans.service.RoleService;
-import com.makibeans.service.UserService;
+import com.makibeans.service.impl.UserServiceImpl;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
@@ -14,10 +14,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class DataInitializer implements CommandLineRunner {
 
-    private final UserService userService;
+    private final UserServiceImpl userService;
     private final RoleService roleService;
 
-    public DataInitializer(UserService userService, RoleService roleService, RoleService roleService1) {
+    public DataInitializer(UserServiceImpl userService, RoleService roleService, RoleService roleService1) {
         this.userService = userService;
         this.roleService = roleService1;
     }

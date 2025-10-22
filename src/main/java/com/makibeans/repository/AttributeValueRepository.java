@@ -2,8 +2,11 @@ package com.makibeans.repository;
 
 import com.makibeans.model.Attribute;
 import com.makibeans.model.AttributeValue;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 
@@ -49,4 +52,10 @@ public interface AttributeValueRepository extends JpaRepository<AttributeValue, 
      */
     Long countAttributeValuesByAttributeIdAndDeletedIsFalse(Long AttributeId);
 
+    @EntityGraph(attributePaths = {"attribute"})// Eagerly load associated attribute and category improves performance by reducing the number of queries
+    Page<AttributeValue> findAll(Specification<AttributeValue> spec, Pageable pageable);
+
+    boolean existsByValueAndAttributeId(String name);
+
+    boolean existsByValueAndAttributeIdAndIdNot(String name, Long attributeId, Long id);
 }

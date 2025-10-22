@@ -2,7 +2,7 @@ package com.makibeans.controller;
 
 import com.makibeans.dto.login.LoginRequestDTO;
 import com.makibeans.dto.login.LoginResponseDTO;
-import com.makibeans.service.AuthService;
+import com.makibeans.service.impl.AuthServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -22,9 +22,9 @@ public class AuthController {
 
     private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
 
-    private final AuthService authService;
+    private final AuthServiceImpl authService;
 
-    public AuthController(AuthService authService) {
+    public AuthController(AuthServiceImpl authService) {
         this.authService = authService;
     }
 

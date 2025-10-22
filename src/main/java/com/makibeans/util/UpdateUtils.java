@@ -14,7 +14,7 @@ public class UpdateUtils {
      * @return true if the new value is not null, not blank, and different from the current value after normalization; false otherwise
      */
 
-    public static boolean shouldUpdate(String newValue, String currentValue) {
+    public static boolean hasChanged(String newValue, String currentValue) {
         return newValue != null && !newValue.isBlank() &&
                 !normalize(newValue).equalsIgnoreCase(normalize(currentValue));
     }
@@ -26,7 +26,7 @@ public class UpdateUtils {
      * @param currentValue the current value from the entity
      * @return true if the value is non-null and different
      */
-    public static boolean shouldUpdate(Long newValue, Long currentValue) {
+    public static boolean hasChanged(Long newValue, Long currentValue) {
         return newValue != null && !newValue.equals(currentValue);
     }
 
@@ -38,6 +38,8 @@ public class UpdateUtils {
      */
 
     public static String normalize(String value) {
-        return value == null ? "" : value.trim().toLowerCase();
+        if (value == null) return null;
+        String trimmed = value.trim().replaceAll("\\s+", " ");
+        return trimmed.isEmpty() ? null : trimmed.toLowerCase();
     }
 }

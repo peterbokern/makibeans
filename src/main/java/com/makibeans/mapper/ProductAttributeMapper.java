@@ -1,7 +1,9 @@
 package com.makibeans.mapper;
 
+import com.makibeans.dto.attribute.AttributeUpdateDTO;
 import com.makibeans.dto.productattribute.ProductAttributeResponseDTO;
 import com.makibeans.dto.attributevalue.AttributeValueSimpleResponseDTO;
+import com.makibeans.model.Attribute;
 import com.makibeans.model.ProductAttribute;
 import org.mapstruct.*;
 
@@ -26,4 +28,5 @@ public interface ProductAttributeMapper {
                 .map(productattributeValue -> new AttributeValueSimpleResponseDTO(productattributeValue.getAttributeValue().getId(), productattributeValue.getAttributeValue().getValue()))
                 .toList();
     }
+
 }

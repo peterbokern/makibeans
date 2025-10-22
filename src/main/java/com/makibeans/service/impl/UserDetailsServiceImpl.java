@@ -1,7 +1,6 @@
 package com.makibeans.service.impl;
 
 import com.makibeans.exceptions.ResourceNotFoundException;
-import com.makibeans.service.UserService;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -16,7 +15,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
 
-    private final UserService userService;
+    private final UserServiceImpl userService;
 
     /**
      * Constructs a new UserDetailsServiceImpl with the given UserRepository.
@@ -24,7 +23,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
      * @param userService the service to retrieve user data from
      */
 
-    public UserDetailsServiceImpl(@Lazy UserService userService) {
+    public UserDetailsServiceImpl(@Lazy UserServiceImpl userService) {
         this.userService = userService;
     }
 

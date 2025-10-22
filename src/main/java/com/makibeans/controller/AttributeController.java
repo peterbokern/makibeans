@@ -3,104 +3,105 @@ package com.makibeans.controller;
 import com.makibeans.dto.attribute.AttributeRequestDTO;
 import com.makibeans.dto.attribute.AttributeResponseDTO;
 import com.makibeans.dto.attribute.AttributeUpdateDTO;
-import com.makibeans.service.AttributeService;
+import com.makibeans.search.SearchRequest;
+import com.makibeans.search.filters.AttributeFilter;
+import com.makibeans.search.utils.SearchRequestUtils;
+import com.makibeans.service.service.AttributeService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.Map;
-
+/**
+ * Attribute REST controller.
+ * Mirrors the pattern used in CategoryAttributeController:
+ * - GET accepts @ModelAttribute filters + search + includeDeleted + Pageable
+ * - POST /search accepts a SearchRequest body
+ * - Public reads, admin-protected writes
+ */
 @RestController
-@RequestMapping("/attributes")
-@Tag(name = "Attribute", description = "CRUD operations for Attribute Templates")
+@RequestMapping("/api/attributes")
+@RequiredArgsConstructor
+@Tag(name = "Attributes", description = "Manage product attributes")
 public class AttributeController {
 
-    private final AttributeService attributeService;
+    private final AttributeService service;
 
-    public AttributeController(AttributeService attributeService) {
-        this.attributeService = attributeService;
-    }
+    // ---------- READS ----------
 
-    /**
-     * Retrieves an Attribute by its ID.
-     *
-     * @param id the ID of the Attribute to retrieve
-     * @return the ResponseEntity containing the AttributeTemplateResponseDTO
-     */
-    @Operation(summary = "Get Attribute by ID")
     @GetMapping("/{id}")
-    public ResponseEntity<AttributeResponseDTO> getAttribute(@PathVariable Long id) {
-        AttributeResponseDTO responseDTO = attributeService.getAttributeById(id);
-        return ResponseEntity.ok(responseDTO);
+    @Operation(summary = "Get attribute by id")
+    public ResponseEntity<AttributeResponseDTO> getById(@PathVariable Long id) {
+        return ResponseEntity.ok(service.getById(id));
     }
 
-    /**
-     * Retrieves all AttributeTemplates or searches for AttributeTemplates based on the provided serach params.
-     *
-     * @param params the map containing the search parameters
-     * @return the ResponseEntity containing the list of AttributeTemplateResponseDTOs
-     */
-    @Operation(summary = "Retrieve Attributes",
-            description = "Fetch attributes with optional filtering and sorting. " +
-                    "Parameters include:\n" +
-                    "- `search`: Partial text search for template names.\n" +
-                    "- `name`: Exact match for a template name.\n" +
-                    "- `sort`: Field to sort by (`id`, `name`).\n" +
-                    "- `order`: Sort order (`asc`, `desc`).")
     @GetMapping
-    public ResponseEntity<List<AttributeResponseDTO>> getAttributes(@RequestParam Map<String, String> params) {
-        List<AttributeResponseDTO> attributeTemplateResponseDTOS =  attributeService.findBySearchQuery(params);
-        return ResponseEntity.ok(attributeTemplateResponseDTOS);
+    @Operation(summary = "Get attributes (paged)", description = "Search/sort/paginate attributes using query params.")
+    public ResponseEntity<Page<AttributeResponseDTO>> getAll(
+            @Valid @ModelAttribute AttributeFilter filters,
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false, defaultValue = "false") Boolean includeDeleted,
+            @PageableDefault(size = 20, sort = "id") Pageable pageable
+    ) {
+        SearchRequest<AttributeFilter> req = SearchRequestUtils.assemble(filters, search, includeDeleted, pageable);
+        return ResponseEntity.ok(service.search(req));
     }
 
-    /**
-     * Creates a new Attribute.
-     *
-     * @param dto the DTO containing the details of the Attribute to create
-     * @return the ResponseEntity containing the created AttributeTemplateResponseDTO
-     */
-    @Operation(summary = "Create a new Attribute Template")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping("/search")
+    @Operation(summary = "Search attributes (POST)", description = "Same as GET but accepts a JSON body for complex filters.")
+    public ResponseEntity<Page<AttributeResponseDTO>> search(
+            @Valid @RequestBody SearchRequest<AttributeFilter> request,
+            @PageableDefault(size = 20, sort = "id") Pageable pageable
+    ) {
+        SearchRequest<AttributeFilter> merged = SearchRequestUtils.mergeWithPageable(request, pageable);
+        return ResponseEntity.ok(service.search(merged));
+    }
+
+    // ---------- WRITES (ADMIN) ----------
+
     @PostMapping
-    public ResponseEntity<AttributeResponseDTO> createAttribute(
-            @Valid @RequestBody AttributeRequestDTO dto) {
-        AttributeResponseDTO createdDTO = attributeService.createAttribute(dto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdDTO);
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Create attribute", description = "Admin only.")
+    public ResponseEntity<AttributeResponseDTO> create(@Valid @RequestBody AttributeRequestDTO body) {
+        AttributeResponseDTO created = service.create(body);
+        return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
-    /**
-     * Updates an existing Attribute.
-     *
-     * @param id  the ID of the Attribute to update
-     * @param dto the DTO containing the updated details
-     * @return the ResponseEntity containing the updated AttributeTemplateResponseDTO
-     */
-    @Operation(summary = "Update an existing Attribute Template")
-    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
-    public ResponseEntity<AttributeResponseDTO> updateAttribute(
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Update attribute", description = "Admin only. Full update semantics.")
+    public ResponseEntity<AttributeResponseDTO> update(
             @PathVariable Long id,
-            @Valid @RequestBody AttributeUpdateDTO dto) {
-        AttributeResponseDTO updatedDTO = attributeService.updateAttribute(id, dto);
-        return ResponseEntity.ok(updatedDTO);
+            @Valid @RequestBody AttributeUpdateDTO body
+    ) {
+        AttributeResponseDTO updated = service.update(id, body);
+        return ResponseEntity.ok(updated);
     }
 
-    /**
-     * Deletes an Attribute by its ID.
-     *
-     * @param id the ID of the Attribute to delete
-     * @return the ResponseEntity with appropriate HTTP status
-     */
-    @Operation(summary = "Delete an Attribute Template by ID")
+    @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Partially update attribute", description = "Admin only. Partial update semantics.")
+    public ResponseEntity<AttributeResponseDTO> patch(
+            @PathVariable Long id,
+            @Valid @RequestBody AttributeUpdateDTO body
+    ) {
+        // MapStruct ignores nulls, so we can reuse the same service update method
+        AttributeResponseDTO updated = service.update(id, body);
+        return ResponseEntity.ok(updated);
+    }
+
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteAttribute(@PathVariable Long id) {
-        attributeService.softDeleteAttribute(id);
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Delete attribute", description = "Admin only. Soft/hard delete per service implementation.")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        service.delete(id);
         return ResponseEntity.noContent().build();
     }
 }

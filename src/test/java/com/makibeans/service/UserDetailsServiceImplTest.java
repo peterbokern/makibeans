@@ -4,6 +4,7 @@ import com.makibeans.exceptions.ResourceNotFoundException;
 import com.makibeans.model.Role;
 import com.makibeans.model.User;
 import com.makibeans.service.impl.UserDetailsServiceImpl;
+import com.makibeans.service.impl.UserServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -21,7 +22,7 @@ import static org.mockito.Mockito.*;
 class UserDetailsServiceImplTest {
 
     @Mock
-    private UserService userService;
+    private UserServiceImpl userService;
 
     @InjectMocks
     private UserDetailsServiceImpl userDetailsService;

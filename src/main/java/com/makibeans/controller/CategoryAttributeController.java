@@ -6,7 +6,7 @@ import com.makibeans.dto.categoryattribute.CategoryAttributeUpdateDTO;
 import com.makibeans.search.filters.CategoryAttributeFilter;
 import com.makibeans.search.SearchRequest;
 import com.makibeans.search.utils.SearchRequestUtils;
-import com.makibeans.service.CategoryAttributeService;
+import com.makibeans.service.service.CategoryAttributeService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -33,6 +33,14 @@ public class CategoryAttributeController {
     // ----------------------------- READS (public) -----------------------------
 
     /**
+     * GET by id (simple read).
+     */
+    @GetMapping("/{id}")
+    public ResponseEntity<CategoryAttributeResponseDTO> getById(@PathVariable Long id) {
+        return ResponseEntity.ok(service.geById(id));
+    }
+
+    /**
      * GET: paginated list with query params bound into the same Filter DTO used by POST.
      * Example: /api/category-attributes?categoryId=1,2&attributeName=origin&sort=id,desc&page=0&size=20
      */
@@ -45,14 +53,6 @@ public class CategoryAttributeController {
     ) {
         SearchRequest<CategoryAttributeFilter> req = SearchRequestUtils.assemble(filters, search, includeDeleted, pageable);
         return ResponseEntity.ok(service.search(req));
-    }
-
-    /**
-     * GET by id (simple read).
-     */
-    @GetMapping("/{id}")
-    public ResponseEntity<CategoryAttributeResponseDTO> getById(@PathVariable Long id) {
-        return ResponseEntity.ok(service.getById(id));
     }
 
     /**

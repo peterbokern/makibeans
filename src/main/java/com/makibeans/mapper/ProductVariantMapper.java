@@ -1,9 +1,11 @@
 package com.makibeans.mapper;
 
+import com.makibeans.dto.attribute.AttributeUpdateDTO;
 import com.makibeans.dto.productvariant.ProductVariantResponseDTO;
+import com.makibeans.dto.productvariant.ProductVariantUpdateDTO;
+import com.makibeans.model.Attribute;
 import com.makibeans.model.ProductVariant;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
+import org.mapstruct.*;
 
 /**
  * Mapper for the entity {@link ProductVariant} and its DTO {@link ProductVariantResponseDTO}.
@@ -22,4 +24,7 @@ public interface ProductVariantMapper {
     @Mapping(source = "size.id", target = "sizeId")
     @Mapping(source = "size.name", target = "sizeName")
     ProductVariantResponseDTO toResponseDTO(ProductVariant entity);
+
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    void updateEntityFromDTO(ProductVariantUpdateDTO updateDTO, @MappingTarget ProductVariant productVariant);
 }

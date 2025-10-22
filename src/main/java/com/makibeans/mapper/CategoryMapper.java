@@ -3,7 +3,10 @@ package com.makibeans.mapper;
 import com.makibeans.dto.category.BreadCrumbDTO;
 import com.makibeans.dto.category.CategoryRequestDTO;
 import com.makibeans.dto.category.CategoryResponseDTO;
+import com.makibeans.dto.category.CategoryUpdateDTO;
+import com.makibeans.dto.categoryattribute.CategoryAttributeUpdateDTO;
 import com.makibeans.model.Category;
+import com.makibeans.model.CategoryAttribute;
 import com.makibeans.util.MappingUtils;
 import org.mapstruct.*;
 
@@ -85,4 +88,7 @@ public interface CategoryMapper {
 
         return breadcrumbs;
     }
+
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    void updateEntityFromDTO(CategoryUpdateDTO updateDTO, @MappingTarget Category category);
 }

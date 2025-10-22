@@ -36,7 +36,7 @@ class AttributeValueServiceTest {
     private AttributeValueRepository attributeValueRepository;
 
     @Mock
-    private AttributeService attributeService;
+    private AttributeServiceImpl attributeService;
 
     @Mock
     private ProductAttributeService productAttributeService;
@@ -74,7 +74,7 @@ class AttributeValueServiceTest {
     void should_CreateAttributeValue_When_ValidInput() {
         // Arrange
         when(attributeService.findById(1L)).thenReturn(template);
-        when(attributeValueRepository.existsByValue(template, "ethiopia")).thenReturn(false);
+        when(attributeValueRepository.existsByValueAndAttributeId(template, "ethiopia")).thenReturn(false);
         when(attributeValueRepository.save(any())).thenReturn(attributeValue);
         when(mapper.toResponseDTO(attributeValue))
                 .thenReturn(new AttributeValueResponseDTO(10L, 1L, "Origin", "ethiopia"));
@@ -90,7 +90,7 @@ class AttributeValueServiceTest {
 
         // Verify
         verify(attributeService).findById(1L);
-        verify(attributeValueRepository).existsByValue(template, "ethiopia");
+        verify(attributeValueRepository).existsByValueAndAttributeId(template, "ethiopia");
         verify(attributeValueRepository).save(any());
         verify(mapper).toResponseDTO(attributeValue);
         verifyNoMoreInteractions(attributeValueRepository, attributeService, mapper, productAttributeService);
@@ -100,7 +100,7 @@ class AttributeValueServiceTest {
     void should_ThrowDuplicateResourceException_When_AttributeValueAlreadyExists() {
         // Arrange
         when(attributeService.findById(1L)).thenReturn(template);
-        when(attributeValueRepository.existsByValue(template, "ethiopia")).thenReturn(true);
+        when(attributeValueRepository.existsByValueAndAttributeId(template, "ethiopia")).thenReturn(true);
 
         // Act & Assert
         assertThrows(
@@ -110,7 +110,7 @@ class AttributeValueServiceTest {
 
         // Verify
         verify(attributeService).findById(1L);
-        verify(attributeValueRepository).existsByValue(template, "ethiopia");
+        verify(attributeValueRepository).existsByValueAndAttributeId(template, "ethiopia");
         verifyNoMoreInteractions(attributeValueRepository, attributeService, mapper, productAttributeService);
     }
 
@@ -145,7 +145,7 @@ class AttributeValueServiceTest {
     void should_UpdateAttributeValue_When_ValueChanged() {
         // Arrange
         when(attributeValueRepository.findById(1L)).thenReturn(Optional.of(attributeValue));
-        when(attributeValueRepository.existsByValue(template, "colombia")).thenReturn(false);
+        when(attributeValueRepository.existsByValueAndAttributeId(template, "colombia")).thenReturn(false);
         when(attributeValueRepository.save(attributeValue)).thenReturn(attributeValue);
         when(mapper.toResponseDTO(attributeValue)).thenReturn(
                 new AttributeValueResponseDTO(1L, 1L, "Origin", "colombia"));
@@ -158,7 +158,7 @@ class AttributeValueServiceTest {
 
         // Verify
         verify(attributeValueRepository).findById(1L);
-        verify(attributeValueRepository).existsByValue(template, "colombia");
+        verify(attributeValueRepository).existsByValueAndAttributeId(template, "colombia");
         verify(attributeValueRepository).save(attributeValue);
         verify(mapper).toResponseDTO(attributeValue);
         verifyNoMoreInteractions(attributeValueRepository, attributeService, mapper, productAttributeService);
@@ -207,7 +207,7 @@ class AttributeValueServiceTest {
     void should_ThrowDuplicateResourceException_When_UpdatingWithExistingValue() {
         // Arrange
         when(attributeValueRepository.findById(1L)).thenReturn(Optional.of(attributeValue));
-        when(attributeValueRepository.existsByValue(template, "colombia")).thenReturn(true);
+        when(attributeValueRepository.existsByValueAndAttributeId(template, "colombia")).thenReturn(true);
 
         updateDTO.setValue("Colombia");
 
@@ -218,7 +218,7 @@ class AttributeValueServiceTest {
 
         // Verify
         verify(attributeValueRepository).findById(1L);
-        verify(attributeValueRepository).existsByValue(template, "colombia");
+        verify(attributeValueRepository).existsByValueAndAttributeId(template, "colombia");
         verifyNoMoreInteractions(attributeValueRepository, attributeService, mapper, productAttributeService);
     }
 

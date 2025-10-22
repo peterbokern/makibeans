@@ -1,4 +1,4 @@
-package com.makibeans.service;
+package com.makibeans.service.impl;
 
 import com.makibeans.dto.login.LoginRequestDTO;
 import com.makibeans.dto.login.LoginResponseDTO;
@@ -7,6 +7,7 @@ import com.makibeans.exceptions.ResourceNotFoundException;
 import com.makibeans.mapper.AuthMapper;
 import com.makibeans.model.User;
 import com.makibeans.security.JwtUtil;
+import com.makibeans.service.service.AuthService;
 import jakarta.validation.Valid;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -17,15 +18,15 @@ import org.springframework.transaction.annotation.Transactional;
  */
 
 @Service
-public class AuthService {
+public class AuthServiceImpl implements AuthService {
 
-    private final UserService userService;
+    private final UserServiceImpl userService;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
     private final AuthMapper authMapper;
 
 
-    public AuthService(UserService userService, PasswordEncoder passwordEncoder, JwtUtil jwtUtil, AuthMapper authMapper) {
+    public AuthServiceImpl(UserServiceImpl userService, PasswordEncoder passwordEncoder, JwtUtil jwtUtil, AuthMapper authMapper) {
         this.userService = userService;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
@@ -58,4 +59,5 @@ public class AuthService {
 
         return authMapper.toResponseDTO(user, token);
     }
+
 }

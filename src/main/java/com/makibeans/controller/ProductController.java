@@ -5,7 +5,7 @@ import com.makibeans.dto.product.ProductRequestDTO;
 import com.makibeans.dto.product.ProductResponseDTO;
 import com.makibeans.dto.product.ProductUpdateDTO;
 import com.makibeans.exceptions.ImageProcessingException;
-import com.makibeans.service.ProductService;
+import com.makibeans.service.service.ProductService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -45,40 +45,9 @@ public class ProductController {
      */
     @Operation(summary = "Get product by ID")
     @GetMapping("/{id}")
-    public ResponseEntity<ProductResponseDTO> getProductById(@PathVariable Long id) {
-        ProductResponseDTO responseDTO = productService.getProductById(id);
-        logger.info("HALO Retrieved product with ID: {}", id);
+    public ResponseEntity<ProductResponseDTO> getById(@PathVariable Long id) {
+        ProductResponseDTO responseDTO = productService.getById(id);
         return ResponseEntity.ok(responseDTO);
-    }
-
-    /**
-     * Filters products based on various criteria provided in the filters map.
-     * The filters can include category ID, category name, price range, size, SKU, stock, and custom attributes.
-     *
-     * @param filters a map containing the filter criteria as key-value pairs
-     * @return a ResponseEntity containing a list of ProductResponseDTOs representing the filtered products
-     */
-    @Operation(summary = "Get all or search products with filters",
-            description = "Fetch products with optional filtering, sorting, and pagination. " +
-                    "Parameters include:\n" +
-                    "- `search`: Partial match on product name, description, attribute values, or attribute template names.\n" +
-                    "- `categoryId`: Exact match on category ID. Accepts multiple values separated by commas (e.g., `categoryId=1,2,3`).\n" +
-                    "- `categoryName`: Exact match on category name. Accepts multiple values separated by commas (e.g., `categoryName=beans,grinders`).\n" +
-                    "- `sizeId`: Exact match on size ID. Accepts multiple values separated by commas (e.g., `sizeId=10,20,30`).\n" +
-                    "- `sizeName`: Exact match on size name. Accepts multiple values separated by commas (e.g., `sizeName=small,medium,large`).\n" +
-                    "- `sku`: Exact match on SKU. Accepts multiple values separated by commas (e.g., `sku=abc123,xyz456`).\n" +
-                    "- 'price': Sort field to allow sorting on price using min or max variant price for asc and desc respectively .\n" +
-                    "- `minPrice`: Minimum price in cents.\n" +
-                    "- `maxPrice`: Maximum price in cents.\n" +
-                    "- `stock`: Filter by stock greater than or equal to this value.\n" +
-                    "- `sort`: Field to sort by (`categoryName`, `priceInCents`, `productName`, `sizeName`).\n" +
-                    "- `order`: Sort order (`asc`, `desc`).\n" +
-                    "- `page`: Page number for pagination.\n" +
-                    "- `size`: Number of items per page.")
-    @GetMapping("")
-    public ResponseEntity<ProductPageDTO> getProducts(@RequestParam Map<String, String> filters) {
-        ProductPageDTO content = productService.findBySearchQuery(filters);
-        return ResponseEntity.ok(content);
     }
 
     /**
@@ -106,8 +75,8 @@ public class ProductController {
     @Operation(summary = "Create a new product")
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
-    public ResponseEntity<ProductResponseDTO> createProduct(@Valid @RequestBody ProductRequestDTO requestDTO) {
-        ProductResponseDTO responseDTO = productService.createProduct(requestDTO);
+    public ResponseEntity<ProductResponseDTO> create(@Valid @RequestBody ProductRequestDTO requestDTO) {
+        ProductResponseDTO responseDTO = productService.create(requestDTO);
         return ResponseEntity.status(201).body(responseDTO);
     }
 
@@ -155,7 +124,7 @@ public class ProductController {
     public ResponseEntity<ProductResponseDTO> updateProduct(
             @PathVariable Long id,
             @Valid @RequestBody ProductUpdateDTO updateDTO) {
-        ProductResponseDTO responseDTO = productService.updateProduct(id, updateDTO);
+        ProductResponseDTO responseDTO = productService.update(id, updateDTO);
         return ResponseEntity.ok(responseDTO);
     }
 
@@ -169,7 +138,7 @@ public class ProductController {
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
-        productService.deleteProduct(id);
+        productService.delete(id);
         return ResponseEntity.noContent().build();
     }
 

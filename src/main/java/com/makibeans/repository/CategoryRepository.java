@@ -1,7 +1,12 @@
 package com.makibeans.repository;
 
+import com.makibeans.mapper.UserMapper;
 import com.makibeans.model.Category;
+import com.makibeans.model.CategoryAttribute;
 import com.makibeans.model.Product;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -26,18 +31,7 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
 
     boolean existsByNameAndParentCategory(String name, Category parentCategory);
 
-    /**
-     * Returns the products associated with the category by the given ID.
-     *
-     * @param id The ID of the category.
-     * @return The products associated with the category.
-     */
-    //REMOVE?
-
-/*
-    @Query("select c FROM Category c LEFT JOIN FETCH c.products WHERE c.id = :id")
-    Collection<? extends Product> findWithProductsById(@Param("id") Long id);
-*/
+    boolean existsByParentCategoryId(Long parentCategoryId);
 
     /**
      * Returns the list of categories with the given parent category ID.
@@ -47,4 +41,9 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
      */
 
     List<Category> findByParentCategoryId(Long parentCategoryId);
+
+    @EntityGraph(attributePaths = {"category"})// Eagerly load associated attribute and category improves performance by reducing the number of queries
+    Page<Category> findAll(Specification<Category> spec, Pageable pageable);
+
+
 }

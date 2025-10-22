@@ -5,7 +5,7 @@ import com.makibeans.dto.product.ProductResponseDTO;
 import com.makibeans.mapper.ProductMapper;
 import com.makibeans.model.Product;
 import com.makibeans.model.ProductVariant;
-import com.makibeans.service.AttributeService;
+import com.makibeans.service.impl.AttributeServiceImpl;
 import com.makibeans.util.FilterUtils;
 import lombok.Builder;
 
@@ -43,7 +43,7 @@ public class ProductFilter {
     );
 
     @Builder
-    public ProductFilter(Map<String, String> filters, List<Product> products, ProductMapper productMapper, AttributeService attributeService, Set<String> validAttributeKeys) {
+    public ProductFilter(Map<String, String> filters, List<Product> products, ProductMapper productMapper, AttributeServiceImpl attributeServiceImpl, Set<String> validAttributeKeys) {
         this.filters = filters;
         this.products = products;
         this.productMapper = productMapper;

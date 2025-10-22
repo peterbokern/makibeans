@@ -2,6 +2,10 @@ package com.makibeans.repository;
 
 import com.makibeans.model.AttributeValue;
 import com.makibeans.model.ProductAttribute;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -85,5 +89,12 @@ public interface ProductAttributeRepository extends JpaRepository<ProductAttribu
     @Query("SELECT COUNT (DISTINCT pa.product.id) FROM ProductAttribute pa WHERE pa.attribute.id = :attributeId AND pa.deleted = false" )
     Long countDistinctProductsByAttributeIdAndDeletedFalse(@Param("attributeId") Long attributeId);
 
+
+    @EntityGraph(attributePaths = {
+            "product",
+            "attribute"
+            // ,"product.category" // include only if you show category in the list
+    })
+    Page<ProductAttribute> findAll(Specification<ProductAttribute> spec, Pageable pageable);
 
 }

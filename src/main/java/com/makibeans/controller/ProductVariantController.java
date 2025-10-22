@@ -3,97 +3,102 @@ package com.makibeans.controller;
 import com.makibeans.dto.productvariant.ProductVariantRequestDTO;
 import com.makibeans.dto.productvariant.ProductVariantResponseDTO;
 import com.makibeans.dto.productvariant.ProductVariantUpdateDTO;
-import com.makibeans.service.ProductVariantService;
+import com.makibeans.search.SearchRequest;
+import com.makibeans.search.filters.ProductVariantFilter;
+import com.makibeans.search.utils.SearchRequestUtils;
+import com.makibeans.service.service.ProductVariantService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
-/**
- * REST controller for managing Product Variants.
- * Provides endpoints for retrieving, creating, updating, and deleting product variants.
- */
 @RestController
-@RequestMapping("/product-variants")
-@Tag(name = "Product Variants", description = "CRUD operations for product variants")
+@RequestMapping("/api/product-variants")
+@RequiredArgsConstructor
+@Tag(name = "Product Variants", description = "Manage product variants")
 public class ProductVariantController {
 
-    private final ProductVariantService productVariantService;
+    private final ProductVariantService service;
 
-    public ProductVariantController(ProductVariantService productVariantService) {
-        this.productVariantService = productVariantService;
-    }
-
-    /**
-     * Retrieves a product variant by its ID.
-     *
-     * @param id the ID of the product variant to retrieve
-     * @return a ResponseEntity containing the ProductVariantResponseDTO
-     */
-    @Operation(summary = "Get product variant by ID")
     @GetMapping("/{id}")
-    public ResponseEntity<ProductVariantResponseDTO> getProductVariantById(@PathVariable Long id) {
-        ProductVariantResponseDTO responseDTO = productVariantService.getProductVariantById(id);
-        return ResponseEntity.ok(responseDTO);
+    @Operation(summary = "Get variant by id")
+    public ResponseEntity<ProductVariantResponseDTO> getById(@PathVariable Long id) {
+        return ResponseEntity.ok(service.getById(id));
     }
 
-    /**
-     * Retrieves all product variants.
-     *
-     * @return a ResponseEntity containing a list of ProductVariantResponseDTOs
-     */
-    @Operation(summary = "Get all product variants")
     @GetMapping
-    public ResponseEntity<List<ProductVariantResponseDTO>> getAllProductVariants() {
-        List<ProductVariantResponseDTO> responseDTOS = productVariantService.getAllProductVariants();
-        return ResponseEntity.ok(responseDTOS);
+    @Operation(summary = "Get variants (paged)", description = "Search/sort/paginate variants using query params.")
+    public ResponseEntity<Page<ProductVariantResponseDTO>> getAll(
+            @Valid @ModelAttribute ProductVariantFilter filters,
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false, defaultValue = "false") Boolean includeDeleted,
+            @PageableDefault(size = 20, sort = "id") Pageable pageable
+    ) {
+        SearchRequest<ProductVariantFilter> req = SearchRequestUtils.assemble(filters, search, includeDeleted, pageable);
+        return ResponseEntity.ok(service.search(req));
     }
 
-    /**
-     * Creates a new product variant.
-     *
-     * @param requestDTO the ProductVariantRequestDTO containing product variant details
-     * @return a ResponseEntity containing the created ProductVariantResponseDTO
-     */
-    @Operation(summary = "Create a new product variant")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping("/search")
+    @Operation(summary = "Search variants (POST)")
+    public ResponseEntity<Page<ProductVariantResponseDTO>> search(
+            @Valid @RequestBody SearchRequest<ProductVariantFilter> request,
+            @PageableDefault(size = 20, sort = "id") Pageable pageable
+    ) {
+        SearchRequest<ProductVariantFilter> merged = SearchRequestUtils.mergeWithPageable(request, pageable);
+        return ResponseEntity.ok(service.search(merged));
+    }
+
     @PostMapping
-    public ResponseEntity<ProductVariantResponseDTO> createProductVariant(@Valid @RequestBody ProductVariantRequestDTO requestDTO) {
-        ProductVariantResponseDTO responseDTO = productVariantService.createProductVariant(requestDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Create variant")
+    public ResponseEntity<ProductVariantResponseDTO> create(@Valid @RequestBody ProductVariantRequestDTO dto) {
+        ProductVariantResponseDTO created = service.create(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
-    /**
-     * Updates a product variant by its ID.
-     *
-     * @param id         the ID of the product variant to update
-     * @param requestDTO the ProductVariantUpdateDTO containing updated product variant details
-     * @return a ResponseEntity containing the updated ProductVariantResponseDTO
-     */
-    @Operation(summary = "Update product variant by ID")
-    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
-    public ResponseEntity<ProductVariantResponseDTO> updateProductVariant(@PathVariable Long id, @Valid @RequestBody ProductVariantUpdateDTO requestDTO) {
-        ProductVariantResponseDTO responseDTO = productVariantService.updateProductVariant(id, requestDTO);
-        return ResponseEntity.ok(responseDTO);
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Update variant")
+    public ResponseEntity<ProductVariantResponseDTO> update(@PathVariable Long id, @Valid @RequestBody ProductVariantUpdateDTO dto) {
+        return ResponseEntity.ok(service.update(id, dto));
     }
 
-    /**
-     * Deletes a product variant by its ID.
-     *
-     * @param id the ID of the product variant to delete
-     * @return a ResponseEntity indicating the result of the operation
-     */
-    @Operation(summary = "Delete product variant by ID")
-    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteProductVariant(@PathVariable Long id) {
-        productVariantService.deleteProductVariant(id);
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Delete variant")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        service.delete(id);
         return ResponseEntity.noContent().build();
+    }
+
+    // Convenience actions
+
+
+    @PostMapping("/{id}/stock")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Set stock for the variant")
+    public ResponseEntity<ProductVariantResponseDTO> setStock(@PathVariable Long id, @RequestParam Long stock) {
+        return ResponseEntity.ok(service.setStock(id, stock));
+    }
+
+    @PostMapping("/{id}/stock/increment")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Increment stock for the variant")
+    public ResponseEntity<ProductVariantResponseDTO> incrementStock(@PathVariable Long id, @RequestParam Long by) {
+        return ResponseEntity.ok(service.incrementStock(id, by));
+    }
+
+    @PostMapping("/{id}/stock/decrement")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Decrement stock for the variant")
+    public ResponseEntity<ProductVariantResponseDTO> decrementStock(@PathVariable Long id, @RequestParam Long by) {
+        return ResponseEntity.ok(service.decrementStock(id, by));
     }
 }

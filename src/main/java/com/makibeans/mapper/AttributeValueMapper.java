@@ -1,7 +1,10 @@
 package com.makibeans.mapper;
 
+import com.makibeans.dto.attribute.AttributeUpdateDTO;
 import com.makibeans.dto.attributevalue.AttributeValueResponseDTO;
 import com.makibeans.dto.attributevalue.AttributeValueRequestDTO;
+import com.makibeans.dto.attributevalue.AttributeValueUpdateDTO;
+import com.makibeans.model.Attribute;
 import com.makibeans.model.AttributeValue;
 import com.makibeans.util.MappingUtils;
 import org.mapstruct.*;
@@ -23,4 +26,7 @@ public interface AttributeValueMapper {
     @Mapping(source = "attribute.id", target = "attributeId")
     @Mapping(source = "attribute.name", target = "attributeName")
     AttributeValueResponseDTO toResponseDTO(AttributeValue entity);
+
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    void updateEntityFromDTO(AttributeValueUpdateDTO updateDTO, @MappingTarget AttributeValue attributeValue);
 }

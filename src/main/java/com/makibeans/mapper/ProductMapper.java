@@ -1,10 +1,11 @@
 package com.makibeans.mapper;
 
+import com.makibeans.dto.attribute.AttributeUpdateDTO;
 import com.makibeans.dto.product.ProductResponseDTO;
+import com.makibeans.dto.product.ProductUpdateDTO;
+import com.makibeans.model.Attribute;
 import com.makibeans.model.Product;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.Named;
+import org.mapstruct.*;
 
 /**
  * Mapper for the entity {@link Product} and its DTO {@link ProductResponseDTO}.
@@ -29,4 +30,7 @@ public interface ProductMapper {
                 ? "/products/" + product.getId() + "/image"
                 : "null";
     }
+
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    void updateEntityFromDTO(ProductUpdateDTO updateDTO, @MappingTarget Product product);
 }

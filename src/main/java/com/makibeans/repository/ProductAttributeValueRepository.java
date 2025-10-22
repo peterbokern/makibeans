@@ -2,6 +2,10 @@ package com.makibeans.repository;
 
 import com.makibeans.model.ProductAttributeValue;
 import com.makibeans.model.id.ProductAttributeValueId;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -20,5 +24,14 @@ public interface ProductAttributeValueRepository extends JpaRepository<ProductAt
      */
     boolean existsByAttributeValueId(Long attributeValueId);
 
-    List<ProductAttributeValue> findAllByAttributeValueIdInAndDeletedFalse(List<Long> attributeValueIds);
+
+    @EntityGraph(attributePaths = {
+            "productAttribute",
+            "productAttribute.product",   // include if you show product info
+            "productAttribute.attribute", // include if you show attribute info
+            "attributeValue"              // the value itself (usually needed)
+    })
+    Page<ProductAttributeValue> findAll(Specification<ProductAttributeValue> spec, Pageable pageable);
 }
+
+

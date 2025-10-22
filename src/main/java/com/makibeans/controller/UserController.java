@@ -4,7 +4,7 @@ import com.makibeans.dto.user.UserRequestDTO;
 import com.makibeans.dto.user.UserResponseDTO;
 import com.makibeans.dto.user.UserUpdateDTO;
 import com.makibeans.model.User;
-import com.makibeans.service.UserService;
+import com.makibeans.service.impl.UserServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -26,8 +26,8 @@ import java.util.Map;
 @Tag(name = "Users", description = "User registration, profile management, and admin control")
 public class UserController {
 
-    private final UserService userService;
-    public UserController(UserService userService) {
+    private final UserServiceImpl userService;
+    public UserController(UserServiceImpl userService) {
         this.userService = userService;
     }
 

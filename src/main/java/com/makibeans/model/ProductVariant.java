@@ -5,10 +5,7 @@ import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
@@ -16,8 +13,9 @@ import org.hibernate.annotations.OnDeleteAction;
  * Represents a product variant entity.
  * This entity is used to store variants for products.
  */
-
+@Builder
 @NoArgsConstructor
+@AllArgsConstructor
 @Getter
 @Entity
 @ToString(exclude = {"product", "size"})

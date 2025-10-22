@@ -4,6 +4,10 @@ import com.makibeans.model.Product;
 import com.makibeans.model.ProductVariant;
 import com.makibeans.model.Size;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -44,5 +48,13 @@ public interface ProductVariantRepository extends JpaRepository<ProductVariant, 
      * @return true if at least one entity exists, false otherwise
      */
     boolean existsBySizeId(Long sizeId);
+
+    boolean existsBySku(String sku);
+
+    @EntityGraph(attributePaths = {
+            "product",
+            "size"
+    })
+    Page<ProductVariant> findAll(Specification<ProductVariant> spec, Pageable pageable);
 
 }

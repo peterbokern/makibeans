@@ -3,107 +3,82 @@ package com.makibeans.controller;
 import com.makibeans.dto.size.SizeRequestDTO;
 import com.makibeans.dto.size.SizeResponseDTO;
 import com.makibeans.dto.size.SizeUpdateDTO;
-import com.makibeans.service.SizeService;
+import com.makibeans.search.SearchRequest;
+import com.makibeans.search.filters.SizeFilter;
+import com.makibeans.search.utils.SearchRequestUtils;
+import com.makibeans.service.service.SizeService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.Map;
-
-/**
- * REST controller for managing Sizes.
- * Provides endpoints for retrieving, creating, updating, and deleting sizes.
- */
 @RestController
-@RequestMapping("/sizes")
-@Tag(name = "Sizes", description = "Operations for managing available product sizes")
+@RequestMapping("/api/sizes")
+@RequiredArgsConstructor
+@Tag(name = "Sizes", description = "Manage sizes")
 public class SizeController {
 
-    private final SizeService sizeService;
+    private final SizeService service;
 
-    public SizeController(SizeService sizeService) {
-        this.sizeService = sizeService;
-    }
-
-    /**
-     * Retrieves a size by its ID.
-     *
-     * @param id the ID of the size to retrieve
-     * @return a ResponseEntity containing the SizeResponseDTO
-     */
-    @Operation(summary = "Get size by ID")
     @GetMapping("/{id}")
-    public ResponseEntity<SizeResponseDTO> getSizeById(@PathVariable Long id) {
-        SizeResponseDTO responseDTO = sizeService.getSizeById(id);
-        return ResponseEntity.ok(responseDTO);
+    @Operation(summary = "Get size by id")
+    public ResponseEntity<SizeResponseDTO> getById(@PathVariable Long id) {
+        return ResponseEntity.ok(service.getById(id));
     }
 
-    /**
-     * Retrieves all Sizes, or filters them based on search parameters.
-     *
-     * @param params optional search, sort, and order parameters
-     * @return a ResponseEntity containing a list of SizeResponseDTOs
-     */
-    @Operation(
-            summary = "Get all or search sizes",
-            description = "Fetch sizes with optional filtering and sorting. " +
-                    "Parameters include:\n" +
-                    "- `search`: Partial match on size name.\n" +
-                    "- `name`: Exact match on size name.\n" +
-                    "- `sort`: Field to sort by (`id`, `name`).\n" +
-                    "- `order`: Sort order (`asc`, `desc`).")
     @GetMapping
-    public ResponseEntity<List<SizeResponseDTO>> getSizes(@RequestParam Map<String, String> params) {
-        List<SizeResponseDTO> sizeResponseDTOS = sizeService.findBySearchQuery(params);
-        return ResponseEntity.ok(sizeResponseDTOS);
+    @Operation(summary = "Get sizes (paged)", description = "Search/sort/paginate sizes using query params.")
+    public ResponseEntity<Page<SizeResponseDTO>> getAll(
+            @Valid @ModelAttribute SizeFilter filters,
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false, defaultValue = "false") Boolean includeDeleted,
+            @PageableDefault(size = 20, sort = "id") Pageable pageable
+    ) {
+        SearchRequest<SizeFilter> req = SearchRequestUtils.assemble(filters, search, includeDeleted, pageable);
+        return ResponseEntity.ok(service.search(req));
     }
 
-    /**
-     * Creates a new size.
-     *
-     * @param requestDTO the SizeRequestDTO containing size details
-     * @return a ResponseEntity containing the created SizeResponseDTO
-     */
-    @Operation(summary = "Create a new size")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping("/search")
+    @Operation(summary = "Search sizes (POST)", description = "Same as GET but accepts a JSON body for complex filters.")
+    public ResponseEntity<Page<SizeResponseDTO>> search(
+            @Valid @RequestBody SearchRequest<SizeFilter> request,
+            @PageableDefault(size = 20, sort = "id") Pageable pageable
+    ) {
+        SearchRequest<SizeFilter> merged = SearchRequestUtils.mergeWithPageable(request, pageable);
+        return ResponseEntity.ok(service.search(merged));
+    }
+
     @PostMapping
-    public ResponseEntity<SizeResponseDTO> createSize(@Valid @RequestBody SizeRequestDTO requestDTO) {
-        SizeResponseDTO responseDTO = sizeService.createSize(requestDTO);
-        return ResponseEntity.ok(responseDTO);
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Create size", description = "Admin only.")
+    public ResponseEntity<SizeResponseDTO> create(@Valid @RequestBody SizeRequestDTO body) {
+        SizeResponseDTO created = service.create(body);
+        return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
-    /**
-     * Updates a size by its ID.
-     *
-     * @param id         the ID of the size to update
-     * @param updateDTO the SizeRequestDTO containing updated size details
-     * @return a ResponseEntity containing the updated SizeResponseDTO
-     */
-    @Operation(summary = "Update size by ID")
-    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
-    public ResponseEntity<SizeResponseDTO> updateSize(
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Update size", description = "Admin only.")
+    public ResponseEntity<SizeResponseDTO> update(
             @PathVariable Long id,
-            @Valid @RequestBody SizeUpdateDTO updateDTO) {
-        SizeResponseDTO responseDTO = sizeService.updateSize(id, updateDTO);
-        return ResponseEntity.ok(responseDTO);
+            @Valid @RequestBody SizeUpdateDTO body
+    ) {
+        SizeResponseDTO updated = service.update(id, body);
+        return ResponseEntity.ok(updated);
     }
 
-    /**
-     * Deletes a size by its ID.
-     *
-     * @param id the ID of the size to delete
-     * @return a ResponseEntity indicating the result of the operation
-     */
-    @Operation(summary = "Delete size by ID")
-    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteSize(@PathVariable Long id) {
-        sizeService.deleteSize(id);
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Delete size", description = "Admin only.")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        service.delete(id);
         return ResponseEntity.noContent().build();
     }
 }

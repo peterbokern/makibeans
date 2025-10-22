@@ -8,6 +8,8 @@ import com.makibeans.exceptions.ResourceNotFoundException;
 import com.makibeans.mapper.SizeMapper;
 import com.makibeans.model.Size;
 import com.makibeans.repository.SizeRepository;
+import com.makibeans.service.impl.ProductVariantServiceImpl;
+import com.makibeans.service.impl.SizeServiceImpl;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,8 +30,10 @@ class SizeServiceTest {
 
     @Mock SizeRepository sizeRepository;
     @Mock SizeMapper sizeMapper;
-    @Mock ProductVariantService productVariantService;
-    @InjectMocks SizeService sizeService;
+    @Mock
+    ProductVariantServiceImpl productVariantService;
+    @InjectMocks
+    SizeServiceImpl sizeService;
 
     Size size;
 
