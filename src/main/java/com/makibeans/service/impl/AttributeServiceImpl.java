@@ -1,7 +1,6 @@
 package com.makibeans.service.impl;
 
 import com.makibeans.dto.attribute.AttributeRequestDTO;
-import com.makibeans.dto.attribute.AttributeResponseDTO;
 import com.makibeans.dto.attribute.AttributeUpdateDTO;
 import com.makibeans.exceptions.DuplicateResourceException;
 import com.makibeans.exceptions.ResourceNotFoundException;
@@ -38,15 +37,12 @@ public class AttributeServiceImpl implements CrudService<Attribute, Long>, Attri
 
     private final AttributeMapper mapper;
     private final AttributeRepository repo;
-    private final AttributeValueService attributeValueService;
-
 
     @Autowired
     public AttributeServiceImpl(
             AttributeMapper mapper, AttributeRepository repo, @Lazy AttributeValueService attributeValueService) {
         this.mapper = mapper;
         this.repo = repo;
-        this.attributeValueService = attributeValueService;
     }
 
     @Override
@@ -64,19 +60,18 @@ public class AttributeServiceImpl implements CrudService<Attribute, Long>, Attri
      */
 
     @Transactional(readOnly = true)
-    public AttributeResponseDTO getById(Long id) {
-        Attribute attribute = getOrThrow(id);
-        return mapper.toResponseDTO(attribute);
+    public Attribute getById(Long id) {
+        return getOrThrow(id);
     }
 
     /**
      * Searches for Attributes based on the provided search request.
      *
      * @param req the search request containing filters, pagination, and sorting information
-     * @return a paginated list of AttributeResponseDTOs matching the search criteria
+     * @return a paginated list of Attributes matching the search criteria
      */
     @Transactional
-    public Page<AttributeResponseDTO> search(SearchRequest<AttributeFilter> req) {
+    public Page<Attribute> search(SearchRequest<AttributeFilter> req) {
         Specification<Attribute> spec =
                 SpecificationFactory.fromRequest(req, AttributeFilter.class);
 
@@ -89,7 +84,7 @@ public class AttributeServiceImpl implements CrudService<Attribute, Long>, Attri
                 sort
         );
 
-        return repo.findAll(spec, pageable).map(mapper::toResponseDTO);
+        return repo.findAll(spec, pageable);
     }
 
 
@@ -102,16 +97,15 @@ public class AttributeServiceImpl implements CrudService<Attribute, Long>, Attri
      */
 
     @Transactional
-    public AttributeResponseDTO create(AttributeRequestDTO dto) {
-        String normalizedName = normalize(dto.getName());
+    public Attribute create(AttributeRequestDTO dto) {
 
-        assertUniqueName(normalizedName);
+        assertUniqueName(dto.getName());
 
-        Attribute attribute = new Attribute(normalizedName);
+        Attribute attribute = new Attribute();
 
-        Attribute createdAttribute = repo.save(attribute);
+        attribute.setName(dto.getName());
 
-        return mapper.toResponseDTO(createdAttribute);
+        return repo.save(attribute);
     }
 
 
@@ -126,7 +120,7 @@ public class AttributeServiceImpl implements CrudService<Attribute, Long>, Attri
      */
 
     @Transactional
-    public AttributeResponseDTO update(Long id, @Valid AttributeUpdateDTO dto) {
+    public Attribute update(Long id, @Valid AttributeUpdateDTO dto) {
 
         Attribute attribute = getOrThrow(id);
 
@@ -136,9 +130,8 @@ public class AttributeServiceImpl implements CrudService<Attribute, Long>, Attri
 
         mapper.updateEntityFromDTO(dto, attribute);
 
-        return mapper.toResponseDTO(attribute);
+        return attribute;
     }
-
 
     private void assertUniqueName(String name) {
         if (name != null && repo.existsByName(name)) {

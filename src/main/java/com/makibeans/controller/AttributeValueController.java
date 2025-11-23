@@ -27,7 +27,7 @@ import org.springframework.web.bind.annotation.*;
  * - Public reads, admin-protected writes
  */
 @RestController
-@RequestMapping("/api/attribute-values")
+@RequestMapping("/attribute-values")
 @RequiredArgsConstructor
 @Tag(name = "Attribute Values", description = "Manage attribute values")
 public class AttributeValueController {

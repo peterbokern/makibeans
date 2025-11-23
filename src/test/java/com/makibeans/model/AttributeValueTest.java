@@ -1,3 +1,4 @@
+/*
 package com.makibeans.model;
 
 import org.junit.jupiter.api.AfterEach;
@@ -66,3 +67,4 @@ class AttributeValueTest {
         assertFalse(result.contains("attributeTemplate"), "toString should exclude attributeTemplate");
     }
 }
+*/

@@ -1,11 +1,13 @@
 package com.makibeans.controller;
 
-import com.makibeans.dto.product.ProductPageDTO;
 import com.makibeans.dto.product.ProductRequestDTO;
 import com.makibeans.dto.product.ProductResponseDTO;
 import com.makibeans.dto.product.ProductUpdateDTO;
 import com.makibeans.exceptions.ImageProcessingException;
 import com.makibeans.service.service.ProductService;
+import com.makibeans.search.SearchRequest;
+import com.makibeans.search.filters.ProductFilter;
+import com.makibeans.search.utils.SearchRequestUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -16,8 +18,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.util.Map;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 
 import static com.makibeans.util.FileTypeUtils.detectImageContentType;
 
@@ -48,6 +51,31 @@ public class ProductController {
     public ResponseEntity<ProductResponseDTO> getById(@PathVariable Long id) {
         ProductResponseDTO responseDTO = productService.getById(id);
         return ResponseEntity.ok(responseDTO);
+    }
+
+    /**
+     * Get products (paged) - supports query param filtering, search and pagination.
+     */
+    @Operation(summary = "Get products (paged)", description = "Search/sort/paginate products using query params.")
+    @GetMapping
+    public ResponseEntity<Page<ProductResponseDTO>> getAll(
+            @Valid @ModelAttribute ProductFilter filters,
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false, defaultValue = "false") Boolean includeDeleted,
+            @PageableDefault(size = 20, sort = "id") Pageable pageable
+    ) {
+        SearchRequest<ProductFilter> req = SearchRequestUtils.assemble(filters, search, includeDeleted, pageable);
+        return ResponseEntity.ok(productService.search(req));
+    }
+
+    @PostMapping("/search")
+    @Operation(summary = "Search products (POST)", description = "Same as GET but accepts a JSON body for complex filters.")
+    public ResponseEntity<Page<ProductResponseDTO>> search(
+            @Valid @RequestBody SearchRequest<ProductFilter> request,
+            @PageableDefault(size = 20, sort = "id") Pageable pageable
+    ) {
+        SearchRequest<ProductFilter> merged = SearchRequestUtils.mergeWithPageable(request, pageable);
+        return ResponseEntity.ok(productService.search(merged));
     }
 
     /**

@@ -9,7 +9,9 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Data Transfer Object for ProductAttributeResponse.
@@ -19,13 +21,13 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@JsonPropertyOrder({"id", "attributeId", "attributeName", "values", "createdBy", "createdAt", "updatedBy", "updatedAt"})
+@JsonPropertyOrder({"id", "productId", "productName","attributeId", "attributeName", "values", "createdBy", "createdAt", "updatedBy", "updatedAt"})
 public class ProductAttributeResponseDTO extends AuditableResponseDTO {
 
     private Long id;
-   /* private Long productId;
-    private String productName;*/
+    private Long productId;
+    private String productName;
     private Long attributeId;
     private String attributeName;
-    private List<AttributeValueSimpleResponseDTO> values = new ArrayList<>();
+    private Set<AttributeValueSimpleResponseDTO> values = new HashSet<>();
 }

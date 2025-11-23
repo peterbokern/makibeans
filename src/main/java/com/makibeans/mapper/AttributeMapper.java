@@ -1,20 +1,19 @@
 package com.makibeans.mapper;
 
+import com.makibeans.dto.attribute.AttributeAdminResponseDTO;
+import com.makibeans.dto.attribute.AttributePublicResponseDTO;
 import com.makibeans.dto.attribute.AttributeResponseDTO;
 import com.makibeans.dto.attribute.AttributeUpdateDTO;
 import com.makibeans.dto.categoryattribute.CategoryAttributeUpdateDTO;
 import com.makibeans.model.Attribute;
 import com.makibeans.model.CategoryAttribute;
-import org.mapstruct.BeanMapping;
-import org.mapstruct.Mapper;
-import org.mapstruct.MappingTarget;
-import org.mapstruct.NullValuePropertyMappingStrategy;
+import org.mapstruct.*;
 
 /**
  * Mapper for the entity {@link Attribute} and its DTO {@link AttributeResponseDTO}.
  */
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = {AuditableMapper.class})
 public interface AttributeMapper {
 
     /**
@@ -24,8 +23,15 @@ public interface AttributeMapper {
      * @return the converted AttributeTemplateResponseDTO
      */
 
+    //remove
     AttributeResponseDTO toResponseDTO(Attribute entity);
+
+    AttributePublicResponseDTO toPublicResponseDTO(Attribute entity);
+
+    @Mapping(target = "audit", expression = "java(AuditableMapper.toAuditableInfo(entity))")
+    AttributeAdminResponseDTO toAdminResponseDTO(Attribute entity);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateEntityFromDTO(AttributeUpdateDTO updateDTO, @MappingTarget Attribute attribute);
+
 }

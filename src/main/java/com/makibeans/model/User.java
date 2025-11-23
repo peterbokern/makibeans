@@ -64,6 +64,12 @@ public class User extends Auditable implements UserDetails {
     )
     private Set<Role> roles = new HashSet<>();
 
+    @Column(name = "locked", nullable = false)
+    private boolean locked = false;
+
+    @Column(name = "enabled", nullable = false)
+    private boolean enabled = true;
+
     public void addRole(Role role) {
         roles.add(role);
     }
@@ -77,23 +83,26 @@ public class User extends Auditable implements UserDetails {
         return roles;
     }
 
-    @Override
-    public boolean isAccountNonExpired() {
-        return UserDetails.super.isAccountNonExpired();
-    }
 
     @Override
     public boolean isAccountNonLocked() {
-        return UserDetails.super.isAccountNonLocked();
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return UserDetails.super.isCredentialsNonExpired();
+        return !locked;
     }
 
     @Override
     public boolean isEnabled() {
-        return UserDetails.super.isEnabled();
+        return enabled;
+    }
+
+    //ignore
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    //ignore
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
     }
 }

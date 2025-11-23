@@ -1,7 +1,6 @@
 package com.makibeans.repository;
 
 import com.makibeans.model.ProductAttributeValue;
-import com.makibeans.model.id.ProductAttributeValueId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -14,7 +13,7 @@ import java.util.List;
  * Repository interface for managing `ProductAttributeValue` entities.
  */
 
-public interface ProductAttributeValueRepository extends JpaRepository<ProductAttributeValue, ProductAttributeValueId> {
+public interface ProductAttributeValueRepository extends JpaRepository<ProductAttributeValue, Long> {
     /**
      * Checks whether a {@link com.makibeans.model.ProductAttributeValue} exists
      * that references the given attribute value id.
@@ -32,6 +31,6 @@ public interface ProductAttributeValueRepository extends JpaRepository<ProductAt
             "attributeValue"              // the value itself (usually needed)
     })
     Page<ProductAttributeValue> findAll(Specification<ProductAttributeValue> spec, Pageable pageable);
+
+    boolean existsByProductAttributeIdAndAttributeValueId(Long productAttributeId, Long attributeValueId);
 }
-
-

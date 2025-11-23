@@ -55,7 +55,7 @@ public interface AttributeValueRepository extends JpaRepository<AttributeValue, 
     @EntityGraph(attributePaths = {"attribute"})// Eagerly load associated attribute and category improves performance by reducing the number of queries
     Page<AttributeValue> findAll(Specification<AttributeValue> spec, Pageable pageable);
 
-    boolean existsByValueAndAttributeId(String name);
+    boolean existsByValueAndAttributeId(String name, Long attributeId);
 
     boolean existsByValueAndAttributeIdAndIdNot(String name, Long attributeId, Long id);
 }

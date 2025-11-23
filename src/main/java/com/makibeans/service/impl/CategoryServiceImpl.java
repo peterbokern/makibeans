@@ -12,7 +12,9 @@ import com.makibeans.search.SortResolver;
 import com.makibeans.search.SpecificationFactory;
 import com.makibeans.search.filters.CategoryFilter;
 import com.makibeans.service.service.CategoryAttributeService;
+import com.makibeans.service.service.CategoryService;
 import com.makibeans.service.service.CrudService;
+import com.makibeans.service.service.ProductService;
 import com.makibeans.util.ImageUtils;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
@@ -41,13 +43,13 @@ public class CategoryServiceImpl implements CategoryService, CrudService<Categor
 
     private final CategoryRepository repo;
     private final CategoryMapper mapper;
-    private final ProductServiceImpl productService;
+    private final ProductService productService;
     private final CategoryAttributeService categoryAttributeService;
     private final Logger logger = LoggerFactory.getLogger(CategoryService.class);
     private final ImageUtils imageUtils;
 
     @Autowired
-    public CategoryServiceImpl(CategoryRepository categoryRepository, CategoryMapper categoryMapper, @Lazy ProductServiceImpl productService, CategoryAttributeService categoryAttributeService, ImageUtils imageUtils) {
+    public CategoryServiceImpl(CategoryRepository categoryRepository, CategoryMapper categoryMapper, @Lazy ProductService productService, @Lazy CategoryAttributeService categoryAttributeService, ImageUtils imageUtils) {
         this.repo = categoryRepository;
         this.mapper = categoryMapper;
         this.productService = productService;

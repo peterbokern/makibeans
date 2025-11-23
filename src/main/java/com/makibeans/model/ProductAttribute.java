@@ -51,7 +51,7 @@ public class ProductAttribute extends Auditable {
             cascade = CascadeType.ALL, //cascade all operations to attribute values
             orphanRemoval = true, //remove attribute values when they are no longer referenced
             fetch = FetchType.LAZY) //only load attribute values when needed
-    private Set<ProductAttributeValue> productAttributeValueLinks = new HashSet<>();
+    private Set<ProductAttributeValue> productAttributeValues = new HashSet<>();
 
     public ProductAttribute(Attribute attribute, Product product) {
         this.attribute = attribute;

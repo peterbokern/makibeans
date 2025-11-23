@@ -1,13 +1,16 @@
 package com.makibeans.model;
 
 import com.makibeans.model.audit.Auditable;
+import com.makibeans.util.TextUtils;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Represents a product in the system.
@@ -33,12 +36,10 @@ public class Product extends Auditable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
-    @Setter
     @Column(name = "name", unique = true, nullable = false, length = 100)
     @NotBlank(message = "Product name cannot be blank.")
     String name;
 
-    @Setter
     @Column(name = "description", nullable = false, length = 1000)
     @NotBlank(message = "Product description cannot be blank.")
     String description;
@@ -60,23 +61,31 @@ public class Product extends Auditable {
             cascade = CascadeType.ALL,
             orphanRemoval = true,
             fetch = FetchType.LAZY)
-    private List<ProductAttribute> productAttributes = new ArrayList<>();
+    private Set<ProductAttribute> productAttributes = new HashSet<>();
 
     @OneToMany(
             mappedBy = "product",
             cascade = CascadeType.ALL,
             orphanRemoval = true,
             fetch = FetchType.LAZY)
-    private List<ProductVariant> productVariants = new ArrayList<>();
+    private Set<ProductVariant> productVariants = new HashSet<>();
 
     @Builder
     public Product(String name,
                    String description,
                      byte[] image,
                    Category category) {
-        this.name = name;
-        this.description = description;
+        this.setName(name);
+        this.setDescription(description);
         this.image = image;
         this.category = category;
+    }
+
+    public void setName(String name) {
+        this.name = TextUtils.trim(name);
+    }
+
+    public void setDescription(String description) {
+        this.description = TextUtils.trim(description);
     }
 }

@@ -8,6 +8,7 @@ import com.makibeans.search.SearchRequest;
 import com.makibeans.search.filters.ProductFilter;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface ProductService extends CrudService<Product, Long> {
@@ -18,5 +19,9 @@ public interface ProductService extends CrudService<Product, Long> {
     Boolean existByCategoryId(Long categoryId);
     byte[] getProductImage(Long productId);
     void deleteProductImage(Long productId);
+
+    @Transactional
+    Boolean existsByCategoryId(Long categoryId);
+
     ProductResponseDTO uploadProductImage(Long productId, MultipartFile image);
 }

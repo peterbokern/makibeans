@@ -4,6 +4,7 @@ import com.makibeans.exceptions.DuplicateResourceException;
 import com.makibeans.exceptions.ResourceNotFoundException;
 import com.makibeans.model.Role;
 import com.makibeans.repository.RoleRepository;
+import com.makibeans.service.impl.RoleServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,7 +26,8 @@ import static org.mockito.Mockito.*;
 class RoleServiceTest {
 
     @Mock RoleRepository roleRepository;
-    @InjectMocks RoleService roleService;
+    @InjectMocks
+    RoleServiceImpl roleService;
 
     Role role;
 

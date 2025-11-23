@@ -1,6 +1,7 @@
 package com.makibeans.model;
 
 import com.makibeans.model.audit.Auditable;
+import com.makibeans.util.TextUtils;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
@@ -40,12 +41,10 @@ public class Category extends Auditable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Setter
     @NotBlank(message = "Category name cannot be blank.")
     @Column(name = "name", nullable = false, length = 100)
     private String name;
 
-    @Setter
     @Column(name = "description", nullable = true, length = 1000)
     private String description;
 
@@ -72,8 +71,16 @@ public class Category extends Auditable {
     private List<Product> products = new ArrayList<>();
 
     public Category(String name, String description) {
-        this.name = name;
-        this.description = description;
+        this.setName(name);
+        this.setDescription(description);
+    }
+
+    public void setName(String name) {
+        this.name = TextUtils.normalizeText(name);
+    }
+
+    public void setDescription(String description) {
+        this.description = TextUtils.trim(description);
     }
 }
 

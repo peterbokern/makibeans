@@ -1,9 +1,10 @@
-package com.makibeans.service;
+package com.makibeans.service.impl;
 
 import com.makibeans.exceptions.DuplicateResourceException;
 import com.makibeans.exceptions.ResourceNotFoundException;
 import com.makibeans.model.Role;
 import com.makibeans.repository.RoleRepository;
+import com.makibeans.service.service.RoleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,29 +15,15 @@ import org.springframework.transaction.annotation.Transactional;
  */
 
 @Service
-public class RoleService extends AbstractCrudService<Role, Long> {
+public class RoleServiceImpl implements RoleService {
 
-    private final RoleRepository roleRepository;
+    private final RoleRepository repo;
 
     @Autowired
-    public RoleService(RoleRepository roleRepository) {
-        super(roleRepository);
-        this.roleRepository = roleRepository;
+    public RoleServiceImpl(RoleRepository repo) {
+        this.repo = repo;
     }
 
-    /**
-     * Retrieves a Role by its name.
-     *
-     * @param name the name of the role to retrieve.
-     * @return the Role entity.
-     * @throws ResourceNotFoundException if the role with the given name does not exist.
-     */
-
-    @Transactional(readOnly = true)
-    public Role findByName(String name) {
-        return roleRepository.findByName(name)
-                .orElseThrow(() -> new ResourceNotFoundException("Role with name " + name + " not found."));
-    }
 
     /**
      * Checks if a Role with the given name exists.
@@ -45,8 +32,9 @@ public class RoleService extends AbstractCrudService<Role, Long> {
      * @return true if a role with the given name exists, false otherwise.
      */
 
+    @Override
     public boolean existsByName(String name) {
-        return roleRepository.existsByName(name);
+        return repo.existsByName(name);
     }
 
     /**
@@ -56,6 +44,7 @@ public class RoleService extends AbstractCrudService<Role, Long> {
      * @throws DuplicateResourceException if a role with the given name already exists.
      */
 
+    @Override
     @Transactional
     public void createRole(String name) {
         if (name == null || name.trim().isEmpty()) {
@@ -64,7 +53,13 @@ public class RoleService extends AbstractCrudService<Role, Long> {
         String normalizedRoleName = name.trim();
         validateUniqueRoleName(normalizedRoleName);
         Role role = new Role(normalizedRoleName);
-        create(role);
+        repo.save(role);
+    }
+
+    @Transactional(readOnly = true)
+    public Role findByName(String name) {
+        return repo.findByName(name)
+                .orElseThrow(() -> new ResourceNotFoundException("Role with name " + name + " not found."));
     }
 
     /**
@@ -76,8 +71,9 @@ public class RoleService extends AbstractCrudService<Role, Long> {
      */
 
     private void validateUniqueRoleName(String name) {
-        if (roleRepository.existsByName(name)) {
+        if (repo.existsByName(name)) {
             throw new DuplicateResourceException("Role with name " + name + " already exists.");
         }
     }
+
 }

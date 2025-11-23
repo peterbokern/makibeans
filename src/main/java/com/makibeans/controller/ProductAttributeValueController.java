@@ -2,16 +2,10 @@ package com.makibeans.controller;
 
 import com.makibeans.dto.productattributevalue.ProductAttributeValueRequestDTO;
 import com.makibeans.dto.productattributevalue.ProductAttributeValueResponseDTO;
-import com.makibeans.search.SearchRequest;
-import com.makibeans.search.filters.ProductAttributeValueFilter;
-import com.makibeans.search.utils.SearchRequestUtils;
 import com.makibeans.service.service.ProductAttributeValueService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -43,32 +37,6 @@ public class ProductAttributeValueController {
     public ResponseEntity<ProductAttributeValueResponseDTO> getById(@PathVariable Long id) {
         ProductAttributeValueResponseDTO responseDTO = service.getById(id);
         return ResponseEntity.ok(responseDTO);
-    }
-
-    @Operation(
-            summary = "Get product attribute values (paged)",
-            description = "Search/sort/paginate product attribute values using query params."
-    )
-    @GetMapping
-    public ResponseEntity<Page<ProductAttributeValueResponseDTO>> getAll(
-            @Valid @ModelAttribute ProductAttributeValueFilter filters,
-            @RequestParam(required = false) String search,
-            @RequestParam(required = false, defaultValue = "false") Boolean includeDeleted,
-            @PageableDefault(size = 20, sort = "id") Pageable pageable
-    ) {
-        SearchRequest<ProductAttributeValueFilter> req =
-                SearchRequestUtils.assemble(filters, search, includeDeleted, pageable);
-        return ResponseEntity.ok(service.search(req));
-    }
-
-    @PostMapping("/search")
-    @Operation(summary = "Search attribute values (POST)", description = "Same as GET but accepts a JSON body for complex filters.")
-    public ResponseEntity<Page<ProductAttributeValueResponseDTO>> search(
-            @Valid @RequestBody SearchRequest<ProductAttributeValueFilter> request,
-            @PageableDefault(size = 20, sort = "id") Pageable pageable
-    ) {
-        SearchRequest<ProductAttributeValueFilter> merged = SearchRequestUtils.mergeWithPageable(request, pageable);
-        return ResponseEntity.ok(service.search(merged));
     }
 
     /**

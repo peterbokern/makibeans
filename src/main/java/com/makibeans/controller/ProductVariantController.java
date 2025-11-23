@@ -20,7 +20,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/product-variants")
+@RequestMapping("/product-variants")
 @RequiredArgsConstructor
 @Tag(name = "Product Variants", description = "Manage product variants")
 public class ProductVariantController {

@@ -4,18 +4,24 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.makibeans.exceptions.DuplicateResourceException;
+import com.makibeans.exceptions.ResourceNotFoundException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindException;
 import org.springframework.validation.FieldError;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.servlet.NoHandlerFoundException;
 
 import java.time.OffsetDateTime;
 import java.util.*;
@@ -29,6 +35,8 @@ import java.util.stream.Collectors;
  */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     // 1) @RequestBody validation (@Valid on JSON body)
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -124,6 +132,37 @@ public class GlobalExceptionHandler {
         return pd;
     }
 
+    // 7) Missing endpoint -> 404 Not Found
+    @ExceptionHandler(NoHandlerFoundException.class)
+    public ProblemDetail handleNoHandlerFound(NoHandlerFoundException ex) {
+        ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
+        pd.setTitle("Not Found");
+        pd.setDetail(String.format("No handler found for %s %s", ex.getHttpMethod(), ex.getRequestURL()));
+        pd.setProperty("timestamp", OffsetDateTime.now());
+        return pd;
+    }
+
+    // 8) HTTP method not allowed -> 405
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ProblemDetail handleMethodNotAllowed(HttpRequestMethodNotSupportedException ex) {
+        ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.METHOD_NOT_ALLOWED);
+        pd.setTitle("Method not allowed");
+        String supported = ex.getSupportedMethods() != null ? Arrays.toString(ex.getSupportedMethods()) : "[]";
+        pd.setDetail(String.format("Method %s is not supported for this endpoint. Supported: %s", ex.getMethod(), supported));
+        pd.setProperty("timestamp", OffsetDateTime.now());
+        return pd;
+    }
+
+    // 9) Unsupported media type -> 415
+    @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
+    public ProblemDetail handleUnsupportedMediaType(HttpMediaTypeNotSupportedException ex) {
+        ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.UNSUPPORTED_MEDIA_TYPE);
+        pd.setTitle("Unsupported media type");
+        pd.setDetail(String.format("Content type %s is not supported.", ex.getContentType()));
+        pd.setProperty("timestamp", OffsetDateTime.now());
+        return pd;
+    }
+
     //handle duplicate resource
     @ExceptionHandler(DuplicateResourceException.class)
     public ProblemDetail handleDuplicateResource(DuplicateResourceException ex) {
@@ -134,9 +173,21 @@ public class GlobalExceptionHandler {
         return pd;
     }
 
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ProblemDetail handleResourceNotFound(ResourceNotFoundException ex) {
+        ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
+        pd.setTitle("Resource not found");
+        pd.setDetail(ex.getMessage());
+        pd.setProperty("timestamp", OffsetDateTime.now());
+        return pd;
+    }
+
     //) Fallback
     @ExceptionHandler(Exception.class)
     public ProblemDetail handleOther(Exception ex) {
+        // Log the exception so we have a stacktrace in the logs
+        log.error("Unhandled exception caught by GlobalExceptionHandler", ex);
+
         ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.INTERNAL_SERVER_ERROR);
         pd.setTitle("Unexpected error");
         pd.setDetail("Something went wrong.");

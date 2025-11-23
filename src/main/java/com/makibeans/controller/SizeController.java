@@ -20,7 +20,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/sizes")
+@RequestMapping("/sizes")
 @RequiredArgsConstructor
 @Tag(name = "Sizes", description = "Manage sizes")
 public class SizeController {

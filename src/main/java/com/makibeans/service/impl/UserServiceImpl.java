@@ -1,330 +1,231 @@
 package com.makibeans.service.impl;
 
-import com.makibeans.dto.user.UserRequestDTO;
-import com.makibeans.dto.user.UserResponseDTO;
-import com.makibeans.dto.user.UserUpdateDTO;
-import com.makibeans.exceptions.DuplicateResourceException;
+import com.makibeans.dto.user.*;
 import com.makibeans.exceptions.ResourceNotFoundException;
-import com.makibeans.filter.SearchFilter;
 import com.makibeans.mapper.UserMapper;
 import com.makibeans.model.Role;
 import com.makibeans.model.User;
 import com.makibeans.repository.UserRepository;
-import com.makibeans.security.JwtUtil;
-import com.makibeans.service.RoleService;
-import com.makibeans.service.service.CrudService;
+import com.makibeans.search.SearchRequest;
+import com.makibeans.search.SortResolver;
+import com.makibeans.search.SpecificationFactory;
+import com.makibeans.search.filters.UserFilter;
+import com.makibeans.service.service.UserService;
+
 import jakarta.validation.Valid;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.RequestBody;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-
-import static com.makibeans.util.UpdateUtils.normalize;
-import static com.makibeans.util.UpdateUtils.shouldUpdate;
-
-/**
- * Service class for managing User entities.
- * Provides methods to perform CRUD operations and custom queries on User data.
- */
+import java.util.Objects;
 
 @Service
-public class UserServiceImpl extends CrudService<User, Long> {
+@RequiredArgsConstructor
+@Transactional(readOnly = true)
+public class UserServiceImpl implements UserService {
 
-    private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
-    private final UserMapper userMapper;
-    private final RoleService roleService;
-    private final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
+    private final UserRepository repo;
+    private final UserMapper mapper;
+    private final RoleServiceImpl roleService;              // use service (not repository) for roles
+    private final PasswordEncoder passwordEncoder;      // encode passwords
 
-    @Autowired
-    public UserServiceImpl(JpaRepository<User, Long> repository,
-                           UserRepository userRepository, PasswordEncoder passwordEncoder, UserMapper userMapper, RoleService roleService, JwtUtil jwtUtil, UserDetailsServiceImpl userDetailsServiceImpl) {
+    /* ------------- CrudService hooks ------------- */
 
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.userMapper = userMapper;
-        this.roleService = roleService;
+    @Override
+    public JpaRepository<User, Long> repo() {
+        return repo;
     }
 
-    /**
-     * Retrieves a User by their username.
-     *
-     * @param userName the username of the user to retrieve.
-     * @return the User entity.
-     * @throws ResourceNotFoundException if the user with the given username does not exist.
-     */
-
-    @Transactional(readOnly = true)
-    public User findByUserName(String userName) {
-        return userRepository.findByUsername(userName)
-                .orElseThrow(() -> new ResourceNotFoundException("User with username " + userName + " not found."));
+    @Override
+    public String entityName() {
+        return "User";
     }
 
-    /**
-     * Retrieves a User by their ID.
-     *
-     * @param id the ID of the user to retrieve.
-     * @return the UserResponseDTO representing the user.
-     * @throws ResourceNotFoundException if the user with the given ID does not exist.
-     */
+    /* ------------- Reads ------------- */
 
-    @Transactional(readOnly = true)
-    public UserResponseDTO getUserById(Long id) {
-        User user = findById(id);
-        return userMapper.toResponseDTO(user);
+    @Override
+    public UserResponseDTO getById(Long id) {
+        return mapper.toResponseDTO(getOrThrow(id));
     }
 
-    /**
-     * Retrieves all users.
-     *
-     * @return a list of UserResponseDTO representing all users.
-     */
+    @Override
+    public Page<UserResponseDTO> search(SearchRequest<UserFilter> req) {
+        Specification<User> spec =
+                SpecificationFactory.fromRequest(req, UserFilter.class);
 
-    @Transactional(readOnly = true)
-    public List<UserResponseDTO> getAllUsers() {
-        return findAll()
-                .stream()
-                .map(userMapper::toResponseDTO)
-                .toList();
+        Sort sort = new SortResolver(UserFilter.class)
+                .resolve(req.getSortBy(), req.getSortDirection());
+
+        Specification<User> distinctSpec = (root, query, cb) -> {
+            Objects.requireNonNull(query, "CriteriaQuery must not be null");
+            query.distinct(true);
+            return null;
+        };
+
+        Specification<User> finalSpec = (spec == null) ? distinctSpec : spec.and(distinctSpec);
+
+        Pageable pageable = PageRequest.of(
+                req.getPage() != null ? req.getPage() : 0,
+                req.getSize() != null ? req.getSize() : 20,
+                sort
+        );
+
+        return repo.findAll(finalSpec, pageable).map(mapper::toResponseDTO);
     }
 
-    /**
-     * Retrieves a list of users based on the provided search parameters.
-     * Searchable fields: name, username, email, role.
-     *
-     * @param searchParams a map of search parameters to filter the users.
-     * @return a list of UserResponseDTO representing the matched users.
-     */
+    /* ------------- Writes ------------- */
 
-    @Transactional(readOnly = true)
-    public List<UserResponseDTO> findBySearchQuery(Map<String, String> searchParams) {
 
-        Map<String, Function<User, String>> searchFields = Map.of(
-                "name", User::getUsername,
-                "username", User::getUsername,
-                "email", User::getEmail);
-
-        Map<String, Comparator<User>> sortFields = Map.of(
-                "id", Comparator.comparing(User::getId, Comparator.nullsLast(Comparator.naturalOrder())),
-                "userName", Comparator.comparing(User::getUsername, String.CASE_INSENSITIVE_ORDER),
-                "email", Comparator.comparing(User::getEmail, String.CASE_INSENSITIVE_ORDER));
-
-        List<User> matchedUsers = SearchFilter.apply(
-                findAll(),
-                searchParams,
-                searchFields,
-                sortFields);
-
-        return matchedUsers.stream()
-                .map(userMapper::toResponseDTO)
-                .toList();
+    @Override
+    @Transactional
+    public UserResponseDTO update(Long id, @Valid UserUpdateDTO dto) {
+        User existing = UserService.super.getOrThrow(id);
+        // In-place update (MapStruct @MappingTarget or your mapper impl)
+        mapper.updateEntityFromDTO(dto, existing);
+        // No repo.save() needed — managed entity will flush on commit
+        return mapper.toResponseDTO(existing);
     }
 
-    /**
-     * Checks if a User with the given username exists.
-     *
-     * @param username the username to check for existence.
-     * @return true if a User with the given username exists, false otherwise.
-     */
+    /* ------------- Registration (via RoleService) ------------- */
 
-    public boolean existsByUsername(String username) {
-        return userRepository.existsByUsername(username);
+    @Override
+    @Transactional
+    public UserResponseDTO registerUser(@Valid UserRequestDTO dto) {
+        return registerUserWithRole(dto, "ROLE_USER");
     }
 
-    /**
-     * Registers a new admin user.
-     *
-     * @param userRequestDTO the UserRequestDTO containing admin user details
-     * @return a UserResponseDTO containing the created admin user details
-     */
-
+    @Override
+    @Transactional
+    public UserResponseDTO registerAdmin(@Valid UserRequestDTO dto) {
+        return registerUserWithRole(dto, "ROLE_ADMIN");
+    }
 
     @Transactional
-    public UserResponseDTO registerAdmin(@Valid @RequestBody UserRequestDTO userRequestDTO) {
-        return registerUserWithRole(userRequestDTO, "ROLE_ADMIN");
-    }
-
-    /**
-     * Registers a new user with the default role of "ROLE_USER".
-     *
-     * @param userRequestDTO the UserRequestDTO containing user details
-     * @return a UserResponseDTO containing the created user details
-     */
-
-    @Transactional
-    public UserResponseDTO registerUser(@Valid UserRequestDTO userRequestDTO) {
-        return registerUserWithRole(userRequestDTO, "ROLE_USER");
-    }
-
-    /**
-     * Registers a new user with the specified role.
-     *
-     * @param userRequestDTO the UserRequestDTO containing user details
-     * @param roleName       the name of the role to assign to the user
-     * @return a UserResponseDTO containing the created user details
-     * @throws DuplicateResourceException if a user with the given username or email already exists
-     */
-
-    @Transactional
-    public UserResponseDTO registerUserWithRole(UserRequestDTO userRequestDTO, String roleName) {
-        User user = userMapper.toEntity(userRequestDTO);
+    public UserResponseDTO registerUserWithRole(@Valid UserRequestDTO dto, String roleName) {
+        // Manual construction (no mapper.toEntity)
+        User user = new User();
+        user.setUsername(dto.getUsername());
+        user.setEmail(dto.getEmail());
 
         validateUniqueUsername(user.getUsername());
         validateUniqueEmail(user.getEmail());
 
-        String encryptedPassword = encodePassword(user.getPassword());
-        user.setPassword(encryptedPassword);
+        user.setPassword(passwordEncoder.encode(dto.getPassword()));
 
-        Role userRole = roleService.findByName(roleName);
-        user.addRole(userRole);
-        user.setDeleted(false);
+        Role role = roleService.findByName(roleName);
+        user.addRole(role); // if you have a convenience method
 
-        User createdUser = create(user);
-
-
-
-        return userMapper.toResponseDTO(createdUser);
+        User saved = repo.save(user);
+        return mapper.toResponseDTO(saved);
     }
 
-    /**
-     * Deletes a User by their ID.
-     *
-     * @param id the ID of the user to delete.
-     */
+    /* ------------- Enable / Disable ------------- */
 
+    @Override
     @Transactional
-    public void deleteUser(Long id) {
-        delete(id);
+    public void enable(Long id) {
+        User user = UserService.super.getOrThrow(id);
+        user.setEnabled(true);
     }
 
-    /**
-     * Updates an existing User with the provided details.
-     *
-     * @param id            the ID of the user to update.
-     * @param userUpdateDTO the new details for the user.
-     * @return the updated User entity as a UserResponseDTO.
-     * @throws DuplicateResourceException if a user with the given username or email already exists.
-     * @throws ResourceNotFoundException  if the user with the given ID does not exist.
-     */
-
+    @Override
     @Transactional
-    public UserResponseDTO updateUser(Long id, @Valid UserUpdateDTO userUpdateDTO) {
-        User user = findById(id);
-
-        boolean updated = false;
-
-        updated |= updateUsernameField(user, userUpdateDTO.getUsername());
-        updated |= updateEmailField(user, userUpdateDTO.getEmail());
-        updated |= updatePasswordField(user, userUpdateDTO.getPassword());
-
-
-        logger.info("User {} updated. Updated fields: username={}, email={}, password={}", user.getUsername(), userUpdateDTO.getUsername() != null, userUpdateDTO.getEmail() != null, userUpdateDTO.getPassword() != null);
-        logger.info("Update result: {}", updated);
-
-        User updatedUser = updated ? update(user.getId(), user) : user;
-
-        return userMapper.toResponseDTO(updatedUser);
+    public void disable(Long id) {
+        User user = UserService.super.getOrThrow(id);
+        user.setEnabled(false);
     }
 
-    /**
-     * Encodes the given raw password using the configured password encoder.
-     *
-     * @param rawPassword the raw password to encode
-     * @return the encoded password
-     */
-
-    private String encodePassword(String rawPassword) {
-        return passwordEncoder.encode(rawPassword);
+ /*   *//* ------------- Roles ------------- *//*
+    //TODO implement role management if needed in roleservice
+    @Override
+    @Transactional
+    public UserResponseDTO addRoles(Long userId, @Valid RolesRequestDTO dto) {
+        User user = UserService.super.getOrThrow(userId);
+        for (Long roleId : dto.getRoleIds()) {
+            Role r = roleService.getOrThrow(roleId);
+            user.getRoles().add(r);
+        }
+        return mapper.toResponseDTO(user);
     }
 
-    /**
-     * Validates the uniqueness of a User based on the given username.
-     * Throws a DuplicateResourceException if a User with the same username already exists.
-     *
-     * @param username the username to check
-     * @throws DuplicateResourceException if a User with the same username already exists
-     */
+    @Override
+    @Transactional
+    public UserResponseDTO removeRole(Long userId, Long roleId) {
+        User user = UserService.super.getOrThrow(userId);
+        user.getRoles().removeIf(r -> r.getId().equals(roleId));
+        return mapper.toResponseDTO(user);
+    }*/
+
+    /* ------------- Passwords ------------- */
+
+    @Override
+    @Transactional
+    public void setPassword(Long userId, @Valid PasswordSetRequestDTO dto) {
+        User user = this.getOrThrow(userId);
+        user.setPassword(encode(dto.getPassword()));
+    }
+
+    @Override
+    @Transactional
+    public void changePassword(Long userId, @Valid PasswordChangeRequestDTO dto) {
+        User user = this.getOrThrow(userId);
+        if (user.getPassword() == null || !passwordEncoder.matches(dto.getCurrentPassword(), user.getPassword())) {
+            throw new IllegalArgumentException("Current password is incorrect");
+        }
+        user.setPassword(encode(dto.getNewPassword()));
+    }
+
+
+    @Override
+    public void resetPasswordRequest(@Valid PasswordResetRequestDTO dto) {
+        // TODO: generate token, persist & email it using your services
+        // tokenService.create(dto.getEmail()); emailService.sendResetLink(...);
+    }
+
+
+    @Override
+    @Transactional
+    public void resetPasswordConfirm(@Valid PasswordResetConfirmRequestDTO dto) {
+        // TODO: validate/consume token and resolve user, then:
+        // User user = tokenService.consume(dto.getToken());
+        // user.setPasswordHash(encode(dto.getNewPassword()));
+    }
+
+    /* ------------- Helpers ------------- */
+
 
     private void validateUniqueUsername(String username) {
-        if (userRepository.existsByUsername(username)) {
-            throw new DuplicateResourceException("User with username " + username + " already exists.");
-        }
+        try {
+            if (username != null && repo.existsByUsernameIgnoreCase(username)) {
+                throw new IllegalArgumentException("Username already in use: " + username);
+            }
+        } catch (Throwable ignored) { /* username may not exist in your model */ }
     }
-
-    /**
-     * Validates the uniqueness of a User based on the given email.
-     * Throws a DuplicateResourceException if a User with the same email already exists.
-     *
-     * @param email the email to check
-     * @throws DuplicateResourceException if a User with the same email already exists
-     */
 
     private void validateUniqueEmail(String email) {
-        if (userRepository.existsByEmail(email)) {
-            throw new DuplicateResourceException("User with email " + email + " already exists.");
+        if (email != null && repo.existsByEmailIgnoreCase(email)) {
+            throw new IllegalArgumentException("Email already in use: " + email);
         }
     }
 
-    /**
-     * Updates the username field of the user if it has changed.
-     *
-     * @param user the user to update
-     * @param newUsername the new username
-     * @return true if the username was updated, false otherwise
-     * @throws DuplicateResourceException if a user with the given username already exists
-     */
-
-    private boolean updateUsernameField(User user, String newUsername) {
-        String normalizedUsername = normalize(newUsername);
-        if (shouldUpdate(normalizedUsername, user.getUsername())) {
-            validateUniqueUsername(normalizedUsername);
-            user.setUsername(normalizedUsername);
-            return true;
-        }
-        return false;
+    private String encode(String raw) {
+        return raw == null ? null : passwordEncoder.encode(raw);
     }
 
-    /**
-     * Updates the email field of the user if it has changed.
-     *
-     * @param user the user to update
-     * @param newEmail the new email
-     * @return true if the email was updated, false otherwise
-     * @throws DuplicateResourceException if a user with the given email already exists
-     */
-
-    private boolean updateEmailField(User user, String newEmail) {
-        String normalizedEmail = normalize(newEmail);
-        if (shouldUpdate(normalizedEmail, user.getEmail())) {
-            validateUniqueEmail(normalizedEmail);
-            user.setEmail(normalizedEmail);
-            return true;
-        }
-        return false;
+    public User findByUserName(String username) {
+        return repo.findByUsername(username).orElseThrow(() -> new ResourceNotFoundException(
+                "User with username '" + username + "' not found."));
     }
 
-    /**
-     * Updates the password field of the user if it has changed.
-     *
-     * @param user the user to update
-     * @param newPassword the new password
-     * @return true if the password was updated, false otherwise
-     */
-
-    private boolean updatePasswordField(User user, String newPassword) {
-        if (newPassword != null && !newPassword.isBlank() && !passwordEncoder.matches(newPassword, user.getPassword())) {
-            user.setPassword(encodePassword(newPassword));
-            return true;
-        }
-        return false;
+    @Override
+    public boolean existsByUsername(String username) {
+        return repo.existsByUsername(username);
     }
 }

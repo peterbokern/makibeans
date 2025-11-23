@@ -19,8 +19,8 @@ import java.io.Serializable;
 @Embeddable
 public class ProductAttributeValueId implements Serializable {
     @Column(name = "product_attribute_id")
-    private long productAttributeId;
+    private Long productAttributeId;
 
     @Column(name = "attribute_value_id")
-    private long attributeValueId;
+    private Long attributeValueId;
 }

@@ -14,6 +14,7 @@ import com.makibeans.search.SearchRequest;
 import com.makibeans.search.SortResolver;
 import com.makibeans.search.SpecificationFactory;
 import com.makibeans.search.filters.ProductFilter;
+import com.makibeans.service.service.CategoryService;
 import com.makibeans.service.service.CrudService;
 import com.makibeans.service.service.ProductService;
 import com.makibeans.util.ImageUtils;
@@ -116,13 +117,13 @@ public class ProductServiceImpl implements ProductService, CrudService<Product, 
     @Transactional
     public ProductResponseDTO create(ProductRequestDTO dto) {
 
-        String normalizedName = normalize(dto.getName());
-        assertUniqueName(normalizedName);
+        String name = dto.getName();
+        assertUniqueName(name);
 
         Category category = categoryService.getOrThrow(dto.getCategoryId());
 
         Product product = Product.builder()
-                .name(normalizedName)
+                .name(name)
                 .description(dto.getDescription())
                 .category(category)
                 .build();
@@ -134,8 +135,8 @@ public class ProductServiceImpl implements ProductService, CrudService<Product, 
     @Transactional
     public ProductResponseDTO update(Long productId, @Valid ProductUpdateDTO dto) {
         Product product = getOrThrow(productId);
-        String normalizedName = normalize(dto.getName());
-        assertUniqueNameAndIdNot(normalizedName, productId);
+        String name = dto.getName();
+        assertUniqueNameAndIdNot(name, productId);
         mapper.updateEntityFromDTO(dto, product);
         return mapper.toResponseDTO(product);
     }
@@ -152,6 +153,7 @@ public class ProductServiceImpl implements ProductService, CrudService<Product, 
         softDelete(productId);
     }
 
+    @Override
     @Transactional
     public Boolean existsByCategoryId(Long categoryId) {
         return repo.existsByCategoryId(categoryId);

@@ -1,5 +1,6 @@
 package com.makibeans.model;
 import com.makibeans.model.audit.Auditable;
+import com.makibeans.util.TextUtils;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.Min;
@@ -53,7 +54,6 @@ public class ProductVariant extends Auditable {
     @Column(name = "price_in_cents", nullable = false)
     private Long priceInCents;
 
-    @Setter
     @NotBlank(message = "SKU cannot be blank.")
     @Column(name = "sku", nullable = false, length = 100)
     private String sku;
@@ -69,7 +69,11 @@ public class ProductVariant extends Auditable {
         this.product = product;
         this.size = size;
         this.priceInCents = priceInCents;
-        this.sku = sku;
+        this.setSku(sku);
         this.stock = stock;
+    }
+
+    public void setSku(String sku) {
+        this.sku = TextUtils.normalizeText(sku);
     }
 }

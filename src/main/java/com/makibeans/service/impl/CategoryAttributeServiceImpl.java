@@ -13,6 +13,7 @@ import com.makibeans.repository.CategoryAttributeRepository;
 import com.makibeans.search.filters.CategoryAttributeFilter;
 import com.makibeans.service.service.AttributeService;
 import com.makibeans.service.service.CategoryAttributeService;
+import com.makibeans.service.service.CategoryService;
 import com.makibeans.service.service.CrudService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;

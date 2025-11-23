@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@JsonPropertyOrder({"id", "attributeTemplateId", "attributeTemplateName", "value", "createdBy", "createdAt", "updatedBy", "updatedAt"})
+@JsonPropertyOrder({"id", "attributeId", "attributeName", "value", "createdBy", "createdAt", "updatedBy", "updatedAt"})
 public class AttributeValueResponseDTO extends AuditableResponseDTO {
 
     private Long id;

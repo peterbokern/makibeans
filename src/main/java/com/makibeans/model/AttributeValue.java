@@ -1,5 +1,6 @@
 package com.makibeans.model;
 import com.makibeans.model.audit.Auditable;
+import com.makibeans.util.TextUtils;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -38,7 +39,6 @@ public class AttributeValue extends Auditable {
     @NotNull(message = "Attribute cannot be null.")
     private Attribute attribute;
 
-    @Setter
     @Column(name = "value", nullable = false, length = 255)
     @NotBlank(message = "Attribute value cannot be blank.")
     @Size(min = 1, max = 255, message = "Attribute value must be between 1 and 255 characters.")
@@ -47,5 +47,9 @@ public class AttributeValue extends Auditable {
     public AttributeValue(Attribute attribute, String value) {
         this.attribute = attribute;
         this.value = value;
+    }
+
+    public void setValue(String value) {
+       this.value = TextUtils.normalizeText(value);
     }
 }

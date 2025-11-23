@@ -1,5 +1,6 @@
 package com.makibeans.dto.productattributevalue;
 
+import com.makibeans.model.id.ProductAttributeValueId;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

@@ -1,6 +1,7 @@
 package com.makibeans.model;
 
 import com.makibeans.model.audit.Auditable;
+import com.makibeans.util.TextUtils;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
@@ -29,12 +30,15 @@ public class Size extends Auditable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Setter
     @NotBlank(message = "Size name should not be blank.")
     @Column(name = "name", nullable = false, length = 100)
     private String name;
 
     public Size(String name) {
-        this.name = name;
+        this.setName(name);
+    }
+
+    public void setName(String name) {
+        this.name = TextUtils.normalizeText(name);
     }
 }

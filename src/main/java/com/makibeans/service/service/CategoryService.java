@@ -1,4 +1,4 @@
-package com.makibeans.service.impl;
+package com.makibeans.service.service;
 
 import com.makibeans.dto.category.CategoryRequestDTO;
 import com.makibeans.dto.category.CategoryResponseDTO;
@@ -6,7 +6,6 @@ import com.makibeans.dto.category.CategoryUpdateDTO;
 import com.makibeans.model.Category;
 import com.makibeans.search.SearchRequest;
 import com.makibeans.search.filters.CategoryFilter;
-import com.makibeans.service.service.CrudService;
 import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
 

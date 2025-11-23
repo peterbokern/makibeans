@@ -16,6 +16,7 @@ import com.makibeans.search.SpecificationFactory;
 import com.makibeans.search.filters.AttributeValueFilter;
 import com.makibeans.service.service.AttributeService;
 import com.makibeans.service.service.AttributeValueService;
+import com.makibeans.service.service.CrudService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
@@ -34,7 +35,7 @@ import static com.makibeans.util.UpdateUtils.*;
  */
 
 @Service
-public class AttributeValueServiceImpl implements AuthServiceImpl.CrudService<AttributeValue, Long>, AttributeValueService {
+public class AttributeValueServiceImpl implements CrudService<AttributeValue, Long>, AttributeValueService {
 
     private final AttributeValueRepository repo;
     private final AttributeService attributeService;
