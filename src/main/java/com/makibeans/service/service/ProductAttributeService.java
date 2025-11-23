@@ -9,8 +9,8 @@ import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 
 public interface ProductAttributeService extends CrudService<ProductAttribute, Long> {
-    ProductAttributeResponseDTO getById(Long id);
-    Page<ProductAttributeResponseDTO> search(SearchRequest<ProductAttributeFilter> request);
-    ProductAttributeResponseDTO create(@Valid ProductAttributeRequestDTO dto);
+    ProductAttribute getById(Long id);
+    Page<ProductAttribute> search(SearchRequest<ProductAttributeFilter> request);
+    ProductAttribute  create(@Valid ProductAttributeRequestDTO dto);
     //ProductAttributeResponseDTO update(Long id, @Valid ProductAttributeRequestDTO dto);
 }

@@ -1,5 +1,7 @@
 package com.makibeans.dto.productattribute;
 
+import com.makibeans.dto.attributevalue.AttributeValueAdminResponseDTO;
+import com.makibeans.dto.attributevalue.AttributeValueResponseDTO;
 import com.makibeans.dto.audit.AuditableInfo;
 import java.util.List;
 
@@ -9,8 +11,8 @@ import java.util.List;
 public record ProductAttributeAdminResponseDTO(
         Long id,
         Long productId,
+        String productName,
         Long attributeId,
         String attributeName,
-        List<com.makibeans.dto.attributevalue.AttributeValuePublicResponseDTO> values,
         AuditableInfo audit
 ) {}

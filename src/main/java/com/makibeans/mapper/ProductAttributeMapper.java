@@ -1,6 +1,8 @@
 package com.makibeans.mapper;
 
 import com.makibeans.dto.attribute.AttributeUpdateDTO;
+import com.makibeans.dto.productattribute.ProductAttributeAdminResponseDTO;
+import com.makibeans.dto.productattribute.ProductAttributePublicResponseDTO;
 import com.makibeans.dto.productattribute.ProductAttributeResponseDTO;
 import com.makibeans.dto.attributevalue.AttributeValueSimpleResponseDTO;
 import com.makibeans.model.Attribute;
@@ -15,7 +17,7 @@ import java.util.stream.Collectors;
  * Mapper for the entity {@link ProductAttribute} and its DTO {@link ProductAttributeResponseDTO}.
  */
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses =AuditableMapper.class)
 public interface ProductAttributeMapper {
 
     @Mapping(source = "product.id", target = "productId")
@@ -24,6 +26,22 @@ public interface ProductAttributeMapper {
     @Mapping(source = "attribute.name", target = "attributeName")
     @Mapping(source = ".", target = "values", qualifiedByName = "mapAttributeValues")
     ProductAttributeResponseDTO toResponseDTO(ProductAttribute entity);
+
+    // ------------ PUBLIC ------------
+    @Mapping(source = "product.id",     target = "productId")
+    @Mapping(source = "product.name",   target = "productName")
+    @Mapping(source = "attribute.id",   target = "attributeId")
+    @Mapping(source = "attribute.name", target = "attributeName")
+    ProductAttributePublicResponseDTO toPublicResponseDTO(ProductAttribute productAttribute);
+
+    // ------------ ADMIN ------------
+    @Mapping(source = "product.id",     target = "productId")
+    @Mapping(source = "product.name",   target = "productName")
+    @Mapping(source = "attribute.id",   target = "attributeId")
+    @Mapping(source = "attribute.name", target = "attributeName")
+    @Mapping(target = "audit", expression = "java(AuditableMapper.toAuditableInfo(productAttribute))")
+    ProductAttributeAdminResponseDTO toAdminResponseDTO(ProductAttribute productAttribute);
+
 
     @Named("mapAttributeValues")
     default Set<AttributeValueSimpleResponseDTO> mapAttributeValues(ProductAttribute productAttribute) {

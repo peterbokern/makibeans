@@ -30,7 +30,6 @@ public class ProductAttributeServiceImpl implements ProductAttributeService, Cru
     private final ProductAttributeRepository repo;
     private final ProductService productService;
     private final AttributeService attributeService;
-    private final ProductAttributeMapper mapper;
 
     @Autowired
     public ProductAttributeServiceImpl(ProductAttributeRepository repo,
@@ -40,17 +39,15 @@ public class ProductAttributeServiceImpl implements ProductAttributeService, Cru
         this.repo = repo;
         this.productService = productService;
         this.attributeService = attributeService;
-        this.mapper = mapper;
     }
 
     @Transactional(readOnly = true)
-    public ProductAttributeResponseDTO getById(Long id) {
-        ProductAttribute productAttribute = getOrThrow(id);
-        return mapper.toResponseDTO(productAttribute);
+    public ProductAttribute getById(Long id) {
+        return getOrThrow(id);
     }
 
     @Transactional
-    public Page<ProductAttributeResponseDTO> search(SearchRequest<ProductAttributeFilter> req) {
+    public Page<ProductAttribute> search(SearchRequest<ProductAttributeFilter> req) {
         Specification<ProductAttribute> spec =
                 SpecificationFactory.fromRequest(req, ProductAttributeFilter.class);
 
@@ -63,11 +60,11 @@ public class ProductAttributeServiceImpl implements ProductAttributeService, Cru
                 sort
         );
 
-        return repo.findAll(spec, pageable).map(mapper::toResponseDTO);
+        return repo.findAll(spec, pageable);
     }
 
     @Transactional
-    public ProductAttributeResponseDTO create(ProductAttributeRequestDTO requestDTO) {
+    public ProductAttribute create(ProductAttributeRequestDTO requestDTO) {
 
         Long productId = requestDTO.getProductId();
         Long attributeId = requestDTO.getAttributeId();
@@ -81,9 +78,8 @@ public class ProductAttributeServiceImpl implements ProductAttributeService, Cru
         }
 
         ProductAttribute productAttribute = new ProductAttribute(attribute, product);
-        ProductAttribute savedProductAttribute = repo.save(productAttribute);
 
-        return mapper.toResponseDTO(savedProductAttribute);
+        return repo.save(productAttribute);
     }
 
     @Transactional

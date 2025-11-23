@@ -8,8 +8,8 @@ import java.util.List;
 public record ProductAttributePublicResponseDTO(
         Long id,
         Long productId,
+        String productName,
         Long attributeId,
-        String attributeName,
-        List<com.makibeans.dto.attributevalue.AttributeValuePublicResponseDTO> values
+        String attributeName
 ) {}
 
