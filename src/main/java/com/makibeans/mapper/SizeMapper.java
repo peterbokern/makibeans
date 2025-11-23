@@ -12,8 +12,7 @@ import org.mapstruct.*;
  * Mapper for the entity {@link Size}.
  */
 @Mapper(
-        componentModel = "spring",
-        uses = {MappingUtils.class, AuditableMapper.class}
+        componentModel = "spring"
 )
 public interface SizeMapper {
 
@@ -30,7 +29,7 @@ public interface SizeMapper {
     // -------------------------------------------------------------------------
     // Admin DTO mapping (with audit)
     // -------------------------------------------------------------------------
-    @Mapping(target = "audit", expression = "java(AuditableMapper.toAuditableInfo(entity))")
+    @Mapping(target = "audit", expression = "java(com.makibeans.mapper.AuditableMapper.toAuditableInfo(entity))")
     SizeAdminResponseDTO toAdminResponseDTO(Size entity);
 
     // -------------------------------------------------------------------------

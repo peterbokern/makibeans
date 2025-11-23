@@ -1,5 +1,8 @@
-package com.makibeans.model;
+package com.makibeans.product.model;
 
+import com.makibeans.model.Category;
+import com.makibeans.model.ProductAttribute;
+import com.makibeans.model.ProductVariant;
 import com.makibeans.model.audit.Auditable;
 import com.makibeans.util.TextUtils;
 import jakarta.persistence.*;
@@ -7,9 +10,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 /**

@@ -8,24 +8,29 @@ import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-
 public interface UserService extends CrudService<User, Long> {
 
     // Basics
-    UserResponseDTO getById(Long id);
-    Page<UserResponseDTO> search(SearchRequest<UserFilter> request);
-    UserResponseDTO update(Long id, @Valid UserUpdateDTO dto);
+    User getById(Long id);
 
+    Page<User> search(SearchRequest<UserFilter> request);
+
+    User update(Long id, @Valid UserUpdateDTO dto);
 
     // Registration
-    UserResponseDTO registerUser(@Valid UserRequestDTO dto);
-    UserResponseDTO registerAdmin(@Valid UserRequestDTO dto);
+    @Transactional
+    User registerUser(@Valid UserRequestDTO dto);
 
-    // Enable/Disable
+    @Transactional
+    User registerAdmin(@Valid UserRequestDTO dto);
+
+    @Transactional
     void enable(Long id);
+
+    @Transactional
     void disable(Long id);
 
+    // Password management (unfinished but wired)
     @Transactional
     void setPassword(Long userId, @Valid PasswordSetRequestDTO dto);
 
@@ -38,4 +43,7 @@ public interface UserService extends CrudService<User, Long> {
     void resetPasswordConfirm(@Valid PasswordResetConfirmRequestDTO dto);
 
     boolean existsByUsername(String username);
+
+    // Already present in impl; optional to expose:
+    User findByUserName(String username);
 }

@@ -1,6 +1,7 @@
 package com.makibeans.model;
 
 import com.makibeans.model.audit.Auditable;
+import com.makibeans.product.model.Product;
 import com.makibeans.util.TextUtils;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;

@@ -4,16 +4,14 @@ import com.makibeans.dto.attribute.AttributeAdminResponseDTO;
 import com.makibeans.dto.attribute.AttributePublicResponseDTO;
 import com.makibeans.dto.attribute.AttributeResponseDTO;
 import com.makibeans.dto.attribute.AttributeUpdateDTO;
-import com.makibeans.dto.categoryattribute.CategoryAttributeUpdateDTO;
 import com.makibeans.model.Attribute;
-import com.makibeans.model.CategoryAttribute;
 import org.mapstruct.*;
 
 /**
  * Mapper for the entity {@link Attribute} and its DTO {@link AttributeResponseDTO}.
  */
 
-@Mapper(componentModel = "spring", uses = {AuditableMapper.class})
+@Mapper(componentModel = "spring")
 public interface AttributeMapper {
 
     /**
@@ -28,7 +26,7 @@ public interface AttributeMapper {
 
     AttributePublicResponseDTO toPublicResponseDTO(Attribute entity);
 
-    @Mapping(target = "audit", expression = "java(AuditableMapper.toAuditableInfo(entity))")
+    @Mapping(target = "audit", expression = "java(com.makibeans.mapper.AuditableMapper.toAuditableInfo(entity))")
     AttributeAdminResponseDTO toAdminResponseDTO(Attribute entity);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)

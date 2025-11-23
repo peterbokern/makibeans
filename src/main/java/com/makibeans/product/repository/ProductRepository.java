@@ -1,7 +1,6 @@
-package com.makibeans.repository;
+package com.makibeans.product.repository;
 
-import com.makibeans.model.Attribute;
-import com.makibeans.model.Product;
+import com.makibeans.product.model.Product;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -11,7 +10,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Repository interface for managing `Product` entities.

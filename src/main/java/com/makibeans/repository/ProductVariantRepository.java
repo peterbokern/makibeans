@@ -1,6 +1,6 @@
 package com.makibeans.repository;
 
-import com.makibeans.model.Product;
+import com.makibeans.product.model.Product;
 import com.makibeans.model.ProductVariant;
 import com.makibeans.model.Size;
 import jakarta.transaction.Transactional;

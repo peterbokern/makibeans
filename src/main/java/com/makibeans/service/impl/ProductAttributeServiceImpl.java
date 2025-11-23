@@ -1,10 +1,11 @@
 package com.makibeans.service.impl;
 
 import com.makibeans.dto.productattribute.ProductAttributeRequestDTO;
-import com.makibeans.dto.productattribute.ProductAttributeResponseDTO;
 import com.makibeans.exceptions.DuplicateResourceException;
 import com.makibeans.mapper.ProductAttributeMapper;
 import com.makibeans.model.*;
+import com.makibeans.product.model.Product;
+import com.makibeans.product.service.ProductService;
 import com.makibeans.repository.ProductAttributeRepository;
 import com.makibeans.search.SearchRequest;
 import com.makibeans.search.SortResolver;
@@ -20,8 +21,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 
 @Service

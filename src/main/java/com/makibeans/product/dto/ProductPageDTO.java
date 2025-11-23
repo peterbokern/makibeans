@@ -1,4 +1,4 @@
-package com.makibeans.dto.product;
+package com.makibeans.product.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -1,17 +1,17 @@
 /*
 package com.makibeans.service;
 
-import com.makibeans.dto.product.ProductPageDTO;
-import com.makibeans.dto.product.ProductRequestDTO;
-import com.makibeans.dto.product.ProductResponseDTO;
-import com.makibeans.dto.product.ProductUpdateDTO;
+import com.makibeans.product.dto.ProductPageDTO;
+import com.makibeans.product.dto.ProductRequestDTO;
+import com.makibeans.product.dto.ProductResponseDTO;
+import com.makibeans.product.dto.ProductUpdateDTO;
 import com.makibeans.exceptions.DuplicateResourceException;
 import com.makibeans.exceptions.ResourceNotFoundException;
-import com.makibeans.mapper.ProductMapper;
+import com.makibeans.product.mapper.ProductMapper;
 import com.makibeans.model.Category;
-import com.makibeans.model.Product;
+import com.makibeans.product.model.Product;
 import com.makibeans.model.ProductAttribute;
-import com.makibeans.repository.ProductRepository;
+import com.makibeans.product.repository.ProductRepository;
 import com.makibeans.service.impl.AttributeServiceImpl;
 import com.makibeans.util.ImageUtils;
 import org.junit.jupiter.api.AfterEach;

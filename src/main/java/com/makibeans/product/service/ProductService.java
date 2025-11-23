@@ -1,13 +1,13 @@
-package com.makibeans.service.service;
+package com.makibeans.product.service;
 
-import com.makibeans.dto.product.ProductRequestDTO;
-import com.makibeans.dto.product.ProductUpdateDTO;
-import com.makibeans.model.Product;
+import com.makibeans.product.dto.ProductRequestDTO;
+import com.makibeans.product.dto.ProductUpdateDTO;
+import com.makibeans.product.model.Product;
 import com.makibeans.search.SearchRequest;
 import com.makibeans.search.filters.ProductFilter;
+import com.makibeans.service.service.CrudService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface ProductService extends CrudService<Product, Long> {

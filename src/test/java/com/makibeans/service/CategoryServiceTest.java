@@ -10,7 +10,7 @@ import com.makibeans.exceptions.DuplicateResourceException;
 import com.makibeans.exceptions.ResourceNotFoundException;
 import com.makibeans.mapper.CategoryMapper;
 import com.makibeans.model.Category;
-import com.makibeans.model.Product;
+import com.makibeans.product.model.Product;
 import com.makibeans.repository.CategoryRepository;
 import com.makibeans.util.ImageUtils;
 import org.junit.jupiter.api.BeforeEach;

@@ -7,9 +7,7 @@ import com.makibeans.dto.categoryattribute.CategoryAttributeUpdateDTO;
 import com.makibeans.model.CategoryAttribute;
 import org.mapstruct.*;
 
-@Mapper(componentModel = "spring",
-        nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,
-        nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS, uses = AuditableMapper.class)
+@Mapper(componentModel = "spring")
 public interface CategoryAttributeMapper {
 
     @Mapping(source = "category.id", target = "categoryId")
@@ -37,7 +35,7 @@ public interface CategoryAttributeMapper {
     @Mapping(source = "attribute.id",    target = "attributeId")
     @Mapping(source = "attribute.name",  target = "attributeName")
     @Mapping(source = "required",        target = "required")
-    @Mapping(target = "audit", expression = "java(AuditableMapper.toAuditableInfo(categoryAttribute))")
+    @Mapping(target = "audit", expression = "java(com.makibeans.mapper.AuditableMapper.toAuditableInfo(categoryAttribute))")
     CategoryAttributeAdminResponseDTO toAdminResponseDTO(CategoryAttribute categoryAttribute);
 
 

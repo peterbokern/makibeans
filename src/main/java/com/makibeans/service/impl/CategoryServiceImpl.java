@@ -1,7 +1,6 @@
 package com.makibeans.service.impl;
 
 import com.makibeans.dto.category.CategoryRequestDTO;
-import com.makibeans.dto.category.CategoryResponseDTO;
 import com.makibeans.dto.category.CategoryUpdateDTO;
 import com.makibeans.exceptions.*;
 import com.makibeans.mapper.CategoryMapper;
@@ -14,7 +13,7 @@ import com.makibeans.search.filters.CategoryFilter;
 import com.makibeans.service.service.CategoryAttributeService;
 import com.makibeans.service.service.CategoryService;
 import com.makibeans.service.service.CrudService;
-import com.makibeans.service.service.ProductService;
+import com.makibeans.product.service.ProductService;
 import com.makibeans.util.ImageUtils;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;

@@ -1,4 +1,4 @@
-package com.makibeans.dto.product;
+package com.makibeans.product.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

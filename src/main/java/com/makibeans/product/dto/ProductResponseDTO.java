@@ -1,4 +1,4 @@
-package com.makibeans.dto.product;
+package com.makibeans.product.dto;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.makibeans.dto.audit.AuditableResponseDTO;

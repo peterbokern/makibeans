@@ -8,7 +8,7 @@ import com.makibeans.exceptions.DuplicateResourceException;
 import com.makibeans.exceptions.ResourceNotFoundException;
 import com.makibeans.mapper.ProductVariantMapper;
 import com.makibeans.model.Category;
-import com.makibeans.model.Product;
+import com.makibeans.product.model.Product;
 import com.makibeans.model.ProductVariant;
 import com.makibeans.model.Size;
 import com.makibeans.repository.ProductVariantRepository;

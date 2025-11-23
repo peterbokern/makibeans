@@ -1,8 +1,6 @@
 package com.makibeans.config;
 
 import com.makibeans.dto.user.UserRequestDTO;
-import com.makibeans.service.impl.RoleServiceImpl;
-import com.makibeans.service.impl.UserServiceImpl;
 import com.makibeans.service.service.RoleService;
 import com.makibeans.service.service.UserService;
 import org.springframework.boot.CommandLineRunner;
@@ -46,7 +44,7 @@ public class DataInitializer implements CommandLineRunner {
      */
 
     private void initAdmin() {
-        if (!userService.existsByUsername("maki_admin")) {
+        if (userService.existsByUsername("maki_admin")) {
             UserRequestDTO admin = new UserRequestDTO("maki_admin", "maki_admin@makibeans.nl", "maki_admin");
             userService.registerAdmin(admin);
         }
@@ -57,7 +55,7 @@ public class DataInitializer implements CommandLineRunner {
      */
 
     private void initUser() {
-        if (!userService.existsByUsername("regular_user")) {
+        if (userService.existsByUsername("regular_user")) {
             UserRequestDTO user = new UserRequestDTO("regular_user", "regular_user@example.nl", "regular_user");
             userService.registerUser(user);
         }

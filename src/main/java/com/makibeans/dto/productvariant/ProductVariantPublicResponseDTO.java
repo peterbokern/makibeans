@@ -1,14 +1,21 @@
 package com.makibeans.dto.productvariant;
 
+import java.math.BigDecimal;
+
 /**
- * Lean public representation of a product variant used in listings and product detail.
+ * Public view for ProductVariant (no audit).
+ * Fields mirror ProductVariantResponseDTO (adjust if your current DTO differs).
  */
 public record ProductVariantPublicResponseDTO(
         Long id,
         String sku,
-        String name,
-        Double price,
+        String ean,
+        BigDecimal price,
         Integer stock,
-        String imageUrl
+        Boolean active,
+        Boolean defaultVariant,
+        Long productId,
+        String productName,
+        Long sizeId,
+        String sizeName
 ) {}
-

@@ -51,12 +51,12 @@ public class UserServiceImpl implements UserService {
     /* ------------- Reads ------------- */
 
     @Override
-    public UserResponseDTO getById(Long id) {
-        return mapper.toResponseDTO(getOrThrow(id));
+    public User getById(Long id) {
+        return getOrThrow(id);
     }
 
     @Override
-    public Page<UserResponseDTO> search(SearchRequest<UserFilter> req) {
+    public Page<User> search(SearchRequest<UserFilter> req) {
         Specification<User> spec =
                 SpecificationFactory.fromRequest(req, UserFilter.class);
 
@@ -77,38 +77,39 @@ public class UserServiceImpl implements UserService {
                 sort
         );
 
-        return repo.findAll(finalSpec, pageable).map(mapper::toResponseDTO);
+        return repo.findAll(finalSpec, pageable);
     }
+
+
 
     /* ------------- Writes ------------- */
 
-
     @Override
     @Transactional
-    public UserResponseDTO update(Long id, @Valid UserUpdateDTO dto) {
+    public User update(Long id, @Valid UserUpdateDTO dto) {
         User existing = UserService.super.getOrThrow(id);
-        // In-place update (MapStruct @MappingTarget or your mapper impl)
         mapper.updateEntityFromDTO(dto, existing);
-        // No repo.save() needed — managed entity will flush on commit
-        return mapper.toResponseDTO(existing);
+        return existing;
     }
+
+
 
     /* ------------- Registration (via RoleService) ------------- */
 
     @Override
     @Transactional
-    public UserResponseDTO registerUser(@Valid UserRequestDTO dto) {
+    public User registerUser(@Valid UserRequestDTO dto) {
         return registerUserWithRole(dto, "ROLE_USER");
     }
 
     @Override
     @Transactional
-    public UserResponseDTO registerAdmin(@Valid UserRequestDTO dto) {
+    public User registerAdmin(@Valid UserRequestDTO dto) {
         return registerUserWithRole(dto, "ROLE_ADMIN");
     }
 
     @Transactional
-    public UserResponseDTO registerUserWithRole(@Valid UserRequestDTO dto, String roleName) {
+    public User registerUserWithRole(@Valid UserRequestDTO dto, String roleName) {
         // Manual construction (no mapper.toEntity)
         User user = new User();
         user.setUsername(dto.getUsername());
@@ -122,8 +123,7 @@ public class UserServiceImpl implements UserService {
         Role role = roleService.findByName(roleName);
         user.addRole(role); // if you have a convenience method
 
-        User saved = repo.save(user);
-        return mapper.toResponseDTO(saved);
+        return repo.save(user);
     }
 
     /* ------------- Enable / Disable ------------- */
@@ -226,6 +226,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public boolean existsByUsername(String username) {
-        return repo.existsByUsername(username);
+        return !repo.existsByUsername(username);
     }
 }

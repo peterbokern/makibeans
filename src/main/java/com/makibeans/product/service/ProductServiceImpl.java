@@ -1,22 +1,20 @@
-package com.makibeans.service.impl;
+package com.makibeans.product.service;
 
-import com.makibeans.dto.product.ProductRequestDTO;
-import com.makibeans.dto.product.ProductResponseDTO;
-import com.makibeans.dto.product.ProductUpdateDTO;
+import com.makibeans.product.dto.ProductRequestDTO;
+import com.makibeans.product.dto.ProductUpdateDTO;
 import com.makibeans.exceptions.DuplicateResourceException;
 import com.makibeans.exceptions.ImageProcessingException;
 import com.makibeans.exceptions.ResourceNotFoundException;
-import com.makibeans.mapper.ProductMapper;
+import com.makibeans.product.mapper.ProductMapper;
 import com.makibeans.model.Category;
-import com.makibeans.model.Product;
-import com.makibeans.repository.ProductRepository;
+import com.makibeans.product.model.Product;
+import com.makibeans.product.repository.ProductRepository;
 import com.makibeans.search.SearchRequest;
 import com.makibeans.search.SortResolver;
 import com.makibeans.search.SpecificationFactory;
 import com.makibeans.search.filters.ProductFilter;
 import com.makibeans.service.service.CategoryService;
 import com.makibeans.service.service.CrudService;
-import com.makibeans.service.service.ProductService;
 import com.makibeans.util.ImageUtils;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
@@ -33,8 +31,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.*;
-
-import static com.makibeans.util.UpdateUtils.*;
 
 /**
  * Service class for managing Products.

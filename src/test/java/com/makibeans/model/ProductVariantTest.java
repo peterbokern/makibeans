@@ -1,5 +1,6 @@
 package com.makibeans.model;
 
+import com.makibeans.product.model.Product;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

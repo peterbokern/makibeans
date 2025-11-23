@@ -1,12 +1,13 @@
-package com.makibeans.mapper;
+package com.makibeans.product.mapper;
 
-import com.makibeans.dto.attribute.AttributeUpdateDTO;
-import com.makibeans.dto.product.ProductAdminResponseDTO;
-import com.makibeans.dto.product.ProductPublicResponseDTO;
-import com.makibeans.dto.product.ProductResponseDTO;
-import com.makibeans.dto.product.ProductUpdateDTO;
-import com.makibeans.model.Attribute;
-import com.makibeans.model.Product;
+import com.makibeans.mapper.AuditableMapper;
+import com.makibeans.mapper.ProductAttributeMapper;
+import com.makibeans.mapper.ProductVariantMapper;
+import com.makibeans.product.dto.ProductAdminResponseDTO;
+import com.makibeans.product.dto.ProductPublicResponseDTO;
+import com.makibeans.product.dto.ProductResponseDTO;
+import com.makibeans.product.dto.ProductUpdateDTO;
+import com.makibeans.product.model.Product;
 import org.mapstruct.*;
 
 /**
@@ -36,7 +37,7 @@ public interface ProductMapper {
 
     @Mapping(source = "category.name", target = "categoryName")
     @Mapping(source = ".", target = "imageUrl", qualifiedByName = "getImageUrl")
-    @Mapping(target = "audit", expression = "java(AuditableMapper.toAuditableInfo(entity))")
+    @Mapping(target = "audit", expression = "java(com.makibeans.mapper.AuditableMapper.toAuditableInfo(entity))")
     ProductAdminResponseDTO toAdminResponseDTO(Product entity);
 
     @Named("getImageUrl")

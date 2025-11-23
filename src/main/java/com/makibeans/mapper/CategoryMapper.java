@@ -14,7 +14,7 @@ import java.util.List;
  * Mapper for the entity {@link Category} and its DTOs {@link CategoryRequestDTO} and {@link CategoryResponseDTO}.
  */
 
-@Mapper(componentModel = "spring", uses = AuditableMapper.class)
+@Mapper(componentModel = "spring")
 public interface CategoryMapper {
 
     /**
@@ -36,7 +36,7 @@ public interface CategoryMapper {
     @Mapping(target = "breadCrumbs", expression = "java(buildBreadcrumbs(category))")
     @Mapping(source = "parentCategory.id", target = "parentCategoryId")
     @Mapping(source = ".", target = "imageUrl", qualifiedByName = "getImageUrl")
-    @Mapping(target  = "audit", expression = "java(AuditableMapper.toAuditableInfo(category))")
+    @Mapping(target  = "audit", expression = "java(com.makibeans.mapper.AuditableMapper.toAuditableInfo(category))")
     CategoryAdminResponseDTO toAdminResponseDTO(Category category);
 
     /**

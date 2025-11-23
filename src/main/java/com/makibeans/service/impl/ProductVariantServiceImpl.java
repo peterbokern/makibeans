@@ -5,7 +5,7 @@ import com.makibeans.dto.productvariant.ProductVariantResponseDTO;
 import com.makibeans.dto.productvariant.ProductVariantUpdateDTO;
 import com.makibeans.exceptions.DuplicateResourceException;
 import com.makibeans.mapper.ProductVariantMapper;
-import com.makibeans.model.Product;
+import com.makibeans.product.model.Product;
 import com.makibeans.model.ProductVariant;
 import com.makibeans.model.Size;
 import com.makibeans.repository.ProductVariantRepository;
@@ -13,7 +13,7 @@ import com.makibeans.search.SearchRequest;
 import com.makibeans.search.SortResolver;
 import com.makibeans.search.SpecificationFactory;
 import com.makibeans.search.filters.ProductVariantFilter;
-import com.makibeans.service.service.ProductService;
+import com.makibeans.product.service.ProductService;
 import com.makibeans.service.service.ProductVariantService;
 
 import lombok.RequiredArgsConstructor;
@@ -51,12 +51,12 @@ public class ProductVariantServiceImpl implements ProductVariantService {
     }
 
     @Override
-    public ProductVariantResponseDTO getById(Long id) {
-        return mapper.toResponseDTO(getOrThrow(id));
+    public ProductVariant getById(Long id) {
+        return getOrThrow(id);
     }
 
     @Transactional(readOnly = true)
-    public Page<ProductVariantResponseDTO> search(SearchRequest<ProductVariantFilter> req) {
+    public Page<ProductVariant> search(SearchRequest<ProductVariantFilter> req) {
         Specification<ProductVariant> spec =
                 SpecificationFactory.fromRequest(req, ProductVariantFilter.class);
 
@@ -77,13 +77,13 @@ public class ProductVariantServiceImpl implements ProductVariantService {
                 sort
         );
 
-        return repo.findAll(finalSpec, pageable).map(mapper::toResponseDTO);
+        return repo.findAll(finalSpec, pageable);
     }
 
 
     @Override
     @Transactional
-    public ProductVariantResponseDTO create(ProductVariantRequestDTO dto) {
+    public ProductVariant create(ProductVariantRequestDTO dto) {
 
         Product product = productService.getOrThrow(dto.getProductId());
         Size size = sizeService.getOrThrow(dto.getSizeId());
@@ -98,23 +98,20 @@ public class ProductVariantServiceImpl implements ProductVariantService {
                 .sku(generateSkuValue(product, size))
                 .build();
 
-        ProductVariant saved = repo.save(productVariant);
-        return mapper.toResponseDTO(saved);
+        return repo.save(productVariant);
     }
 
     @Override
     @Transactional
-    public ProductVariantResponseDTO update(Long id, ProductVariantUpdateDTO dto) {
+    public ProductVariant update(Long id, ProductVariantUpdateDTO dto) {
         ProductVariant productVariant = getOrThrow(id);
 
         mapper.updateEntityFromDTO(dto, productVariant);
 
-        return mapper.toResponseDTO(productVariant);
+        return productVariant;
     }
 
     // -------- Convenience ops --------
-
-
 
     @Override
     @Transactional

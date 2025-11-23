@@ -1,12 +1,12 @@
-package com.makibeans.controller.pub;
+package com.makibeans.product.controller.pub;
 
-import com.makibeans.dto.product.ProductPublicResponseDTO;
-import com.makibeans.mapper.ProductMapper;
-import com.makibeans.model.Product;
+import com.makibeans.product.dto.ProductPublicResponseDTO;
+import com.makibeans.product.mapper.ProductMapper;
+import com.makibeans.product.model.Product;
 import com.makibeans.search.SearchRequest;
 import com.makibeans.search.filters.ProductFilter;
 import com.makibeans.search.utils.SearchRequestUtils;
-import com.makibeans.service.service.ProductService;
+import com.makibeans.product.service.ProductService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;

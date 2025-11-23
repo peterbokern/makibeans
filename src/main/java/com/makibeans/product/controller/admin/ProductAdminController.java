@@ -1,14 +1,14 @@
-package com.makibeans.controller.admin;
+package com.makibeans.product.controller.admin;
 
-import com.makibeans.dto.product.ProductAdminResponseDTO;
-import com.makibeans.dto.product.ProductRequestDTO;
-import com.makibeans.dto.product.ProductUpdateDTO;
-import com.makibeans.mapper.ProductMapper;
-import com.makibeans.model.Product;
+import com.makibeans.product.dto.ProductAdminResponseDTO;
+import com.makibeans.product.dto.ProductRequestDTO;
+import com.makibeans.product.dto.ProductUpdateDTO;
+import com.makibeans.product.mapper.ProductMapper;
+import com.makibeans.product.model.Product;
 import com.makibeans.search.SearchRequest;
 import com.makibeans.search.filters.ProductFilter;
 import com.makibeans.search.utils.SearchRequestUtils;
-import com.makibeans.service.service.ProductService;
+import com.makibeans.product.service.ProductService;
 import com.makibeans.exceptions.ImageProcessingException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

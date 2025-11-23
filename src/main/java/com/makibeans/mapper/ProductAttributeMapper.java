@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
  * Mapper for the entity {@link ProductAttribute} and its DTO {@link ProductAttributeResponseDTO}.
  */
 
-@Mapper(componentModel = "spring", uses =AuditableMapper.class)
+@Mapper(componentModel = "spring")
 public interface ProductAttributeMapper {
 
     @Mapping(source = "product.id", target = "productId")
@@ -39,7 +39,7 @@ public interface ProductAttributeMapper {
     @Mapping(source = "product.name",   target = "productName")
     @Mapping(source = "attribute.id",   target = "attributeId")
     @Mapping(source = "attribute.name", target = "attributeName")
-    @Mapping(target = "audit", expression = "java(AuditableMapper.toAuditableInfo(productAttribute))")
+    @Mapping(target = "audit", expression = "java(com.makibeans.mapper.AuditableMapper.toAuditableInfo(productAttribute))")
     ProductAttributeAdminResponseDTO toAdminResponseDTO(ProductAttribute productAttribute);
 
 

@@ -36,6 +36,6 @@ public interface ProductAttributeValueMapper {
     @Mapping(source = "productAttribute.attribute.name",  target = "attributeName")
     @Mapping(source = "attributeValue.id",                target = "attributeValueId")
     @Mapping(source = "attributeValue.value",             target = "value")
-    @Mapping(target = "audit", expression = "java(AuditableMapper.toAuditableInfo(entity))")
+    @Mapping(target = "audit", expression = "java(com.makibeans.mapper.AuditableMapper.toAuditableInfo(entity))")
     ProductAttributeValueAdminResponseDTO toAdminResponseDTO(ProductAttributeValue entity);
 }

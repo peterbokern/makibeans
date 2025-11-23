@@ -1,30 +1,51 @@
 package com.makibeans.mapper;
 
-import com.makibeans.dto.attribute.AttributeUpdateDTO;
+import com.makibeans.dto.productvariant.ProductVariantAdminResponseDTO;
+import com.makibeans.dto.productvariant.ProductVariantPublicResponseDTO;
 import com.makibeans.dto.productvariant.ProductVariantResponseDTO;
 import com.makibeans.dto.productvariant.ProductVariantUpdateDTO;
-import com.makibeans.model.Attribute;
 import com.makibeans.model.ProductVariant;
 import org.mapstruct.*;
 
 /**
- * Mapper for the entity {@link ProductVariant} and its DTO {@link ProductVariantResponseDTO}.
+ * Mapper for {@link ProductVariant}.
  */
-
-@Mapper(componentModel = "spring", uses = {AttributeValueMapper.class, SizeMapper.class})
+@Mapper(
+        componentModel = "spring"
+)
 public interface ProductVariantMapper {
 
-    /**
-     * Converts a ProductVariant entity to a ProductVariantResponseDTO.
-     *
-     * @param entity the ProductVariant entity to convert
-     * @return the converted ProductVariantResponseDTO
-     */
-
-    @Mapping(source = "size.id", target = "sizeId")
-    @Mapping(source = "size.name", target = "sizeName")
+    // -------------------------------------------------------------------------
+    // Legacy/general DTO (keep temporarily)
+    // -------------------------------------------------------------------------
     ProductVariantResponseDTO toResponseDTO(ProductVariant entity);
 
+    // -------------------------------------------------------------------------
+    // Public DTO
+    // -------------------------------------------------------------------------
+
+    @Mapping(source = "product.id",        target = "productId")
+    @Mapping(source = "product.name",      target = "productName")
+    @Mapping(source = "size.id",           target = "sizeId")
+    @Mapping(source = "size.name",         target = "sizeName")
+    ProductVariantPublicResponseDTO toPublicResponseDTO(ProductVariant entity);
+
+    // -------------------------------------------------------------------------
+    // Admin DTO (with audit)
+    // -------------------------------------------------------------------------
+
+    @Mapping(source = "product.id",        target = "productId")
+    @Mapping(source = "product.name",      target = "productName")
+    @Mapping(source = "size.id",           target = "sizeId")
+    @Mapping(source = "size.name",         target = "sizeName")
+    @Mapping(target = "audit", expression = "java(com.makibeans.mapper.AuditableMapper.toAuditableInfo(entity))")
+    ProductVariantAdminResponseDTO toAdminResponseDTO(ProductVariant entity);
+
+    // -------------------------------------------------------------------------
+    // Update from DTO
+    // -------------------------------------------------------------------------
+
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    void updateEntityFromDTO(ProductVariantUpdateDTO updateDTO, @MappingTarget ProductVariant productVariant);
+    void updateEntityFromDTO(ProductVariantUpdateDTO dto,
+                             @MappingTarget ProductVariant entity);
 }
