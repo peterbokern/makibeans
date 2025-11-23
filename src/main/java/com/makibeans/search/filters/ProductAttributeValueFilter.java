@@ -15,17 +15,17 @@ public class ProductAttributeValueFilter {
 
     // ----- Identity -----
     @JsonFormat(with = JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
-    @Filter(path = "id", type = {Filter.Operation.EQ, Filter.Operation.IN}, sortable = true, filterable = true)
+    @Filter(path = "id", type = {Filter.Operation.IN}, sortable = true, filterable = true)
     private List<@Positive Long> id;
 
     // ----- Link owner (ProductAttribute) -----
     @JsonFormat(with = JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
-    @Filter(path = "productAttribute.id", type = {Filter.Operation.EQ, Filter.Operation.IN}, sortable = true, filterable = true)
+    @Filter(path = "productAttribute.id", type = {Filter.Operation.IN}, sortable = true, filterable = true)
     private List<@Positive Long> productAttributeId;
 
     // Product info via productAttribute.product
     @JsonFormat(with = JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
-    @Filter(path = "productAttribute.product.id", type = {Filter.Operation.EQ, Filter.Operation.IN}, sortable = true, filterable = true)
+    @Filter(path = "productAttribute.product.id", type = {Filter.Operation.IN}, sortable = true, filterable = true)
     private List<@Positive Long> productId;
 
     @Filter(path = "productAttribute.product.name", type = {Filter.Operation.LIKE, Filter.Operation.EQ}, sortable = true, filterable = true)
