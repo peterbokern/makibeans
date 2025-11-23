@@ -1,32 +1,41 @@
 package com.makibeans.mapper;
 
-import com.makibeans.dto.productvariant.ProductVariantUpdateDTO;
+import com.makibeans.dto.size.SizeAdminResponseDTO;
+import com.makibeans.dto.size.SizePublicResponseDTO;
 import com.makibeans.dto.size.SizeResponseDTO;
 import com.makibeans.dto.size.SizeUpdateDTO;
-import com.makibeans.model.ProductVariant;
 import com.makibeans.model.Size;
 import com.makibeans.util.MappingUtils;
-import org.mapstruct.BeanMapping;
-import org.mapstruct.Mapper;
-import org.mapstruct.MappingTarget;
-import org.mapstruct.NullValuePropertyMappingStrategy;
+import org.mapstruct.*;
 
 /**
- * Mapper for the entity {@link Size} and its DTO {@link SizeResponseDTO}.
+ * Mapper for the entity {@link Size}.
  */
-
-@Mapper(componentModel = "spring", uses = MappingUtils.class)
+@Mapper(
+        componentModel = "spring",
+        uses = {MappingUtils.class, AuditableMapper.class}
+)
 public interface SizeMapper {
 
-    /**
-     * Converts a Size entity to a SizeResponseDTO.
-     *
-     * @param entity the Size entity to convert
-     * @return the converted SizeResponseDTO
-     */
-
+    // -------------------------------------------------------------------------
+    // Legacy/general DTO – keep temporarily if still used anywhere
+    // -------------------------------------------------------------------------
     SizeResponseDTO toResponseDTO(Size entity);
 
+    // -------------------------------------------------------------------------
+    // Public DTO mapping
+    // -------------------------------------------------------------------------
+    SizePublicResponseDTO toPublicResponseDTO(Size entity);
+
+    // -------------------------------------------------------------------------
+    // Admin DTO mapping (with audit)
+    // -------------------------------------------------------------------------
+    @Mapping(target = "audit", expression = "java(AuditableMapper.toAuditableInfo(entity))")
+    SizeAdminResponseDTO toAdminResponseDTO(Size entity);
+
+    // -------------------------------------------------------------------------
+    // Update from DTO
+    // -------------------------------------------------------------------------
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateEntityFromDTO(SizeUpdateDTO updateDTO, @MappingTarget Size size);
 }

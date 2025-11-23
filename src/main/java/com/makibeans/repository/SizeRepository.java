@@ -23,4 +23,5 @@ public interface SizeRepository extends JpaRepository<Size, Long> {
 
     Page<Size> findAll(Specification<Size> spec, Pageable pageable);
 
+    boolean existsByNameAndIdNot(String name, Long id);
 }

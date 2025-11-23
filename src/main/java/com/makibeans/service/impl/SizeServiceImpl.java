@@ -1,7 +1,6 @@
 package com.makibeans.service.impl;
 
 import com.makibeans.dto.size.SizeRequestDTO;
-import com.makibeans.dto.size.SizeResponseDTO;
 import com.makibeans.dto.size.SizeUpdateDTO;
 import com.makibeans.exceptions.DuplicateResourceException;
 import com.makibeans.mapper.SizeMapper;
@@ -12,85 +11,101 @@ import com.makibeans.search.SortResolver;
 import com.makibeans.search.SpecificationFactory;
 import com.makibeans.search.filters.SizeFilter;
 import com.makibeans.service.service.SizeService;
-import com.makibeans.util.TextUtils;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Objects;
-
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
+@Transactional
 public class SizeServiceImpl implements SizeService {
 
     private final SizeRepository repo;
     private final SizeMapper mapper;
 
+    // -------------------------------------------------------------------------
+    // CrudService adapter
+    // -------------------------------------------------------------------------
     @Override
     public JpaRepository<Size, Long> repo() {
         return repo;
     }
 
+    // -------------------------------------------------------------------------
+    // READ
+    // -------------------------------------------------------------------------
     @Override
-    public String entityName() {return "Size";}
-
-    @Override
-    public SizeResponseDTO getById(Long id) {
-        return mapper.toResponseDTO(this.getOrThrow(id));
+    @Transactional(readOnly = true)
+    public Size getById(Long id) {
+        return getOrThrow(id);
     }
 
+    @Override
     @Transactional(readOnly = true)
-    public Page<SizeResponseDTO> search(SearchRequest<SizeFilter> req) {
-        Specification<Size> spec =
-                SpecificationFactory.fromRequest(req, SizeFilter.class);
+    public Page<Size> search(SearchRequest<SizeFilter> request) {
+        Specification<Size> spec = SpecificationFactory.fromRequest(request, SizeFilter.class);
 
         Sort sort = new SortResolver(SizeFilter.class)
-                .resolve(req.getSortBy(), req.getSortDirection());
-
-        Specification<Size> distinctSpec = (root, query, cb) -> {
-            Objects.requireNonNull(query, "CriteriaQuery must not be null");
-            query.distinct(true);
-            return null;
-        };
-
-        Specification<Size> finalSpec = (spec == null) ? distinctSpec : spec.and(distinctSpec);
+                .resolve(request.getSortBy(), request.getSortDirection());
 
         Pageable pageable = PageRequest.of(
-                req.getPage() != null ? req.getPage() : 0,
-                req.getSize() != null ? req.getSize() : 20,
+                request.getPage() != null ? request.getPage() : 0,
+                request.getSize() != null ? request.getSize() : 20,
                 sort
         );
 
-        return repo.findAll(finalSpec, pageable).map(mapper::toResponseDTO);
+        return repo.findAll(spec, pageable);
     }
 
+    // -------------------------------------------------------------------------
+    // CREATE / UPDATE
+    // -------------------------------------------------------------------------
     @Override
     @Transactional
-    public SizeResponseDTO create(SizeRequestDTO dto) {
+    public Size create(SizeRequestDTO dto) {
+        String name = dto.getName();
+
+        validateUniqueName(name);
         Size size = new Size();
-        size.setName(dto.getName());
-        Size saved = repo.save(size);
-        return mapper.toResponseDTO(saved);
+        size.setName(name);
+
+        return repo.save(size);
     }
+
 
     @Override
     @Transactional
-    public SizeResponseDTO update(Long id, SizeUpdateDTO dto) {
+    public Size update(Long id, SizeUpdateDTO dto) {
         Size size = getOrThrow(id);
+
+        validateUniqueNameAndIdNot(dto.getName(), id);
+
         mapper.updateEntityFromDTO(dto, size);
-        return mapper.toResponseDTO(size);
+
+        return size;
     }
 
+    private void validateUniqueNameAndIdNot(String name, Long id) {
+        if (repo.existsByNameAndIdNot(name, id)) {
+            throw new DuplicateResourceException("Size with name '" + name + "' already exists.");
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // OTHER
+    // -------------------------------------------------------------------------
     @Override
     public boolean existsByName(String name) {
         return repo.existsByNameIgnoreCase(name);
     }
 
+
+    private void validateUniqueName(String name) {
+        if (existsByName(name)) {
+            throw new DuplicateResourceException("Size with name '" + name + "' already exists.");
+        }
+    }
 }

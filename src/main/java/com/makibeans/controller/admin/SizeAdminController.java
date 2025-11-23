@@ -1,0 +1,113 @@
+package com.makibeans.controller.admin;
+
+import com.makibeans.dto.size.SizeAdminResponseDTO;
+import com.makibeans.dto.size.SizeRequestDTO;
+import com.makibeans.dto.size.SizeUpdateDTO;
+import com.makibeans.mapper.SizeMapper;
+import com.makibeans.model.Size;
+import com.makibeans.search.SearchRequest;
+import com.makibeans.search.filters.SizeFilter;
+import com.makibeans.search.utils.SearchRequestUtils;
+import com.makibeans.service.service.SizeService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.*;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.http.*;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/admin/sizes")
+@RequiredArgsConstructor
+@Tag(name = "Sizes (Admin)", description = "Admin operations for managing sizes")
+@PreAuthorize("hasRole('ADMIN')")
+public class SizeAdminController {
+
+    private final SizeService service;
+    private final SizeMapper mapper;
+
+    // -------------------------------------------------------------------------
+    // READ
+    // -------------------------------------------------------------------------
+    @GetMapping("/{id}")
+    @Operation(summary = "Admin: Get size by id")
+    public ResponseEntity<SizeAdminResponseDTO> getById(@PathVariable Long id) {
+        Size size = service.getById(id);
+        return ResponseEntity.ok(mapper.toAdminResponseDTO(size));
+    }
+
+    @GetMapping
+    @Operation(
+            summary = "Admin: Get sizes (paged)",
+            description = "Search/sort/paginate sizes using query parameters."
+    )
+    public ResponseEntity<Page<SizeAdminResponseDTO>> getAll(
+            @Valid @ModelAttribute SizeFilter filters,
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false, defaultValue = "false") Boolean includeDeleted,
+            @PageableDefault(size = 20, sort = "id") Pageable pageable
+    ) {
+        SearchRequest<SizeFilter> req =
+                SearchRequestUtils.assemble(filters, search, includeDeleted, pageable);
+
+        Page<Size> page = service.search(req);
+        Page<SizeAdminResponseDTO> result = page.map(mapper::toAdminResponseDTO);
+
+        return ResponseEntity.ok(result);
+    }
+
+    @PostMapping("/search")
+    @Operation(
+            summary = "Admin: Search sizes (POST)",
+            description = "Same as GET but accepts a JSON body for complex filters."
+    )
+    public ResponseEntity<Page<SizeAdminResponseDTO>> search(
+            @Valid @RequestBody SearchRequest<SizeFilter> request,
+            @PageableDefault(size = 20, sort = "id") Pageable pageable
+    ) {
+        SearchRequest<SizeFilter> merged =
+                SearchRequestUtils.mergeWithPageable(request, pageable);
+
+        Page<Size> page = service.search(merged);
+        Page<SizeAdminResponseDTO> result = page.map(mapper::toAdminResponseDTO);
+
+        return ResponseEntity.ok(result);
+    }
+
+    // -------------------------------------------------------------------------
+    // CREATE / UPDATE
+    // -------------------------------------------------------------------------
+    @PostMapping
+    @Operation(summary = "Admin: Create size")
+    public ResponseEntity<SizeAdminResponseDTO> create(
+            @Valid @RequestBody SizeRequestDTO body
+    ) {
+        Size created = service.create(body);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(mapper.toAdminResponseDTO(created));
+    }
+
+    @PutMapping("/{id}")
+    @Operation(summary = "Admin: Update size")
+    public ResponseEntity<SizeAdminResponseDTO> update(
+            @PathVariable Long id,
+            @Valid @RequestBody SizeUpdateDTO body
+    ) {
+        Size updated = service.update(id, body);
+        return ResponseEntity.ok(mapper.toAdminResponseDTO(updated));
+    }
+
+    // -------------------------------------------------------------------------
+    // DELETE
+    // -------------------------------------------------------------------------
+    @DeleteMapping("/{id}")
+    @Operation(summary = "Admin: Delete size")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        service.delete(id);
+        return ResponseEntity.noContent().build();
+    }
+}
