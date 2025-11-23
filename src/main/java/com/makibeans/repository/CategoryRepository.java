@@ -42,7 +42,6 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
 
     List<Category> findByParentCategoryId(Long parentCategoryId);
 
-    @EntityGraph(attributePaths = {"category"})// Eagerly load associated attribute and category improves performance by reducing the number of queries
     Page<Category> findAll(Specification<Category> spec, Pageable pageable);
 
 

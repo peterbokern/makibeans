@@ -6,7 +6,9 @@ package com.makibeans.dto.categoryattribute;
 public record CategoryAttributePublicResponseDTO(
         Long id,
         Long categoryId,
+        String categoryName,
         Long attributeId,
-        String attributeName
+        String attributeName,
+        Boolean required
 ) {}
 

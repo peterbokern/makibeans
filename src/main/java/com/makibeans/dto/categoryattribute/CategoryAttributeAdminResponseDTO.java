@@ -8,7 +8,9 @@ import com.makibeans.dto.audit.AuditableInfo;
 public record CategoryAttributeAdminResponseDTO(
         Long id,
         Long categoryId,
+        String categoryName,
         Long attributeId,
         String attributeName,
+        Boolean required,
         AuditableInfo audit
 ) {}

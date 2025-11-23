@@ -6,6 +6,7 @@ package com.makibeans.dto.attributevalue;
 public record AttributeValuePublicResponseDTO(
         Long id,
         Long attributeId,
+        String attributeName,
         String value
 ) {}
 

@@ -1,7 +1,6 @@
 package com.makibeans.service.impl;
 
 import com.makibeans.dto.attributevalue.AttributeValueRequestDTO;
-import com.makibeans.dto.attributevalue.AttributeValueResponseDTO;
 import com.makibeans.dto.attributevalue.AttributeValueUpdateDTO;
 import com.makibeans.exceptions.DuplicateResourceException;
 import com.makibeans.exceptions.ResourceInUseException;
@@ -18,7 +17,6 @@ import com.makibeans.service.service.AttributeService;
 import com.makibeans.service.service.AttributeValueService;
 import com.makibeans.service.service.CrudService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -60,13 +58,12 @@ public class AttributeValueServiceImpl implements CrudService<AttributeValue, Lo
     }
 
     @Transactional(readOnly = true)
-    public AttributeValueResponseDTO getById(Long id) {
-        AttributeValue attributeValue = getOrThrow(id);
-        return mapper.toResponseDTO(attributeValue);
+    public AttributeValue getById(Long id) {
+        return getOrThrow(id);
     }
 
     @Transactional
-    public Page<AttributeValueResponseDTO> search(SearchRequest<AttributeValueFilter> req) {
+    public Page<AttributeValue> search(SearchRequest<AttributeValueFilter> req) {
         Specification<AttributeValue> spec =
                 SpecificationFactory.fromRequest(req, AttributeValueFilter.class);
 
@@ -79,11 +76,11 @@ public class AttributeValueServiceImpl implements CrudService<AttributeValue, Lo
                 sort
         );
 
-        return repo.findAll(spec, pageable).map(mapper::toResponseDTO);
+        return repo.findAll(spec, pageable);
     }
 
     @Transactional
-    public AttributeValueResponseDTO create(AttributeValueRequestDTO requestDTO) {
+    public AttributeValue create(AttributeValueRequestDTO requestDTO) {
         Attribute attribute = attributeService.getOrThrow(requestDTO.getAttributeId());
 
         String normalizedValue = normalize(requestDTO.getValue());
@@ -94,33 +91,22 @@ public class AttributeValueServiceImpl implements CrudService<AttributeValue, Lo
 
         attributeValue.setAttribute(attribute);
 
-        AttributeValue savedAttributeValue = repo.save(attributeValue);
-
-        return mapper.toResponseDTO(savedAttributeValue);
+        return repo.save(attributeValue);
     }
 
     @Transactional
-    public AttributeValueResponseDTO update(Long id, AttributeValueUpdateDTO updateDTO) {
+    public AttributeValue update(Long id, AttributeValueUpdateDTO updateDTO) {
         AttributeValue attributeValue = getOrThrow(id);
 
-        String oldName = normalize(attributeValue.getValue());
+        String newValue = updateDTO.getValue();
+
+        if (newValue != null && !newValue.equals(attributeValue.getValue())) {
+            asserUniqueValueAndAttributeIdAndIdNot(newValue, attributeValue.getAttribute().getId(), attributeValue.getId());
+        }
 
         mapper.updateEntityFromDTO(updateDTO, attributeValue);
 
-        String newName = normalize(attributeValue.getValue());
-
-        if (hasChanged(oldName, newName)) {
-            asserUniqueValueAndAttributeIdAndIdNot(newName, attributeValue.getAttribute().getId(), attributeValue.getId());
-            attributeValue.setValue(newName);
-        }
-
-        try {
-            repo.flush(); // surface DB unique index violations here
-        } catch (DataIntegrityViolationException ex) {
-            throw new DuplicateResourceException("Attribute value already exists.");
-        }
-
-        return mapper.toResponseDTO(attributeValue);
+        return attributeValue;
     }
 
 
@@ -147,6 +133,5 @@ public class AttributeValueServiceImpl implements CrudService<AttributeValue, Lo
             throw new DuplicateResourceException(
                     "Value '" + name + "' already exists for attribute with id '" + attributeId + "'.");
         }
-
     }
 }

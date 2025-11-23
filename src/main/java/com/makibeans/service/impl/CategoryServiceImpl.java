@@ -76,15 +76,14 @@ public class CategoryServiceImpl implements CategoryService, CrudService<Categor
      */
 
     @Transactional(readOnly = true)
-    public CategoryResponseDTO getById(Long id) {
-        Category category = getOrThrow(id);
-        return mapper.toResponseDTO(category);
+    public Category getById(Long id) {
+        return getOrThrow(id);
     }
 
 
     @Override
     @Transactional(readOnly = true)
-    public Page<CategoryResponseDTO> search(SearchRequest<CategoryFilter> req) {
+    public Page<Category> search(SearchRequest<CategoryFilter> req) {
         Specification<Category> spec =
                 SpecificationFactory.fromRequest(req, CategoryFilter.class);
 
@@ -97,7 +96,7 @@ public class CategoryServiceImpl implements CategoryService, CrudService<Categor
                 sort
         );
 
-        return repo.findAll(spec, pageable).map(mapper::toResponseDTO);
+        return repo.findAll(spec, pageable);
     }
 
 
@@ -111,7 +110,7 @@ public class CategoryServiceImpl implements CategoryService, CrudService<Categor
      */
 
     @Transactional
-    public CategoryResponseDTO create(CategoryRequestDTO requestDTO) {
+    public Category create(CategoryRequestDTO requestDTO) {
 
         Long parentCategoryId = requestDTO.getParentCategoryId();
         String normalizedCategoryName = normalize(requestDTO.getName());
@@ -136,9 +135,7 @@ public class CategoryServiceImpl implements CategoryService, CrudService<Categor
             parentCategory.getSubCategories().add(category);
         }
 
-        Category createdCategory = repo.save(category);
-
-        return mapper.toResponseDTO(createdCategory);
+        return repo.save(category);
     }
 
     /**
@@ -167,13 +164,13 @@ public class CategoryServiceImpl implements CategoryService, CrudService<Categor
 
     @Override
     @Transactional
-    public CategoryResponseDTO update(Long id, @Valid CategoryUpdateDTO updateDTO) {
+    public Category update(Long id, @Valid CategoryUpdateDTO updateDTO) {
 
         Category category = getOrThrow(id);
 
         mapper.updateEntityFromDTO(updateDTO, category);
 
-        return mapper.toResponseDTO(category);
+        return  category;
     }
 
     /**
@@ -186,11 +183,11 @@ public class CategoryServiceImpl implements CategoryService, CrudService<Categor
      */
 
     @Transactional
-    public CategoryResponseDTO uploadCategoryImage(Long categoryId, MultipartFile image) {
+    public Category uploadCategoryImage(Long categoryId, MultipartFile image) {
         Category category = getOrThrow(categoryId);
         byte[] imageBytes = imageUtils.validateAndExtractImageBytes(image);
         category.setImage(imageBytes);
-        return mapper.toResponseDTO(category);
+        return category;
     }
 
     /**

@@ -1,12 +1,18 @@
 package com.makibeans.dto.category;
 
+import java.util.List;
+
 /**
  * Lean public DTO for Category used in listings.
  */
 public record CategoryPublicResponseDTO(
         Long id,
         String name,
-        String slug,
-        Long parentId
+        String description,
+        String imageUrl,
+        Long parentCategoryId,
+
+        List<CategoryPublicResponseDTO> subCategories,
+        List<BreadCrumbDTO> breadCrumbs
 ) {}
 

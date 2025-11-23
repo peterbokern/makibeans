@@ -14,22 +14,22 @@ ALTER TABLE attributes ALTER COLUMN is_deleted SET NOT NULL;
 -- ============================
 -- Seed initial categories
 -- ============================
-INSERT INTO categories (id, name, description, created_at, updated_at, created_by, updated_by)
+INSERT INTO categories (name, description, created_at, updated_at, created_by, updated_by)
 VALUES
-    (1, 'Coffee Beans', 'All roasted coffee bean products.', NOW(), NOW(), 'system', 'system'),
-    (2, 'Coffee Machines', 'Espresso and filter coffee machines.', NOW(), NOW(), 'system', 'system'),
-    (3, 'Accessories', 'Cups, filters, and other accessories.', NOW(), NOW(), 'system', 'system'),
-    (4, 'Pods & Capsules', 'Coffee pods and compatible capsules.', NOW(), NOW(), 'system', 'system');
+    ('Coffee Beans', 'All roasted coffee bean products.', NOW(), NOW(), 'system', 'system'),
+    ('Coffee Machines', 'Espresso and filter coffee machines.', NOW(), NOW(), 'system', 'system'),
+    ('Accessories', 'Cups, filters, and other accessories.', NOW(), NOW(), 'system', 'system'),
+    ('Pods & Capsules', 'Coffee pods and compatible capsules.', NOW(), NOW(), 'system', 'system');
 
 -- ============================
 -- Seed global attributes
 -- ============================
-INSERT INTO attributes (id, name, description, created_at, updated_at, created_by, updated_by)
+INSERT INTO attributes (name, created_at, updated_at, created_by, updated_by)
 VALUES
-    (1, 'Origin', 'Country or region where the coffee beans were grown.', NOW(), NOW(), 'system', 'system'),
-    (2, 'Roast Level', 'Indicates how dark the beans were roasted.', NOW(), NOW(), 'system', 'system'),
-    (3, 'Flavor Notes', 'Common flavor notes such as chocolate, citrus, or nutty.', NOW(), NOW(), 'system', 'system'),
-    (4, 'Grind Size', 'Fine, medium, or coarse grind specification.', NOW(), NOW(), 'system', 'system'),
-    (5, 'Brand', 'Manufacturer or brand name.', NOW(), NOW(), 'system', 'system'),
-    (6, 'Color', 'Primary product color (for machines/accessories).', NOW(), NOW(), 'system', 'system'),
-    (7, 'Material', 'Main material composition (plastic, metal, glass).', NOW(), NOW(), 'system', 'system');
+    ('Origin', NOW(), NOW(), 'system', 'system'),
+    ('Roast Level', NOW(), NOW(), 'system', 'system'),
+    ('Flavor Notes', NOW(), NOW(), 'system', 'system'),
+    ('Grind Size', NOW(), NOW(), 'system', 'system'),
+    ('Brand', NOW(), NOW(), 'system', 'system'),
+    ('Color', NOW(), NOW(), 'system', 'system'),
+    ('Material', NOW(), NOW(), 'system', 'system');

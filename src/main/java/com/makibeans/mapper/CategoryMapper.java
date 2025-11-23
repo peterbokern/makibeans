@@ -1,9 +1,6 @@
 package com.makibeans.mapper;
 
-import com.makibeans.dto.category.BreadCrumbDTO;
-import com.makibeans.dto.category.CategoryRequestDTO;
-import com.makibeans.dto.category.CategoryResponseDTO;
-import com.makibeans.dto.category.CategoryUpdateDTO;
+import com.makibeans.dto.category.*;
 import com.makibeans.dto.categoryattribute.CategoryAttributeUpdateDTO;
 import com.makibeans.model.Category;
 import com.makibeans.model.CategoryAttribute;
@@ -17,7 +14,7 @@ import java.util.List;
  * Mapper for the entity {@link Category} and its DTOs {@link CategoryRequestDTO} and {@link CategoryResponseDTO}.
  */
 
-@Mapper(componentModel = "spring", uses = MappingUtils.class)
+@Mapper(componentModel = "spring", uses = AuditableMapper.class)
 public interface CategoryMapper {
 
     /**
@@ -29,10 +26,18 @@ public interface CategoryMapper {
 
     @Mapping(source = "category.id", target = "id")
     @Mapping(source = "subCategories", target = "subCategories")
-    @Mapping(target = "breadCrumbs", ignore = true)
+    @Mapping(target = "breadCrumbs", expression = "java(buildBreadcrumbs(category))")
     @Mapping(source = "parentCategory.id", target = "parentCategoryId")
     @Mapping(source = ".", target = "imageUrl", qualifiedByName = "getImageUrl")
-    CategoryResponseDTO toResponseDTO(Category category);
+    CategoryPublicResponseDTO toPublicResponseDTO(Category category);
+
+    @Mapping(source = "category.id", target = "id")
+    @Mapping(source = "subCategories", target = "subCategories")
+    @Mapping(target = "breadCrumbs", expression = "java(buildBreadcrumbs(category))")
+    @Mapping(source = "parentCategory.id", target = "parentCategoryId")
+    @Mapping(source = ".", target = "imageUrl", qualifiedByName = "getImageUrl")
+    @Mapping(target  = "audit", expression = "java(AuditableMapper.toAuditableInfo(category))")
+    CategoryAdminResponseDTO toAdminResponseDTO(Category category);
 
     /**
      * Returns the image URL of the given product.
@@ -62,18 +67,6 @@ public interface CategoryMapper {
      * The breadcrumbs represent the hierarchy of parent categories.
      *
      * @param category the category for which to register breadcrumbs
-     */
-
-    @AfterMapping
-    default void setBreadcrumbs(@MappingTarget CategoryResponseDTO dto, Category category) {
-        dto.setBreadCrumbs(buildBreadcrumbs(category));
-    }
-
-    /**
-     * Builds a list of breadcrumbs for the given category.
-     * The breadcrumbs represent the hierarchy of parent categories.
-     *
-     * @param category the category for which to register breadcrumbs
      * @return a list of BreadCrumbDTOs representing the breadcrumb trail
      */
 
@@ -82,7 +75,8 @@ public interface CategoryMapper {
         Category current = category.getParentCategory();
 
         while (current != null) {
-            breadcrumbs.add(0, new BreadCrumbDTO(current.getId(), current.getName())); // Add at index 0 for correct order
+            breadcrumbs.addFirst(new BreadCrumbDTO(current.getId(), current.getName())); // Add at index 0 for correct order
+            breadcrumbs.add( new BreadCrumbDTO(category.getId(), category.getName()));
             current = current.getParentCategory();
         }
 

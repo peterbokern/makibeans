@@ -22,16 +22,16 @@ import org.springframework.web.multipart.MultipartFile;
 public interface CategoryService extends CrudService<Category, Long> {
 
 
-    Page<CategoryResponseDTO> search(SearchRequest<CategoryFilter> req);
 
-    /** Return DTO for a single Category. */
-    CategoryResponseDTO getById(Long id);
+    Category getById(Long id);
 
-    CategoryResponseDTO create(CategoryRequestDTO body);
+    Page<Category> search(SearchRequest<CategoryFilter> req);
 
-    CategoryResponseDTO update(Long id, CategoryUpdateDTO body);
+    Category create(CategoryRequestDTO body);
 
-    CategoryResponseDTO uploadCategoryImage(Long categoryId, MultipartFile image);
+    Category update(Long id, CategoryUpdateDTO body);
+
+    Category uploadCategoryImage(Long categoryId, MultipartFile image);
 
     void deleteCategoryImage(Long categoryId);
 
