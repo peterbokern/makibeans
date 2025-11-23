@@ -1,6 +1,8 @@
 package com.makibeans.mapper;
 
 import com.makibeans.dto.attribute.AttributeUpdateDTO;
+import com.makibeans.dto.product.ProductAdminResponseDTO;
+import com.makibeans.dto.product.ProductPublicResponseDTO;
 import com.makibeans.dto.product.ProductResponseDTO;
 import com.makibeans.dto.product.ProductUpdateDTO;
 import com.makibeans.model.Attribute;
@@ -23,6 +25,19 @@ public interface ProductMapper {
     @Mapping(source = "category.name", target = "categoryName")
     @Mapping(source = ".", target = "imageUrl", qualifiedByName = "getImageUrl")
     ProductResponseDTO toResponseDTO(Product entity);
+
+    // --- Public DTO mapping ---
+
+    @Mapping(source = "category.name", target = "categoryName")
+    @Mapping(source = ".", target = "imageUrl", qualifiedByName = "getImageUrl")
+    ProductPublicResponseDTO toPublicResponseDTO(Product entity);
+
+    // --- Admin DTO mapping with audit ---
+
+    @Mapping(source = "category.name", target = "categoryName")
+    @Mapping(source = ".", target = "imageUrl", qualifiedByName = "getImageUrl")
+    @Mapping(target = "audit", expression = "java(AuditableMapper.toAuditableInfo(entity))")
+    ProductAdminResponseDTO toAdminResponseDTO(Product entity);
 
     @Named("getImageUrl")
     default String getImageUrl(Product product) {

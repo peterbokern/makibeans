@@ -74,16 +74,14 @@ public class ProductServiceImpl implements ProductService, CrudService<Product, 
 
     @Transactional(readOnly = true)
     @Override
-    public ProductResponseDTO getById(Long id) {
-        Product product = getOrThrow(id);
+    public Product getById(Long id) {
 
-        logger.info("product: {}", product);
-        return mapper.toResponseDTO(product);
+        return getOrThrow(id);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Page<ProductResponseDTO> search(SearchRequest<ProductFilter> req) {
+    public Page<Product> search(SearchRequest<ProductFilter> req) {
         Specification<Product> spec =
                 SpecificationFactory.fromRequest(req, ProductFilter.class);
 
@@ -95,6 +93,7 @@ public class ProductServiceImpl implements ProductService, CrudService<Product, 
             query.distinct(true);
             return cb.conjunction();
         };
+
         Specification<Product> finalSpec = (spec == null) ? distinctSpec : spec.and(distinctSpec);
 
         Pageable pageable = PageRequest.of(
@@ -103,7 +102,7 @@ public class ProductServiceImpl implements ProductService, CrudService<Product, 
                 sort
         );
 
-        return repo.findAll(finalSpec, pageable).map(mapper::toResponseDTO);
+        return repo.findAll(finalSpec, pageable);
     }
 
     /**
@@ -115,7 +114,7 @@ public class ProductServiceImpl implements ProductService, CrudService<Product, 
      */
 
     @Transactional
-    public ProductResponseDTO create(ProductRequestDTO dto) {
+    public Product create(ProductRequestDTO dto) {
 
         String name = dto.getName();
         assertUniqueName(name);
@@ -128,17 +127,20 @@ public class ProductServiceImpl implements ProductService, CrudService<Product, 
                 .category(category)
                 .build();
 
-        Product savedProduct = repo.save(product);
-        return mapper.toResponseDTO(savedProduct);
+        return repo.save(product);
     }
 
+    @Override
     @Transactional
-    public ProductResponseDTO update(Long productId, @Valid ProductUpdateDTO dto) {
+    public Product update(Long productId, @Valid ProductUpdateDTO dto) {
         Product product = getOrThrow(productId);
+
         String name = dto.getName();
         assertUniqueNameAndIdNot(name, productId);
+
         mapper.updateEntityFromDTO(dto, product);
-        return mapper.toResponseDTO(product);
+
+        return product;
     }
 
     @Override
@@ -155,21 +157,20 @@ public class ProductServiceImpl implements ProductService, CrudService<Product, 
 
     @Override
     @Transactional
+    public Product uploadProductImage(Long productId, MultipartFile image) throws ImageProcessingException {
+        Product product = getOrThrow(productId);
+
+        byte[] imageBytes = imageUtils.validateAndExtractImageBytes(image);
+        product.setImage(imageBytes);
+
+        return product;
+    }
+
+    @Override
     public Boolean existsByCategoryId(Long categoryId) {
         return repo.existsByCategoryId(categoryId);
     }
 
-
-    @Transactional
-    public ProductResponseDTO uploadProductImage(Long productId, MultipartFile image) throws ImageProcessingException {
-        Product product = getOrThrow(productId);
-
-        byte[] imageBytes = imageUtils.validateAndExtractImageBytes(image);
-
-        product.setImage(imageBytes);
-
-        return mapper.toResponseDTO(product);
-    }
 
     /**
      * Retrieves the image of a product by its ID.

@@ -1,14 +1,14 @@
 package com.makibeans.dto.product;
 
-import com.makibeans.dto.productattribute.ProductAttributePublicResponseDTO;
-import com.makibeans.dto.productvariant.ProductVariantPublicResponseDTO;
 import com.makibeans.dto.audit.AuditableInfo;
+import com.makibeans.dto.productattribute.ProductAttributeAdminResponseDTO;
+import com.makibeans.dto.productvariant.ProductVariantResponseDTO;
+import com.makibeans.dto.productattribute.ProductAttributeResponseDTO;
 
 import java.util.List;
 
 /**
- * Admin view for Product including audit fields and nested public children.
- * Use only in admin endpoints or when caller is authorized.
+ * Admin view for Product, includes audit info.
  */
 public record ProductAdminResponseDTO(
         Long id,
@@ -17,7 +17,7 @@ public record ProductAdminResponseDTO(
         String imageUrl,
         Long categoryId,
         String categoryName,
-        List<ProductVariantPublicResponseDTO> productVariants,
-        List<ProductAttributePublicResponseDTO> productAttributes,
+        List<ProductVariantResponseDTO> productVariants,
+        List<ProductAttributeAdminResponseDTO> productAttributes,
         AuditableInfo audit
 ) {}

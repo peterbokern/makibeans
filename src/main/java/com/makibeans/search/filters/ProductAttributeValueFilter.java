@@ -33,7 +33,7 @@ public class ProductAttributeValueFilter {
 
     // Attribute info via productAttribute.attribute
     @JsonFormat(with = JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
-    @Filter(path = "productAttribute.attribute.id", type = {Filter.Operation.EQ, Filter.Operation.IN}, sortable = true, filterable = true)
+    @Filter(path = "productAttribute.attribute.id", type = {Filter.Operation.IN}, sortable = true, filterable = true)
     private List<@Positive Long> attributeId;
 
     @Filter(path = "productAttribute.attribute.name", type = {Filter.Operation.LIKE, Filter.Operation.EQ}, sortable = true, filterable = true)

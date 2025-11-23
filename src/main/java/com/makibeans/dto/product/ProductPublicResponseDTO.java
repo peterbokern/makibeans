@@ -1,8 +1,13 @@
 package com.makibeans.dto.product;
 
+import com.makibeans.dto.productattribute.ProductAttributePublicResponseDTO;
+import com.makibeans.dto.productvariant.ProductVariantResponseDTO;
+import com.makibeans.dto.productattribute.ProductAttributeResponseDTO;
+
+import java.util.List;
+
 /**
- * Lean public product DTO used for catalog/list endpoints.
- * Keep it minimal to reduce payload size.
+ * Public view for Product (no audit).
  */
 public record ProductPublicResponseDTO(
         Long id,
@@ -10,6 +15,7 @@ public record ProductPublicResponseDTO(
         String description,
         String imageUrl,
         Long categoryId,
-        String categoryName
+        String categoryName,
+        List<ProductVariantResponseDTO> productVariants,
+        List<ProductAttributePublicResponseDTO> productAttributes
 ) {}
-
