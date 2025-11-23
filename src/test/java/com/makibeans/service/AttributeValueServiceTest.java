@@ -1,15 +1,15 @@
 /*
 package com.makibeans.service;
 
-import com.makibeans.dto.attributevalue.AttributeValueRequestDTO;
-import com.makibeans.dto.attributevalue.AttributeValueResponseDTO;
-import com.makibeans.dto.attributevalue.AttributeValueUpdateDTO;
+import com.makibeans.attributevalue.dto.AttributeValueRequestDTO;
+import com.makibeans.attributevalue.dto.AttributeValueResponseDTO;
+import com.makibeans.attributevalue.dto.AttributeValueUpdateDTO;
 import com.makibeans.exceptions.DuplicateResourceException;
 import com.makibeans.exceptions.ResourceNotFoundException;
-import com.makibeans.mapper.AttributeValueMapper;
-import com.makibeans.model.Attribute;
-import com.makibeans.model.AttributeValue;
-import com.makibeans.repository.AttributeValueRepository;
+import com.makibeans.attributevalue.mapper.AttributeValueMapper;
+import com.makibeans.attribute.model.Attribute;
+import com.makibeans.attributevalue.model.AttributeValue;
+import com.makibeans.attributevalue.repository.AttributeValueRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

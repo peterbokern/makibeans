@@ -1,17 +1,17 @@
 /*
 package com.makibeans.service;
 
-import com.makibeans.dto.category.CategoryRequestDTO;
-import com.makibeans.dto.category.CategoryResponseDTO;
-import com.makibeans.dto.category.CategoryUpdateDTO;
+import com.makibeans.category.dto.CategoryRequestDTO;
+import com.makibeans.category.dto.CategoryResponseDTO;
+import com.makibeans.category.dto.CategoryUpdateDTO;
 import com.makibeans.exceptions.CategoryInUseException;
 import com.makibeans.exceptions.CircularReferenceException;
 import com.makibeans.exceptions.DuplicateResourceException;
 import com.makibeans.exceptions.ResourceNotFoundException;
-import com.makibeans.mapper.CategoryMapper;
-import com.makibeans.model.Category;
+import com.makibeans.category.mapper.CategoryMapper;
+import com.makibeans.category.model.Category;
 import com.makibeans.product.model.Product;
-import com.makibeans.repository.CategoryRepository;
+import com.makibeans.category.repository.CategoryRepository;
 import com.makibeans.util.ImageUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

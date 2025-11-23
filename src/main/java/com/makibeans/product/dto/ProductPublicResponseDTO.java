@@ -1,7 +1,7 @@
 package com.makibeans.product.dto;
 
-import com.makibeans.dto.productattribute.ProductAttributePublicResponseDTO;
-import com.makibeans.dto.productvariant.ProductVariantResponseDTO;
+import com.makibeans.productattribute.dto.ProductAttributePublicResponseDTO;
+import com.makibeans.productvariant.dto.ProductVariantResponseDTO;
 
 import java.util.List;
 

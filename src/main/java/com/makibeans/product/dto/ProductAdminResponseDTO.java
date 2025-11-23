@@ -1,8 +1,8 @@
 package com.makibeans.product.dto;
 
-import com.makibeans.dto.audit.AuditableInfo;
-import com.makibeans.dto.productattribute.ProductAttributeAdminResponseDTO;
-import com.makibeans.dto.productvariant.ProductVariantResponseDTO;
+import com.makibeans.audit.dto.AuditableInfo;
+import com.makibeans.productattribute.dto.ProductAttributeAdminResponseDTO;
+import com.makibeans.productvariant.dto.ProductVariantResponseDTO;
 
 import java.util.List;
 

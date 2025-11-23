@@ -1,6 +1,9 @@
 package com.makibeans.model;
 
+import com.makibeans.category.model.Category;
 import com.makibeans.product.model.Product;
+import com.makibeans.productvariant.model.ProductVariant;
+import com.makibeans.size.model.Size;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

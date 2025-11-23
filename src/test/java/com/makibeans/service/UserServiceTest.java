@@ -1,17 +1,17 @@
 /*
 package com.makibeans.service;
 
-import com.makibeans.dto.user.UserRequestDTO;
-import com.makibeans.dto.user.UserResponseDTO;
-import com.makibeans.dto.user.UserUpdateDTO;
+import com.makibeans.user.dto.UserRequestDTO;
+import com.makibeans.user.dto.UserResponseDTO;
+import com.makibeans.user.dto.UserUpdateDTO;
 import com.makibeans.exceptions.DuplicateResourceException;
 import com.makibeans.exceptions.ResourceNotFoundException;
-import com.makibeans.mapper.UserMapper;
-import com.makibeans.model.Role;
-import com.makibeans.model.User;
-import com.makibeans.repository.UserRepository;
-import com.makibeans.service.impl.RoleServiceImpl;
-import com.makibeans.service.impl.UserServiceImpl;
+import com.makibeans.user.mapper.UserMapper;
+import com.makibeans.role.model.Role;
+import com.makibeans.user.model.User;
+import com.makibeans.user.repository.UserRepository;
+import com.makibeans.role.service.RoleServiceImpl;
+import com.makibeans.user.service.UserServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

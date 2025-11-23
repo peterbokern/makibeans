@@ -1,8 +1,8 @@
 package com.makibeans.config;
 
-import com.makibeans.dto.user.UserRequestDTO;
-import com.makibeans.service.service.RoleService;
-import com.makibeans.service.service.UserService;
+import com.makibeans.user.dto.UserRequestDTO;
+import com.makibeans.role.service.RoleService;
+import com.makibeans.user.service.UserService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 

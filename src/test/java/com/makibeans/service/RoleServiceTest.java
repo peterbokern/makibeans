@@ -2,9 +2,9 @@ package com.makibeans.service;
 
 import com.makibeans.exceptions.DuplicateResourceException;
 import com.makibeans.exceptions.ResourceNotFoundException;
-import com.makibeans.model.Role;
-import com.makibeans.repository.RoleRepository;
-import com.makibeans.service.impl.RoleServiceImpl;
+import com.makibeans.role.model.Role;
+import com.makibeans.role.repository.RoleRepository;
+import com.makibeans.role.service.RoleServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

@@ -1,0 +1,87 @@
+package com.makibeans.category.model;
+
+import com.makibeans.audit.model.Auditable;
+import com.makibeans.product.model.Product;
+import com.makibeans.util.TextUtils;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+import org.hibernate.annotations.OnDelete;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Represents a category in the system.
+ * A category can have a parent category and multiple subcategories.
+ * It can also contain multiple products.
+ */
+
+@Entity
+@Getter
+@Setter
+@NoArgsConstructor
+@Table(
+        name = "categories",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"name", "parent_category_id"})
+        },
+        indexes = {
+                @Index(name = "idx_category_name", columnList = "name"),
+                @Index(name = "idx_category_description", columnList = "description")
+        }
+)
+
+@ToString(exclude = {"parentCategory", "subCategories", "image", "products"})
+public class Category extends Auditable {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @NotBlank(message = "Category name cannot be blank.")
+    @Column(name = "name", nullable = false, length = 100)
+    private String name;
+
+    @Column(name = "description", nullable = true, length = 1000)
+    private String description;
+
+    @Setter
+    @Lob
+    @Column(name = "image", nullable = true)
+    private byte[] image;
+
+    @Setter
+    @ManyToOne
+    @JoinColumn(name = "parent_category_id", nullable = true, foreignKey = @ForeignKey(name = "fk_category_parent_category"))
+    @OnDelete(action = org.hibernate.annotations.OnDeleteAction.CASCADE) // If a parent category is deleted, all its subcategories are also deleted at the database level. This is different from JPA's orphanRemoval = true, which operates at the JPA (Java) level, not directly in the database. Your usage is appropriate for enforcing referential integrity in the database.
+    private Category parentCategory;
+
+    @OneToMany(mappedBy = "parentCategory",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.LAZY)
+    private List<Category> subCategories = new ArrayList<>();
+
+    @OneToMany(
+            mappedBy = "category",
+            fetch = FetchType.LAZY)
+    private List<Product> products = new ArrayList<>();
+
+    public Category(String name, String description) {
+        this.setName(name);
+        this.setDescription(description);
+    }
+
+    public void setName(String name) {
+        this.name = TextUtils.normalizeText(name);
+    }
+
+    public void setDescription(String description) {
+        this.description = TextUtils.trim(description);
+    }
+}
+

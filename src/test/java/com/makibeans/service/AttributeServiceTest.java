@@ -1,14 +1,14 @@
 //package com.makibeans.service;
 //
-//import com.makibeans.dto.attribute.AttributeResponseDTO;
+//import com.makibeans.attribute.dto.AttributeResponseDTO;
 //import com.makibeans.dto.attribute.AttributeTemplateRequestDTO;
 //import com.makibeans.dto.attribute.AttributeTemplateResponseDTO;
 //import com.makibeans.dto.attribute.AttributeTemplateUpdateDTO;
 //import com.makibeans.exceptions.DuplicateResourceException;
 //import com.makibeans.exceptions.ResourceNotFoundException;
 //import com.makibeans.mapper.AttributeTemplateMapper;
-//import com.makibeans.model.Attribute;
-//import com.makibeans.model.ProductAttribute;
+//import com.makibeans.attribute.model.Attribute;
+//import com.makibeans.productattribute.model.ProductAttribute;
 //import com.makibeans.repository.AttributeTemplateRepository;
 //import org.junit.jupiter.api.BeforeEach;
 //import org.junit.jupiter.api.Test;

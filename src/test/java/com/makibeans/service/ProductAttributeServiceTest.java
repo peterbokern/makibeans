@@ -1,13 +1,13 @@
 /*
 package com.makibeans.service;
 
-import com.makibeans.dto.productattribute.ProductAttributeRequestDTO;
-import com.makibeans.dto.productattribute.ProductAttributeResponseDTO;
+import com.makibeans.productattribute.dto.ProductAttributeRequestDTO;
+import com.makibeans.productattribute.dto.ProductAttributeResponseDTO;
 import com.makibeans.exceptions.DuplicateResourceException;
 import com.makibeans.exceptions.ResourceNotFoundException;
-import com.makibeans.mapper.ProductAttributeMapper;
+import com.makibeans.productattribute.mapper.ProductAttributeMapper;
 import com.makibeans.model.*;
-import com.makibeans.repository.ProductAttributeRepository;
+import com.makibeans.productattribute.repository.ProductAttributeRepository;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;

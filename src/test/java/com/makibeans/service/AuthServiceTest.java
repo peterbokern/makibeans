@@ -2,15 +2,15 @@ package com.makibeans.service;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.makibeans.dto.login.LoginRequestDTO;
-import com.makibeans.dto.login.LoginResponseDTO;
+import com.makibeans.login.dto.LoginRequestDTO;
+import com.makibeans.login.dto.LoginResponseDTO;
 import com.makibeans.exceptions.InvalidCredentialsException;
 import com.makibeans.exceptions.ResourceNotFoundException;
-import com.makibeans.mapper.AuthMapper;
-import com.makibeans.model.User;
+import com.makibeans.authentication.mapper.AuthMapper;
+import com.makibeans.user.model.User;
 import com.makibeans.security.JwtUtil;
-import com.makibeans.service.impl.AuthServiceImpl;
-import com.makibeans.service.impl.UserServiceImpl;
+import com.makibeans.authentication.service.AuthServiceImpl;
+import com.makibeans.user.service.UserServiceImpl;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
