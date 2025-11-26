@@ -7,6 +7,7 @@ import com.makibeans.exceptions.DuplicateResourceException;
 import com.makibeans.exceptions.ResourceNotFoundException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
+import org.apache.coyote.BadRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -179,6 +180,21 @@ public class GlobalExceptionHandler {
         pd.setTitle("Resource not found");
         pd.setDetail(ex.getMessage());
         pd.setProperty("timestamp", OffsetDateTime.now());
+        return pd;
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ProblemDetail handleIllegalArgumentException(IllegalArgumentException ex) {
+        Map<String, Object> error = Map.of(
+                "field" , "rawValue",
+                "message", ex.getMessage()
+        );
+
+        ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        pd.setTitle("Validation failed");
+        pd.setDetail(ex.getMessage());
+        pd.setProperty("timestamp", OffsetDateTime.now());
+        pd.setProperty("errors", List.of(error));
         return pd;
     }
 

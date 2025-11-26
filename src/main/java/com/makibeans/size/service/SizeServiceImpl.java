@@ -9,7 +9,7 @@ import com.makibeans.size.repository.SizeRepository;
 import com.makibeans.search.SearchRequest;
 import com.makibeans.search.SortResolver;
 import com.makibeans.search.SpecificationFactory;
-import com.makibeans.search.filters.SizeFilter;
+import com.makibeans.size.filter.SizeFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;

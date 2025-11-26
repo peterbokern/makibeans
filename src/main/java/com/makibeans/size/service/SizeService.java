@@ -5,7 +5,7 @@ import com.makibeans.size.dto.SizeRequestDTO;
 import com.makibeans.size.dto.SizeUpdateDTO;
 import com.makibeans.size.model.Size;
 import com.makibeans.search.SearchRequest;
-import com.makibeans.search.filters.SizeFilter;
+import com.makibeans.size.filter.SizeFilter;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 

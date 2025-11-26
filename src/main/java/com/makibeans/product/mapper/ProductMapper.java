@@ -1,6 +1,6 @@
 package com.makibeans.product.mapper;
 
-import com.makibeans.productattribute.mapper.ProductAttributeMapper;
+import com.makibeans.attribute.productattribute.mapper.ProductAttributeMapper;
 import com.makibeans.productvariant.mapper.ProductVariantMapper;
 import com.makibeans.product.dto.ProductAdminResponseDTO;
 import com.makibeans.product.dto.ProductPublicResponseDTO;

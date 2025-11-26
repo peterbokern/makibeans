@@ -4,7 +4,7 @@ import com.makibeans.common.service.CrudService;
 import com.makibeans.user.dto.*;
 import com.makibeans.user.model.User;
 import com.makibeans.search.SearchRequest;
-import com.makibeans.search.filters.UserFilter;
+import com.makibeans.user.filter.UserFilter;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.transaction.annotation.Transactional;

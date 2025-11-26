@@ -1,5 +1,6 @@
 package com.makibeans.search;
 
+import com.makibeans.search.annotation.Filter;
 import com.makibeans.search.utils.SearchCriteriaUtils;
 import jakarta.persistence.criteria.Expression;
 import jakarta.persistence.criteria.Path;

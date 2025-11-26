@@ -6,7 +6,7 @@ import com.makibeans.size.dto.SizeUpdateDTO;
 import com.makibeans.size.mapper.SizeMapper;
 import com.makibeans.size.model.Size;
 import com.makibeans.search.SearchRequest;
-import com.makibeans.search.filters.SizeFilter;
+import com.makibeans.size.filter.SizeFilter;
 import com.makibeans.search.utils.SearchRequestUtils;
 import com.makibeans.size.service.SizeService;
 import io.swagger.v3.oas.annotations.Operation;

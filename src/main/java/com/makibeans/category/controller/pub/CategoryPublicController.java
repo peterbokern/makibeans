@@ -4,7 +4,7 @@ import com.makibeans.category.dto.CategoryPublicResponseDTO;
 import com.makibeans.category.mapper.CategoryMapper;
 import com.makibeans.category.model.Category;
 import com.makibeans.search.SearchRequest;
-import com.makibeans.search.filters.CategoryFilter;
+import com.makibeans.category.filter.CategoryFilter;
 import com.makibeans.search.utils.SearchRequestUtils;
 import com.makibeans.category.service.CategoryService;
 import io.swagger.v3.oas.annotations.Operation;

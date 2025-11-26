@@ -12,7 +12,7 @@ import com.makibeans.product.repository.ProductRepository;
 import com.makibeans.search.SearchRequest;
 import com.makibeans.search.SortResolver;
 import com.makibeans.search.SpecificationFactory;
-import com.makibeans.search.filters.ProductFilter;
+import com.makibeans.product.filter.ProductFilter;
 import com.makibeans.category.service.CategoryService;
 import com.makibeans.common.service.CrudService;
 import com.makibeans.util.ImageUtils;

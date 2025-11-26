@@ -13,7 +13,7 @@ import com.makibeans.productvariant.repository.ProductVariantRepository;
 import com.makibeans.search.SearchRequest;
 import com.makibeans.search.SortResolver;
 import com.makibeans.search.SpecificationFactory;
-import com.makibeans.search.filters.ProductVariantFilter;
+import com.makibeans.productvariant.filter.ProductVariantFilter;
 import com.makibeans.product.service.ProductService;
 
 import lombok.RequiredArgsConstructor;

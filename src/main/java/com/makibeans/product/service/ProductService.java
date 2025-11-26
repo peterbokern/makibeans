@@ -4,7 +4,7 @@ import com.makibeans.product.dto.ProductRequestDTO;
 import com.makibeans.product.dto.ProductUpdateDTO;
 import com.makibeans.product.model.Product;
 import com.makibeans.search.SearchRequest;
-import com.makibeans.search.filters.ProductFilter;
+import com.makibeans.product.filter.ProductFilter;
 import com.makibeans.common.service.CrudService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;

@@ -4,7 +4,7 @@ import com.makibeans.product.dto.ProductPublicResponseDTO;
 import com.makibeans.product.mapper.ProductMapper;
 import com.makibeans.product.model.Product;
 import com.makibeans.search.SearchRequest;
-import com.makibeans.search.filters.ProductFilter;
+import com.makibeans.product.filter.ProductFilter;
 import com.makibeans.search.utils.SearchRequestUtils;
 import com.makibeans.product.service.ProductService;
 import io.swagger.v3.oas.annotations.Operation;

@@ -1,7 +1,7 @@
 package com.makibeans.product.model;
 
 import com.makibeans.category.model.Category;
-import com.makibeans.productattribute.model.ProductAttribute;
+import com.makibeans.attribute.productattribute.model.ProductAttribute;
 import com.makibeans.productvariant.model.ProductVariant;
 import com.makibeans.audit.model.Auditable;
 import com.makibeans.util.TextUtils;

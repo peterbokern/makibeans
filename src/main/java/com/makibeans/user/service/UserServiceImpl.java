@@ -10,7 +10,7 @@ import com.makibeans.user.repository.UserRepository;
 import com.makibeans.search.SearchRequest;
 import com.makibeans.search.SortResolver;
 import com.makibeans.search.SpecificationFactory;
-import com.makibeans.search.filters.UserFilter;
+import com.makibeans.user.filter.UserFilter;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

@@ -3,7 +3,7 @@ package com.makibeans.product.dto;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.makibeans.audit.dto.AuditableResponseDTO;
 import com.makibeans.productvariant.dto.ProductVariantResponseDTO;
-import com.makibeans.productattribute.dto.ProductAttributeResponseDTO;
+import com.makibeans.attribute.productattribute.dto.ProductAttributeResponseDTO;
 import lombok.*;
 import java.util.List;
 

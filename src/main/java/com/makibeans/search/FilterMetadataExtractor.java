@@ -1,5 +1,7 @@
 package com.makibeans.search;
 
+import com.makibeans.search.annotation.Filter;
+
 import java.lang.reflect.Field;
 import java.util.LinkedHashMap;
 import java.util.Map;

@@ -4,7 +4,7 @@ import com.makibeans.user.dto.*;
 import com.makibeans.user.mapper.UserMapper;
 import com.makibeans.user.model.User;
 import com.makibeans.search.SearchRequest;
-import com.makibeans.search.filters.UserFilter;
+import com.makibeans.user.filter.UserFilter;
 import com.makibeans.search.utils.SearchRequestUtils;
 import com.makibeans.user.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;

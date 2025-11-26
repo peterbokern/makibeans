@@ -6,7 +6,7 @@ import com.makibeans.productvariant.dto.ProductVariantUpdateDTO;
 import com.makibeans.productvariant.mapper.ProductVariantMapper;
 import com.makibeans.productvariant.model.ProductVariant;
 import com.makibeans.search.SearchRequest;
-import com.makibeans.search.filters.ProductVariantFilter;
+import com.makibeans.productvariant.filter.ProductVariantFilter;
 import com.makibeans.search.utils.SearchRequestUtils;
 import com.makibeans.productvariant.service.ProductVariantService;
 import io.swagger.v3.oas.annotations.Operation;

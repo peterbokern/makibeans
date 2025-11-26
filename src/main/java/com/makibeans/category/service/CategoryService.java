@@ -4,7 +4,7 @@ import com.makibeans.category.dto.CategoryRequestDTO;
 import com.makibeans.category.dto.CategoryUpdateDTO;
 import com.makibeans.category.model.Category;
 import com.makibeans.search.SearchRequest;
-import com.makibeans.search.filters.CategoryFilter;
+import com.makibeans.category.filter.CategoryFilter;
 import com.makibeans.common.service.CrudService;
 import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
