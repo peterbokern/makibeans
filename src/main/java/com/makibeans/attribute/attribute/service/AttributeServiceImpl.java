@@ -5,6 +5,7 @@ import com.makibeans.attribute.attribute.dto.AttributeUpdateDTO;
 import com.makibeans.attribute.attribute.filter.AttributeFilter;
 import com.makibeans.attribute.attribute.mapper.AttributeMapper;
 import com.makibeans.attribute.attribute.repository.AttributeRepository;
+import com.makibeans.common.util.TextUtils;
 import com.makibeans.exceptions.DuplicateResourceException;
 import com.makibeans.exceptions.ResourceNotFoundException;
 import com.makibeans.attribute.attribute.model.Attribute;
@@ -25,7 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import static com.makibeans.util.UpdateUtils.*;
+import static com.makibeans.common.util.UpdateUtils.*;
 
 /**
  * Service class for managing Attribute entities.
@@ -98,13 +99,16 @@ public class AttributeServiceImpl implements CrudService<Attribute, Long>, Attri
     @Transactional
     public Attribute create(AttributeRequestDTO dto) {
 
-        assertUniqueName(dto.getName());
+        String normalizedName = TextUtils.normalizeText(dto.getName());
+        assertUniqueName(normalizedName);
 
         Attribute attribute = new Attribute();
 
-        attribute.setName(dto.getName());
-
+        attribute.setName(normalizedName);
+        attribute.setDescription(dto.getDescription());
+        attribute.setSlug(TextUtils.toSlug(normalizedName));
         attribute.setDataType(dto.getDataType());
+        attribute.setInputType(dto.getInputType());
 
         return repo.save(attribute);
     }
@@ -125,11 +129,14 @@ public class AttributeServiceImpl implements CrudService<Attribute, Long>, Attri
 
         Attribute attribute = getOrThrow(id);
 
-        String newName = normalize(attribute.getName());
+        mapper.updateEntityFromDTO(dto, attribute); //ignores name, slug
 
-        assertUniqueNameAndIdNot(id, newName);
-
-        mapper.updateEntityFromDTO(dto, attribute);
+        if (dto.getName() !=null && !dto.getName().equalsIgnoreCase(attribute.getName())) {
+            String normalizedName = TextUtils.normalizeText(dto.getName());
+            assertUniqueNameAndIdNot(id, normalizedName);
+            attribute.setName(normalizedName);
+            attribute.setSlug(TextUtils.toSlug(normalizedName));
+        }
 
         return attribute;
     }

@@ -2,10 +2,10 @@ package com.makibeans.attribute.attributevalue.model;
 import com.makibeans.attribute.attribute.model.Attribute;
 import com.makibeans.attribute.attributevalue.validation.annotation.ValidAttributeValueForType;
 import com.makibeans.audit.model.Auditable;
-import com.makibeans.util.TextUtils;
+import com.makibeans.common.util.TextUtils;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Digits;
-import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
@@ -64,18 +64,15 @@ public class AttributeValue extends Auditable {
     @Column(name = "date_time_value", nullable = true)
     private LocalDateTime dateTimeValue;
 
-    public AttributeValue(Attribute attribute, String value, BigDecimal numericValue, Boolean booleanValue, LocalDate dateValue, LocalDateTime dateTimeValue) {
-        this.attribute = attribute;
-        this.setStringValue(value);
-        this.numericValue = numericValue;
-        this.booleanValue = booleanValue;
-        this.dateValue = dateValue;
-        this.dateTimeValue = dateTimeValue;
-    }
+    @Column(name = "slug", nullable = false, unique = true, length = 60)
+    private String slug;
 
-    public void setStringValue(String value) {
-       this.stringValue = TextUtils.normalizeText(value);
-    }
+    @Column(name = "sort_order", nullable = false)
+    @Min(value = 0, message = "Sort order must be zero or a positive integer.")
+    private Integer sortOrder = 0;
+
+    @Column(name = "active", nullable = false)
+    private boolean active = true;
 
     public Object getValue() {
         return switch (this.attribute.getDataType()) {
@@ -89,7 +86,8 @@ public class AttributeValue extends Auditable {
     }
     public String getValueAsString() {
         Object value = getValue();
-        return value != null ? value.toString() : null;
+        if (value == null) return null;
+        if (value instanceof BigDecimal bd) return bd.stripTrailingZeros().toPlainString();
+        return value.toString();
     }
-
 }

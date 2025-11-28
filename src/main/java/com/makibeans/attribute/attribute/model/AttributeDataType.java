@@ -6,11 +6,11 @@ import lombok.Getter;
  */
 @Getter
 public enum AttributeDataType {
-    STRING("String"),
-    NUMERIC("Number"),
-    BOOLEAN("Boolean"),
-    DATE("Date"),
-    DATETIME("DateTime");
+    STRING("string"),
+    NUMERIC("number"),
+    BOOLEAN("boolean"),
+    DATE("date"),
+    DATETIME("dateTime");
 
     private final String label;
 

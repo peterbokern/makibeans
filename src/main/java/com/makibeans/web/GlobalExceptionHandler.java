@@ -167,19 +167,31 @@ public class GlobalExceptionHandler {
     //handle duplicate resource
     @ExceptionHandler(DuplicateResourceException.class)
     public ProblemDetail handleDuplicateResource(DuplicateResourceException ex) {
+        Map<String, Object> error = Map.of(
+                "field" , "rawValue",
+                "message", ex.getMessage()
+        );
+
         ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.CONFLICT);
         pd.setTitle("Duplicate resource");
         pd.setDetail(ex.getMessage());
         pd.setProperty("timestamp", OffsetDateTime.now());
+        pd.setProperty("errors", List.of(error));
         return pd;
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)
     public ProblemDetail handleResourceNotFound(ResourceNotFoundException ex) {
+        Map<String, Object> error = Map.of(
+                "field" , "id",
+                "message", ex.getMessage()
+        );
+
         ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
         pd.setTitle("Resource not found");
         pd.setDetail(ex.getMessage());
         pd.setProperty("timestamp", OffsetDateTime.now());
+        pd.setProperty("errors", List.of(error));
         return pd;
     }
 

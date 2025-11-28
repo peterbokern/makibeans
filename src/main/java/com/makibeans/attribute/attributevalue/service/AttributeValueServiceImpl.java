@@ -17,8 +17,7 @@ import com.makibeans.search.SpecificationFactory;
 import com.makibeans.attribute.attributevalue.filter.AttributeValueFilter;
 import com.makibeans.attribute.attribute.service.AttributeService;
 import com.makibeans.common.service.CrudService;
-import com.makibeans.util.TextUtils;
-import jakarta.validation.ValidationException;
+import com.makibeans.common.util.TextUtils;
 import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -29,6 +28,8 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 /**
  * Service class for managing AttributeValues.
@@ -46,8 +47,10 @@ public class AttributeValueServiceImpl implements CrudService<AttributeValue, Lo
     @Autowired
     public AttributeValueServiceImpl(
             AttributeValueRepository repo,
-            AttributeService attributeService, ProductAttributeValueRepository productAttributeValueRepository,
-            AttributeValueMapper mapper) {
+            AttributeService attributeService,
+            ProductAttributeValueRepository productAttributeValueRepository,
+            AttributeValueMapper mapper
+    ) {
         this.repo = repo;
         this.attributeService = attributeService;
         this.productAttributeValueRepository = productAttributeValueRepository;
@@ -95,8 +98,9 @@ public class AttributeValueServiceImpl implements CrudService<AttributeValue, Lo
         AttributeValue av = new AttributeValue();
 
         av.setAttribute(a);
-
         applyRawValue(av, a.getDataType(), normalizedValue);
+        av.setSlug(TextUtils.toSlug(normalizedValue));
+        av.setSortOrder(resolveSortOrder(a, requestDTO.getSortOrder()));
 
         return repo.save(av);
     }
@@ -108,14 +112,31 @@ public class AttributeValueServiceImpl implements CrudService<AttributeValue, Lo
         Attribute attribute = av.getAttribute();
         AttributeDataType type = attribute.getDataType();
 
-        String newNormalizedValue = TextUtils.normalizeText(updateDTO.getRawValue());
+        if (updateDTO.getRawValue() != null) {
+            String newNormalizedValue = TextUtils.normalizeText(updateDTO.getRawValue());
 
-        if (exists(newNormalizedValue, type, attribute)) {
-            throw new DuplicateResourceException("Attribute value '" + newNormalizedValue + "' already exists for attribute '" + attribute.getName() + "'.");
+            if (existsAndIdNot(newNormalizedValue, type, attribute, av.getId())) {
+                throw new DuplicateResourceException("Attribute value '" + newNormalizedValue + "' already exists for attribute '" + attribute.getName() + "'.");
+            }
+
+            applyRawValue(av, type, newNormalizedValue);
+            av.setSlug(TextUtils.toSlug(newNormalizedValue));
         }
+
+        //sort order logic
+        Integer currentSortOrder = av.getSortOrder();
+        Integer requestedSortOrder = updateDTO.getSortOrder();
+        boolean sortOrderChanged = requestedSortOrder != null && !requestedSortOrder.equals(currentSortOrder);
+
+        if (sortOrderChanged) {
+            int newSortOrder = resolveSortOrder(attribute, updateDTO.getSortOrder());
+            av.setSortOrder(newSortOrder);
+        }
+
+        mapper.updateEntityFromDTO(updateDTO, av); //ignores value, slug
+
         return av;
     }
-
 
     @Transactional
     public void delete(Long id) {
@@ -144,13 +165,53 @@ public class AttributeValueServiceImpl implements CrudService<AttributeValue, Lo
     }
 
     private boolean exists(String value, AttributeDataType type, Attribute attribute) throws IllegalArgumentException {
+        return existsInternal(value, type, attribute, null);
+    }
+
+    private boolean existsAndIdNot(String value, AttributeDataType type, Attribute attribute, Long excludeId) throws IllegalArgumentException {
+        return existsInternal(value, type, attribute, excludeId);
+    }
+
+    private boolean existsInternal(String value, AttributeDataType type, Attribute attribute, Long excludeId) throws IllegalArgumentException {
         return switch (type) {
-            case STRING -> repo.existsByAttributeAndStringValueIgnoreCase(attribute, value);
-            case NUMERIC -> repo.existsByAttributeAndNumericValue(attribute, AttributeValueParser.parseNumeric(value));
-            case BOOLEAN -> repo.existsByAttributeAndBooleanValue(attribute, AttributeValueParser.parseBoolean(value));
-            case DATE -> repo.existsByAttributeAndDateValue(attribute, AttributeValueParser.parseDate(value));
-            case DATETIME ->
-                    repo.existsByAttributeAndDateTimeValue(attribute, AttributeValueParser.parseDateTime(value));
+            case STRING -> excludeId == null
+                    ? repo.existsByAttributeAndStringValueIgnoreCase(attribute, value)
+                    : repo.existsByAttributeAndStringValueIgnoreCaseAndIdNot(attribute, value, excludeId);
+            case NUMERIC -> excludeId == null
+                    ? repo.existsByAttributeAndNumericValue(attribute, AttributeValueParser.parseNumeric(value))
+                    : repo.existsByAttributeAndNumericValueAndIdNot(attribute, AttributeValueParser.parseNumeric(value), excludeId);
+            case BOOLEAN -> excludeId == null
+                    ? repo.existsByAttributeAndBooleanValue(attribute, AttributeValueParser.parseBoolean(value))
+                    : repo.existsByAttributeAndBooleanValueAndIdNot(attribute, AttributeValueParser.parseBoolean(value), excludeId);
+            case DATE -> excludeId == null
+                    ? repo.existsByAttributeAndDateValue(attribute, AttributeValueParser.parseDate(value))
+                    : repo.existsByAttributeAndDateValueAndIdNot(attribute, AttributeValueParser.parseDate(value), excludeId);
+            case DATETIME -> excludeId == null
+                    ? repo.existsByAttributeAndDateTimeValue(attribute, AttributeValueParser.parseDateTime(value))
+                    : repo.existsByAttributeAndDateTimeValueAndIdNot(attribute, AttributeValueParser.parseDateTime(value), excludeId);
         };
+    }
+
+    private int resolveSortOrder(Attribute a, Integer requestedSortOrder) {
+
+        int maxSortOrder = repo.findMaxSortOrderByAttribute(a).orElse(-1);
+        int nextSortOrder = maxSortOrder + 1;
+
+        boolean validSortOrderRequest =
+                requestedSortOrder != null &&
+                        requestedSortOrder >= 0 &&
+                        requestedSortOrder <= maxSortOrder;
+
+        if (validSortOrderRequest) {
+            adjustSortOrdersForInsert(a, requestedSortOrder);
+            return requestedSortOrder;
+        } else {
+            return nextSortOrder;
+        }
+    }
+
+    private void adjustSortOrdersForInsert(Attribute attribute, int fromSortOrder) {
+        List<AttributeValue> valuesToAdjust = repo.findByAttributeAndSortOrderGreaterThanEqual(attribute, fromSortOrder);
+        valuesToAdjust.forEach(av -> av.setSortOrder(av.getSortOrder() + 1));
     }
 }

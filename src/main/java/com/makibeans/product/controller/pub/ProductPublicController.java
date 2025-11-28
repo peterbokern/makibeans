@@ -18,7 +18,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import static com.makibeans.util.FileTypeUtils.detectImageContentType;
+import static com.makibeans.common.util.FileTypeUtils.detectImageContentType;
 
 @RestController
 @RequestMapping("/products")

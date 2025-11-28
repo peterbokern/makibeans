@@ -13,7 +13,7 @@ import com.makibeans.category.filter.CategoryFilter;
 import com.makibeans.attribute.categoryattribute.service.CategoryAttributeService;
 import com.makibeans.common.service.CrudService;
 import com.makibeans.product.service.ProductService;
-import com.makibeans.util.ImageUtils;
+import com.makibeans.common.util.ImageUtils;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +29,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import static com.makibeans.util.UpdateUtils.*;
+import static com.makibeans.common.util.UpdateUtils.*;
 
 /**
  * Service class for managing Category entities.

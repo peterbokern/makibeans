@@ -25,19 +25,23 @@ public interface AttributeMapper {
     //remove
     AttributeResponseDTO toResponseDTO(Attribute entity);
 
-    @Mapping(target = "dataType", qualifiedByName = "enumToLowerCase")
+    @Mapping(target = "dataType", expression = "java(entity.getDataType().getLabel())")
+    @Mapping(target = "inputType", expression = "java(entity.getInputType().getLabel())")
     AttributePublicResponseDTO toPublicResponseDTO(Attribute entity);
 
-    @Mapping(target = "dataType", source = "dataType", qualifiedByName = "enumToLowerCase")
+    @Mapping(target = "dataType",  expression = "java(entity.getDataType().getLabel())")
+    @Mapping(target = "inputType", expression = "java(entity.getInputType().getLabel())")
     @Mapping(target = "audit", expression = "java(com.makibeans.audit.mapper.AuditableMapper.toAuditableInfo(entity))")
     AttributeAdminResponseDTO toAdminResponseDTO(Attribute entity);
 
+    @Mapping(target = "name", ignore = true)
+    @Mapping(target = "slug", ignore = true)
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateEntityFromDTO(AttributeUpdateDTO updateDTO, @MappingTarget Attribute attribute);
 
-    @SuppressWarnings("unused")
+ /*   @SuppressWarnings("unused")
     @Named("enumToLowerCase")
-    static String enumToLowerCase(AttributeDataType dataType) {
+    static String enumToLowerCase(Enum dataType) {
         return dataType != null ? dataType.name().toLowerCase() : null;
-    }
+    }*/
 }

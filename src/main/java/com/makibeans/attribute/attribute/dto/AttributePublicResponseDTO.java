@@ -7,6 +7,9 @@ public record AttributePublicResponseDTO(
         Long id,
         String name,
         String description,
-        String dataType
+        String dataType,
+        String inputType,
+        String slug,
+        boolean active
 ) {}
 

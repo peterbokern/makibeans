@@ -2,6 +2,7 @@ package com.makibeans.attribute.attribute.dto;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.makibeans.attribute.attribute.model.AttributeDataType;
+import com.makibeans.attribute.attribute.model.AttributeInputType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -28,6 +29,10 @@ public class AttributeRequestDTO {
 
     @NotNull(message = "Data type of attribute template cannot be null.")
     private AttributeDataType dataType;
+
+    @NotNull(message = "Input type of attribute  cannot be null.")
+    private AttributeInputType inputType;
+
 }
 
 

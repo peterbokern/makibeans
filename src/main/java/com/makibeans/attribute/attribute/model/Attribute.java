@@ -2,7 +2,7 @@ package com.makibeans.attribute.attribute.model;
 
 import com.makibeans.attribute.attributevalue.model.AttributeValue;
 import com.makibeans.audit.model.Auditable;
-import com.makibeans.util.TextUtils;
+import com.makibeans.common.util.TextUtils;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -19,7 +19,11 @@ import java.util.Set;
 @Entity
 @Table(
         name = "attributes",
-        indexes = {@Index(name = "idx_attribute_name", columnList = "name")})
+        indexes = {@Index(name = "idx_attribute_name", columnList = "name")},
+        uniqueConstraints = {
+                @UniqueConstraint(name = "uk_attribute_name", columnNames = {"name"}),
+                @UniqueConstraint(name = "uk_attribute_slug", columnNames = {"slug"})
+        })
 @NoArgsConstructor
 @Getter @Setter
 @ToString(exclude = "attributeValues")
@@ -37,10 +41,21 @@ public class Attribute extends Auditable {
     @Column(name = "description", length = 255)
     private String description;
 
+    @Column(name = "slug", nullable = false, unique = true, length = 60)
+    private String slug;
+
     @NotNull(message = "Data type of attribute cannot bee null.")
     @Enumerated(EnumType.STRING)
     @Column(name = "data_type", nullable = false, length = 20)
     private AttributeDataType dataType;
+
+    @NotNull(message = "Input type of attribute cannot bee null.")
+    @Enumerated(EnumType.STRING)
+    @Column(name = "input_type", nullable = false, length = 20)
+    private AttributeInputType inputType;
+
+    @Column(name = "active", nullable = false)
+    private boolean active = true;
 
     @OneToMany(
             mappedBy = "attribute",
@@ -52,13 +67,13 @@ public class Attribute extends Auditable {
     public Attribute(String name, String description, AttributeDataType dataType) {
         this.dataType = dataType;
         this.setName(name);
-        this.setDescripton(description);
+        this.setDescription(description);
     }
 
     public void setName(String name) {
         this.name = TextUtils.normalizeText(name);
     }
-    public void setDescripton(String description) {
+    public void setDescription(String description) {
         this.description = TextUtils.trim(description);
     }
 }

@@ -7,11 +7,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Repository for the attribute value entity.
@@ -65,4 +67,19 @@ public interface AttributeValueRepository extends JpaRepository<AttributeValue, 
     boolean existsByAttributeAndBooleanValue(Attribute attribute, boolean b);
 
     boolean existsByAttributeAndDateTimeValue(Attribute attribute, LocalDateTime localDateTime);
+
+    boolean existsByAttributeAndStringValueIgnoreCaseAndIdNot(Attribute attribute, String value, Long excludeId);
+
+    boolean existsByAttributeAndNumericValueAndIdNot(Attribute attribute, BigDecimal bigDecimal, Long excludeId);
+
+    boolean existsByAttributeAndBooleanValueAndIdNot(Attribute attribute, boolean b, Long excludeId);
+
+    boolean existsByAttributeAndDateValueAndIdNot(Attribute attribute, LocalDate localDate, Long excludeId);
+
+    boolean existsByAttributeAndDateTimeValueAndIdNot(Attribute attribute, LocalDateTime localDateTime, Long excludeId);
+
+    @Query("SELECT max(av.sortOrder) FROM AttributeValue av WHERE av.attribute = :attribute")
+    Optional<Integer> findMaxSortOrderByAttribute(Attribute attribute);
+
+    List<AttributeValue> findByAttributeAndSortOrderGreaterThanEqual(Attribute attribute, int fromSortOrder);
 }

@@ -4,7 +4,7 @@ import com.makibeans.category.model.Category;
 import com.makibeans.attribute.productattribute.model.ProductAttribute;
 import com.makibeans.productvariant.model.ProductVariant;
 import com.makibeans.audit.model.Auditable;
-import com.makibeans.util.TextUtils;
+import com.makibeans.common.util.TextUtils;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

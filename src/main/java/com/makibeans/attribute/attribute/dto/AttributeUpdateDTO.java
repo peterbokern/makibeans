@@ -1,5 +1,6 @@
 package com.makibeans.attribute.attribute.dto;
 
+import com.makibeans.attribute.attribute.model.AttributeInputType;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -19,4 +20,8 @@ public class AttributeUpdateDTO {
 
     @Size(max = 255, message = "Description of attribute template must be at most 255 characters.")
     private String description;
+
+    private AttributeInputType inputType;
+
+    boolean active;
 }

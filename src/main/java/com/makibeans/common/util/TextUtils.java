@@ -1,4 +1,4 @@
-package com.makibeans.util;
+package com.makibeans.common.util;
 
 public class TextUtils {
 
@@ -18,5 +18,18 @@ public class TextUtils {
         if (input == null) return null;
         String trimmed = input.trim();
         return trimmed.isEmpty() ? null : trimmed;
+    }
+
+    public static String toSlug(String input) {
+        if (input == null) return null;
+
+        String slug = input
+                .toLowerCase()
+                .trim()
+                .replaceAll("[^a-z0-9\\s-]", "")   // remove special chars
+                .replaceAll("\\s+", "-")          // spaces → dash
+                .replaceAll("-+", "-");           // collapse multiple dashes
+
+        return slug.isEmpty() ? null : slug;
     }
 }

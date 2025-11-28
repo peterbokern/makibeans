@@ -15,7 +15,7 @@ import com.makibeans.search.SpecificationFactory;
 import com.makibeans.product.filter.ProductFilter;
 import com.makibeans.category.service.CategoryService;
 import com.makibeans.common.service.CrudService;
-import com.makibeans.util.ImageUtils;
+import com.makibeans.common.util.ImageUtils;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

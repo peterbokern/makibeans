@@ -2,7 +2,7 @@ package com.makibeans.productvariant.model;
 import com.makibeans.audit.model.Auditable;
 import com.makibeans.product.model.Product;
 import com.makibeans.size.model.Size;
-import com.makibeans.util.TextUtils;
+import com.makibeans.common.util.TextUtils;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.Min;

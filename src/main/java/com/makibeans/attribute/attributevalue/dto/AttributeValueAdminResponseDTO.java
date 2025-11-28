@@ -11,5 +11,9 @@ public record AttributeValueAdminResponseDTO(
         String attributeName,
         String value,
         String dataType,
+        String inputType,
+        String slug,
+        Integer sortOrder,
+        boolean active,
         AuditableInfo audit
 ) {}

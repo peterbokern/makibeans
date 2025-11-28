@@ -1,4 +1,4 @@
-package com.makibeans.util;
+package com.makibeans.common.util;
 
 import org.apache.tika.Tika;
 

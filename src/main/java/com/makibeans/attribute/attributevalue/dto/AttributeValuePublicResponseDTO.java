@@ -8,6 +8,10 @@ public record AttributeValuePublicResponseDTO(
         Long attributeId,
         String attributeName,
         String value,
-        String dataType
+        String dataType,
+        String inputType,
+        String slug,
+        Integer sortOrder,
+        boolean active
 ) {}
 

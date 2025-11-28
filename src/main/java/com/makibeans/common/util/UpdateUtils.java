@@ -1,4 +1,4 @@
-package com.makibeans.util;
+package com.makibeans.common.util;
 
 /**
  * Utility class for handling updates and normalization of strings.
