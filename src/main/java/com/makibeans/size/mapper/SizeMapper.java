@@ -1,8 +1,8 @@
 package com.makibeans.size.mapper;
 
+import com.makibeans.audit.mapper.AuditableMapper;
 import com.makibeans.size.dto.SizeAdminResponseDTO;
 import com.makibeans.size.dto.SizePublicResponseDTO;
-import com.makibeans.size.dto.SizeResponseDTO;
 import com.makibeans.size.dto.SizeUpdateDTO;
 import com.makibeans.size.model.Size;
 import org.mapstruct.*;
@@ -11,14 +11,9 @@ import org.mapstruct.*;
  * Mapper for the entity {@link Size}.
  */
 @Mapper(
-        componentModel = "spring"
+        componentModel = "spring", uses = {AuditableMapper.class}
 )
 public interface SizeMapper {
-
-    // -------------------------------------------------------------------------
-    // Legacy/general DTO – keep temporarily if still used anywhere
-    // -------------------------------------------------------------------------
-    SizeResponseDTO toResponseDTO(Size entity);
 
     // -------------------------------------------------------------------------
     // Public DTO mapping
@@ -28,7 +23,7 @@ public interface SizeMapper {
     // -------------------------------------------------------------------------
     // Admin DTO mapping (with audit)
     // -------------------------------------------------------------------------
-    @Mapping(target = "audit", expression = "java(com.makibeans.audit.mapper.AuditableMapper.toAuditableInfo(entity))")
+    @Mapping(target = "audit", source = ".")
     SizeAdminResponseDTO toAdminResponseDTO(Size entity);
 
     // -------------------------------------------------------------------------

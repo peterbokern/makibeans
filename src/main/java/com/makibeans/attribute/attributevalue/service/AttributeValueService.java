@@ -9,7 +9,7 @@ import com.makibeans.common.service.CrudService;
 import org.apache.coyote.BadRequestException;
 import org.springframework.data.domain.Page;
 
-public interface AttributeValueService extends CrudService<AttributeValue, Long> {
+public interface AttributeValueService {
 
     Page<AttributeValue> search(SearchRequest<AttributeValueFilter> request);
 
@@ -20,4 +20,6 @@ public interface AttributeValueService extends CrudService<AttributeValue, Long>
     AttributeValue update(Long id, AttributeValueUpdateDTO dto) throws BadRequestException;
 
     void delete(Long id);
+
+    AttributeValue restore(Long id) throws BadRequestException;
 }

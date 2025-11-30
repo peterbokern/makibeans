@@ -78,13 +78,6 @@ public class AttributeValueAdminController {
         return ResponseEntity.status(HttpStatus.CREATED).body(mapper.toAdminResponseDTO(created));
     }
 
-    @PutMapping("/{id}")
-    @Operation(summary = "Admin: Update attribute value")
-    public ResponseEntity<AttributeValueAdminResponseDTO> update(@PathVariable Long id, @Valid @RequestBody AttributeValueUpdateDTO body) throws BadRequestException {
-        AttributeValue updated = service.update(id, body);
-        return ResponseEntity.ok(mapper.toAdminResponseDTO(updated));
-    }
-
     @PatchMapping("/{id}")
     @Operation(summary = "Admin: Partially update attribute value")
     public ResponseEntity<AttributeValueAdminResponseDTO> patch(@PathVariable Long id, @Valid @RequestBody AttributeValueUpdateDTO body) throws BadRequestException {
@@ -97,5 +90,12 @@ public class AttributeValueAdminController {
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         service.delete(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{id}/restore")
+    @Operation(summary = "Admin: Enable attribute value")
+    public ResponseEntity<AttributeValueAdminResponseDTO> enable(@PathVariable Long id) throws BadRequestException {
+        AttributeValue enabled = service.restore(id);
+        return ResponseEntity.ok(mapper.toAdminResponseDTO(enabled));
     }
 }

@@ -1,30 +1,16 @@
 package com.makibeans.product.mapper;
 
 import com.makibeans.attribute.productattribute.mapper.ProductAttributeMapper;
+import com.makibeans.audit.mapper.AuditableMapper;
 import com.makibeans.productvariant.mapper.ProductVariantMapper;
 import com.makibeans.product.dto.ProductAdminResponseDTO;
 import com.makibeans.product.dto.ProductPublicResponseDTO;
-import com.makibeans.product.dto.ProductResponseDTO;
 import com.makibeans.product.dto.ProductUpdateDTO;
 import com.makibeans.product.model.Product;
 import org.mapstruct.*;
 
-/**
- * Mapper for the entity {@link Product} and its DTO {@link ProductResponseDTO}.
- */
-
-@Mapper(componentModel = "spring", uses = {ProductVariantMapper.class, ProductAttributeMapper.class})
+@Mapper(componentModel = "spring", uses = {ProductVariantMapper.class, ProductAttributeMapper.class, AuditableMapper.class})
 public interface ProductMapper {
-
-    @Mapping(source = "id", target = "id")
-    @Mapping(source = "name", target = "name")
-    @Mapping(source = "description", target = "description")
-    @Mapping(source = "productVariants", target = "productVariants")
-    @Mapping(source = "productAttributes", target = "productAttributes")
-    @Mapping(source = "category.id", target = "categoryId")
-    @Mapping(source = "category.name", target = "categoryName")
-    @Mapping(source = ".", target = "imageUrl", qualifiedByName = "getImageUrl")
-    ProductResponseDTO toResponseDTO(Product entity);
 
     // --- Public DTO mapping ---
 
@@ -36,7 +22,7 @@ public interface ProductMapper {
 
     @Mapping(source = "category.name", target = "categoryName")
     @Mapping(source = ".", target = "imageUrl", qualifiedByName = "getImageUrl")
-    @Mapping(target = "audit", expression = "java(com.makibeans.audit.mapper.AuditableMapper.toAuditableInfo(entity))")
+    @Mapping(target = "audit", source = ".")
     ProductAdminResponseDTO toAdminResponseDTO(Product entity);
 
     @Named("getImageUrl")

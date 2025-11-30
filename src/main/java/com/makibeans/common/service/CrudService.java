@@ -1,7 +1,9 @@
 package com.makibeans.common.service;
 
+import com.makibeans.attribute.attributevalue.model.AttributeValue;
 import com.makibeans.exceptions.ResourceNotFoundException;
 import com.makibeans.audit.model.Auditable;
+import org.apache.coyote.BadRequestException;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Objects;
@@ -66,8 +68,12 @@ public interface CrudService<T, ID> {
         repo().delete(e);
     }
 
-    /** Restore a soft-deleted entity (Auditable only). */
-    default void restore(ID id) {
+    /**
+     * Restore a soft-deleted entity (Auditable only).
+     *
+     * @return
+     */
+    default AttributeValue restore(ID id) throws BadRequestException {
         T e = getOrThrow(id);
         if (e instanceof Auditable a) {
             a.setDeleted(false);
@@ -76,5 +82,6 @@ public interface CrudService<T, ID> {
         } else {
             throw new IllegalArgumentException(entityName() + " does not support restoration.");
         }
+        return null;
     }
 }

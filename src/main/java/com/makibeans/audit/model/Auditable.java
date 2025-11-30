@@ -43,6 +43,7 @@ public abstract class Auditable {
     @PostLoad
     private void captureWasDeleted() {this.wasDeleted = this.deleted;}
 
+    @SuppressWarnings("unused")
     public boolean isDeleted() {
         return this.deleted;
     }

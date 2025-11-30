@@ -3,6 +3,7 @@ package com.makibeans.attribute.attributevalue.mapper;
 import com.makibeans.attribute.attribute.model.AttributeDataType;
 import com.makibeans.attribute.attributevalue.dto.*;
 import com.makibeans.attribute.attributevalue.model.AttributeValue;
+import com.makibeans.audit.mapper.AuditableMapper;
 import com.makibeans.common.util.MappingUtils;
 import org.mapstruct.*;
 
@@ -10,7 +11,7 @@ import org.mapstruct.*;
  * Mapper for the entity {@link AttributeValue} and its DTOs {@link AttributeValueRequestDTO} and {@link AttributeValueResponseDTO}.
  */
 
-@Mapper(componentModel = "spring", uses = MappingUtils.class)
+@Mapper(componentModel = "spring", uses = {MappingUtils.class, AuditableMapper.class})
 public interface AttributeValueMapper {
 
     /**
@@ -34,9 +35,9 @@ public interface AttributeValueMapper {
     @Mapping(target = "value", expression = "java(entity.getValueAsString())")
     @Mapping(target = "dataType", expression = "java(entity.getAttribute().getDataType().getLabel();)")
     @Mapping(target = "inputType", expression = "java(entity.getAttribute().getInputType().getLabel();)")
-    @Mapping(target = "audit", expression = "java(com.makibeans.audit.mapper.AuditableMapper.toAuditableInfo(entity))")
     @Mapping(target = "slug", source = "slug")
     @Mapping(target = "sortOrder", source = "sortOrder")
+    @Mapping(target = "audit", source= ".")
     AttributeValueAdminResponseDTO toAdminResponseDTO(AttributeValue entity);
 
     @SuppressWarnings("unused")

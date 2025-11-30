@@ -1,5 +1,6 @@
 package com.makibeans.productvariant.mapper;
 
+import com.makibeans.audit.mapper.AuditableMapper;
 import com.makibeans.productvariant.dto.ProductVariantAdminResponseDTO;
 import com.makibeans.productvariant.dto.ProductVariantPublicResponseDTO;
 import com.makibeans.productvariant.dto.ProductVariantResponseDTO;
@@ -11,7 +12,7 @@ import org.mapstruct.*;
  * Mapper for {@link ProductVariant}.
  */
 @Mapper(
-        componentModel = "spring"
+        componentModel = "spring", uses = {AuditableMapper.class}
 )
 public interface ProductVariantMapper {
 
@@ -38,7 +39,7 @@ public interface ProductVariantMapper {
     @Mapping(source = "product.name",      target = "productName")
     @Mapping(source = "size.id",           target = "sizeId")
     @Mapping(source = "size.name",         target = "sizeName")
-    @Mapping(target = "audit", expression = "java(com.makibeans.audit.mapper.AuditableMapper.toAuditableInfo(entity))")
+    @Mapping(target = "audit", source = ".")
     ProductVariantAdminResponseDTO toAdminResponseDTO(ProductVariant entity);
 
     // -------------------------------------------------------------------------

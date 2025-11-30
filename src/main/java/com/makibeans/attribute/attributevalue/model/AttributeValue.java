@@ -1,4 +1,5 @@
 package com.makibeans.attribute.attributevalue.model;
+
 import com.makibeans.attribute.attribute.model.Attribute;
 import com.makibeans.attribute.attributevalue.validation.annotation.ValidAttributeValueForType;
 import com.makibeans.audit.model.Auditable;
@@ -25,29 +26,31 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @NoArgsConstructor
-@Table(name = "attribute_values", indexes = {
-        @Index(name = "attribute_value_id_index", columnList = "attribute_id"),
-        @Index(name = "idx_attribute_string_value", columnList = "string_value"),
-        @Index(name = "idx_attribute_numeric_value", columnList = "numeric_value"),
-        @Index(name = "idx_attribute_boolean_value", columnList = "boolean_value"),
-        @Index(name = "idx_attribute_date_value", columnList = "date_value"),
-        @Index(name = "idx_attribute_date_time_value", columnList = "date_time_value")
-})
+@Table(name = "attribute_values",
+        indexes = {
+                @Index(name = "attribute_value_id_index", columnList = "attribute_id"),
+                @Index(name = "idx_attribute_string_value", columnList = "string_value"),
+                @Index(name = "idx_attribute_numeric_value", columnList = "numeric_value"),
+                @Index(name = "idx_attribute_boolean_value", columnList = "boolean_value"),
+                @Index(name = "idx_attribute_date_value", columnList = "date_value"),
+                @Index(name = "idx_attribute_date_time_value", columnList = "date_time_value"),
+        })
 @ToString(exclude = "attribute")
 @ValidAttributeValueForType // Custom validation to ensure  1  value matches attribute data type
 public class AttributeValue extends Auditable {
 
-    @Id @Setter(AccessLevel.NONE) //TODO: apply to all id fields
+    @Id
+    @Setter(AccessLevel.NONE) //TODO: apply to all id fields
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch= FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "attribute_id", nullable = false, foreignKey = @ForeignKey(name = "fk_attribute_value_attribute"))
     @OnDelete(action = OnDeleteAction.CASCADE) //if attribute is deleted, delete all its values
     @NotNull(message = "Attribute cannot be null.")
     private Attribute attribute;
 
-    @Column(name = "string_value",  length = 255)
+    @Column(name = "string_value", length = 255)
     @Size(max = 255, message = "Attribute value must be between 1 and 255 characters.")
     private String stringValue;
 
@@ -71,9 +74,6 @@ public class AttributeValue extends Auditable {
     @Min(value = 0, message = "Sort order must be zero or a positive integer.")
     private Integer sortOrder = 0;
 
-    @Column(name = "active", nullable = false)
-    private boolean active = true;
-
     public Object getValue() {
         return switch (this.attribute.getDataType()) {
             case STRING -> this.stringValue;
@@ -84,6 +84,7 @@ public class AttributeValue extends Auditable {
             default -> null;
         };
     }
+
     public String getValueAsString() {
         Object value = getValue();
         if (value == null) return null;

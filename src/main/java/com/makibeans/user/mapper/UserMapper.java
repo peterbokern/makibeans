@@ -1,9 +1,9 @@
 package com.makibeans.user.mapper;
 
+import com.makibeans.audit.mapper.AuditableMapper;
 import com.makibeans.user.dto.UserPublicResponseDTO;
 import com.makibeans.user.dto.UserAdminResponseDTO;
 
-import com.makibeans.user.dto.UserResponseDTO;
 import com.makibeans.user.dto.UserUpdateDTO;
 import com.makibeans.role.model.Role;
 import com.makibeans.user.model.User;
@@ -13,14 +13,9 @@ import org.mapstruct.*;
  * Mapper for the entity {@link User}.
  */
 @Mapper(
-        componentModel = "spring"
+        componentModel = "spring", uses = {AuditableMapper.class}
 )
 public interface UserMapper {
-
-    // -------------------------------------------------------------------------
-    // Legacy DTO (keep until you’ve removed all usages)
-    // -------------------------------------------------------------------------
-    UserResponseDTO toResponseDTO(User user);
 
     // -------------------------------------------------------------------------
     // New public DTO mapping
@@ -32,7 +27,7 @@ public interface UserMapper {
     // New admin DTO mapping (with audit)
     // -------------------------------------------------------------------------
     @Mapping(target = "roles", source = "roles")
-    @Mapping(target = "audit", expression = "java(com.makibeans.audit.mapper.AuditableMapper.toAuditableInfo(user))")
+    @Mapping(target = "audit", source = ".")
     UserAdminResponseDTO toAdminResponseDTO(User user);
 
     // -------------------------------------------------------------------------

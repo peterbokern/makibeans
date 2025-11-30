@@ -11,11 +11,11 @@ public class FilterMetadataExtractor {
     public static Map<String, FilterMetadata> extract(Class<?> filterClass) {
         Map<String, FilterMetadata> out = new LinkedHashMap<>();
         for (Field f : filterClass.getDeclaredFields()) {
-            Filter ann = f.getAnnotation(Filter.class);
+            Filter ann = f.getAnnotation(Filter.class); //e.g @Filter(key="categoryId", path="category.id", type={EQ, IN}, filterable=true, sortable=true)
             if (ann == null || !ann.filterable()) continue;
 
-            String key = ann.key().isBlank() ? f.getName() : ann.key();
-            String path = ann.path().isBlank() ? f.getName() : ann.path();
+            String key = ann.key().isBlank() ? f.getName() : ann.key(); //e.g. "categoryId"
+            String path = ann.path().isBlank() ? f.getName() : ann.path(); //e.g. "category.id"
 
             out.put(key, new FilterMetadata(key, path, ann.type(), ann.sortable()));
         }

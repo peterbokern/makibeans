@@ -75,7 +75,7 @@ public class ProductAttributeValueServiceImpl implements CrudService<ProductAttr
         ProductAttributeValue entity = new ProductAttributeValue();
 
         ProductAttribute productAttribute = productAttributeService.getOrThrow(dto.getProductAttributeId());
-        AttributeValue attributeValue = attributeValueService.getOrThrow(dto.getAttributeValueId());
+        AttributeValue attributeValue = attributeValueService.getById(dto.getAttributeValueId());
 
         if (repo.existsByProductAttributeIdAndAttributeValueId(dto.getProductAttributeId(), dto.getAttributeValueId())) {
             throw new DuplicateResourceException("Duplicate ProductAttributeValue link");

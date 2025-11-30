@@ -1,5 +1,6 @@
 package com.makibeans.category.mapper;
 
+import com.makibeans.audit.mapper.AuditableMapper;
 import com.makibeans.category.dto.*;
 import com.makibeans.category.model.Category;
 import org.mapstruct.*;
@@ -7,11 +8,7 @@ import org.mapstruct.*;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Mapper for the entity {@link Category} and its DTOs {@link CategoryRequestDTO} and {@link CategoryResponseDTO}.
- */
-
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = {AuditableMapper.class})
 public interface CategoryMapper {
 
     /**
@@ -33,7 +30,7 @@ public interface CategoryMapper {
     @Mapping(target = "breadCrumbs", expression = "java(buildBreadcrumbs(category))")
     @Mapping(source = "parentCategory.id", target = "parentCategoryId")
     @Mapping(source = ".", target = "imageUrl", qualifiedByName = "getImageUrl")
-    @Mapping(target  = "audit", expression = "java(com.makibeans.audit.mapper.AuditableMapper.toAuditableInfo(category))")
+    @Mapping(target  = "audit", source = ".")
     CategoryAdminResponseDTO toAdminResponseDTO(Category category);
 
     /**
@@ -49,15 +46,6 @@ public interface CategoryMapper {
                 ? "/categories/" + category.getId() + "/image"
                 : "null";
     }
-
-    /**
-     * Converts a list of Category entities to a list of CategoryResponseDTOs.
-     *
-     * @param categories the list of Category entities to convert
-     * @return the list of converted CategoryResponseDTOs
-     */
-
-    List<CategoryResponseDTO> toResponseDTOList(List<Category> categories);
 
     /**
      * Builds a list of breadcrumbs for the given category.

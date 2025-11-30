@@ -1,7 +1,6 @@
 package com.makibeans.productvariant.dto;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.makibeans.audit.dto.AuditableResponseDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -11,12 +10,12 @@ import lombok.NoArgsConstructor;
  * Data Transfer Object for ProductVariant responses.
  */
 
-@EqualsAndHashCode(callSuper = true)
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonPropertyOrder({"id", "sizeId", "sizeName", "sku", "priceInCents", "stock", "createdBy", "createdAt", "updatedBy", "updatedAt"})
-public class ProductVariantResponseDTO extends AuditableResponseDTO {
+public class ProductVariantResponseDTO {
     private Long id;
     private Long sizeId;
     private String sizeName;

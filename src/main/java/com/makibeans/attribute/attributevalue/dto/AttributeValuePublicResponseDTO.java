@@ -11,7 +11,6 @@ public record AttributeValuePublicResponseDTO(
         String dataType,
         String inputType,
         String slug,
-        Integer sortOrder,
-        boolean active
+        Integer sortOrder
 ) {}
 
