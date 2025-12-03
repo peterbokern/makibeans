@@ -35,11 +35,11 @@ public class SearchRequest<F> {
         private Integer size;
 
         @Schema(description = "Sort by field/property name.")
-        private String sortBy;
+        private String sortBy = "id";
 
         @Schema(description = "Sort direction (ASC/DESC).")
         @JsonAlias({"sortDir", "sortOrder","direction", "dir"})
-        private SortDirection sortDirection;
+        private SortDirection sortDirection = SortDirection.ASC;
 
         @Schema(description = "Include soft-deleted records (if supported).")
         private Boolean includeDeleted;

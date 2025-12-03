@@ -20,4 +20,6 @@ public interface CategoryAttributeRepository extends JpaRepository<CategoryAttri
 
     @EntityGraph(attributePaths = {"attribute", "category"})// Eagerly load associated attribute and category improves performance by reducing the number of queries
     Page<CategoryAttribute> findAll(Specification<CategoryAttribute> spec, Pageable pageable);
+
+    boolean existsByAttributeIdAndDeletedFalse(Long attributeId);
 }

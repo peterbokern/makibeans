@@ -7,6 +7,8 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
+
 /**
  * Repository interface for managing `ProductAttributeValue` entities.
  */
@@ -31,4 +33,6 @@ public interface ProductAttributeValueRepository extends JpaRepository<ProductAt
     Page<ProductAttributeValue> findAll(Specification<ProductAttributeValue> spec, Pageable pageable);
 
     boolean existsByProductAttributeIdAndAttributeValueId(Long productAttributeId, Long attributeValueId);
+
+    boolean existsByProductAttributeIdAndDeletedFalse(Long productAttributeId);
 }

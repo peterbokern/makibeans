@@ -8,7 +8,7 @@ import com.makibeans.attribute.categoryattribute.mapper.CategoryAttributeMapper;
 import com.makibeans.attribute.categoryattribute.model.CategoryAttribute;
 import com.makibeans.attribute.categoryattribute.repository.CategoryAttributeRepository;
 import com.makibeans.search.*;
-import com.makibeans.exceptions.DuplicateResourceException;
+import com.makibeans.web.exceptions.DuplicateResourceException;
 import com.makibeans.attribute.attribute.model.Attribute;
 import com.makibeans.category.model.Category;
 import com.makibeans.attribute.attribute.service.AttributeService;
@@ -93,7 +93,7 @@ public class CategoryAttributeServiceImpl
     @Transactional
     public CategoryAttribute create(@Valid CategoryAttributeRequestDTO requestDTO) {
         Category category = categoryService.getOrThrow(requestDTO.getCategoryId());
-        Attribute attribute = attributeService.getOrThrow(requestDTO.getAttributeId());
+        Attribute attribute = attributeService.getById(requestDTO.getAttributeId());
 
         if (repo.existsByCategoryIdAndAttributeId(category.getId(), attribute.getId())) {
             throw new DuplicateResourceException(

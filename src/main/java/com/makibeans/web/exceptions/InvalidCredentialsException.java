@@ -1,4 +1,4 @@
-package com.makibeans.exceptions;
+package com.makibeans.web.exceptions;
 
 /**
  * Exception thrown when invalid credentials are provided.

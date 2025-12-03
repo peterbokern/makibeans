@@ -4,6 +4,7 @@ package com.makibeans.attribute.attribute.controller.admin;
 import com.makibeans.attribute.attribute.dto.AttributeAdminResponseDTO;
 import com.makibeans.attribute.attribute.dto.AttributeRequestDTO;
 import com.makibeans.attribute.attribute.dto.AttributeUpdateDTO;
+import com.makibeans.attribute.attribute.dto.AttributeUsageDTO;
 import com.makibeans.attribute.attribute.mapper.AttributeMapper;
 import com.makibeans.attribute.attribute.model.Attribute;
 import com.makibeans.search.SearchRequest;
@@ -14,6 +15,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.BadRequestException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -68,6 +70,13 @@ public class AttributeAdminController {
         return ResponseEntity.ok(page.map(mapper::toAdminResponseDTO));
     }
 
+    @GetMapping("/{attributeId}/usage")
+    @Operation(summary = "Get usage summary for an attribute")
+    public ResponseEntity<AttributeUsageDTO> summarizeUsage (@PathVariable Long attributeId) {
+        AttributeUsageDTO usage = service.summarizeAttributeUsage(attributeId);
+        return ResponseEntity.ok(usage);
+    }
+
     // ---------- WRITES (ADMIN) ----------
 
     @PostMapping
@@ -75,16 +84,6 @@ public class AttributeAdminController {
     public ResponseEntity<AttributeAdminResponseDTO> create(@Valid @RequestBody AttributeRequestDTO body) {
         Attribute created = service.create(body);
         return ResponseEntity.status(HttpStatus.CREATED).body(mapper.toAdminResponseDTO(created));
-    }
-
-    @PutMapping("/{id}")
-    @Operation(summary = "Admin: Update attribute", description = "Admin only. Full update semantics.")
-    public ResponseEntity<AttributeAdminResponseDTO> update(
-            @PathVariable Long id,
-            @Valid @RequestBody AttributeUpdateDTO body
-    ) {
-        Attribute updated = service.update(id, body);
-        return ResponseEntity.ok(mapper.toAdminResponseDTO(updated));
     }
 
     @PatchMapping("/{id}")
@@ -99,8 +98,15 @@ public class AttributeAdminController {
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Admin: Delete attribute", description = "Admin only. Soft/hard delete per service implementation.")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
+    public ResponseEntity<Void> delete(@PathVariable Long id) throws BadRequestException {
         service.delete(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{id}/restore")
+    @Operation(summary = "Admin: Restore deleted attribute", description = "Admin only. Restore a soft-deleted attribute.")
+    public ResponseEntity<AttributeAdminResponseDTO> restore(@PathVariable Long id) throws BadRequestException {
+        Attribute restored = service.restore(id);
+        return ResponseEntity.ok(mapper.toAdminResponseDTO(restored));
     }
 }

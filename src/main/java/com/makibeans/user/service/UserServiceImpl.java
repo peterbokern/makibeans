@@ -1,6 +1,6 @@
 package com.makibeans.user.service;
 
-import com.makibeans.exceptions.ResourceNotFoundException;
+import com.makibeans.web.exceptions.ResourceNotFoundException;
 import com.makibeans.role.service.RoleServiceImpl;
 import com.makibeans.user.dto.*;
 import com.makibeans.user.mapper.UserMapper;

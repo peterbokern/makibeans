@@ -21,6 +21,12 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 
+    private final UnknownQueryParamInterceptor interceptor;
+
+    public WebConfig(UnknownQueryParamInterceptor interceptor) {
+        this.interceptor = interceptor;
+    }
+
     @Bean
     public ServletRegistrationBean<DispatcherServlet> dispatcherServletRegistration(DispatcherServlet dispatcherServlet) {
         ServletRegistrationBean<DispatcherServlet> registration = new ServletRegistrationBean<>(dispatcherServlet);
@@ -41,7 +47,7 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new UnknownQueryParamInterceptor())
+        registry.addInterceptor(interceptor)
                 .addPathPatterns("/**")
                 .excludePathPatterns("/swagger-ui/**", "/v3/api-docs/**");
     }

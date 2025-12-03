@@ -56,9 +56,10 @@ public class ProductAttributeAdminController {
                 .body(mapper.toAdminResponseDTO(created));
     }
 
+    //TO DO make this into disable/enable instead of delete
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        service.delete(id);
+    public ResponseEntity<Void> disable(@PathVariable Long id) {
+        service.disable(id);
         return ResponseEntity.noContent().build();
     }
 }

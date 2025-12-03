@@ -2,9 +2,9 @@ package com.makibeans.product.service;
 
 import com.makibeans.product.dto.ProductRequestDTO;
 import com.makibeans.product.dto.ProductUpdateDTO;
-import com.makibeans.exceptions.DuplicateResourceException;
-import com.makibeans.exceptions.ImageProcessingException;
-import com.makibeans.exceptions.ResourceNotFoundException;
+import com.makibeans.web.exceptions.DuplicateResourceException;
+import com.makibeans.web.exceptions.ImageProcessingException;
+import com.makibeans.web.exceptions.ResourceNotFoundException;
 import com.makibeans.product.mapper.ProductMapper;
 import com.makibeans.category.model.Category;
 import com.makibeans.product.model.Product;

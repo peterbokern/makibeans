@@ -9,7 +9,7 @@ import com.makibeans.search.SearchRequest;
 import com.makibeans.product.filter.ProductFilter;
 import com.makibeans.search.utils.SearchRequestUtils;
 import com.makibeans.product.service.ProductService;
-import com.makibeans.exceptions.ImageProcessingException;
+import com.makibeans.web.exceptions.ImageProcessingException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;

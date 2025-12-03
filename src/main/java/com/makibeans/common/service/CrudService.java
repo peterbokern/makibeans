@@ -1,7 +1,7 @@
 package com.makibeans.common.service;
 
 import com.makibeans.attribute.attributevalue.model.AttributeValue;
-import com.makibeans.exceptions.ResourceNotFoundException;
+import com.makibeans.web.exceptions.ResourceNotFoundException;
 import com.makibeans.audit.model.Auditable;
 import org.apache.coyote.BadRequestException;
 import org.springframework.data.jpa.repository.JpaRepository;

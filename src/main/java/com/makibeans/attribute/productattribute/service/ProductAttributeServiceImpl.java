@@ -5,7 +5,7 @@ import com.makibeans.attribute.attribute.service.AttributeService;
 import com.makibeans.attribute.productattribute.filter.ProductAttributeFilter;
 import com.makibeans.common.service.CrudService;
 import com.makibeans.attribute.productattribute.dto.ProductAttributeRequestDTO;
-import com.makibeans.exceptions.DuplicateResourceException;
+import com.makibeans.web.exceptions.DuplicateResourceException;
 import com.makibeans.attribute.productattribute.mapper.ProductAttributeMapper;
 import com.makibeans.product.model.Product;
 import com.makibeans.product.service.ProductService;
@@ -71,7 +71,7 @@ public class ProductAttributeServiceImpl implements ProductAttributeService, Cru
         Long attributeId = requestDTO.getAttributeId();
 
         Product product = productService.getOrThrow(productId);
-        Attribute attribute = attributeService.getOrThrow(attributeId);
+        Attribute attribute = attributeService.getById(attributeId);
 
         if (repo.existsByProductIdAndAttributeId(productId, attributeId)) {
             throw new DuplicateResourceException("ProductAttribute with Product ID " + productId +
@@ -81,6 +81,34 @@ public class ProductAttributeServiceImpl implements ProductAttributeService, Cru
         ProductAttribute productAttribute = new ProductAttribute(attribute, product);
 
         return repo.save(productAttribute);
+    }
+
+    @Override
+    @Transactional
+    public void disable(Long id) {
+        ProductAttribute pa = getOrThrow(id);
+        if (Boolean.TRUE.equals(pa.isDeleted())) {
+            return;
+        }
+        pa.setActive(false);
+    }
+
+    @Override
+    public ProductAttribute enable(Long id) {
+        ProductAttribute pa = getOrThrow(id);
+        if (Boolean.FALSE.equals(pa.isActive())) {
+            return pa;
+        }
+
+        if (Boolean.TRUE.equals(pa.getProduct().isDeleted())) {
+            throw new IllegalStateException("Cannot enable ProductAttribute because its associated Product is deleted.");
+        }
+
+        if (Boolean.TRUE.equals(pa.getAttribute().isDeleted())) {
+            throw new IllegalStateException("Cannot enable ProductAttribute because its associated Attribute is deleted.");
+        }
+        pa.setActive(true);
+        return pa;
     }
 
     @Transactional

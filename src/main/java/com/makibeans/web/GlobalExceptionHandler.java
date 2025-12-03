@@ -3,8 +3,10 @@ package com.makibeans.web;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
-import com.makibeans.exceptions.DuplicateResourceException;
-import com.makibeans.exceptions.ResourceNotFoundException;
+import com.makibeans.web.exceptions.DuplicateResourceException;
+import com.makibeans.web.exceptions.ResourceInUseException;
+import com.makibeans.web.exceptions.ResourceNotFoundException;
+import com.makibeans.web.exceptions.UnknownQueryParamException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import org.apache.coyote.BadRequestException;
@@ -207,6 +209,45 @@ public class GlobalExceptionHandler {
         pd.setDetail(ex.getMessage());
         pd.setProperty("timestamp", OffsetDateTime.now());
         pd.setProperty("errors", List.of(error));
+        return pd;
+    }
+
+    @ExceptionHandler(BadRequestException.class)
+    public ProblemDetail handleBadRequestException(BadRequestException ex) {
+        Map<String, Object> error = Map.of(
+                "field" , "rawValue",
+                "message", ex.getMessage()
+        );
+
+        ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        pd.setTitle("Bad Request");
+        pd.setDetail(ex.getMessage());
+        pd.setProperty("timestamp", OffsetDateTime.now());
+        pd.setProperty("errors", List.of(error));
+        return pd;
+    }
+
+    @ExceptionHandler(UnknownQueryParamException.class)
+    public ProblemDetail handleUnknownQueryParamException(UnknownQueryParamException ex) {
+        Map<String, Object> error = Map.of(
+                "param" , ex.getParamName(),
+                "message", ex.getMessage()
+        );
+        ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        pd.setTitle("Unknown Query Parameter");
+        pd.setDetail(ex.getMessage());
+        pd.setProperty("timestamp", OffsetDateTime.now());
+        pd.setProperty("errors", List.of(error));
+        return pd;
+    }
+
+    @ExceptionHandler(ResourceInUseException.class)
+    public ProblemDetail handleResourceInUseException(ResourceInUseException ex) {
+
+        ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.CONFLICT);
+        pd.setTitle("Resource In Use");
+        pd.setDetail(ex.getMessage());
+        pd.setProperty("timestamp", OffsetDateTime.now());
         return pd;
     }
 

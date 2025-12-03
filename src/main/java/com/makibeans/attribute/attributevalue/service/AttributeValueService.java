@@ -5,7 +5,6 @@ import com.makibeans.attribute.attributevalue.filter.AttributeValueFilter;
 import com.makibeans.attribute.attributevalue.model.AttributeValue;
 import com.makibeans.attribute.attributevalue.dto.AttributeValueRequestDTO;
 import com.makibeans.search.SearchRequest;
-import com.makibeans.common.service.CrudService;
 import org.apache.coyote.BadRequestException;
 import org.springframework.data.domain.Page;
 

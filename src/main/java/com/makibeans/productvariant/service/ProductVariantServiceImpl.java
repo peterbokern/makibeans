@@ -3,7 +3,7 @@ package com.makibeans.productvariant.service;
 import com.makibeans.productvariant.dto.ProductVariantRequestDTO;
 import com.makibeans.productvariant.dto.ProductVariantResponseDTO;
 import com.makibeans.productvariant.dto.ProductVariantUpdateDTO;
-import com.makibeans.exceptions.DuplicateResourceException;
+import com.makibeans.web.exceptions.DuplicateResourceException;
 import com.makibeans.productvariant.mapper.ProductVariantMapper;
 import com.makibeans.product.model.Product;
 import com.makibeans.productvariant.model.ProductVariant;

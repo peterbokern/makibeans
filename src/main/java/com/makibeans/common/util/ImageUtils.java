@@ -1,7 +1,7 @@
 package com.makibeans.common.util;
 
 import com.makibeans.config.ImageConfig;
-import com.makibeans.exceptions.ImageProcessingException;
+import com.makibeans.web.exceptions.ImageProcessingException;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 

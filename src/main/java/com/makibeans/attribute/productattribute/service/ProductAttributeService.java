@@ -12,5 +12,8 @@ public interface ProductAttributeService extends CrudService<ProductAttribute, L
     ProductAttribute getById(Long id);
     Page<ProductAttribute> search(SearchRequest<ProductAttributeFilter> request);
     ProductAttribute  create(@Valid ProductAttributeRequestDTO dto);
+
+    void disable(Long id);
+    ProductAttribute enable(Long id);
     //ProductAttributeResponseDTO update(Long id, @Valid ProductAttributeRequestDTO dto);
 }

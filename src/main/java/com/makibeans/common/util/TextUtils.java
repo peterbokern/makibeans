@@ -1,5 +1,7 @@
 package com.makibeans.common.util;
 
+import java.util.List;
+
 public class TextUtils {
 
     private TextUtils() {
@@ -31,5 +33,20 @@ public class TextUtils {
                 .replaceAll("-+", "-");           // collapse multiple dashes
 
         return slug.isEmpty() ? null : slug;
+    }
+
+    public static  String toCommaDelimitedString(List<String> items) {
+        if (items == null || items.isEmpty()) {
+            return "";
+        }
+        if (items.size() == 1) {
+            return items.getFirst() + ".";
+        }
+        if (items.size() == 2) {
+            return items.getFirst()+ " and " + items.getLast() + ".";
+        }
+        String joined = String.join(", ", items.subList(0, items.size() - 1));
+        joined += ", and " + items.getLast();
+        return joined + ".";
     }
 }

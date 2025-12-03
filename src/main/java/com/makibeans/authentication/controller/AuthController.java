@@ -37,7 +37,6 @@ public class AuthController {
     @Operation(summary = "Authenticate user and return JWT token")
     @PostMapping("/login")
     public ResponseEntity<LoginResponseDTO> loginUser(@Valid @RequestBody LoginRequestDTO loginRequestDTO) {
-        logger.info("Login attempt for username: {}", loginRequestDTO.getUsername());
         LoginResponseDTO loginResponseDTO = authService.loginUser(loginRequestDTO);
         logger.info("Login succesfull for username: {}", loginRequestDTO.getUsername());
         return ResponseEntity.ok(loginResponseDTO);

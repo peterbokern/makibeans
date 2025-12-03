@@ -96,4 +96,5 @@ public interface ProductAttributeRepository extends JpaRepository<ProductAttribu
     })
     Page<ProductAttribute> findAll(Specification<ProductAttribute> spec, Pageable pageable);
 
+    boolean existsByAttributeIdAndDeletedFalse(Long attributeId);
 }

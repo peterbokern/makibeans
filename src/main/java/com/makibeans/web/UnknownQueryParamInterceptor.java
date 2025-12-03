@@ -1,60 +1,66 @@
 package com.makibeans.web;
 
-import com.makibeans.exceptions.InvalidQueryParamsException;
+import com.makibeans.web.exceptions.UnknownQueryParamException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.apache.coyote.BadRequestException;
+import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
+import java.lang.reflect.Field;
+import java.lang.reflect.Parameter;
+import java.util.*;
 
 // Interceptor to reject unknown query parameters for endpoints using a @ModelAttribute("params") DTO.
 // runs after GlobalBindingAdvice but before controller method
+@Component
 public class UnknownQueryParamInterceptor implements HandlerInterceptor {
-    private static final Set<String> GLOBAL_ALLOWED = Set.of("page", "size", "sort", "sortOrder", "search");
 
     @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        if (!(handler instanceof HandlerMethod hm)) return true;
+    public boolean preHandle(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            Object handler
+    ) throws BadRequestException {
 
-        // Find the DTO class used in @ModelAttribute("params") e.g. CategoryAttributeFilter
-        Class<?> queryParamsClass = Arrays.stream(hm.getMethodParameters())
-                .filter(p -> {
-                    var ann = p.getParameterAnnotation(ModelAttribute.class);
-                    return ann != null && ("params".equals(ann.value()) || "searchOptions".equals(ann.value())); // only ModelAttribute("params")
-                })
-                .map(p -> p.getParameter().getType())
-                .findFirst().orElse(null);
-
-        if (queryParamsClass == null) return true; // endpoint has no "params" model attribute
-
-        Set<String> allowed = readableWritableProps(queryParamsClass);
-        Set<String> incoming = request.getParameterMap().keySet();
-
-        List<String> unknown = incoming.stream()
-                .filter(k -> !GLOBAL_ALLOWED.contains(k))
-                .filter(k -> !allowed.contains(k))
-                .toList();
-
-        if (!unknown.isEmpty()) {
-            throw new InvalidQueryParamsException(unknown);
+        if (!(handler instanceof HandlerMethod handlerMethod)) {
+            return true;
         }
+
+        Map<String, String[]> actualParams = request.getParameterMap();
+        Set<String> allowedParams = new HashSet<>();
+
+        // 1. Collect @RequestParam names
+        for (Parameter p : handlerMethod.getMethod().getParameters()) {
+            RequestParam rp = p.getAnnotation(RequestParam.class);
+            if (rp != null) {
+                allowedParams.add(
+                        !rp.name().isEmpty() ? rp.name() : p.getName()
+                );
+            }
+
+            // 2. Collect @ModelAttribute fields
+            if (p.isAnnotationPresent(ModelAttribute.class)) {
+                for (Field f : p.getType().getDeclaredFields()) {
+                    allowedParams.add(f.getName());
+                }
+            }
+        }
+
+        // 3. Add Spring Data pagination params
+        allowedParams.addAll(Set.of("page", "size", "sort"));
+
+        // 4. Compare
+        for (String actual : actualParams.keySet()) {
+            if (!allowedParams.contains(actual)) {
+                throw new UnknownQueryParamException(actual
+                );
+            }
+        }
+
         return true;
-    }
-
-    private static Set<String> readableWritableProps(Class<?> type) {
-        if (type == null) return java.util.Set.of();
-        try {
-            return Arrays.stream(java.beans.Introspector.getBeanInfo(type).getPropertyDescriptors())
-                    .filter(pd -> pd.getReadMethod() != null && pd.getWriteMethod() != null)
-                    .map(java.beans.PropertyDescriptor::getName)
-                    .filter(n -> !"class".equals(n))
-                    .collect(java.util.stream.Collectors.toCollection(java.util.LinkedHashSet::new));
-        } catch (Exception e) {
-            return java.util.Set.of();
-        }
     }
 }

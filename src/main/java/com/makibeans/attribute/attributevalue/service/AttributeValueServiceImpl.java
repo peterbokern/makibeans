@@ -6,10 +6,10 @@ import com.makibeans.attribute.attributevalue.mapper.AttributeValueMapper;
 import com.makibeans.attribute.attributevalue.repository.AttributeValueRepository;
 import com.makibeans.attribute.attributevalue.dto.AttributeValueRequestDTO;
 import com.makibeans.attribute.attributevalue.util.AttributeValueParser;
-import com.makibeans.exceptions.DuplicateResourceException;
+import com.makibeans.web.exceptions.DuplicateResourceException;
 import com.makibeans.attribute.attribute.model.Attribute;
 import com.makibeans.attribute.attributevalue.model.AttributeValue;
-import com.makibeans.exceptions.ResourceNotFoundException;
+import com.makibeans.web.exceptions.ResourceNotFoundException;
 import com.makibeans.search.SearchRequest;
 import com.makibeans.search.SortResolver;
 import com.makibeans.search.SpecificationFactory;
@@ -117,7 +117,7 @@ public class AttributeValueServiceImpl implements  AttributeValueService {
      */
     @Transactional
     public AttributeValue create(AttributeValueRequestDTO requestDTO) throws BadRequestException {
-        Attribute attribute = attributeService.getOrThrow(requestDTO.getAttributeId());
+        Attribute attribute = attributeService.getById(requestDTO.getAttributeId());
         AttributeDataType type = attribute.getDataType();
 
         String normalizedValue = normalizeRawValue(requestDTO.getRawValue());
@@ -214,22 +214,47 @@ public class AttributeValueServiceImpl implements  AttributeValueService {
      *
      * @param target          entity to mutate
      * @param type            attribute value data type
-     * @param normalizedValue already-normalised raw value (not blank)
+     * @param rawValue already-normalised raw value (not blank)
      * @throws BadRequestException if the value is blank or cannot be parsed for the given type
      */
-    private void applyRawValue(AttributeValue target, AttributeDataType type, String normalizedValue) throws BadRequestException {
+    private void applyRawValue(AttributeValue target,
+                               AttributeDataType type,
+                               String rawValue) throws BadRequestException {
 
-        if (normalizedValue == null || normalizedValue.isBlank()) {
+        if (rawValue == null) {
             throw new BadRequestException("Attribute value cannot be empty.");
         }
 
-        // normalise text again for STRING to ensure DB stores trimmed / canonical value
+        // What the user typed → trimmed, but keep casing for display
+        String displayValue = rawValue.trim();
+
+        if (displayValue.isBlank()) {
+            throw new BadRequestException("Attribute value cannot be empty.");
+        }
+
+        // Canonical form → for parsing + uniqueness checks
+        String normalizedValue = normalizeRawValue(rawValue);
+
         switch (type) {
-            case STRING -> target.setStringValue(TextUtils.normalizeText(normalizedValue));
-            case NUMERIC -> target.setNumericValue(AttributeValueParser.parseNumeric(normalizedValue));
-            case BOOLEAN -> target.setBooleanValue(AttributeValueParser.parseBoolean(normalizedValue));
-            case DATE -> target.setDateValue(AttributeValueParser.parseDate(normalizedValue));
-            case DATETIME -> target.setDateTimeValue(AttributeValueParser.parseDateTime(normalizedValue));
+            case STRING -> {
+                // Store human-friendly version (e.g. "Light Roast", not "light roast")
+                target.setStringValue(displayValue);
+            }
+            case NUMERIC -> target.setNumericValue(
+                    AttributeValueParser.parseNumeric(normalizedValue)
+            );
+            case BOOLEAN -> target.setBooleanValue(
+                    AttributeValueParser.parseBoolean(normalizedValue)
+            );
+            case DATE -> target.setDateValue(
+                    AttributeValueParser.parseDate(normalizedValue)
+            );
+            case DATETIME -> target.setDateTimeValue(
+                    AttributeValueParser.parseDateTime(normalizedValue)
+            );
+            default -> throw new BadRequestException(
+                    "Unsupported attribute data type: " + type
+            );
         }
     }
 
@@ -309,10 +334,10 @@ public class AttributeValueServiceImpl implements  AttributeValueService {
      * Ensures that a value about to be updated does not already exist for the
      * given attribute + type combination, excluding the current entity id.
      */
-    private void assertUniqueRawValueForUpdate(String normalizedValue, Attribute attribute, AttributeDataType type, Long currentId) {
-        if (valueExistsAndIdNot(normalizedValue, type, attribute, currentId)) {
+    private void assertUniqueRawValueForUpdate(String value, Attribute attribute, AttributeDataType type, Long currentId) {
+        if (valueExistsAndIdNot(value, type, attribute, currentId)) {
             throw new DuplicateResourceException(
-                    "Attribute value '" + normalizedValue + "' already exists for attribute '" + attribute.getName() + "'."
+                    "Attribute value '" + value + "' already exists for attribute '" + attribute.getName() + "'."
             );
         }
     }
@@ -326,10 +351,11 @@ public class AttributeValueServiceImpl implements  AttributeValueService {
             return;
         }
 
-        String newNormalizedValue = normalizeRawValue(dto.getRawValue());
-        assertUniqueRawValueForUpdate(newNormalizedValue, attribute, type, av.getId());
+        String newRawValue = dto.getRawValue().trim();
+        String newNormalizedValue = normalizeRawValue(newRawValue);
+        assertUniqueRawValueForUpdate(newRawValue, attribute, type, av.getId());
 
-        applyRawValue(av, type, newNormalizedValue);
+        applyRawValue(av, type, newRawValue);
         av.setSlug(TextUtils.toSlug(newNormalizedValue));
     }
 
@@ -389,4 +415,6 @@ public class AttributeValueServiceImpl implements  AttributeValueService {
         List<AttributeValue> valuesToAdjust = repo.findByAttributeAndSortOrderGreaterThanEqual(attribute, fromSortOrder);
         valuesToAdjust.forEach(av -> av.setSortOrder(av.getSortOrder() + 1));
     }
+
+
 }

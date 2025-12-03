@@ -1,6 +1,6 @@
 package com.makibeans.common.util;
 
-import com.makibeans.exceptions.InvalidFilterException;
+import com.makibeans.web.exceptions.InvalidFilterException;
 
 import java.util.*;
 import java.util.function.Function;

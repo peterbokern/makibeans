@@ -42,5 +42,4 @@ public class CategoryAttribute extends Auditable {
     @Column(name = "required", nullable = false)
     @Builder.Default
     private boolean required = false;
-
 }

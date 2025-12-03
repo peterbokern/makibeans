@@ -7,6 +7,8 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.Optional;
+
 /**
  * Repository for the attribute template entity.
  */
@@ -16,12 +18,14 @@ public interface AttributeRepository extends JpaRepository<Attribute, Long> {
     /**
      * Returns the attribute template with the given name.
      *
-     * @param trimmedName The name of the attribute template.
+     * @param name The name of the attribute template.
      * @return The attribute template with the given name.
      */
 
-    boolean existsByName(String trimmedName);
-    boolean existsByNameAndIdNot(String name, Long id);
+    boolean existsByNameIgnoreCase(String name);
+    boolean existsByNameIgnoreCaseAndIdNot(String name, Long id);
+    Optional<Attribute> findBySlug(String slug);
+    Optional<Attribute> findBySlugAndIdNot(String slug, Long id);
 
     @EntityGraph// Eagerly load associated attribute and category improves performance by reducing the number of queries
     Page<Attribute> findAll(Specification<Attribute> spec, Pageable pageable);

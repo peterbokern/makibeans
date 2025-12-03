@@ -2,7 +2,7 @@ package com.makibeans.attribute.productattributevalue.service;
 
 import com.makibeans.attribute.productattributevalue.repository.ProductAttributeValueRepository;
 import com.makibeans.attribute.productattributevalue.dto.ProductAttributeValueRequestDTO;
-import com.makibeans.exceptions.DuplicateResourceException;
+import com.makibeans.web.exceptions.DuplicateResourceException;
 import com.makibeans.attribute.productattributevalue.mapper.ProductAttributeValueMapper;
 import com.makibeans.attribute.attributevalue.model.AttributeValue;
 import com.makibeans.attribute.productattribute.model.ProductAttribute;

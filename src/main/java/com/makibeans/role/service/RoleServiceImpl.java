@@ -1,7 +1,7 @@
 package com.makibeans.role.service;
 
-import com.makibeans.exceptions.DuplicateResourceException;
-import com.makibeans.exceptions.ResourceNotFoundException;
+import com.makibeans.web.exceptions.DuplicateResourceException;
+import com.makibeans.web.exceptions.ResourceNotFoundException;
 import com.makibeans.role.model.Role;
 import com.makibeans.role.repository.RoleRepository;
 import org.springframework.beans.factory.annotation.Autowired;

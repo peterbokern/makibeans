@@ -82,4 +82,7 @@ public interface AttributeValueRepository extends JpaRepository<AttributeValue, 
     Optional<Integer> findMaxSortOrderByAttribute(Attribute attribute);
 
     List<AttributeValue> findByAttributeAndSortOrderGreaterThanEqual(Attribute attribute, int fromSortOrder);
+
+    boolean existsByAttributeIdAndDeletedFalse(Long attributeId);
+
 }

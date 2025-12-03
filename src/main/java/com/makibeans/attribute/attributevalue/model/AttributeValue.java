@@ -34,6 +34,12 @@ import java.time.LocalDateTime;
                 @Index(name = "idx_attribute_boolean_value", columnList = "boolean_value"),
                 @Index(name = "idx_attribute_date_value", columnList = "date_value"),
                 @Index(name = "idx_attribute_date_time_value", columnList = "date_time_value"),
+        },
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        name = "uk_attribute_value_attribute_slug",
+                        columnNames = {"attribute_id", "slug"}
+                )
         })
 @ToString(exclude = "attribute")
 @ValidAttributeValueForType // Custom validation to ensure  1  value matches attribute data type
@@ -81,7 +87,6 @@ public class AttributeValue extends Auditable {
             case BOOLEAN -> this.booleanValue;
             case DATE -> this.dateValue;
             case DATETIME -> this.dateTimeValue;
-            default -> null;
         };
     }
 

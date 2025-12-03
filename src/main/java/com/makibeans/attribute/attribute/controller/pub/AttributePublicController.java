@@ -46,10 +46,9 @@ public class AttributePublicController {
     public ResponseEntity<Page<AttributePublicResponseDTO>> getAll(
             @Valid @ModelAttribute AttributeFilter filters,
             @RequestParam(required = false) String search,
-            @RequestParam(required = false, defaultValue = "false") Boolean includeDeleted,
             @PageableDefault(size = 20, sort = "id") Pageable pageable
     ) {
-        SearchRequest<AttributeFilter> req = SearchRequestUtils.assemble(filters, search, includeDeleted, pageable);
+        SearchRequest<AttributeFilter> req = SearchRequestUtils.assemble(filters, search, false, pageable);
         Page<AttributePublicResponseDTO> resultPage = service.search(req).map(mapper::toPublicResponseDTO);
         return ResponseEntity.ok(resultPage);
     }
@@ -63,5 +62,6 @@ public class AttributePublicController {
         SearchRequest<AttributeFilter> req = SearchRequestUtils.mergeWithPageable(request, pageable);
         Page<AttributePublicResponseDTO> resultPage = service.search(req).map(mapper::toPublicResponseDTO);
         return ResponseEntity.ok(resultPage);
-    }
+    } //TODO post should not include deteleted
+
 }

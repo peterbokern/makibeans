@@ -4,8 +4,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.makibeans.login.dto.LoginRequestDTO;
 import com.makibeans.login.dto.LoginResponseDTO;
-import com.makibeans.exceptions.InvalidCredentialsException;
-import com.makibeans.exceptions.ResourceNotFoundException;
+import com.makibeans.web.exceptions.InvalidCredentialsException;
+import com.makibeans.web.exceptions.ResourceNotFoundException;
 import com.makibeans.authentication.mapper.AuthMapper;
 import com.makibeans.user.model.User;
 import com.makibeans.security.JwtUtil;

@@ -2,7 +2,6 @@ package com.makibeans.attribute.attribute.model;
 
 import com.makibeans.attribute.attributevalue.model.AttributeValue;
 import com.makibeans.audit.model.Auditable;
-import com.makibeans.common.util.TextUtils;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -21,8 +20,10 @@ import java.util.Set;
         name = "attributes",
         indexes = {@Index(name = "idx_attribute_name", columnList = "name")},
         uniqueConstraints = {
-                @UniqueConstraint(name = "uk_attribute_name", columnNames = {"name"}),
-                @UniqueConstraint(name = "uk_attribute_slug", columnNames = {"slug"})
+                @UniqueConstraint(
+                        name = "uk_attribute_slug",
+                        columnNames = {"slug"}
+                ),
         })
 @NoArgsConstructor
 @Getter @Setter
@@ -58,22 +59,6 @@ public class Attribute extends Auditable {
     private boolean active = true;
 
     @OneToMany(
-            mappedBy = "attribute",
-            cascade = CascadeType.REMOVE, //remove all dependent attribute values
-            orphanRemoval = true,
-            fetch = FetchType.LAZY) //only load attribute values when needed
+            mappedBy = "attribute")
     private Set<AttributeValue> attributeValues;
-
-    public Attribute(String name, String description, AttributeDataType dataType) {
-        this.dataType = dataType;
-        this.setName(name);
-        this.setDescription(description);
-    }
-
-    public void setName(String name) {
-        this.name = TextUtils.normalizeText(name);
-    }
-    public void setDescription(String description) {
-        this.description = TextUtils.trim(description);
-    }
 }
