@@ -18,12 +18,7 @@ import java.util.Set;
 @Entity
 @Table(
         name = "attributes",
-        indexes = {@Index(name = "idx_attribute_name", columnList = "name")},
-        uniqueConstraints = {
-                @UniqueConstraint(
-                        name = "uk_attribute_slug",
-                        columnNames = {"slug"}
-                ),
+        indexes = {@Index(name = "idx_attribute_name", columnList = "name")
         })
 @NoArgsConstructor
 @Getter @Setter
@@ -35,14 +30,14 @@ public class Attribute extends Auditable {
 
     @NotBlank(message = "Name of attribute cannot be blank.")
     @Size(min = 3, max = 50, message = "Name of attribute  must be between 3 and 50 characters.")
-    @Column(name = "name", nullable = false, unique = true, length = 50)
+    @Column(name = "name", nullable = false, length = 50)
     private String name; //TODO create partial uniqe constrainst in flyway sql file
 
     @Size(max = 255, message = "Description of attribute must be less than 255 characters.")
     @Column(name = "description", length = 255)
     private String description;
 
-    @Column(name = "slug", nullable = false, unique = true, length = 60)
+    @Column(name = "slug", nullable = false, length = 60) //uniqe constraint set in db
     private String slug;
 
     @NotNull(message = "Data type of attribute cannot bee null.")
@@ -58,7 +53,6 @@ public class Attribute extends Auditable {
     @Column(name = "active", nullable = false)
     private boolean active = true;
 
-    @OneToMany(
-            mappedBy = "attribute")
+    @OneToMany(mappedBy = "attribute")
     private Set<AttributeValue> attributeValues;
 }

@@ -45,7 +45,7 @@ public class AttributeValuePublicController {
             @RequestParam(required = false, defaultValue = "false") Boolean includeDeleted,
             @PageableDefault(size = 20, sort = "id") Pageable pageable
     ) {
-        SearchRequest<AttributeValueFilter> req = SearchRequestUtils.assemble(filters, search, includeDeleted, pageable);
+        SearchRequest<AttributeValueFilter> req = SearchRequestUtils.assemble(filters, search, false, pageable);
         Page<AttributeValuePublicResponseDTO> page = service.search(req).map(mapper::toPublicResponseDTO);
         return ResponseEntity.ok(page);
     }
@@ -56,8 +56,9 @@ public class AttributeValuePublicController {
             @Valid @RequestBody SearchRequest<AttributeValueFilter> request,
             @PageableDefault(size = 20, sort = "id") Pageable pageable
     ) {
-        SearchRequest<AttributeValueFilter> merged = SearchRequestUtils.mergeWithPageable(request, pageable);
-        Page<AttributeValuePublicResponseDTO> page = service.search(merged).map(mapper::toPublicResponseDTO);
+        SearchRequest<AttributeValueFilter> req = SearchRequestUtils.mergeWithPageable(request, pageable);
+        req.setIncludeDeleted(false); // Public endpoint should not include deleted records
+        Page<AttributeValuePublicResponseDTO> page = service.search(req).map(mapper::toPublicResponseDTO);
         return ResponseEntity.ok(page);
     }
 }

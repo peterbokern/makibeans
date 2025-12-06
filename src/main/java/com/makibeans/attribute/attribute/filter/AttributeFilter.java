@@ -26,18 +26,33 @@ public class AttributeFilter {
     // ID / BASIC FIELDS
     // -------------------------------------------------------------------------
 
-    @Filter(type = {Filter.Operation.EQ, Filter.Operation.IN}, sortable = true)
+    @Filter(type = {Filter.Operation.IN}, sortable = true)
     @JsonFormat(with = JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
     private List<@Positive Long> id;
 
-    @Filter(type = {Filter.Operation.LIKE, Filter.Operation.EQ}, sortable = true)
+    @Filter(type = {Filter.Operation.LIKE}, sortable = true)
     private String name;
+
+    @Filter(type = {Filter.Operation.EQ}, path = "name", sortable = true)
+    private String nameEq;
+
+    @Filter(type = {Filter.Operation.LIKE}, sortable = true)
+    private String description;
+
+    @Filter(type = {Filter.Operation.EQ}, path = "description", sortable = true)
+    private String descriptionEq;
+
+    @Filter(type = {Filter.Operation.EQ}, path = "slug", sortable = true)
+    private String slug;
+
+    @Filter(type = {Filter.Operation.EQ}, path = "slug", sortable = true)
+    private String slugEq;
 
     @Filter(type = {Filter.Operation.EQ, Filter.Operation.IN}, path = "dataType", sortable = true)
     @JsonFormat(with = JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
     private List<AttributeDataType> dataType;
 
-    @Filter(type = {Filter.Operation.EQ, Filter.Operation.IN}, path = "inputType", sortable = true)
+    @Filter(type = {Filter.Operation.IN}, path = "inputType", sortable = true)
     @JsonFormat(with = JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
     private List<AttributeInputType> inputType;
 

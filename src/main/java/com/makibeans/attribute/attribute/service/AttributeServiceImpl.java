@@ -107,12 +107,16 @@ public class AttributeServiceImpl implements AttributeService {
         String trimmedName = dto.getName().trim();
         String normalizedName = TextUtils.normalizeText(trimmedName);
         String slug = TextUtils.toSlug(normalizedName);
-        assertUniqueSlug(slug);
+        assertUniqueSlugForCreate(slug);
 
+        // initialise entity
         Attribute attribute = new Attribute();
         attribute.setName(trimmedName);
-        attribute.setSlug(TextUtils.toSlug(normalizedName));
-        attribute.setDescription(dto.getDescription().trim());
+        attribute.setSlug(slug);
+
+        String description = dto.getDescription();
+        attribute.setDescription(description != null ? description.trim() : null);
+
         attribute.setDataType(dto.getDataType());
         attribute.setInputType(dto.getInputType());
 
@@ -159,34 +163,12 @@ public class AttributeServiceImpl implements AttributeService {
     @Transactional
     public void delete(Long id) throws BadRequestException {
         Attribute attribute = getById(id);
-        if (Boolean.TRUE.equals(attribute.isDeleted())) {
-            return; // already deleted, no-op
-        }
 
-        boolean inUse = usageChecker.isInUse(id);
+        if (Boolean.TRUE.equals(attribute.isDeleted())) return; // already deleted, no-op
 
-        if (inUse) {
-            String details = usageChecker.getUsageDetails(id);
-            throw new ResourceInUseException(
-                    "Attribute " + "'" + attribute.getName() +"'" + " (ID " + id + ") is in use and cannot be deleted. " + details
-            );
-        }
+        assertNotInUse(attribute);
 
         attribute.setDeleted(true);
-    }
-
-    /**
-     * Checks if an {@link Attribute} is in use by any attribute values,
-     * product attributes, or category attributes.
-     *
-     * @param attributeId the id of the attribute to check
-     * @return {@code true} if the attribute is in use; {@code false} otherwise
-     */
-
-    @Override
-    @Transactional(readOnly = true)
-    public AttributeUsageDTO summarizeAttributeUsage(Long attributeId) {
-        return usageChecker.summarizeUsage(attributeId);
     }
 
     /**
@@ -208,15 +190,25 @@ public class AttributeServiceImpl implements AttributeService {
     @Transactional
     public Attribute restore(Long id) throws BadRequestException {
         Attribute attribute = getById(id);
-
-        if (!Boolean.TRUE.equals(attribute.isDeleted())) {
-            throw new BadRequestException(
-                    "Attribute with ID " + id + " is not deleted and cannot be restored.");
-        }
+        assertDeleted(attribute);
         String slug = attribute.getSlug();
-        assertUniqueSlugAndIdNot(id, slug);
+        assertUniqueSlugForUpdate(id, slug);
         attribute.setDeleted(false);
         return attribute;
+    }
+
+    /**
+     * Checks if an {@link Attribute} is in use by any attribute values,
+     * product attributes, or category attributes.
+     *
+     * @param attributeId the id of the attribute to check
+     * @return {@code true} if the attribute is in use; {@code false} otherwise
+     */
+
+    @Override
+    @Transactional(readOnly = true)
+    public AttributeUsageDTO summarizeAttributeUsage(Long attributeId) {
+        return usageChecker.summarizeUsage(attributeId);
     }
 
     /**
@@ -225,8 +217,8 @@ public class AttributeServiceImpl implements AttributeService {
      * @param slug normalised attribute name (may be {@code null})
      * @throws DuplicateResourceException if a duplicate is found
      */
-    private void assertUniqueSlug(String slug) {
-        Attribute existing = repo.findBySlug(slug).orElse(null);
+    private void assertUniqueSlugForCreate(String slug) {
+        Attribute existing = repo.findBySlugAndDeletedFalse(slug).orElse(null);
         if (existing != null) {
             throw new DuplicateResourceException(
                     "Attribute with name '" + existing.getName() + "' already exists.");
@@ -234,18 +226,49 @@ public class AttributeServiceImpl implements AttributeService {
     }
 
     /**
-     * Ensures that no other attribute (excluding the given id) exists with the
-     * given normalised name.
+     * Ensures that no other attribute (excluding the one with the given id)
+     * exists with the given normalised name.
      *
-     * @param id   id to exclude from the uniqueness check
+     * @param id   the id of the attribute being updated
      * @param name normalised attribute name (may be {@code null})
      * @throws DuplicateResourceException if a duplicate is found
      */
-    private void assertUniqueSlugAndIdNot(Long id, String name) {
-        Attribute existing = repo.findBySlugAndIdNot(name, id).orElse(null);
+    private void assertUniqueSlugForUpdate(Long id, String name) {
+        Attribute existing = repo.findBySlugAndIdNotAndDeletedFalse(name, id).orElse(null);
         if (existing != null) {
             throw new DuplicateResourceException(
                     "Attribute with name '" + existing.getName() + "' already exists.");
+        }
+    }
+
+    /**
+     * Asserts that the given attribute is marked as deleted.
+     *
+     * @param attribute the attribute to check
+     * @throws BadRequestException if the attribute is not deleted
+     */
+    private void assertDeleted(Attribute attribute) throws BadRequestException {
+        if (!Boolean.TRUE.equals(attribute.isDeleted())) {
+            throw new BadRequestException(
+                    "Attribute with ID " + attribute.getId() + " is not deleted and cannot be restored.");
+        }
+    }
+
+    /**
+     * Asserts that the given attribute is not in use.
+     *
+     * @param attribute the attribute to check
+     * @throws ResourceInUseException if the attribute is in use
+     */
+    private void assertNotInUse(Attribute attribute) {
+        Long id = attribute.getId();
+        boolean inUse = usageChecker.isInUse(id);
+
+        if (inUse) {
+            String details = usageChecker.getUsageDetails(id);
+            throw new ResourceInUseException(
+                    "Attribute " + "'" + attribute.getName() +"'" + " (ID " + id + ") is in use and cannot be deleted. " + details
+            );
         }
     }
 
@@ -259,17 +282,15 @@ public class AttributeServiceImpl implements AttributeService {
      * @param dto       the update DTO potentially containing a new name
      */
     private void updateNameIfPresent(Attribute attribute, AttributeUpdateDTO dto) {
-        if (dto.getName() == null) {
-            return;
-        }
+        if (dto.getName() == null) return;
 
         String trimmedName = dto.getName().trim();
-        String normalizedName = TextUtils.normalizeText(dto.getName());
+        String normalizedName = TextUtils.normalizeText(trimmedName);
         String slug = TextUtils.toSlug(normalizedName);
-        assertUniqueSlugAndIdNot(attribute.getId(), slug);
+
+        assertUniqueSlugForUpdate(attribute.getId(), slug);
 
         attribute.setName(trimmedName);
         attribute.setSlug(slug);
     }
-
 }

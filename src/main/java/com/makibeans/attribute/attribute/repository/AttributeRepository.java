@@ -24,8 +24,8 @@ public interface AttributeRepository extends JpaRepository<Attribute, Long> {
 
     boolean existsByNameIgnoreCase(String name);
     boolean existsByNameIgnoreCaseAndIdNot(String name, Long id);
-    Optional<Attribute> findBySlug(String slug);
-    Optional<Attribute> findBySlugAndIdNot(String slug, Long id);
+    Optional<Attribute> findBySlugAndDeletedFalse(String slug);
+    Optional<Attribute> findBySlugAndIdNotAndDeletedFalse(String slug, Long id);
 
     @EntityGraph// Eagerly load associated attribute and category improves performance by reducing the number of queries
     Page<Attribute> findAll(Specification<Attribute> spec, Pageable pageable);

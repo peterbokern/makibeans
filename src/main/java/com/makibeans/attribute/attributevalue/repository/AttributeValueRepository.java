@@ -2,6 +2,7 @@ package com.makibeans.attribute.attributevalue.repository;
 
 import com.makibeans.attribute.attribute.model.Attribute;
 import com.makibeans.attribute.attributevalue.model.AttributeValue;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -85,4 +86,8 @@ public interface AttributeValueRepository extends JpaRepository<AttributeValue, 
 
     boolean existsByAttributeIdAndDeletedFalse(Long attributeId);
 
+
+    AttributeValue findBySlugAndAttributeAndDeletedFalse(String slug, Attribute attribute);
+
+    AttributeValue findBySlugAndAttributeAndIdNotAndDeletedFalse(String slug, Attribute attribute, Long excludeId);
 }

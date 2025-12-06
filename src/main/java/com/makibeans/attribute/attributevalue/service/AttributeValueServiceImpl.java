@@ -41,7 +41,7 @@ import java.util.List;
  * </ul>
  */
 @Service
-public class AttributeValueServiceImpl implements  AttributeValueService {
+public class AttributeValueServiceImpl implements AttributeValueService {
 
     private final AttributeValueRepository repo;
     private final AttributeService attributeService;
@@ -120,17 +120,22 @@ public class AttributeValueServiceImpl implements  AttributeValueService {
         Attribute attribute = attributeService.getById(requestDTO.getAttributeId());
         AttributeDataType type = attribute.getDataType();
 
-        String normalizedValue = normalizeRawValue(requestDTO.getRawValue());
-        assertUniqueRawValueForCreate(normalizedValue, attribute, type);
+        String rawValue = requestDTO.getRawValue();
+        String trimmedValue = rawValue.trim();
+        String normalizedValue = normalize(trimmedValue);
+        String slug = TextUtils.toSlug(normalizedValue);
+        assertUniqueSlugForCreate(slug, attribute);
+        int sortOrder = resolveSortOrder(attribute, requestDTO.getSortOrder());
 
-        AttributeValue av = new AttributeValue();
+        //initialize  entity
+        AttributeValue value = new AttributeValue();
 
-        av.setAttribute(attribute);
-        applyRawValue(av, type, normalizedValue);
-        av.setSlug(TextUtils.toSlug(normalizedValue));
-        av.setSortOrder(resolveSortOrder(attribute, requestDTO.getSortOrder()));
+        value.setAttribute(attribute);
+        applyRawValue(value, type, rawValue);
+        value.setSlug(slug);
+        value.setSortOrder(sortOrder);
 
-        return repo.save(av);
+        return repo.save(value);
     }
 
     /**
@@ -159,7 +164,7 @@ public class AttributeValueServiceImpl implements  AttributeValueService {
         AttributeDataType type = attribute.getDataType();
 
         //update raw value, slug if present and sort order if changed
-        updateRawValueIfPresent(av, attribute, type, updateDTO);
+        updateRawValueIfPresent(av, type, updateDTO);
         updateSortOrderIfChanged(av, attribute, updateDTO);
 
         // update remaining scalar fields (mapper is configured to ignore value + slug)
@@ -195,15 +200,14 @@ public class AttributeValueServiceImpl implements  AttributeValueService {
     @Transactional
     public AttributeValue restore(Long id) throws DuplicateResourceException, BadRequestException {
         AttributeValue value = this.getById(id);
+        Attribute attribute = value.getAttribute();
+        String slug = value.getSlug();
 
         if (!Boolean.TRUE.equals(value.isDeleted())) {
             throw new BadRequestException("Attribute value with ID " + id + " is not deleted and cannot be restored.");
         }
 
-        Attribute attribute = value.getAttribute();
-        String rawValue = normalizeRawValue(value.getValueAsString());
-
-        assertUniqueRawValueForUpdate(rawValue, attribute, attribute.getDataType(), value.getId());
+        assertUniqueSlugForUpdate(slug, attribute, id);
 
         value.setDeleted(false);
         return value;
@@ -212,8 +216,8 @@ public class AttributeValueServiceImpl implements  AttributeValueService {
     /**
      * Parses and assigns the normalised raw value to the correct typed column on the entity.
      *
-     * @param target          entity to mutate
-     * @param type            attribute value data type
+     * @param target   entity to mutate
+     * @param type     attribute value data type
      * @param rawValue already-normalised raw value (not blank)
      * @throws BadRequestException if the value is blank or cannot be parsed for the given type
      */
@@ -221,24 +225,18 @@ public class AttributeValueServiceImpl implements  AttributeValueService {
                                AttributeDataType type,
                                String rawValue) throws BadRequestException {
 
-        if (rawValue == null) {
-            throw new BadRequestException("Attribute value cannot be empty.");
-        }
+        if (rawValue == null) throw new BadRequestException("Attribute value cannot be empty.");
 
-        // What the user typed → trimmed, but keep casing for display
-        String displayValue = rawValue.trim();
+        String trimmedValue = rawValue.trim();
 
-        if (displayValue.isBlank()) {
-            throw new BadRequestException("Attribute value cannot be empty.");
-        }
+        if (trimmedValue.isBlank()) throw new BadRequestException("Attribute value cannot be empty.");
 
-        // Canonical form → for parsing + uniqueness checks
-        String normalizedValue = normalizeRawValue(rawValue);
+        String normalizedValue = normalize(trimmedValue);
 
         switch (type) {
             case STRING -> {
                 // Store human-friendly version (e.g. "Light Roast", not "light roast")
-                target.setStringValue(displayValue);
+                target.setStringValue(trimmedValue);
             }
             case NUMERIC -> target.setNumericValue(
                     AttributeValueParser.parseNumeric(normalizedValue)
@@ -264,101 +262,81 @@ public class AttributeValueServiceImpl implements  AttributeValueService {
      * @param rawValue value as provided by the client (may be null/blank)
      * @return normalised representation, never {@code null}
      */
-    private String normalizeRawValue(String rawValue) {
+    private String normalize(String rawValue) {
         return TextUtils.normalizeText(rawValue);
     }
 
     /**
-     * Checks whether a value already exists for the given attribute and type.
+     * Ensures that no existing (non-deleted) value for the given attribute
+     * has the same slug.
      *
-     * @param value     the (normalised) raw value
-     * @param type      the attribute's data type
-     * @param attribute the owning attribute
-     * @return {@code true} if a matching value exists, {@code false} otherwise
+     * @param slug      slug to check
+     * @param attribute owning attribute
+     * @throws DuplicateResourceException if a value with the same slug already exists
      */
-    private boolean valueExists(String value, AttributeDataType type, Attribute attribute) {
-        return existsInternal(value, type, attribute, null);
-    }
-
-    /**
-     * Checks whether a value already exists for the given attribute and type, excluding
-     * a specific id (used for update/restore scenarios).
-     *
-     * @param value     the (normalised) raw value
-     * @param type      the attribute's data type
-     * @param attribute the owning attribute
-     * @param excludeId id to exclude from the check (may be {@code null})
-     * @return {@code true} if a conflicting value exists, {@code false} otherwise
-     */
-    private boolean valueExistsAndIdNot(String value, AttributeDataType type, Attribute attribute, Long excludeId) {
-        return existsInternal(value, type, attribute, excludeId);
-    }
-
-    /**
-     * Shared implementation for existence checks backing {@link #valueExists} and
-     * {@link #valueExistsAndIdNot(String, AttributeDataType, Attribute, Long)}.
-     */
-    private boolean existsInternal(String value, AttributeDataType type, Attribute attribute, Long excludeId) {
-        return switch (type) {
-            case STRING -> excludeId == null
-                    ? repo.existsByAttributeAndStringValueIgnoreCase(attribute, value)
-                    : repo.existsByAttributeAndStringValueIgnoreCaseAndIdNot(attribute, value, excludeId);
-            case NUMERIC -> excludeId == null
-                    ? repo.existsByAttributeAndNumericValue(attribute, AttributeValueParser.parseNumeric(value))
-                    : repo.existsByAttributeAndNumericValueAndIdNot(attribute, AttributeValueParser.parseNumeric(value), excludeId);
-            case BOOLEAN -> excludeId == null
-                    ? repo.existsByAttributeAndBooleanValue(attribute, AttributeValueParser.parseBoolean(value))
-                    : repo.existsByAttributeAndBooleanValueAndIdNot(attribute, AttributeValueParser.parseBoolean(value), excludeId);
-            case DATE -> excludeId == null
-                    ? repo.existsByAttributeAndDateValue(attribute, AttributeValueParser.parseDate(value))
-                    : repo.existsByAttributeAndDateValueAndIdNot(attribute, AttributeValueParser.parseDate(value), excludeId);
-            case DATETIME -> excludeId == null
-                    ? repo.existsByAttributeAndDateTimeValue(attribute, AttributeValueParser.parseDateTime(value))
-                    : repo.existsByAttributeAndDateTimeValueAndIdNot(attribute, AttributeValueParser.parseDateTime(value), excludeId);
-        };
-    }
-
-    /**
-     * Ensures that a value about to be created does not already exist for the
-     * given attribute + type combination.
-     */
-    private void assertUniqueRawValueForCreate(String normalizedValue, Attribute attribute, AttributeDataType type) {
-        if (valueExists(normalizedValue, type, attribute)) {
+    private void assertUniqueSlugForCreate(String slug, Attribute attribute) {
+        AttributeValue existing = repo.findBySlugAndAttributeAndDeletedFalse(slug, attribute);
+        if (existing != null) {
             throw new DuplicateResourceException(
-                    "Attribute value '" + normalizedValue + "' already exists for attribute '" + attribute.getName() + "'."
+                    "attribute value: " + existing.getValueAsString() + " already exists."
             );
         }
     }
 
     /**
-     * Ensures that a value about to be updated does not already exist for the
-     * given attribute + type combination, excluding the current entity id.
+     * Ensures that no existing (non-deleted) value for the given attribute
+     * has the same slug, excluding the value with the given id.
+     *
+     * @param slug      slug to check
+     * @param attribute owning attribute
+     * @param excludeId id to exclude from the check
+     * @throws DuplicateResourceException if a value with the same slug already exists
      */
-    private void assertUniqueRawValueForUpdate(String value, Attribute attribute, AttributeDataType type, Long currentId) {
-        if (valueExistsAndIdNot(value, type, attribute, currentId)) {
+    private void assertUniqueSlugForUpdate(String slug, Attribute attribute, Long excludeId) {
+        AttributeValue existing = repo.findBySlugAndAttributeAndIdNotAndDeletedFalse(slug, attribute, excludeId);
+        if (existing != null) {
             throw new DuplicateResourceException(
-                    "Attribute value '" + value + "' already exists for attribute '" + attribute.getName() + "'."
+                    "Attribute value: " + existing.getValueAsString() + " already exists."
             );
         }
     }
 
-    private void updateRawValueIfPresent(AttributeValue av,
-                                         Attribute attribute,
+    /**
+     * Updates the raw value and slug of an existing {@link AttributeValue}
+     * if a new raw value is provided in the DTO.
+     *
+     * @param value entity to update
+     * @param type  attribute data type
+     * @param dto   update DTO
+     * @throws BadRequestException if the new raw value is invalid
+     */
+    private void updateRawValueIfPresent(AttributeValue value,
                                          AttributeDataType type,
                                          AttributeValueUpdateDTO dto) throws BadRequestException {
 
-        if (dto.getRawValue() == null) {
-            return;
-        }
+        if (dto.getRawValue() == null) return;
 
-        String newRawValue = dto.getRawValue().trim();
-        String newNormalizedValue = normalizeRawValue(newRawValue);
-        assertUniqueRawValueForUpdate(newRawValue, attribute, type, av.getId());
+        Attribute attribute = value.getAttribute();
+        Long id = value.getId();
 
-        applyRawValue(av, type, newRawValue);
-        av.setSlug(TextUtils.toSlug(newNormalizedValue));
+        String newTrimmedRawValue = dto.getRawValue().trim();
+        String newNormalizedValue = normalize(newTrimmedRawValue);
+        String slug = TextUtils.toSlug(newNormalizedValue);
+
+        assertUniqueSlugForUpdate(slug, attribute, id);
+
+        applyRawValue(value, type, newTrimmedRawValue);
+        value.setSlug(slug);
     }
 
+    /**
+     * Updates the sort-order of an existing {@link AttributeValue}
+     * if it has changed in the DTO.
+     *
+     * @param av        entity to update
+     * @param attribute owning attribute
+     * @param dto       update DTO
+     */
     private void updateSortOrderIfChanged(
             AttributeValue av,
             Attribute attribute,
@@ -374,7 +352,6 @@ public class AttributeValueServiceImpl implements  AttributeValueService {
         int newSortOrder = resolveSortOrder(attribute, requestedSortOrder);
         av.setSortOrder(newSortOrder);
     }
-
 
     /**
      * Resolves the final sort-order for a new or moved value within a given attribute.
@@ -393,6 +370,7 @@ public class AttributeValueServiceImpl implements  AttributeValueService {
         int maxSortOrder = repo.findMaxSortOrderByAttribute(attribute).orElse(-1);
         int nextSortOrder = maxSortOrder + 1;
 
+        // Check if the requested sort order is valid (i.e. within the current range,
         boolean validSortOrderRequest =
                 requestedSortOrder != null &&
                         requestedSortOrder >= 0 &&
@@ -415,6 +393,4 @@ public class AttributeValueServiceImpl implements  AttributeValueService {
         List<AttributeValue> valuesToAdjust = repo.findByAttributeAndSortOrderGreaterThanEqual(attribute, fromSortOrder);
         valuesToAdjust.forEach(av -> av.setSortOrder(av.getSortOrder() + 1));
     }
-
-
 }

@@ -52,7 +52,7 @@ public class AttributeValueFilter {
             path = "stringValue",
             sortable = false
     )
-    private String stringValueExact;
+    private String stringValueEq;
 
 
     /** For NUMERIC attributes – exact match on numericValue column. */

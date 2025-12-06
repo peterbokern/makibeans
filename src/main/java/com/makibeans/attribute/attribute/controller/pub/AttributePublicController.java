@@ -60,8 +60,8 @@ public class AttributePublicController {
             @PageableDefault(size = 20, sort = "id") Pageable pageable
     ) {
         SearchRequest<AttributeFilter> req = SearchRequestUtils.mergeWithPageable(request, pageable);
+        req.setIncludeDeleted(false); // Public API should not include deleted
         Page<AttributePublicResponseDTO> resultPage = service.search(req).map(mapper::toPublicResponseDTO);
         return ResponseEntity.ok(resultPage);
-    } //TODO post should not include deteleted
-
+    }
 }
