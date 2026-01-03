@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @Order(1)
 public class GlobalBindingAdvice {
 
-    @InitBinder("params")
+    @InitBinder()
     public void initBinder(WebDataBinder binder) throws BindException {
         // Trim all incoming string parameters and convert empty strings to null
         binder.registerCustomEditor(String.class, new StringTrimmerEditor(true));

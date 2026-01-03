@@ -59,12 +59,13 @@ public class AttributeFilter {
     @Filter(type = {Filter.Operation.BOOL}, path = "active", sortable = true)
     private Boolean active;
 
-    @Filter(type = {Filter.Operation.BOOL}, path = "deleted", sortable = true)
-    private Boolean deleted;
 
     // -------------------------------------------------------------------------
     // AUDIT RANGE FILTERS
     // -------------------------------------------------------------------------
+
+    @Filter(type = {Filter.Operation.BOOL}, path = "deleted", sortable = true)
+    private Boolean deleted;
 
     @Filter(type = {Filter.Operation.GTE}, path = "createdAt", sortable = true)
     private Instant createdAtFrom;

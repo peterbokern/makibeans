@@ -18,20 +18,27 @@ public interface CategoryMapper {
      * @return the converted CategoryResponseDTO
      */
 
+    @Mapping(source = ".", target = "imageUrl", qualifiedByName = "getImageUrl")
+    CategoryTreeResponseDTO toTreeDTO(Category category);
+
+    List<CategoryTreeResponseDTO> toTreeDTOs(List<Category> categories);
+
+
     @Mapping(source = "category.id", target = "id")
-    @Mapping(source = "subCategories", target = "subCategories")
-    @Mapping(target = "breadCrumbs", expression = "java(buildBreadcrumbs(category))")
-    @Mapping(source = "parentCategory.id", target = "parentCategoryId")
+    //@Mapping(source = "subCategories", target = "subCategories")
+    @Mapping(target = "breadcrumbs", expression = "java(buildBreadcrumbs(category))")
+    @Mapping(source = "parentCategory", target = "parent")
     @Mapping(source = ".", target = "imageUrl", qualifiedByName = "getImageUrl")
     CategoryPublicResponseDTO toPublicResponseDTO(Category category);
 
     @Mapping(source = "category.id", target = "id")
-    @Mapping(source = "subCategories", target = "subCategories")
-    @Mapping(target = "breadCrumbs", expression = "java(buildBreadcrumbs(category))")
-    @Mapping(source = "parentCategory.id", target = "parentCategoryId")
+    @Mapping(target = "breadcrumbs", expression = "java(buildBreadcrumbs(category))")
+    @Mapping(source = "parentCategory", target = "parent")
     @Mapping(source = ".", target = "imageUrl", qualifiedByName = "getImageUrl")
     @Mapping(target  = "audit", source = ".")
     CategoryAdminResponseDTO toAdminResponseDTO(Category category);
+
+    CategoryRefDTO toRefDTO(Category category);
 
     /**
      * Returns the image URL of the given product.
@@ -44,7 +51,7 @@ public interface CategoryMapper {
     default String getImageUrl(Category category) {
         return category.getImage() != null
                 ? "/categories/" + category.getId() + "/image"
-                : "null";
+                : null;
     }
 
     /**
@@ -55,18 +62,22 @@ public interface CategoryMapper {
      * @return a list of BreadCrumbDTOs representing the breadcrumb trail
      */
 
-    default List<BreadCrumbDTO> buildBreadcrumbs(Category category) {
-        List<BreadCrumbDTO> breadcrumbs = new ArrayList<>();
-        Category current = category.getParentCategory();
+    default List<CategoryRefDTO> buildBreadcrumbs(Category category) {
+        List<CategoryRefDTO> breadcrumbs = new ArrayList<>();
+        Category current = category;
 
         while (current != null) {
-            breadcrumbs.addFirst(new BreadCrumbDTO(current.getId(), current.getName())); // Add at index 0 for correct order
-            breadcrumbs.add( new BreadCrumbDTO(category.getId(), category.getName()));
+            breadcrumbs.addFirst(new CategoryRefDTO(
+                    current.getId(),
+                    current.getName(),
+                    current.getSlug()
+            ));
             current = current.getParentCategory();
         }
 
         return breadcrumbs;
     }
+
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateEntityFromDTO(CategoryUpdateDTO updateDTO, @MappingTarget Category category);

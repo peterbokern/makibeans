@@ -2,6 +2,9 @@ package com.makibeans.product.service;
 
 import com.makibeans.product.dto.ProductRequestDTO;
 import com.makibeans.product.dto.ProductUpdateDTO;
+import com.makibeans.product.filter.ProductAdminFilter;
+import com.makibeans.product.filter.ProductFilter;
+import com.makibeans.product.filter.ProductPublicFilter;
 import com.makibeans.web.exceptions.DuplicateResourceException;
 import com.makibeans.web.exceptions.ImageProcessingException;
 import com.makibeans.web.exceptions.ResourceNotFoundException;
@@ -12,76 +15,82 @@ import com.makibeans.product.repository.ProductRepository;
 import com.makibeans.search.SearchRequest;
 import com.makibeans.search.SortResolver;
 import com.makibeans.search.SpecificationFactory;
-import com.makibeans.product.filter.ProductFilter;
 import com.makibeans.category.service.CategoryService;
-import com.makibeans.common.service.CrudService;
 import com.makibeans.common.util.ImageUtils;
+import com.makibeans.common.util.TextUtils;
 import jakarta.validation.Valid;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.*;
+import java.util.Objects;
 
 /**
  * Service class for managing Products.
  * Provides methods to retrieve, create, update, and delete Products.
  */
-
 @Service
-public class ProductServiceImpl implements ProductService, CrudService<Product, Long> {
+public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository repo;
     private final CategoryService categoryService;
     private final ProductMapper mapper;
-    private final Logger logger = LoggerFactory.getLogger(ProductService.class);
     private final ImageUtils imageUtils;
-
 
     @Autowired
     public ProductServiceImpl(
             ProductRepository repo,
             CategoryService categoryService,
             ProductMapper mapper,
-            ImageUtils imageUtils) {
+            ImageUtils imageUtils
+    ) {
         this.repo = repo;
         this.categoryService = categoryService;
         this.mapper = mapper;
         this.imageUtils = imageUtils;
     }
 
-    /**
-     * Implementors must return their repository.
-     */
-    @Override
-    public JpaRepository<Product, Long> repo() {
-        return this.repo;
-    }
-
-
     @Transactional(readOnly = true)
     @Override
     public Product getById(Long id) {
+        return repo.findByIdAndDeletedFalse(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Product with ID " + id + " not found."));
+    }
 
-        return getOrThrow(id);
+    @Transactional(readOnly = true)
+    @Override
+    public Product getByIdIncludingDeleted(Long id) {
+        return repo.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Product with ID " + id + " not found."));
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Page<Product> search(SearchRequest<ProductFilter> req) {
-        Specification<Product> spec =
-                SpecificationFactory.fromRequest(req, ProductFilter.class);
+    public Page<Product> searchPublic(SearchRequest<ProductPublicFilter> req) {
+        return search(req, ProductPublicFilter.class);
+    }
 
-        Sort sort = new SortResolver(ProductFilter.class)
+    @Override
+    @Transactional(readOnly = true)
+    public Page<Product> searchAdmin(SearchRequest<ProductAdminFilter> req) {
+        return search(req, ProductAdminFilter.class);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public  <F> Page<Product> search(SearchRequest<F> req, Class<F> filterClass) {
+        Specification<Product> spec =
+                SpecificationFactory.fromRequest(req, filterClass);
+
+        Sort sort = new SortResolver(filterClass)
                 .resolve(req.getSortBy(), req.getSortDirection());
 
         Specification<Product> distinctSpec = (root, query, cb) -> {
@@ -105,23 +114,28 @@ public class ProductServiceImpl implements ProductService, CrudService<Product, 
      * Creates a new product.
      *
      * @param dto the DTO containing product details.
-     * @return the saved ProductResponseDTO.
-     * @throws DuplicateResourceException if a product with the given name already exists.
+     * @return the saved Product.
+     * @throws DuplicateResourceException if a product with the given slug already exists.
      */
-
     @Transactional
+    @Override
     public Product create(ProductRequestDTO dto) {
 
-        String name = dto.getName();
-        assertUniqueName(name);
+        String name = dto.getName().trim();
+        String normalizedName = TextUtils.normalizeText(name);
+        String slug = TextUtils.toSlug(normalizedName);
 
-        Category category = categoryService.getOrThrow(dto.getCategoryId());
+        assertUniqueSlug(slug);
+
+        Category category = categoryService.getById(dto.getCategoryId());
 
         Product product = Product.builder()
                 .name(name)
-                .description(dto.getDescription())
+                .description(dto.getDescription().trim())
                 .category(category)
                 .build();
+
+        product.setSlug(slug);
 
         return repo.save(product);
     }
@@ -129,32 +143,55 @@ public class ProductServiceImpl implements ProductService, CrudService<Product, 
     @Override
     @Transactional
     public Product update(Long productId, @Valid ProductUpdateDTO dto) {
-        Product product = getOrThrow(productId);
+        Product product = getById(productId);
 
-        String name = dto.getName();
-        assertUniqueNameAndIdNot(name, productId);
+        String newName = dto.getName();
 
+        if (newName != null) {
+            String trimmed = newName.trim();
+            if (trimmed.isEmpty()) throw new IllegalArgumentException("Product name cannot be empty.");
+
+            String normalizedNewName = TextUtils.normalizeText(newName);
+            String slug = TextUtils.toSlug(normalizedNewName);
+
+            if (slug != null && !slug.equals(product.getSlug())) {
+                assertUniqueSlugAndIdNotAmongActive(slug, productId);
+                product.setSlug(slug);
+                product.setName(normalizedNewName);
+            }
+        }
+        // If your mapper updates name/slug, configure it to ignore those fields.
         mapper.updateEntityFromDTO(dto, product);
 
         return product;
     }
 
     @Override
-    public Boolean existByCategoryId(Long categoryId) {
-        return repo.existsByCategoryId(categoryId);
-    }
-
-
     @Transactional
     public void delete(Long productId) {
-        //deleteProductAttributes(productId); no longer needed due to CascadeType.ALL and orphanRemoval = true on productAttributes in Product entity
-        softDelete(productId);
+        Product product = getById(productId);
+        // CascadeType.ALL and orphanRemoval = true on productAttributes and productVariants in Product entity
+        product.setDeleted(true);
+    }
+
+    @Override
+    @Transactional
+    public void restore(Long productId) {
+        Product product = getByIdIncludingDeleted(productId);
+
+        if (!Boolean.TRUE.equals(product.isDeleted())) {
+            return; // or throw BadRequestException("Product is not deleted.")
+        }
+
+        // check if unique by slug among non-deleted items
+        assertUniqueSlugAndIdNotAmongActive(product.getSlug(), productId);
+        product.setDeleted(false);
     }
 
     @Override
     @Transactional
     public Product uploadProductImage(Long productId, MultipartFile image) throws ImageProcessingException {
-        Product product = getOrThrow(productId);
+        Product product = getById(productId);
 
         byte[] imageBytes = imageUtils.validateAndExtractImageBytes(image);
         product.setImage(imageBytes);
@@ -162,27 +199,23 @@ public class ProductServiceImpl implements ProductService, CrudService<Product, 
         return product;
     }
 
-    @Override
-    public Boolean existsByCategoryId(Long categoryId) {
-        return repo.existsByCategoryId(categoryId);
-    }
-
-
     /**
      * Retrieves the image of a product by its ID.
      *
      * @param productId the ID of the product whose image is to be retrieved.
      * @return a byte array representing the product image.
      */
-
-    @Transactional
+    @Transactional(readOnly = true)
+    @Override
     public byte[] getProductImage(Long productId) {
-        Product product = getOrThrow(productId);
+        Product product = getById(productId);
         byte[] productImage = product.getImage();
+
         if (productImage == null) {
             throw new ResourceNotFoundException("Product with ID " + productId + " does not have an image.");
         }
-        return product.getImage();
+
+        return productImage;
     }
 
     /**
@@ -190,28 +223,24 @@ public class ProductServiceImpl implements ProductService, CrudService<Product, 
      *
      * @param productId the ID of the product whose image is to be deleted.
      */
-
     @Transactional
+    @Override
     public void deleteProductImage(Long productId) {
-        Product product = getOrThrow(productId);
+        Product product = getById(productId);
         product.setImage(null);
     }
 
-
-    private void assertUniqueName(String name) {
-        if (name != null && repo.existsByName(name)) {
+    private void assertUniqueSlug(String slug) {
+        if (slug != null && repo.existsBySlugAndDeletedFalse(slug)) {
             throw new DuplicateResourceException(
-                    "Product with name '" + name + "' already exists.");
+                    "Product with slug '" + slug + "' already exists.");
         }
-
     }
 
-    private void assertUniqueNameAndIdNot(String name, Long id) {
-        if (name != null && repo.existsByNameAndIdNot(name, id)) {
+    private void assertUniqueSlugAndIdNotAmongActive(String slug, Long id) {
+        if (slug != null && repo.existsBySlugAndIdNotAndDeletedFalse(slug, id)) {
             throw new DuplicateResourceException(
-                    "Product with name '" + name + "' already exists.");
+                    "Product with slug '" + slug + "' already exists.");
         }
     }
 }
-
-

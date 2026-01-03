@@ -15,12 +15,7 @@ import java.util.Optional;
 
 public interface AttributeRepository extends JpaRepository<Attribute, Long> {
 
-    /**
-     * Returns the attribute template with the given name.
-     *
-     * @param name The name of the attribute template.
-     * @return The attribute template with the given name.
-     */
+    Optional<Attribute> findByIdAndDeletedFalse(Long id);
 
     boolean existsByNameIgnoreCase(String name);
     boolean existsByNameIgnoreCaseAndIdNot(String name, Long id);

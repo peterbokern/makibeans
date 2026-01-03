@@ -4,6 +4,8 @@ import com.makibeans.common.service.CrudService;
 import com.makibeans.productvariant.dto.ProductVariantRequestDTO;
 import com.makibeans.productvariant.dto.ProductVariantResponseDTO;
 import com.makibeans.productvariant.dto.ProductVariantUpdateDTO;
+import com.makibeans.productvariant.filter.ProductVariantAdminFilter;
+import com.makibeans.productvariant.filter.ProductVariantPublicFilter;
 import com.makibeans.productvariant.model.ProductVariant;
 import com.makibeans.search.SearchRequest;
 import com.makibeans.productvariant.filter.ProductVariantFilter;
@@ -15,7 +17,14 @@ public interface ProductVariantService extends CrudService<ProductVariant, Long>
 
     ProductVariant getById(Long id);
 
-    Page<ProductVariant> search(SearchRequest<ProductVariantFilter> request);
+    @Transactional(readOnly = true)
+    Page<ProductVariant> searchPublic(SearchRequest<ProductVariantPublicFilter> req);
+
+    @Transactional(readOnly = true)
+    Page<ProductVariant> searchAdmin(SearchRequest<ProductVariantAdminFilter> req);
+
+    @Transactional(readOnly = true)
+    <F> Page<ProductVariant> search(SearchRequest<F> req, Class<F> filterClass);
 
     ProductVariant create(@Valid ProductVariantRequestDTO dto);
 

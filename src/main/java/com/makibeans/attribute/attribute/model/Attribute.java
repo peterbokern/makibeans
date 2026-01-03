@@ -50,9 +50,6 @@ public class Attribute extends Auditable {
     @Column(name = "input_type", nullable = false, length = 20)
     private AttributeInputType inputType;
 
-    @Column(name = "active", nullable = false)
-    private boolean active = true;
-
     @OneToMany(mappedBy = "attribute")
     private Set<AttributeValue> attributeValues;
 }

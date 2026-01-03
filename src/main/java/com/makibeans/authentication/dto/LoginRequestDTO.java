@@ -1,4 +1,4 @@
-package com.makibeans.login.dto;
+package com.makibeans.authentication.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;

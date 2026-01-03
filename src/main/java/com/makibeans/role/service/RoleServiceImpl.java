@@ -74,5 +74,4 @@ public class RoleServiceImpl implements RoleService {
             throw new DuplicateResourceException("Role with name " + name + " already exists.");
         }
     }
-
 }

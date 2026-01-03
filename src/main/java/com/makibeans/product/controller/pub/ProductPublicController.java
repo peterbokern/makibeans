@@ -1,10 +1,10 @@
 package com.makibeans.product.controller.pub;
 
 import com.makibeans.product.dto.ProductPublicResponseDTO;
+import com.makibeans.product.filter.ProductPublicFilter;
 import com.makibeans.product.mapper.ProductMapper;
 import com.makibeans.product.model.Product;
 import com.makibeans.search.SearchRequest;
-import com.makibeans.product.filter.ProductFilter;
 import com.makibeans.search.utils.SearchRequestUtils;
 import com.makibeans.product.service.ProductService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -55,13 +55,12 @@ public class ProductPublicController {
     )
     @GetMapping
     public ResponseEntity<Page<ProductPublicResponseDTO>> getAll(
-            @Valid @ModelAttribute ProductFilter filters,
+            @Valid @ModelAttribute ProductPublicFilter filters,
             @RequestParam(required = false) String search,
-            @RequestParam(required = false, defaultValue = "false") Boolean includeDeleted,
             @PageableDefault(size = 20, sort = "id") Pageable pageable
     ) {
-        SearchRequest<ProductFilter> req = SearchRequestUtils.assemble(filters, search, includeDeleted, pageable);
-        Page<Product> page = productService.search(req);
+        SearchRequest<ProductPublicFilter> req = SearchRequestUtils.assemble(filters, search, false, pageable);
+        Page<Product> page = productService.searchPublic(req);
         Page<ProductPublicResponseDTO> result = page.map(productMapper::toPublicResponseDTO);
         return ResponseEntity.ok(result);
     }
@@ -76,11 +75,12 @@ public class ProductPublicController {
             description = "Same as GET but accepts a JSON body for complex filters."
     )
     public ResponseEntity<Page<ProductPublicResponseDTO>> search(
-            @Valid @RequestBody SearchRequest<ProductFilter> request,
+            @Valid @RequestBody SearchRequest<ProductPublicFilter> request,
             @PageableDefault(size = 20, sort = "id") Pageable pageable
     ) {
-        SearchRequest<ProductFilter> merged = SearchRequestUtils.mergeWithPageable(request, pageable);
-        Page<Product> page = productService.search(merged);
+        SearchRequest<ProductPublicFilter> merged = SearchRequestUtils.mergeWithPageable(request, pageable);
+        merged.setIncludeDeleted(false); // Force exclude deleted for public API
+        Page<Product> page = productService.searchPublic(merged);
         Page<ProductPublicResponseDTO> result = page.map(productMapper::toPublicResponseDTO);
         return ResponseEntity.ok(result);
     }

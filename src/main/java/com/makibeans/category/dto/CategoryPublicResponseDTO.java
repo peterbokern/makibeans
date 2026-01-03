@@ -8,11 +8,10 @@ import java.util.List;
 public record CategoryPublicResponseDTO(
         Long id,
         String name,
+        String slug,
         String description,
         String imageUrl,
-        Long parentCategoryId,
-
-        List<CategoryPublicResponseDTO> subCategories,
-        List<BreadCrumbDTO> breadCrumbs
+        CategoryRefDTO parent,
+        List<CategoryRefDTO> breadcrumbs
 ) {}
 

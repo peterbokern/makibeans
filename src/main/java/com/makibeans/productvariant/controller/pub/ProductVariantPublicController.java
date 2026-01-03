@@ -1,6 +1,8 @@
+/*
 package com.makibeans.productvariant.controller.pub;
 
 import com.makibeans.productvariant.dto.ProductVariantPublicResponseDTO;
+import com.makibeans.productvariant.filter.ProductVariantPublicFilter;
 import com.makibeans.productvariant.mapper.ProductVariantMapper;
 import com.makibeans.productvariant.model.ProductVariant;
 import com.makibeans.search.SearchRequest;
@@ -44,15 +46,15 @@ public class ProductVariantPublicController {
             description = "Search/sort/paginate product variants using query parameters."
     )
     public ResponseEntity<Page<ProductVariantPublicResponseDTO>> getAll(
-            @Valid @ModelAttribute ProductVariantFilter filters,
+            @Valid @ModelAttribute ProductVariantPublicFilter filters,
             @RequestParam(required = false) String search,
             @RequestParam(required = false, defaultValue = "false") Boolean includeDeleted,
             @PageableDefault(size = 20, sort = "id") Pageable pageable
     ) {
-        SearchRequest<ProductVariantFilter> req =
-                SearchRequestUtils.assemble(filters, search, includeDeleted, pageable);
+        SearchRequest<ProductVariantPublicFilter> req =
+                SearchRequestUtils.assemble(filters, search, false, pageable);
 
-        Page<ProductVariant> page = service.search(req);
+        Page<ProductVariant> page = service.searchPublic(req);
         Page<ProductVariantPublicResponseDTO> result = page.map(mapper::toPublicResponseDTO);
 
         return ResponseEntity.ok(result);
@@ -67,15 +69,16 @@ public class ProductVariantPublicController {
             description = "Same as GET but accepts a JSON body for complex filters."
     )
     public ResponseEntity<Page<ProductVariantPublicResponseDTO>> search(
-            @Valid @RequestBody SearchRequest<ProductVariantFilter> request,
+            @Valid @RequestBody SearchRequest<ProductVariantPublicFilter> request,
             @PageableDefault(size = 20, sort = "id") Pageable pageable
     ) {
-        SearchRequest<ProductVariantFilter> merged =
+        SearchRequest<ProductVariantPublicFilter> merged =
                 SearchRequestUtils.mergeWithPageable(request, pageable);
 
-        Page<ProductVariant> page = service.search(merged);
+        Page<ProductVariant> page = service.searchPublic(merged);
         Page<ProductVariantPublicResponseDTO> result = page.map(mapper::toPublicResponseDTO);
 
         return ResponseEntity.ok(result);
     }
 }
+*/

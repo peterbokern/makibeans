@@ -2,6 +2,9 @@ package com.makibeans.attribute.attributevalue.service;
 
 import com.makibeans.attribute.attribute.model.AttributeDataType;
 import com.makibeans.attribute.attributevalue.dto.AttributeValueUpdateDTO;
+import com.makibeans.attribute.attributevalue.dto.AttributeValueUsageDTO;
+import com.makibeans.attribute.attributevalue.filter.AttributeValueAdminFilter;
+import com.makibeans.attribute.attributevalue.filter.AttributeValuePublicFilter;
 import com.makibeans.attribute.attributevalue.mapper.AttributeValueMapper;
 import com.makibeans.attribute.attributevalue.repository.AttributeValueRepository;
 import com.makibeans.attribute.attributevalue.dto.AttributeValueRequestDTO;
@@ -9,11 +12,11 @@ import com.makibeans.attribute.attributevalue.util.AttributeValueParser;
 import com.makibeans.web.exceptions.DuplicateResourceException;
 import com.makibeans.attribute.attribute.model.Attribute;
 import com.makibeans.attribute.attributevalue.model.AttributeValue;
+import com.makibeans.web.exceptions.ResourceInUseException;
 import com.makibeans.web.exceptions.ResourceNotFoundException;
 import com.makibeans.search.SearchRequest;
 import com.makibeans.search.SortResolver;
 import com.makibeans.search.SpecificationFactory;
-import com.makibeans.attribute.attributevalue.filter.AttributeValueFilter;
 import com.makibeans.attribute.attribute.service.AttributeService;
 import com.makibeans.common.util.TextUtils;
 import org.apache.coyote.BadRequestException;
@@ -46,16 +49,18 @@ public class AttributeValueServiceImpl implements AttributeValueService {
     private final AttributeValueRepository repo;
     private final AttributeService attributeService;
     private final AttributeValueMapper mapper;
+    private final AttributeValueUsageChecker usageChecker;
 
     @Autowired
     public AttributeValueServiceImpl(
             AttributeValueRepository repo,
             AttributeService attributeService,
-            AttributeValueMapper mapper
+            AttributeValueMapper mapper, AttributeValueUsageChecker usageChecker
     ) {
         this.repo = repo;
         this.attributeService = attributeService;
         this.mapper = mapper;
+        this.usageChecker = usageChecker;
     }
 
     /**
@@ -68,25 +73,36 @@ public class AttributeValueServiceImpl implements AttributeValueService {
     @Override
     @Transactional(readOnly = true)
     public AttributeValue getById(Long id) {
+        return repo.findByIdAndDeletedFalse(id).orElseThrow(() ->
+                new ResourceNotFoundException("Attribute value with ID " + id + " not found."));
+    }
+
+    @Override
+    @Transactional
+    public AttributeValue getByIdIncludingDeleted(Long id) {
         return repo.findById(id).orElseThrow(() ->
                 new ResourceNotFoundException("Attribute value with ID " + id + " not found."));
     }
 
-    /**
-     * Executes a paged, filtered search for {@link AttributeValue} entities.
-     * <p>
-     * The provided {@link SearchRequest} is translated into a {@link Specification}
-     * using {@link SpecificationFactory} and the metadata from {@link AttributeValueFilter}.
-     *
-     * @param req the search request containing filters, paging and sorting options
-     * @return a page of matching {@link AttributeValue} entities
-     */
+    @Override
     @Transactional(readOnly = true)
-    public Page<AttributeValue> search(SearchRequest<AttributeValueFilter> req) {
-        Specification<AttributeValue> spec =
-                SpecificationFactory.fromRequest(req, AttributeValueFilter.class);
+    public Page<AttributeValue> searchPublic(SearchRequest<AttributeValuePublicFilter> req) {
+        return search(req, AttributeValuePublicFilter.class);
+    }
 
-        Sort sort = new SortResolver(AttributeValueFilter.class)
+    @Override
+    @Transactional(readOnly = true)
+    public Page<AttributeValue> searchAdmin(SearchRequest<AttributeValueAdminFilter> req) {
+        return search(req, AttributeValueAdminFilter.class);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public <F> Page<AttributeValue> search(SearchRequest<F> req, Class<F> filterClass) {
+        Specification<AttributeValue> spec =
+                SpecificationFactory.fromRequest(req, filterClass);
+
+        Sort sort = new SortResolver(filterClass)
                 .resolve(req.getSortBy(), req.getSortDirection());
 
         Pageable pageable = PageRequest.of(
@@ -115,6 +131,7 @@ public class AttributeValueServiceImpl implements AttributeValueService {
      * @throws BadRequestException        if the raw value cannot be parsed or is empty
      * @throws DuplicateResourceException if the value already exists for the given attribute
      */
+    @Override
     @Transactional
     public AttributeValue create(AttributeValueRequestDTO requestDTO) throws BadRequestException {
         Attribute attribute = attributeService.getById(requestDTO.getAttributeId());
@@ -131,7 +148,7 @@ public class AttributeValueServiceImpl implements AttributeValueService {
         AttributeValue value = new AttributeValue();
 
         value.setAttribute(attribute);
-        applyRawValue(value, type, rawValue);
+        applyRawValue(value, type, trimmedValue);
         value.setSlug(slug);
         value.setSortOrder(sortOrder);
 
@@ -156,6 +173,7 @@ public class AttributeValueServiceImpl implements AttributeValueService {
      * @throws BadRequestException        if the new raw value is invalid
      * @throws DuplicateResourceException if the new value would violate uniqueness
      */
+    @Override
     @Transactional
     public AttributeValue update(Long id, AttributeValueUpdateDTO updateDTO) throws BadRequestException, DuplicateResourceException {
         AttributeValue av = this.getById(id);
@@ -179,10 +197,13 @@ public class AttributeValueServiceImpl implements AttributeValueService {
      * @param id id of the value to mark as deleted
      * @throws ResourceNotFoundException if no entity with the given id exists
      */
+    @Override
     @Transactional
     public void delete(Long id) {
-        AttributeValue av = this.getById(id);
-        av.setDeleted(true);
+        AttributeValue value = getById(id);
+        if (Boolean.TRUE.equals(value.isDeleted())) return;
+        assertNotInUse(value); // prevent deletion if in use
+        value.setDeleted(true);
     }
 
     /**
@@ -199,18 +220,20 @@ public class AttributeValueServiceImpl implements AttributeValueService {
     @Override
     @Transactional
     public AttributeValue restore(Long id) throws DuplicateResourceException, BadRequestException {
-        AttributeValue value = this.getById(id);
+        AttributeValue value = getByIdIncludingDeleted(id);
+        assertDeleted(value);
         Attribute attribute = value.getAttribute();
         String slug = value.getSlug();
-
-        if (!Boolean.TRUE.equals(value.isDeleted())) {
-            throw new BadRequestException("Attribute value with ID " + id + " is not deleted and cannot be restored.");
-        }
-
         assertUniqueSlugForUpdate(slug, attribute, id);
-
         value.setDeleted(false);
         return value;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public AttributeValueUsageDTO summarizeAttributeValueUsage(Long attributeValueId) {
+        AttributeValue value = getById(attributeValueId);
+        return usageChecker.summarizeUsage(value);
     }
 
     /**
@@ -234,11 +257,9 @@ public class AttributeValueServiceImpl implements AttributeValueService {
         String normalizedValue = normalize(trimmedValue);
 
         switch (type) {
-            case STRING -> {
-                // Store human-friendly version (e.g. "Light Roast", not "light roast")
-                target.setStringValue(trimmedValue);
+            case STRING -> {target.setStringValue(trimmedValue);
             }
-            case NUMERIC -> target.setNumericValue(
+            case NUMBER -> target.setNumericValue(
                     AttributeValueParser.parseNumeric(normalizedValue)
             );
             case BOOLEAN -> target.setBooleanValue(
@@ -297,6 +318,33 @@ public class AttributeValueServiceImpl implements AttributeValueService {
         if (existing != null) {
             throw new DuplicateResourceException(
                     "Attribute value: " + existing.getValueAsString() + " already exists."
+            );
+        }
+    }
+
+    /**
+     * Asserts that the given {@link AttributeValue} is marked as deleted.
+     *
+     * @param value entity to check
+     * @throws BadRequestException if the entity is not deleted
+     */
+    private void assertDeleted(AttributeValue value) throws BadRequestException {
+        if (!Boolean.TRUE.equals(value.isDeleted())) {
+            throw new BadRequestException("Attribute value + " + value.getValueAsString() + " is not deleted.");
+        }
+    }
+
+    /**
+     * Asserts that the given {@link AttributeValue} is not in use.
+     *
+     * @param value entity to check
+     */
+    private void assertNotInUse(AttributeValue value) {
+        boolean inUse = usageChecker.isInUse(value);
+        if (inUse) {
+            String details = usageChecker.getUsageDetails(value);
+            throw new ResourceInUseException(
+                    "Attribute value: " + value.getValueAsString() + " is in use and cannot be deleted. " + details
             );
         }
     }
@@ -368,20 +416,19 @@ public class AttributeValueServiceImpl implements AttributeValueService {
     private int resolveSortOrder(Attribute attribute, Integer requestedSortOrder) {
 
         int maxSortOrder = repo.findMaxSortOrderByAttribute(attribute).orElse(-1);
-        int nextSortOrder = maxSortOrder + 1;
 
-        // Check if the requested sort order is valid (i.e. within the current range,
-        boolean validSortOrderRequest =
-                requestedSortOrder != null &&
-                        requestedSortOrder >= 0 &&
-                        requestedSortOrder <= maxSortOrder;
-
-        if (validSortOrderRequest) {
+        if (isValidSortOrderRequest(requestedSortOrder, maxSortOrder)) {
             adjustSortOrdersForInsert(attribute, requestedSortOrder);
             return requestedSortOrder;
         } else {
-            return nextSortOrder;
+            return maxSortOrder + 1;
         }
+    }
+
+    private boolean isValidSortOrderRequest(Integer requestedSortOrder, int maxSortOrder) {
+        return requestedSortOrder != null &&
+                requestedSortOrder >= 0 &&
+                requestedSortOrder <= maxSortOrder;
     }
 
     /**

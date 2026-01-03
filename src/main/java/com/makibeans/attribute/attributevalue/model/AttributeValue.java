@@ -21,7 +21,7 @@ import java.time.LocalDateTime;
  * Represents an attribute value entity.
  * This entity is used to store values for attributes defined by an Attribute.
  */
-
+//TODO add unique constraint on (attribute_id, slug) in flyway migration file
 @Entity
 @Getter
 @Setter
@@ -34,12 +34,6 @@ import java.time.LocalDateTime;
                 @Index(name = "idx_attribute_boolean_value", columnList = "boolean_value"),
                 @Index(name = "idx_attribute_date_value", columnList = "date_value"),
                 @Index(name = "idx_attribute_date_time_value", columnList = "date_time_value"),
-        },
-        uniqueConstraints = {
-                @UniqueConstraint(
-                        name = "uk_attribute_value_attribute_slug",
-                        columnNames = {"attribute_id", "slug"}
-                )
         })
 @ToString(exclude = "attribute")
 @ValidAttributeValueForType // Custom validation to ensure  1  value matches attribute data type
@@ -73,7 +67,7 @@ public class AttributeValue extends Auditable {
     @Column(name = "date_time_value", nullable = true)
     private LocalDateTime dateTimeValue;
 
-    @Column(name = "slug", nullable = false, unique = true, length = 60)
+    @Column(name = "slug", nullable = false,  length = 60)
     private String slug;
 
     @Column(name = "sort_order", nullable = false)
@@ -83,7 +77,7 @@ public class AttributeValue extends Auditable {
     public Object getValue() {
         return switch (this.attribute.getDataType()) {
             case STRING -> this.stringValue;
-            case NUMERIC -> this.numericValue;
+            case NUMBER -> this.numericValue;
             case BOOLEAN -> this.booleanValue;
             case DATE -> this.dateValue;
             case DATETIME -> this.dateTimeValue;

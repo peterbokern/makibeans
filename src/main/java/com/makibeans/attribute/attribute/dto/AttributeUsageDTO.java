@@ -10,7 +10,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 public record AttributeUsageDTO(
         boolean usedInValues,
-        boolean usedInProductAttributes,
         boolean usedInCategoryAttributes
 ) {
     /**
@@ -20,6 +19,6 @@ public record AttributeUsageDTO(
      */
     @JsonProperty("inUse")
     public boolean inUse() {
-        return usedInValues || usedInProductAttributes || usedInCategoryAttributes;
+        return usedInValues || usedInCategoryAttributes;
     }
 }

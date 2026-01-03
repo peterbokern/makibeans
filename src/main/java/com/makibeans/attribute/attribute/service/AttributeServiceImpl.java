@@ -3,7 +3,9 @@ package com.makibeans.attribute.attribute.service;
 import com.makibeans.attribute.attribute.dto.AttributeRequestDTO;
 import com.makibeans.attribute.attribute.dto.AttributeUpdateDTO;
 import com.makibeans.attribute.attribute.dto.AttributeUsageDTO;
+import com.makibeans.attribute.attribute.filter.AttributeAdminFilter;
 import com.makibeans.attribute.attribute.filter.AttributeFilter;
+import com.makibeans.attribute.attribute.filter.AttributePublicFilter;
 import com.makibeans.attribute.attribute.mapper.AttributeMapper;
 import com.makibeans.attribute.attribute.repository.AttributeRepository;
 import com.makibeans.common.util.TextUtils;
@@ -54,8 +56,14 @@ public class AttributeServiceImpl implements AttributeService {
      * @return the resolved {@link Attribute}
      * @throws ResourceNotFoundException if no attribute exists with the given id
      */
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true) @Override
     public Attribute getById(Long id) {
+        return repo.findByIdAndDeletedFalse(id).orElseThrow(
+                () -> new ResourceNotFoundException("Attribute with ID " + id + " not found."));
+    }
+
+    @Transactional(readOnly = true)
+    public Attribute getByIdIncludeDeleted(Long id) {
         return repo.findById(id).orElseThrow(
                 () -> new ResourceNotFoundException("Attribute with ID " + id + " not found."));
     }
@@ -70,12 +78,25 @@ public class AttributeServiceImpl implements AttributeService {
      * @param req the search request containing filters, paging and sorting options
      * @return a page of matching {@link Attribute} entities
      */
+    @Override
     @Transactional(readOnly = true)
-    public Page<Attribute> search(SearchRequest<AttributeFilter> req) {
-        Specification<Attribute> spec =
-                SpecificationFactory.fromRequest(req, AttributeFilter.class);
+    public Page<Attribute> searchPublic(SearchRequest<AttributePublicFilter> req) {
+        return search(req, AttributePublicFilter.class);
+    }
 
-        Sort sort = new SortResolver(AttributeFilter.class)
+    @Override
+    @Transactional(readOnly = true)
+    public Page<Attribute> searchAdmin(SearchRequest<AttributeAdminFilter> req) {
+        return search(req, AttributeAdminFilter.class);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public <F> Page<Attribute> search(SearchRequest<F> req, Class<F> filterClass) {
+        Specification<Attribute> spec =
+                SpecificationFactory.fromRequest(req, filterClass);
+
+        Sort sort = new SortResolver(filterClass)
                 .resolve(req.getSortBy(), req.getSortDirection());
 
         Pageable pageable = PageRequest.of(
@@ -83,7 +104,6 @@ public class AttributeServiceImpl implements AttributeService {
                 req.getSize() != null ? req.getSize() : 20,
                 sort
         );
-
         return repo.findAll(spec, pageable);
     }
 
@@ -102,7 +122,7 @@ public class AttributeServiceImpl implements AttributeService {
      * @return the persisted {@link Attribute}
      * @throws DuplicateResourceException if an attribute with the same normalised name already exists
      */
-    @Transactional
+    @Transactional @Override
     public Attribute create(AttributeRequestDTO dto) {
         String trimmedName = dto.getName().trim();
         String normalizedName = TextUtils.normalizeText(trimmedName);
@@ -139,7 +159,7 @@ public class AttributeServiceImpl implements AttributeService {
      * @throws ResourceNotFoundException  if the attribute does not exist
      * @throws DuplicateResourceException if the (normalised) updated name conflicts with another attribute
      */
-    @Transactional
+    @Transactional @Override
     public Attribute update(Long id, @Valid AttributeUpdateDTO dto) {
         Attribute attribute = getById(id);
 
@@ -160,14 +180,11 @@ public class AttributeServiceImpl implements AttributeService {
      * @param id the id of the attribute to delete
      * @throws ResourceNotFoundException if the attribute does not exist
      */
-    @Transactional
+    @Transactional @Override
     public void delete(Long id) throws BadRequestException {
         Attribute attribute = getById(id);
-
         if (Boolean.TRUE.equals(attribute.isDeleted())) return; // already deleted, no-op
-
         assertNotInUse(attribute);
-
         attribute.setDeleted(true);
     }
 
@@ -189,7 +206,7 @@ public class AttributeServiceImpl implements AttributeService {
     @Override
     @Transactional
     public Attribute restore(Long id) throws BadRequestException {
-        Attribute attribute = getById(id);
+        Attribute attribute = getByIdIncludeDeleted(id);
         assertDeleted(attribute);
         String slug = attribute.getSlug();
         assertUniqueSlugForUpdate(id, slug);
@@ -201,14 +218,15 @@ public class AttributeServiceImpl implements AttributeService {
      * Checks if an {@link Attribute} is in use by any attribute values,
      * product attributes, or category attributes.
      *
-     * @param attributeId the id of the attribute to check
+
      * @return {@code true} if the attribute is in use; {@code false} otherwise
      */
 
     @Override
     @Transactional(readOnly = true)
     public AttributeUsageDTO summarizeAttributeUsage(Long attributeId) {
-        return usageChecker.summarizeUsage(attributeId);
+        Attribute attribute = getById(attributeId);
+        return usageChecker.summarizeUsage(attribute);
     }
 
     /**
@@ -261,13 +279,12 @@ public class AttributeServiceImpl implements AttributeService {
      * @throws ResourceInUseException if the attribute is in use
      */
     private void assertNotInUse(Attribute attribute) {
-        Long id = attribute.getId();
-        boolean inUse = usageChecker.isInUse(id);
+        boolean inUse = usageChecker.isInUse(attribute);
 
         if (inUse) {
-            String details = usageChecker.getUsageDetails(id);
+            String details = usageChecker.getUsageDetails(attribute);
             throw new ResourceInUseException(
-                    "Attribute " + "'" + attribute.getName() +"'" + " (ID " + id + ") is in use and cannot be deleted. " + details
+                    "Attribute " + attribute.getName() + " is in use and cannot be deleted. " + details
             );
         }
     }

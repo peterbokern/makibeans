@@ -5,5 +5,6 @@ package com.makibeans.size.dto;
  */
 public record SizePublicResponseDTO(
         Long id,
-        String name
+        String name,
+        String slug
 ) {}

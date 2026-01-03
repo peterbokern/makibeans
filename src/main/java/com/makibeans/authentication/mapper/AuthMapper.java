@@ -1,6 +1,6 @@
 package com.makibeans.authentication.mapper;
 
-import com.makibeans.login.dto.LoginResponseDTO;
+import com.makibeans.authentication.dto.LoginResponseDTO;
 import com.makibeans.user.model.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

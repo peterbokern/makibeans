@@ -3,6 +3,7 @@ package com.makibeans.attribute.categoryattribute.controller.pub;
 
 import com.makibeans.attribute.categoryattribute.dto.CategoryAttributePublicResponseDTO;
 import com.makibeans.attribute.categoryattribute.filter.CategoryAttributeFilter;
+import com.makibeans.attribute.categoryattribute.filter.CategoryAttributePublicFilter;
 import com.makibeans.attribute.categoryattribute.mapper.CategoryAttributeMapper;
 import com.makibeans.attribute.categoryattribute.model.CategoryAttribute;
 import com.makibeans.attribute.categoryattribute.service.CategoryAttributeService;
@@ -42,15 +43,15 @@ public class CategoryAttributePublicController {
             description = "Search/sort/paginate category-attributes using query params."
     )
     public ResponseEntity<Page<CategoryAttributePublicResponseDTO>> getAll(
-            @Valid @ModelAttribute CategoryAttributeFilter filters,
+            @Valid @ModelAttribute CategoryAttributePublicFilter filters,
             @RequestParam(required = false) String search,
             @RequestParam(required = false, defaultValue = "false") Boolean includeDeleted,
             @PageableDefault(size = 20, sort = "id") Pageable pageable
     ) {
-        SearchRequest<CategoryAttributeFilter> req =
+        SearchRequest<CategoryAttributePublicFilter> req =
                 SearchRequestUtils.assemble(filters, search, includeDeleted, pageable);
 
-        Page<CategoryAttribute> page = service.search(req);
+        Page<CategoryAttribute> page = service.searchPublic(req);
         Page<CategoryAttributePublicResponseDTO> result =
                 page.map(mapper::toPublicResponseDTO);
 
@@ -63,17 +64,17 @@ public class CategoryAttributePublicController {
             description = "Same as GET but accepts a JSON body for complex filters."
     )
     public ResponseEntity<Page<CategoryAttributePublicResponseDTO>> search(
-            @Valid @RequestBody SearchRequest<CategoryAttributeFilter> request,
+            @Valid @RequestBody SearchRequest<CategoryAttributePublicFilter> request,
             @PageableDefault(size = 20, sort = "id") Pageable pageable
     ) {
-        SearchRequest<CategoryAttributeFilter> merged =
+        SearchRequest<CategoryAttributePublicFilter> merged =
                 SearchRequestUtils.mergeWithPageable(request, pageable);
 
         if (merged.getIncludeDeleted() == null) {
             merged.setIncludeDeleted(false);
         }
 
-        Page<CategoryAttribute> page = service.search(merged);
+        Page<CategoryAttribute> page = service.searchPublic(merged);
         Page<CategoryAttributePublicResponseDTO> result =
                 page.map(mapper::toPublicResponseDTO);
 

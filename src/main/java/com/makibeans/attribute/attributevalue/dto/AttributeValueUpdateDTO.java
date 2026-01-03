@@ -17,6 +17,6 @@ public class AttributeValueUpdateDTO {
     @Size(min = 1, max = 255, message = "Attribute value must be between 1 and 255 characters.")
     private String rawValue;
 
-    @Min(0)
-    private Integer sortOrder;
+    @Min(value = 0, message = "Sort order must be zero or a positive integer.")
+    private Integer sortOrder ;
 }

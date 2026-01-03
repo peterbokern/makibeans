@@ -15,14 +15,18 @@ public interface ProductMapper {
     // --- Public DTO mapping ---
 
     @Mapping(source = "category.name", target = "categoryName")
+    @Mapping(target = "categoryId", source = "category.id")
     @Mapping(source = ".", target = "imageUrl", qualifiedByName = "getImageUrl")
+    @Mapping(source = "slug", target = "slug")
     ProductPublicResponseDTO toPublicResponseDTO(Product entity);
 
     // --- Admin DTO mapping with audit ---
 
     @Mapping(source = "category.name", target = "categoryName")
     @Mapping(source = ".", target = "imageUrl", qualifiedByName = "getImageUrl")
+    @Mapping(target = "categoryId", source = "category.id")
     @Mapping(target = "audit", source = ".")
+    @Mapping(source = "slug", target = "slug")
     ProductAdminResponseDTO toAdminResponseDTO(Product entity);
 
     @Named("getImageUrl")
@@ -32,6 +36,12 @@ public interface ProductMapper {
                 : "null";
     }
 
+    @Named("trimDescription")
+    default String trimDescription(String description) {
+        return description != null ? description.trim() : null;
+    }
+
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "description", qualifiedByName = "trimDescription")
     void updateEntityFromDTO(ProductUpdateDTO updateDTO, @MappingTarget Product product);
 }

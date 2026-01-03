@@ -1,6 +1,9 @@
 package com.makibeans.attribute.productattribute.repository;
 
+import com.makibeans.attribute.attribute.model.Attribute;
+import com.makibeans.attribute.categoryattribute.model.CategoryAttribute;
 import com.makibeans.attribute.productattribute.model.ProductAttribute;
+import com.makibeans.category.model.Category;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -9,6 +12,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -22,11 +26,11 @@ public interface ProductAttributeRepository extends JpaRepository<ProductAttribu
      * Checks if a ProductAttribute exists by product ID and attribute template ID.
      *
      * @param productId the ID of the product
-     * @param templateId the ID of the attribute template
+     * @param categoryAttributeId the ID of the attribute template
      * @return true if a ProductAttribute exists, false otherwise
      */
 
-    boolean existsByProductIdAndAttributeId(Long productId, Long templateId);
+    boolean existsByProductIdAndCategoryAttributeId(Long productId, Long categoryAttributeId);
 
     /**
      * Deletes attribute values by attribute value ID.
@@ -53,11 +57,11 @@ public interface ProductAttributeRepository extends JpaRepository<ProductAttribu
     /**
      * Finds ProductAttributes by attribute template ID.
      *
-     * @param templateId the ID of the attribute template
+     * @param categoryAttributeId the ID of the attribute template
      * @return a list of ProductAttributes
      */
 
-    List<ProductAttribute> findByAttributeId(Long templateId);
+    List<ProductAttribute> findByCategoryAttributeId(Long categoryAttributeId);
 
     /**
      * Finds ProductAttributes by product ID.
@@ -71,30 +75,27 @@ public interface ProductAttributeRepository extends JpaRepository<ProductAttribu
     /**
      * Returns all non-deleted attribute values for the given attribute ID.
      *
-     * @param attributeId The ID of the attribute template.
+     * @param categoryAttributeId The ID of the attribute template.
      * @return All non-deleted attribute values for the given attribute ID.
      */
-    List<ProductAttribute> findByAttributeIdAndDeletedFalse(Long attributeId);
+    List<ProductAttribute> findByCategoryAttributeIdAndDeletedFalse(Long categoryAttributeId);
 
-    /**
-     * Counts the number of non-deleted attribute values for the given attribute ID.
-     *
-     * @param AttributeId The ID of the attribute template.
-     * @return The number of non-deleted attribute values for the given attribute ID.
-     */
-    Long countAttributeValuesByAttributeIdAndDeletedIsFalse(Long AttributeId);
 
     //count distinct product ids by attribute ue id and not deleted
-    @Query("SELECT COUNT (DISTINCT pa.product.id) FROM ProductAttribute pa WHERE pa.attribute.id = :attributeId AND pa.deleted = false" )
-    Long countDistinctProductsByAttributeIdAndDeletedFalse(@Param("attributeId") Long attributeId);
+    @Query("SELECT COUNT (DISTINCT pa.product.id) FROM ProductAttribute pa WHERE pa.categoryAttribute.id = :categoryAttributeId AND pa.deleted = false" )
+    Long countDistinctProductsByCategoryAttributeIdAndDeletedFalse(@Param("categoryAttributeId") Long categoryAttributeId);
 
 
     @EntityGraph(attributePaths = {
             "product",
-            "attribute"
-            // ,"product.category" // include only if you show category in the list
+            "categoryAttribute",
+            "categoryAttribute.attribute"
     })
     Page<ProductAttribute> findAll(Specification<ProductAttribute> spec, Pageable pageable);
 
-    boolean existsByAttributeIdAndDeletedFalse(Long attributeId);
+    boolean existsByCategoryAttributeAndDeletedFalse(CategoryAttribute categoryAttribute);
+
+    // check if any product attribute exists for a given category and not deleted
+    boolean existsByCategoryAttributeCategoryAndDeletedFalse(Category category);
+
 }

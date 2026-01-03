@@ -5,6 +5,8 @@ import com.makibeans.attribute.attribute.dto.AttributeAdminResponseDTO;
 import com.makibeans.attribute.attribute.dto.AttributeRequestDTO;
 import com.makibeans.attribute.attribute.dto.AttributeUpdateDTO;
 import com.makibeans.attribute.attribute.dto.AttributeUsageDTO;
+import com.makibeans.attribute.attribute.filter.AttributeAdminFilter;
+import com.makibeans.attribute.attribute.filter.AttributePublicFilter;
 import com.makibeans.attribute.attribute.mapper.AttributeMapper;
 import com.makibeans.attribute.attribute.model.Attribute;
 import com.makibeans.search.SearchRequest;
@@ -49,24 +51,24 @@ public class AttributeAdminController {
     @GetMapping
     @Operation(summary = "Admin: Get attributes (paged)", description = "Search/sort/paginate attributes using query params.")
     public ResponseEntity<Page<AttributeAdminResponseDTO>> getAll(
-            @Valid @ModelAttribute AttributeFilter filters,
+            @Valid @ModelAttribute AttributeAdminFilter filters,
             @RequestParam(required = false) String search,
             @RequestParam(required = false, defaultValue = "false") Boolean includeDeleted,
             @PageableDefault(size = 20, sort = "id") Pageable pageable
     ) {
-        SearchRequest<AttributeFilter> req = SearchRequestUtils.assemble(filters, search, includeDeleted, pageable);
-        Page<Attribute> page = service.search(req);
+        SearchRequest<AttributeAdminFilter> req = SearchRequestUtils.assemble(filters, search, includeDeleted, pageable);
+        Page<Attribute> page = service.searchAdmin(req);
         return ResponseEntity.ok(page.map(mapper::toAdminResponseDTO));
     }
 
     @PostMapping("/search")
     @Operation(summary = "Admin: Search attributes (POST)", description = "Same as GET but accepts a JSON body for complex filters.")
     public ResponseEntity<Page<AttributeAdminResponseDTO>> search(
-            @Valid @RequestBody SearchRequest<AttributeFilter> request,
+            @Valid @RequestBody SearchRequest<AttributeAdminFilter> request,
             @PageableDefault(size = 20, sort = "id") Pageable pageable
     ) {
-        SearchRequest<AttributeFilter> merged = SearchRequestUtils.mergeWithPageable(request, pageable);
-        Page<Attribute> page = service.search(merged);
+        SearchRequest<AttributeAdminFilter> merged = SearchRequestUtils.mergeWithPageable(request, pageable);
+        Page<Attribute> page = service.searchAdmin(merged);
         return ResponseEntity.ok(page.map(mapper::toAdminResponseDTO));
     }
 

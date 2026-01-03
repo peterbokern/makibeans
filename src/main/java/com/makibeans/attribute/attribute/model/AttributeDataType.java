@@ -7,7 +7,7 @@ import lombok.Getter;
 @Getter
 public enum AttributeDataType {
     STRING("string"),
-    NUMERIC("number"),
+    NUMBER("number"),
     BOOLEAN("boolean"),
     DATE("date"),
     DATETIME("dateTime");

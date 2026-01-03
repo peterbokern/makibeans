@@ -10,6 +10,8 @@ import java.util.Map;
  */
 public final class SortResolver {
     private final Map<String, FilterMetadataExtractor.FilterMetadata> meta;
+    //example data: {"name" -> {path: "category.name", sortable: true}, ...}
+
 
     public SortResolver(Class<?> filterClass) {
         this.meta = FilterMetadataExtractor.extract(filterClass);

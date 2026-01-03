@@ -1,7 +1,7 @@
 package com.makibeans.authentication.controller;
 
-import com.makibeans.login.dto.LoginRequestDTO;
-import com.makibeans.login.dto.LoginResponseDTO;
+import com.makibeans.authentication.dto.LoginRequestDTO;
+import com.makibeans.authentication.dto.LoginResponseDTO;
 import com.makibeans.authentication.service.AuthServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

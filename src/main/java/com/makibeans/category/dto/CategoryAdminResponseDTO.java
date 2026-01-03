@@ -10,11 +10,10 @@ import java.util.List;
 public record CategoryAdminResponseDTO(
         Long id,
         String name,
+        String slug,
         String description,
         String imageUrl,
-        Long parentCategoryId,
-
-        List<CategoryAdminResponseDTO>subCategories,
-        List<BreadCrumbDTO> breadCrumbs,
+        CategoryRefDTO parent,
+        List<CategoryRefDTO> breadcrumbs,
         AuditableInfo audit
 ) {}

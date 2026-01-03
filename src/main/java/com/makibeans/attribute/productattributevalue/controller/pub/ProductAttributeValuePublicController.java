@@ -1,3 +1,4 @@
+/*
 package com.makibeans.attribute.productattributevalue.controller.pub;
 
 import com.makibeans.attribute.productattributevalue.filter.ProductAttributeValueFilter;
@@ -18,9 +19,11 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+*/
 /**
  * Public read-only API for ProductAttributeValue.
- */
+ *//*
+
 @RestController
 @RequestMapping("/product-attribute-values")
 @RequiredArgsConstructor
@@ -30,9 +33,11 @@ public class ProductAttributeValuePublicController {
     private final ProductAttributeValueService service;
     private final ProductAttributeValueMapper mapper;
 
-    /**
+    */
+/**
      * Get a product attribute value by id (public).
-     */
+     *//*
+
     @GetMapping("/{id}")
     @Operation(summary = "Get product attribute value by ID (public)")
     public ResponseEntity<ProductAttributeValuePublicResponseDTO> getById(
@@ -59,7 +64,7 @@ public class ProductAttributeValuePublicController {
             @PageableDefault(size = 20, sort = "id") Pageable pageable
     ) {
         SearchRequest<ProductAttributeValueFilter> request =
-                SearchRequestUtils.assemble(filters, search, includeDeleted, pageable);
+                SearchRequestUtils.assemble(filters, search, false, pageable);
 
         Page<ProductAttributeValue> page = service.search(request);
         Page<ProductAttributeValuePublicResponseDTO> result =
@@ -92,3 +97,4 @@ public class ProductAttributeValuePublicController {
     }
 
 }
+*/

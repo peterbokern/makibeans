@@ -1,91 +1,100 @@
 package com.makibeans.category.service;
 
+import com.makibeans.attribute.categoryattribute.service.CategoryAttributeService;
 import com.makibeans.category.dto.CategoryRequestDTO;
 import com.makibeans.category.dto.CategoryUpdateDTO;
+import com.makibeans.category.filter.CategoryAdminFilter;
+import com.makibeans.category.filter.CategoryFilter;
+import com.makibeans.category.filter.CategoryPublicFilter;
 import com.makibeans.category.mapper.CategoryMapper;
 import com.makibeans.category.model.Category;
 import com.makibeans.category.repository.CategoryRepository;
+import com.makibeans.common.util.ImageUtils;
+import com.makibeans.common.util.TextUtils;
 import com.makibeans.search.SearchRequest;
 import com.makibeans.search.SortResolver;
 import com.makibeans.search.SpecificationFactory;
-import com.makibeans.category.filter.CategoryFilter;
-import com.makibeans.attribute.categoryattribute.service.CategoryAttributeService;
-import com.makibeans.common.service.CrudService;
-import com.makibeans.product.service.ProductService;
-import com.makibeans.common.util.ImageUtils;
 import com.makibeans.web.exceptions.*;
 import jakarta.validation.Valid;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import static com.makibeans.common.util.UpdateUtils.*;
-
-/**
- * Service class for managing Category entities.
- * Provides methods to perform CRUD operations and search for Categories.
- */
+import java.util.List;
+import java.util.Objects;
 
 @Service
-public class CategoryServiceImpl implements CategoryService, CrudService<Category, Long> {
+public class CategoryServiceImpl implements CategoryService {
 
     private final CategoryRepository repo;
     private final CategoryMapper mapper;
-    private final ProductService productService;
+    private final CategoryUsageChecker usageChecker;
     private final CategoryAttributeService categoryAttributeService;
-    private final Logger logger = LoggerFactory.getLogger(CategoryService.class);
     private final ImageUtils imageUtils;
 
     @Autowired
-    public CategoryServiceImpl(CategoryRepository categoryRepository, CategoryMapper categoryMapper, @Lazy ProductService productService, @Lazy CategoryAttributeService categoryAttributeService, ImageUtils imageUtils) {
-        this.repo = categoryRepository;
-        this.mapper = categoryMapper;
-        this.productService = productService;
+    public CategoryServiceImpl(
+            CategoryRepository repo,
+            CategoryMapper mapper,
+            CategoryUsageChecker usageChecker, CategoryAttributeService categoryAttributeService,
+            ImageUtils imageUtils
+    ) {
+        this.repo = repo;
+        this.mapper = mapper;
+        this.usageChecker = usageChecker;
         this.categoryAttributeService = categoryAttributeService;
         this.imageUtils = imageUtils;
     }
 
-    /**
-     * Implementors must return their repository.
-     */
+    // -------------------------------------------------------------------------
+    // READS
+    // -------------------------------------------------------------------------
+
     @Override
-    public JpaRepository<Category, Long> repo() {
-        return this.repo;
-    }
-
-
-    /**
-     * Retrieves a category by its ID.
-     *
-     * @param id the ID of the category to retrieve.
-     * @return the CategoryResponseDTO representing the category.
-     * @throws IllegalArgumentException  if the id is null.
-     * @throws ResourceNotFoundException if the category does not exist.
-     */
-
     @Transactional(readOnly = true)
     public Category getById(Long id) {
-        return getOrThrow(id);
+        return repo.findByIdAndDeletedFalse(id).orElseThrow(() ->
+                new ResourceNotFoundException("Category with ID " + id + " not found."));
     }
-
 
     @Override
     @Transactional(readOnly = true)
-    public Page<Category> search(SearchRequest<CategoryFilter> req) {
-        Specification<Category> spec =
-                SpecificationFactory.fromRequest(req, CategoryFilter.class);
+    public Category getByIdIncludingDeleted(Long id) {
+        return repo.findById(id).orElseThrow(() ->
+                new ResourceNotFoundException("Category with ID " + id + " not found."));
+    }
 
-        Sort sort = new SortResolver(CategoryFilter.class)
+    @Override
+    @Transactional(readOnly = true)
+    public List<Category> getCategoryTree() {
+        return repo.findByParentCategoryIsNullAndDeletedFalse();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<Category> searchPublic(SearchRequest<CategoryPublicFilter> req) {
+        return search(req, CategoryPublicFilter.class);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<Category> searchAdmin(SearchRequest<CategoryAdminFilter> req) {
+        return search(req, CategoryAdminFilter.class);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public <F> Page<Category> search(SearchRequest<F> req, Class<F> filterClass) {
+
+        Specification<Category> spec =
+                SpecificationFactory.fromRequest(req, filterClass);
+
+        Sort sort = new SortResolver(filterClass)
                 .resolve(req.getSortBy(), req.getSortDirection());
 
         Pageable pageable = PageRequest.of(
@@ -97,191 +106,258 @@ public class CategoryServiceImpl implements CategoryService, CrudService<Categor
         return repo.findAll(spec, pageable);
     }
 
+    // -------------------------------------------------------------------------
+    // WRITES
+    // -------------------------------------------------------------------------
 
-    /**
-     * Creates a new root category.
-     *
-     * @param requestDTO  DTO containing the category details.
-     * @return the newly created root category as categoryResponseDTO.
-     * @throws IllegalArgumentException   if the name is null or empty.
-     * @throws DuplicateResourceException if a root category with the given name already exists.
-     */
-
+    @Override
     @Transactional
-    public Category create(CategoryRequestDTO requestDTO) {
+    public Category create(@Valid CategoryRequestDTO dto) throws BadRequestException {
 
-        Long parentCategoryId = requestDTO.getParentCategoryId();
-        String normalizedCategoryName = normalize(requestDTO.getName());
-        String normalizedCategoryDescription = normalize(requestDTO.getDescription());
-        Category category;
+        String trimmedName = dto.getName().trim();
+        String normalizedName = normalize(trimmedName);
+        String slug = toSlug(normalizedName);
 
-        if (parentCategoryId == null) {
-            validateUniqueRootCategoryName(normalizedCategoryName);
-            category = new Category(
-                    normalizedCategoryName,
-                    normalizedCategoryDescription);
-        } else {
-            Category parentCategory = getOrThrow(parentCategoryId);
+        Category parent = dto.getParentCategoryId() != null
+                ? getById(dto.getParentCategoryId())
+                : null;
 
-            validateUniqueCategoryNameWithinHierarchy(parentCategory, normalizedCategoryName, null);
+        if (parent != null) assertNotEqualsParentSlug(parent, slug);
 
-            category = new Category(normalizedCategoryName,
-                    normalizedCategoryDescription);
+        assertUniqueSlugAmongSiblings(parent, slug, null);
 
-            category.setParentCategory(parentCategory);
-
-            parentCategory.getSubCategories().add(category);
-        }
+        Category category = new Category();
+        category.setName(trimmedName);
+        category.setSlug(slug);
+        category.setDescription(TextUtils.trim(dto.getDescription()));
+        category.setParentCategory(parent);
 
         return repo.save(category);
     }
 
-    /**
-     * Deletes a category by its ID.
-     *
-     * @param categoryId the ID of the category to delete; must not be null.
-     * @throws IllegalArgumentException  if the categoryId is null.
-     * @throws ResourceNotFoundException if the category does not exist.
-     * @throws CategoryInUseException    if category is in use by products.
-     */
-
-    @Transactional
-    public void delete(Long categoryId) {
-
-        Boolean inUseByCategoryAttributes = categoryAttributeService.existByCategoryId(categoryId);
-        Boolean inUseBySubCategories = repo.existsByParentCategoryId(categoryId);
-        Boolean inUseByProducts = productService.existsByCategoryId(categoryId);
-
-        if(inUseByCategoryAttributes || inUseBySubCategories || inUseByProducts) {
-            throw new CategoryInUseException("Category cannot be deleted because it is in use. Please re-assign or remove dependencies before deleting the category.");
-        }
-
-        softDelete(categoryId);
-    }
-
-
     @Override
     @Transactional
-    public Category update(Long id, @Valid CategoryUpdateDTO updateDTO) {
+    public Category update(Long id, @Valid CategoryUpdateDTO dto) throws BadRequestException {
 
-        Category category = getOrThrow(id);
+        // Fetch existing category
+        Category category = getById(id);
+        String finalSlug = category.getSlug();
+        String finalName = category.getName();
+        Category finalParent = category.getParentCategory();
 
-        mapper.updateEntityFromDTO(updateDTO, category);
+        // 1) Parent change
+        Long parentId = dto.getParentCategoryId();
+        if (parentId != null)  {
+            finalParent = getById(parentId);
+            validateCircularReference(finalParent, category);
+        }
 
-        return  category;
-    }
+        // 2) Name change
+        String newName = dto.getName();
+        if (newName != null && !newName.isBlank()) {
+            finalName = newName.trim();
+            String normalizedNewName = normalize(finalName);
+            finalSlug = toSlug(normalizedNewName);
+        }
 
-    /**
-     * Uploads or updates the image of a category.
-     *
-     * @param categoryId the ID of the category.
-     * @param image      the MultipartFile representing the image.
-     * @return the updated CategoryResponseDTO.
-     * @throws ImageProcessingException if validation or reading fails.
-     */
+        // Validate slug uniqueness
+        boolean changed = nameChanged(category, newName) || parentChanged(category, parentId);
 
-    @Transactional
-    public Category uploadCategoryImage(Long categoryId, MultipartFile image) {
-        Category category = getOrThrow(categoryId);
-        byte[] imageBytes = imageUtils.validateAndExtractImageBytes(image);
-        category.setImage(imageBytes);
+        if (changed) {
+            if (finalParent != null) assertNotEqualsParentSlug(finalParent, finalSlug);
+            assertUniqueSlugAmongSiblings(finalParent, finalSlug, category.getId());
+        }
+
+        // Apply changes
+        category.setParentCategory(finalParent);
+        category.setName(finalName);
+        category.setSlug(finalSlug);
+
+        // 3) Other fields
+        mapper.updateEntityFromDTO(dto, category);
+
         return category;
     }
 
-    /**
-     * Retrieves the image of a category by its ID.
-     *
-     * @param categoryId the ID of the category whose image is to be retrieved.
-     * @return a byte array representing the category image.
-     */
+    private boolean nameChanged(Category category, String newName) {
+        if (newName == null || newName.isBlank()) return false;
 
-    @Transactional(readOnly = true)
-    public byte[] getCategoryImage(Long categoryId) {
-        Category category = getOrThrow(categoryId);
-        byte[] categoryImage = category.getImage();
-        if (categoryImage == null) {
-            throw new ResourceNotFoundException("Category with ID " + categoryId + " does not have an image.");
-        }
-        return categoryImage;
+        String trimmedNewName = newName.trim();
+        String normalizedNewName = normalize(trimmedNewName);
+        String newSlug = toSlug(normalizedNewName);
+        return !newSlug.equalsIgnoreCase(category.getSlug());
     }
 
-    /**
-     * Deletes the image of a category by its ID.
-     *
-     * @param categoryId the ID of the category whose image is to be deleted.
-     */
+    private boolean parentChanged(Category category, Long newParentId) {
+        if (newParentId == null) return false;
 
+        Long currentParentId = category.getParentCategory() != null
+                ? category.getParentCategory().getId()
+                : null;
+
+        return !Objects.equals(currentParentId, newParentId);
+    }
+
+    @Override
+    @Transactional
+    public Category makeRoot(Long categoryId) {
+        Category category = getById(categoryId);
+        Category currentParent = category.getParentCategory();
+        if (currentParent != null) {
+
+            // Ensure slug uniqueness among root categories
+            assertUniqueSlugAmongSiblings(null, category.getSlug(), category.getId());
+
+            category.setParentCategory(null);
+            currentParent.getSubCategories().removeIf(c -> c.getId().equals(categoryId));
+
+        }
+        return category;
+    }
+
+    @Override
+    @Transactional
+    public void delete(Long categoryId) {
+        Category category = getById(categoryId);
+        assertNotInUse(category);
+        categoryAttributeService.deleteByCategory(category);
+        category.setDeleted(true);
+    }
+
+    @Override
+    @Transactional
+    public Category restore(Long categoryId) throws BadRequestException {
+        Category category = getByIdIncludingDeleted(categoryId);
+        assertDeleted(category);
+        Category parent = category.getParentCategory();
+        String slug = category.getSlug();
+
+        if (parent != null) {
+            if (parent.isDeleted()) {
+                throw new BadRequestException(
+                        String.format("Cannot restore category '%s' because its parent category '%s' is deleted.",
+                                category.getName(),
+                                parent.getName()));
+            }
+            assertNotEqualsParentSlug(
+                    parent,
+                    slug
+            );
+        }
+        assertUniqueSlugAmongSiblings(
+                parent,
+                slug,
+                null
+        );
+        category.setDeleted(false);
+        categoryAttributeService.restoreByCategory(category);
+        return category;
+    }
+
+    // -------------------------------------------------------------------------
+    // IMAGE
+    // -------------------------------------------------------------------------
+
+    @Override
+    @Transactional
+    public Category uploadCategoryImage(Long categoryId, MultipartFile image) {
+        Category category = getById(categoryId);
+        byte[] bytes = imageUtils.validateAndExtractImageBytes(image);
+        category.setImage(bytes);
+        return category;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public byte[] getCategoryImage(Long categoryId) {
+        Category category = getById(categoryId);
+        byte[] img = category.getImage();
+        if (img == null) {
+            throw new ResourceNotFoundException("Category with ID " + categoryId + " does not have an image.");
+        }
+        return img;
+    }
+
+    @Override
     @Transactional
     public void deleteCategoryImage(Long categoryId) {
-        Category category = getOrThrow(categoryId);
+        Category category = getById(categoryId);
         category.setImage(null);
     }
 
-    /**
-     * Validates if setting a parent category would create a circular reference.
-     *
-     * @param parentCategory the new parent category.
-     * @param subCategory    the subcategory to validate.
-     * @throws CircularReferenceException if a circular reference is detected.
-     */
+    // -------------------------------------------------------------------------
+    // VALIDATION
+    // -------------------------------------------------------------------------
 
     void validateCircularReference(Category parentCategory, Category subCategory) {
         Category current = parentCategory;
-
         while (current != null) {
-            if (current.equals(subCategory)) {
+            if (current.getId() !=null && current.getId().equals(subCategory.getId())) {
                 throw new CircularReferenceException(String.format(
-                        "Category '%s' cannot be assigned as a subcategory of category '%s' because it would create a circular reference.",
+                        "Category '%s' cannot be assigned under '%s' because it would create a circular reference.",
                         subCategory.getName(), parentCategory.getName()));
             }
-            current = current.getParentCategory(); // Traverse up the hierarchy
+            current = current.getParentCategory();
         }
     }
 
-    /**
-     * Validates that a category name is unique within its hierarchy.
-     *
-     * @param parentCategory  the parent category to check.
-     * @param categoryName    the name to validate.
-     * @param currentCategory the current category being validated.
-     * @throws DuplicateResourceException if a duplicate name is found.
-     */
+    private void assertUniqueSlugAmongSiblings(Category parentCategory, String slug, Long excludeId) {
 
-    void validateUniqueCategoryNameWithinHierarchy(Category parentCategory, String categoryName, Category currentCategory) {
+        boolean exists;
 
-        Category current = parentCategory;
-
-        //check if category already exists under same parent category
-        if (parentCategory != null) {
-            for (Category subCategory : parentCategory.getSubCategories()) {
-
-                if (!subCategory.equals(currentCategory) && categoryName.equalsIgnoreCase(subCategory.getName())) {
-                    throw new DuplicateResourceException("Category name " + categoryName + " already exists under parent category " + parentCategory.getName() + ".");
-                }
-            }
+        if (parentCategory == null) {
+            // root-level uniqueness
+            exists = (excludeId == null)
+                    ? repo.existsByParentCategoryIsNullAndSlugIgnoreCaseAndDeletedFalse(slug) // create
+                    : repo.existsByParentCategoryIsNullAndSlugIgnoreCaseAndIdNotAndDeletedFalse(slug, excludeId); // update
+        } else {
+            // sibling uniqueness
+            exists = (excludeId == null)
+                    ? repo.existsByParentCategoryAndSlugIgnoreCaseAndDeletedFalse(parentCategory, slug) // create
+                    : repo.existsByParentCategoryAndSlugIgnoreCaseAndIdNotAndDeletedFalse(parentCategory, slug, excludeId); // update
         }
 
-        // check if category name exist in hierarchy of parent categories
-        while (current != null) {
-            if (current.getName().equalsIgnoreCase(categoryName) && !current.equals(currentCategory)) {
-                throw new DuplicateResourceException(
-                        String.format("Category '%s' already exists in the hierarchy of parent categories.", current.getName())
-                );
-            }
-            current = current.getParentCategory(); // Move to the next parent
+        if (exists) {
+            String parentLabel = parentCategory == null ? "ROOT" : parentCategory.getName();
+            throw new DuplicateResourceException(
+                    String.format("A category with slug '%s' already exists under '%s'.", slug, parentLabel));
         }
     }
 
-    /**
-     * Validates that a root category name is unique.
-     *
-     * @param categoryName the name of the root category to validate.
-     * @throws DuplicateResourceException if a root category with the given name already exists.
-     */
+    private void assertNotEqualsParentSlug(Category parent, String childSlug) throws BadRequestException {
+        if (childSlug == null || childSlug.isBlank()) return;
 
-    private void validateUniqueRootCategoryName(String categoryName) {
-        if (repo.existsByNameAndParentCategory(categoryName, null)) {
-            throw new DuplicateResourceException("Root category with name " + categoryName + " already exists.");
+        if (parent.getSlug() != null && parent.getSlug().equalsIgnoreCase(childSlug)) {
+            throw new BadRequestException(String.format(
+                    "Category slug '%s' cannot be the same as its parent category slug.", childSlug));
         }
+    }
+
+    private void assertNotInUse(Category category) {
+        if (usageChecker.isInUse(category)) {
+            throw new ResourceInUseException(
+                    "Category cannot be deleted because it is in use. " + usageChecker.getUsageDetails(category)
+            );
+        }
+    }
+
+    private void assertDeleted(Category category) throws BadRequestException {
+        if (!category.isDeleted()) {
+            throw new BadRequestException(
+                    "Category with ID " + category.getId() + " is not deleted and cannot be restored."
+            );
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // HELPERS
+    // -------------------------------------------------------------------------
+
+    private String normalize(String s) {
+        return TextUtils.normalizeText(s);
+    }
+
+    private String toSlug(String normalized) {
+        return TextUtils.toSlug(normalized);
     }
 }

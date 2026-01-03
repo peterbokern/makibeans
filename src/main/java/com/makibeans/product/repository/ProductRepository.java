@@ -1,5 +1,6 @@
 package com.makibeans.product.repository;
 
+import com.makibeans.category.model.Category;
 import com.makibeans.product.model.Product;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -10,6 +11,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Repository interface for managing `Product` entities.
@@ -26,6 +28,24 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     boolean existsByName(String name);
 
+    boolean existsByNameAndIdNot(String name, Long productId);
+
+    /**
+     * Slug-based uniqueness checks (new strategy):
+     */
+    boolean existsBySlug(String slug);
+
+    boolean existsBySlugAndIdNot(String slug, Long id);
+
+    /**
+     * Slug checks constrained to non-deleted items.
+     */
+    boolean existsBySlugAndDeletedFalse(String slug);
+
+    boolean existsBySlugAndIdNotAndDeletedFalse(String slug, Long id);
+
+    Optional<Product> findBySlugAndDeletedFalse(String slug);
+
     /**
      * Finds products by category ID.
      *
@@ -39,14 +59,24 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     List<Product> findProductsByCategoryId(@Param("id") Long categoryId);
 
     // Paged search with FULL graph (category, variants+size, attributes+values)
+
     @EntityGraph(attributePaths = {
             "category",
-            "productVariants", "productVariants.size",
-            "productAttributes", "productAttributes.attribute",
+
+            "productVariants",
+            "productVariants.size",
+
+            "productAttributes",
+            "productAttributes.categoryAttribute",
+            "productAttributes.categoryAttribute.attribute",
+
             "productAttributes.productAttributeValues",
             "productAttributes.productAttributeValues.attributeValue"
     })
+
     Page<Product> findAll(Specification<Product> spec, Pageable pageable);
 
-    boolean existsByNameAndIdNot(String name, Long productId);
+    Boolean existsByCategoryAndDeletedFalse(Category category);
+
+   Optional<Product> findByIdAndDeletedFalse(Long id);
 }

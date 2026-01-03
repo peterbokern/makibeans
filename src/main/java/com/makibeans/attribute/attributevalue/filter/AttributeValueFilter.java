@@ -163,8 +163,10 @@ public class AttributeValueFilter {
     )
     private String createdByEq;
 
-
-    @Filter(type = {Filter.Operation.EQ}, path = "updatedAt", sortable = true)
+    @Filter(
+            type = {Filter.Operation.EQ},
+            path = "updatedAt",
+            sortable = true)
     private Instant updatedAt;
 
     @Filter(
@@ -194,12 +196,53 @@ public class AttributeValueFilter {
             sortable = false
     )
     private String updatedByEq;
+
+    @Filter(
+            type = {Filter.Operation.BOOL},
+            path = "deleted",
+            sortable = true)
+    private Boolean deleted;
+
+    @Filter(
+            type = {Filter.Operation.GTE},
+            path = "deletedAt",
+            sortable = false
+    )
+    private Instant deletedAt;
+
+    @Filter(
+            type = {Filter.Operation.GTE},
+            path = "deletedAt",
+            sortable = false
+    )
+    private Instant deletedAtFrom;
+
+    @Filter(
+            type = {Filter.Operation.LTE},
+            path = "deletedAt",
+            sortable = false
+    )
+    private Instant deletedAtTo;
+
+    @Filter(
+            type = {Filter.Operation.LIKE},
+            path = "deletedBy",
+            sortable = true
+    )
+    private String deletedBy;
+
+    @Filter(
+            type = {Filter.Operation.EQ},
+            path = "deletedBy",
+            sortable = false
+    )
+    private String deletedByEq;
+
     // -------------------------------------------------------------------------
     // LIFECYCLE / META FIELDS
     // -------------------------------------------------------------------------
 
-    @Filter(type = {Filter.Operation.BOOL}, sortable = true)
-    private Boolean deleted;
+
 
     @Filter(type = {Filter.Operation.LIKE}, sortable = true)
     private String slug;

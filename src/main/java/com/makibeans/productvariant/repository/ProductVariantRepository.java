@@ -57,4 +57,5 @@ public interface ProductVariantRepository extends JpaRepository<ProductVariant, 
     })
     Page<ProductVariant> findAll(Specification<ProductVariant> spec, Pageable pageable);
 
+    boolean existsBySizeAndDeletedFalse(Size size);
 }

@@ -4,16 +4,20 @@ package com.makibeans.attribute.categoryattribute.controller.admin;
 import com.makibeans.attribute.categoryattribute.dto.CategoryAttributeAdminResponseDTO;
 import com.makibeans.attribute.categoryattribute.dto.CategoryAttributeRequestDTO;
 import com.makibeans.attribute.categoryattribute.dto.CategoryAttributeUpdateDTO;
+import com.makibeans.attribute.categoryattribute.dto.CategoryAttributeUsageDTO;
+import com.makibeans.attribute.categoryattribute.filter.CategoryAttributeAdminFilter;
 import com.makibeans.attribute.categoryattribute.filter.CategoryAttributeFilter;
 import com.makibeans.attribute.categoryattribute.mapper.CategoryAttributeMapper;
 import com.makibeans.attribute.categoryattribute.model.CategoryAttribute;
 import com.makibeans.attribute.categoryattribute.service.CategoryAttributeService;
 import com.makibeans.search.SearchRequest;
 import com.makibeans.search.utils.SearchRequestUtils;
+import com.makibeans.size.dto.SizeUsageDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.BadRequestException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -47,15 +51,15 @@ public class CategoryAttributeAdminController {
             description = "Search/sort/paginate category-attributes using query params."
     )
     public ResponseEntity<Page<CategoryAttributeAdminResponseDTO>> getAll(
-            @Valid @ModelAttribute CategoryAttributeFilter filters,
+            @Valid @ModelAttribute CategoryAttributeAdminFilter filters,
             @RequestParam(required = false) String search,
             @RequestParam(required = false, defaultValue = "false") Boolean includeDeleted,
             @PageableDefault(size = 20, sort = "id") Pageable pageable
     ) {
-        SearchRequest<CategoryAttributeFilter> req =
+        SearchRequest<CategoryAttributeAdminFilter> req =
                 SearchRequestUtils.assemble(filters, search, includeDeleted, pageable);
 
-        Page<CategoryAttribute> page = service.search(req);
+        Page<CategoryAttribute> page = service.searchAdmin(req);
         Page<CategoryAttributeAdminResponseDTO> result =
                 page.map(mapper::toAdminResponseDTO);
 
@@ -68,17 +72,24 @@ public class CategoryAttributeAdminController {
             description = "Same as GET but accepts a JSON body for complex filters."
     )
     public ResponseEntity<Page<CategoryAttributeAdminResponseDTO>> search(
-            @Valid @RequestBody SearchRequest<CategoryAttributeFilter> request,
+            @Valid @RequestBody SearchRequest<CategoryAttributeAdminFilter> request,
             @PageableDefault(size = 20, sort = "id") Pageable pageable
     ) {
-        SearchRequest<CategoryAttributeFilter> merged =
+        SearchRequest<CategoryAttributeAdminFilter> merged =
                 SearchRequestUtils.mergeWithPageable(request, pageable);
 
-        Page<CategoryAttribute> page = service.search(merged);
+        Page<CategoryAttribute> page = service.searchAdmin(merged);
         Page<CategoryAttributeAdminResponseDTO> result =
                 page.map(mapper::toAdminResponseDTO);
 
         return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/{id}/usage")
+    @Operation(summary = "Admin: Get usage summary for a category-attribute link")
+    public CategoryAttributeUsageDTO summarizeUsage(@PathVariable Long id) {
+        CategoryAttribute entity = service.getById(id);
+        return service.summarizeCategoryAttributeUsage(id);
     }
 
     // ---------- WRITES (ADMIN) ----------
@@ -122,5 +133,15 @@ public class CategoryAttributeAdminController {
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         service.delete(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{id}/restore")
+    @Operation(
+            summary = "Admin: Restore deleted category-attribute link",
+            description = "Restore a soft-deleted category-attribute link."
+    )
+    public ResponseEntity<CategoryAttributeAdminResponseDTO> restore(@PathVariable Long id) throws BadRequestException {
+        CategoryAttribute restored = service.restore(id);
+        return ResponseEntity.ok(mapper.toAdminResponseDTO(restored));
     }
 }

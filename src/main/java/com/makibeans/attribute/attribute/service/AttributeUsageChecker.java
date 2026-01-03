@@ -1,6 +1,7 @@
 package com.makibeans.attribute.attribute.service;
 
 import com.makibeans.attribute.attribute.dto.AttributeUsageDTO;
+import com.makibeans.attribute.attribute.model.Attribute;
 import com.makibeans.attribute.attributevalue.repository.AttributeValueRepository;
 import com.makibeans.attribute.categoryattribute.repository.CategoryAttributeRepository;
 import com.makibeans.attribute.productattribute.repository.ProductAttributeRepository;
@@ -28,27 +29,25 @@ public class AttributeUsageChecker {
     }
 
     @Transactional(readOnly = true)
-    public AttributeUsageDTO summarizeUsage(Long attributeId) {
-        boolean usedInValues = attributeValueRepository.existsByAttributeIdAndDeletedFalse(attributeId);
-        boolean usedInProductAttributes = productAttributeRepository.existsByAttributeIdAndDeletedFalse(attributeId);
-        boolean usedInCategoryAttributes = categoryAttributeRepository.existsByAttributeIdAndDeletedFalse(attributeId);
+    public AttributeUsageDTO summarizeUsage(Attribute attribute) {
+        boolean usedInValues = attributeValueRepository.existsByAttributeAndDeletedFalse(attribute);
+        boolean usedInCategoryAttributes = categoryAttributeRepository.existsByAttributeAndDeletedFalse(attribute);
 
         return new AttributeUsageDTO(
                 usedInValues,
-                usedInProductAttributes,
                 usedInCategoryAttributes
         );
     }
 
     @Transactional(readOnly = true)
-    public boolean isInUse(Long attributeId) {
-        AttributeUsageDTO usageSummary = summarizeUsage(attributeId);
+    public boolean isInUse(Attribute attribute) {
+        AttributeUsageDTO usageSummary = summarizeUsage(attribute);
         return usageSummary.inUse();
     }
 
     @Transactional(readOnly = true)
-    public String getUsageDetails(Long attributeId) {
-        AttributeUsageDTO usageSummary = summarizeUsage(attributeId);
+    public String getUsageDetails(Attribute attribute) {
+        AttributeUsageDTO usageSummary = summarizeUsage(attribute);
         if (!usageSummary.inUse()) {
             return "Not referenced.";
         }
@@ -57,9 +56,7 @@ public class AttributeUsageChecker {
         if (usageSummary.usedInValues()) {
             usedIn.add("Attribute Values");
         }
-        if (usageSummary.usedInProductAttributes()) {
-            usedIn.add("Product Attributes");
-        }
+
         if (usageSummary.usedInCategoryAttributes()) {
             usedIn.add("Category Attributes");
         }

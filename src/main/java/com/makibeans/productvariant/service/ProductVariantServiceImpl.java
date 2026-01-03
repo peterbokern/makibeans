@@ -3,6 +3,8 @@ package com.makibeans.productvariant.service;
 import com.makibeans.productvariant.dto.ProductVariantRequestDTO;
 import com.makibeans.productvariant.dto.ProductVariantResponseDTO;
 import com.makibeans.productvariant.dto.ProductVariantUpdateDTO;
+import com.makibeans.productvariant.filter.ProductVariantAdminFilter;
+import com.makibeans.productvariant.filter.ProductVariantPublicFilter;
 import com.makibeans.web.exceptions.DuplicateResourceException;
 import com.makibeans.productvariant.mapper.ProductVariantMapper;
 import com.makibeans.product.model.Product;
@@ -13,7 +15,6 @@ import com.makibeans.productvariant.repository.ProductVariantRepository;
 import com.makibeans.search.SearchRequest;
 import com.makibeans.search.SortResolver;
 import com.makibeans.search.SpecificationFactory;
-import com.makibeans.productvariant.filter.ProductVariantFilter;
 import com.makibeans.product.service.ProductService;
 
 import lombok.RequiredArgsConstructor;
@@ -55,12 +56,25 @@ public class ProductVariantServiceImpl implements ProductVariantService {
         return getOrThrow(id);
     }
 
+    @Override
     @Transactional(readOnly = true)
-    public Page<ProductVariant> search(SearchRequest<ProductVariantFilter> req) {
-        Specification<ProductVariant> spec =
-                SpecificationFactory.fromRequest(req, ProductVariantFilter.class);
+    public Page<ProductVariant> searchPublic(SearchRequest<ProductVariantPublicFilter> req) {
+        return search(req, ProductVariantPublicFilter.class);
+    }
 
-        Sort sort = new SortResolver(ProductVariantFilter.class)
+    @Override
+    @Transactional(readOnly = true)
+    public Page<ProductVariant> searchAdmin(SearchRequest<ProductVariantAdminFilter> req) {
+        return search(req, ProductVariantAdminFilter.class);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public <F> Page<ProductVariant> search(SearchRequest<F> req, Class<F> filterClass) {
+        Specification<ProductVariant> spec =
+                SpecificationFactory.fromRequest(req, filterClass);
+
+        Sort sort = new SortResolver(filterClass)
                 .resolve(req.getSortBy(), req.getSortDirection());
 
         Specification<ProductVariant> distinctSpec = (root, query, cb) -> {
@@ -85,8 +99,8 @@ public class ProductVariantServiceImpl implements ProductVariantService {
     @Transactional
     public ProductVariant create(ProductVariantRequestDTO dto) {
 
-        Product product = productService.getOrThrow(dto.getProductId());
-        Size size = sizeService.getOrThrow(dto.getSizeId());
+        Product product = productService.getById(dto.getProductId());
+        Size size = sizeService.getById(dto.getSizeId());
 
         ensureUniqueProductAndSizeOrThrow(product, size);
 
@@ -109,6 +123,13 @@ public class ProductVariantServiceImpl implements ProductVariantService {
         mapper.updateEntityFromDTO(dto, productVariant);
 
         return productVariant;
+    }
+
+    @Override
+    @Transactional
+    public void delete(Long id) {
+        ProductVariant existing = getOrThrow(id);
+        repo.delete(existing);
     }
 
     // -------- Convenience ops --------

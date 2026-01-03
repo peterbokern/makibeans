@@ -2,31 +2,45 @@ package com.makibeans.product.service;
 
 import com.makibeans.product.dto.ProductRequestDTO;
 import com.makibeans.product.dto.ProductUpdateDTO;
+import com.makibeans.product.filter.ProductAdminFilter;
 import com.makibeans.product.model.Product;
 import com.makibeans.search.SearchRequest;
 import com.makibeans.product.filter.ProductFilter;
+import com.makibeans.product.filter.ProductPublicFilter;
 import com.makibeans.common.service.CrudService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-public interface ProductService extends CrudService<Product, Long> {
+public interface ProductService  {
 
     Product getById(Long id);
 
-    Page<Product> search(SearchRequest<ProductFilter> request);
+    @Transactional
+    Product getByIdIncludingDeleted(Long id);
+
+    @Transactional(readOnly = true)
+    Page<Product> searchPublic(SearchRequest<ProductPublicFilter> req);
+
+    @Transactional(readOnly = true)
+    Page<Product> searchAdmin(SearchRequest<ProductAdminFilter> req);
+
+    @Transactional(readOnly = true)
+    <F> Page<Product> search(SearchRequest<F> req, Class<F> filterClass);
 
     Product create(@Valid ProductRequestDTO dto);
 
     Product update(Long id, @Valid ProductUpdateDTO dto);
 
-    Boolean existByCategoryId(Long categoryId);
+    void delete(Long id);
 
     byte[] getProductImage(Long productId);
 
     void deleteProductImage(Long productId);
 
-    Product uploadProductImage(Long productId, MultipartFile image);
+    @Transactional
+    void restore(Long productId);
 
-    Boolean existsByCategoryId(Long categoryId);
+    Product uploadProductImage(Long productId, MultipartFile image);
 }

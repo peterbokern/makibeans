@@ -1,5 +1,6 @@
 package com.makibeans.category.model;
 
+import com.makibeans.attribute.categoryattribute.model.CategoryAttribute;
 import com.makibeans.audit.model.Auditable;
 import com.makibeans.product.model.Product;
 import com.makibeans.common.util.TextUtils;
@@ -12,7 +13,9 @@ import lombok.ToString;
 import org.hibernate.annotations.OnDelete;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Represents a category in the system.
@@ -46,6 +49,9 @@ public class Category extends Auditable {
     @Column(name = "name", nullable = false, length = 100)
     private String name;
 
+    @Column(name = "slug", nullable = false, length = 60)
+    private String slug;
+
     @Column(name = "description", nullable = true, length = 1000)
     private String description;
 
@@ -57,31 +63,25 @@ public class Category extends Auditable {
     @Setter
     @ManyToOne
     @JoinColumn(name = "parent_category_id", nullable = true, foreignKey = @ForeignKey(name = "fk_category_parent_category"))
-    @OnDelete(action = org.hibernate.annotations.OnDeleteAction.CASCADE) // If a parent category is deleted, all its subcategories are also deleted at the database level. This is different from JPA's orphanRemoval = true, which operates at the JPA (Java) level, not directly in the database. Your usage is appropriate for enforcing referential integrity in the database.
     private Category parentCategory;
 
     @OneToMany(mappedBy = "parentCategory",
-            cascade = CascadeType.ALL,
-            orphanRemoval = true,
             fetch = FetchType.LAZY)
-    private List<Category> subCategories = new ArrayList<>();
+    private Set<Category> subCategories = new HashSet<>();
 
     @OneToMany(
             mappedBy = "category",
             fetch = FetchType.LAZY)
-    private List<Product> products = new ArrayList<>();
+    private Set<Product> products = new HashSet<>();
+
+    @OneToMany(
+            mappedBy = "category",
+            fetch = FetchType.LAZY)
+    private Set<CategoryAttribute> attributes = new HashSet<>(
+    );
 
     public Category(String name, String description) {
         this.setName(name);
         this.setDescription(description);
     }
-
-    public void setName(String name) {
-        this.name = TextUtils.normalizeText(name);
-    }
-
-    public void setDescription(String description) {
-        this.description = TextUtils.trim(description);
-    }
 }
-

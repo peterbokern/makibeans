@@ -8,5 +8,6 @@ import com.makibeans.audit.dto.AuditableInfo;
 public record SizeAdminResponseDTO(
         Long id,
         String name,
+        String slug,
         AuditableInfo audit
 ) {}

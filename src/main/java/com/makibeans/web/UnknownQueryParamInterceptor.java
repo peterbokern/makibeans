@@ -3,7 +3,6 @@ package com.makibeans.web;
 import com.makibeans.web.exceptions.UnknownQueryParamException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.apache.coyote.BadRequestException;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -12,55 +11,69 @@ import org.springframework.web.servlet.HandlerInterceptor;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Parameter;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
-// Interceptor to reject unknown query parameters for endpoints using a @ModelAttribute("params") DTO.
-// runs after GlobalBindingAdvice but before controller method
 @Component
 public class UnknownQueryParamInterceptor implements HandlerInterceptor {
 
-    @Override
-    public boolean preHandle(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            Object handler
-    ) throws BadRequestException {
+    private static final Set<String> COMMON = Set.of("page", "size", "sort");
 
-        if (!(handler instanceof HandlerMethod handlerMethod)) {
-            return true;
-        }
+    @Override
+    public boolean preHandle(HttpServletRequest request,
+                             HttpServletResponse response,
+                             Object handler) {
+
+        // Only validate query params for GET endpoints
+        if (!"GET".equalsIgnoreCase(request.getMethod())) return true;
+
+        // Only controller methods have @RequestParam / @ModelAttribute to inspect
+        if (!(handler instanceof HandlerMethod handlerMethod)) return true;
 
         Map<String, String[]> actualParams = request.getParameterMap();
-        Set<String> allowedParams = new HashSet<>();
+        Set<String> allowedParams = new HashSet<>(COMMON);
 
-        // 1. Collect @RequestParam names
-        for (Parameter p : handlerMethod.getMethod().getParameters()) {
+        Parameter[] params = handlerMethod.getMethod().getParameters();
+
+        // 1) Allow explicit @RequestParam names
+        for (Parameter p : params) {
             RequestParam rp = p.getAnnotation(RequestParam.class);
             if (rp != null) {
-                allowedParams.add(
-                        !rp.name().isEmpty() ? rp.name() : p.getName()
-                );
-            }
-
-            // 2. Collect @ModelAttribute fields
-            if (p.isAnnotationPresent(ModelAttribute.class)) {
-                for (Field f : p.getType().getDeclaredFields()) {
-                    allowedParams.add(f.getName());
-                }
+                allowedParams.add(resolveRequestParamName(p, rp));
             }
         }
 
-        // 3. Add Spring Data pagination params
-        allowedParams.addAll(Set.of("page", "size", "sort"));
+        // 2) Allow fields from the first @ModelAttribute DTO (your filter)
+        for (Parameter p : params) {
+            if (p.isAnnotationPresent(ModelAttribute.class)) {
+                addAllFieldNames(p.getType(), allowedParams);
+                break; // assume single filter DTO
+            }
+        }
 
-        // 4. Compare
+        // 3) Reject unknown query parameters
         for (String actual : actualParams.keySet()) {
             if (!allowedParams.contains(actual)) {
-                throw new UnknownQueryParamException(actual
-                );
+                throw new UnknownQueryParamException(actual, allowedParams);
             }
         }
 
         return true;
+    }
+
+    private static String resolveRequestParamName(Parameter p, RequestParam rp) {
+        if (!rp.name().isBlank()) return rp.name();
+        if (!rp.value().isBlank()) return rp.value();
+        return p.getName(); // fallback; best practice is to always set name=""
+    }
+
+    // Recursively add all field names from the class and its superclasses
+    private static void addAllFieldNames(Class<?> type, Set<String> allowed) {
+        for (Class<?> c = type; c != null && c != Object.class; c = c.getSuperclass()) {
+            for (Field f : c.getDeclaredFields()) {
+                allowed.add(f.getName());
+            }
+        }
     }
 }

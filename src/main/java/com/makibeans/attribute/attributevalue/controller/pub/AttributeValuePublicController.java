@@ -1,8 +1,8 @@
 package com.makibeans.attribute.attributevalue.controller.pub;
 
 import com.makibeans.attribute.attributevalue.dto.AttributeValuePublicResponseDTO;
+import com.makibeans.attribute.attributevalue.filter.AttributeValuePublicFilter;
 import com.makibeans.search.SearchRequest;
-import com.makibeans.attribute.attributevalue.filter.AttributeValueFilter;
 import com.makibeans.search.utils.SearchRequestUtils;
 import com.makibeans.attribute.attributevalue.service.AttributeValueService;
 import com.makibeans.attribute.attributevalue.mapper.AttributeValueMapper;
@@ -40,25 +40,25 @@ public class AttributeValuePublicController {
     @GetMapping
     @Operation(summary = "Get attribute values (paged)", description = "Search/sort/paginate attribute values using query params.")
     public ResponseEntity<Page<AttributeValuePublicResponseDTO>> getAll(
-            @Valid @ModelAttribute AttributeValueFilter filters,
+            @Valid @ModelAttribute AttributeValuePublicFilter filters,
             @RequestParam(required = false) String search,
             @RequestParam(required = false, defaultValue = "false") Boolean includeDeleted,
             @PageableDefault(size = 20, sort = "id") Pageable pageable
     ) {
-        SearchRequest<AttributeValueFilter> req = SearchRequestUtils.assemble(filters, search, false, pageable);
-        Page<AttributeValuePublicResponseDTO> page = service.search(req).map(mapper::toPublicResponseDTO);
+        SearchRequest<AttributeValuePublicFilter> req = SearchRequestUtils.assemble(filters, search, false, pageable);
+        Page<AttributeValuePublicResponseDTO> page = service.searchPublic(req).map(mapper::toPublicResponseDTO);
         return ResponseEntity.ok(page);
     }
 
     @PostMapping("/search")
     @Operation(summary = "Search attribute values (POST)", description = "Same as GET but accepts a JSON body for complex filters.")
     public ResponseEntity<Page<AttributeValuePublicResponseDTO>> search(
-            @Valid @RequestBody SearchRequest<AttributeValueFilter> request,
+            @Valid @RequestBody SearchRequest<AttributeValuePublicFilter> request,
             @PageableDefault(size = 20, sort = "id") Pageable pageable
     ) {
-        SearchRequest<AttributeValueFilter> req = SearchRequestUtils.mergeWithPageable(request, pageable);
+        SearchRequest<AttributeValuePublicFilter> req = SearchRequestUtils.mergeWithPageable(request, pageable);
         req.setIncludeDeleted(false); // Public endpoint should not include deleted records
-        Page<AttributeValuePublicResponseDTO> page = service.search(req).map(mapper::toPublicResponseDTO);
+        Page<AttributeValuePublicResponseDTO> page = service.searchPublic(req).map(mapper::toPublicResponseDTO);
         return ResponseEntity.ok(page);
     }
 }

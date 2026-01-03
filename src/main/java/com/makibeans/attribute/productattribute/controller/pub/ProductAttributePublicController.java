@@ -1,7 +1,9 @@
+/*
 package com.makibeans.attribute.productattribute.controller.pub;
 
 import com.makibeans.attribute.productattribute.dto.ProductAttributePublicResponseDTO;
 import com.makibeans.attribute.productattribute.filter.ProductAttributeFilter;
+import com.makibeans.attribute.productattribute.filter.ProductAttributePublicFilter;
 import com.makibeans.attribute.productattribute.mapper.ProductAttributeMapper;
 import com.makibeans.attribute.productattribute.model.ProductAttribute;
 import com.makibeans.search.SearchRequest;
@@ -30,31 +32,34 @@ public class ProductAttributePublicController {
 
     @GetMapping
     public ResponseEntity<Page<ProductAttributePublicResponseDTO>> getAll(
-            @ModelAttribute ProductAttributeFilter filters,
+            @ModelAttribute ProductAttributePublicFilter filters,
             @RequestParam(required = false) String search,
             @RequestParam(required = false, defaultValue = "false") Boolean includeDeleted,
             @PageableDefault(size = 20, sort = "id") Pageable pageable
     ) {
-        SearchRequest<ProductAttributeFilter> req =
-                SearchRequestUtils.assemble(filters, search, includeDeleted, pageable);
+        SearchRequest<ProductAttributePublicFilter> req =
+                SearchRequestUtils.assemble(filters, search, false, pageable);
+
+        req.getFilters().setVisible(true); // Only public (visible) attributes
 
         Page<ProductAttributePublicResponseDTO> result =
-                service.search(req).map(mapper::toPublicResponseDTO);
+                service.searchPublic(req).map(mapper::toPublicResponseDTO);
 
         return ResponseEntity.ok(result);
     }
 
     @PostMapping("/search")
     public ResponseEntity<Page<ProductAttributePublicResponseDTO>> search(
-            @RequestBody SearchRequest<ProductAttributeFilter> request,
+            @RequestBody SearchRequest<ProductAttributePublicFilter> request,
             @PageableDefault(size = 20, sort = "id") Pageable pageable
     ) {
-        SearchRequest<ProductAttributeFilter> merged =
+        SearchRequest<ProductAttributePublicFilter> merged =
                 SearchRequestUtils.mergeWithPageable(request, pageable);
 
         Page<ProductAttributePublicResponseDTO> result =
-                service.search(merged).map(mapper::toPublicResponseDTO);
+                service.searchPublic(merged).map(mapper::toPublicResponseDTO);
 
         return ResponseEntity.ok(result);
     }
 }
+*/

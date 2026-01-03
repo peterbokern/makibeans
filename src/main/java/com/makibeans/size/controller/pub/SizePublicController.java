@@ -1,6 +1,7 @@
 package com.makibeans.size.controller.pub;
 
 import com.makibeans.size.dto.SizePublicResponseDTO;
+import com.makibeans.size.filter.SizePublicFilter;
 import com.makibeans.size.mapper.SizeMapper;
 import com.makibeans.size.model.Size;
 import com.makibeans.search.SearchRequest;
@@ -45,15 +46,15 @@ public class SizePublicController {
             description = "Search/sort/paginate sizes using query parameters."
     )
     public ResponseEntity<Page<SizePublicResponseDTO>> getAll(
-            @Valid @ModelAttribute SizeFilter filters,
+            @Valid @ModelAttribute SizePublicFilter filters,
             @RequestParam(required = false) String search,
             @RequestParam(required = false, defaultValue = "false") Boolean includeDeleted,
             @PageableDefault(size = 20, sort = "id") Pageable pageable
     ) {
-        SearchRequest<SizeFilter> req =
-                SearchRequestUtils.assemble(filters, search, includeDeleted, pageable);
+        SearchRequest<SizePublicFilter> req =
+                SearchRequestUtils.assemble(filters, search, false, pageable);
 
-        Page<Size> page = service.search(req);
+        Page<Size> page = service.searchPublic(req);
         Page<SizePublicResponseDTO> result = page.map(mapper::toPublicResponseDTO);
 
         return ResponseEntity.ok(result);
@@ -68,13 +69,13 @@ public class SizePublicController {
             description = "Same as GET but accepts a JSON body for complex filters."
     )
     public ResponseEntity<Page<SizePublicResponseDTO>> search(
-            @Valid @RequestBody SearchRequest<SizeFilter> request,
+            @Valid @RequestBody SearchRequest<SizePublicFilter> request,
             @PageableDefault(size = 20, sort = "id") Pageable pageable
     ) {
-        SearchRequest<SizeFilter> merged =
+        SearchRequest<SizePublicFilter> merged =
                 SearchRequestUtils.mergeWithPageable(request, pageable);
 
-        Page<Size> page = service.search(merged);
+        Page<Size> page = service.searchPublic(merged);
         Page<SizePublicResponseDTO> result = page.map(mapper::toPublicResponseDTO);
 
         return ResponseEntity.ok(result);

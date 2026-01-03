@@ -1,4 +1,4 @@
-package com.makibeans.login.dto;
+package com.makibeans.authentication.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

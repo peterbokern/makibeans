@@ -12,19 +12,18 @@ import com.makibeans.search.SortResolver;
 import com.makibeans.search.SpecificationFactory;
 import com.makibeans.attribute.productattributevalue.filter.ProductAttributeValueFilter;
 import com.makibeans.attribute.attributevalue.service.AttributeValueService;
-import com.makibeans.common.service.CrudService;
 import com.makibeans.attribute.productattribute.service.ProductAttributeService;
+import com.makibeans.web.exceptions.ResourceNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-public class ProductAttributeValueServiceImpl implements CrudService<ProductAttributeValue, Long>, ProductAttributeValueService {
+public class ProductAttributeValueServiceImpl implements ProductAttributeValueService  {
 
     private final ProductAttributeValueRepository repo;
     private final ProductAttributeService productAttributeService;
@@ -36,20 +35,35 @@ public class ProductAttributeValueServiceImpl implements CrudService<ProductAttr
         this.attributeValueService = attributeValueService;
     }
 
-    /**
-     * Implementors must return their repository.
-     */
-    @Override
-    public JpaRepository<ProductAttributeValue, Long> repo() {
-        return this.repo;
-    }
+   // -------------------------------------------------------------------------
+    // READS
+    // -------------------------------------------------------------------------
 
+    /**
+     * Retrieves a ProductAttributeValue by its ID.
+     *
+     * @param id the ID of the ProductAttributeValue
+     * @return the ProductAttributeValue entity
+     * @throws ResourceNotFoundException if the ProductAttributeValue is not found
+     */
     @Override
     @Transactional(readOnly = true)
     public ProductAttributeValue getById(Long id) {
-        return getOrThrow(id);
+
+        return repo.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("ProductAttributeValue with ID " + id + " not found."));
     }
 
+    // -------------------------------------------------------------------------
+    // SEARCH
+    // -------------------------------------------------------------------------
+
+    /**
+     * Searches for ProductAttributeValues based on the provided search request.
+     *
+     * @param req the search request containing filters, pagination, and sorting information
+     * @return a paginated list of ProductAttributeValues matching the search criteria
+     */
     @Override
     @Transactional(readOnly = true)
     public Page<ProductAttributeValue> search(SearchRequest<ProductAttributeValueFilter> req) {
@@ -69,26 +83,59 @@ public class ProductAttributeValueServiceImpl implements CrudService<ProductAttr
         return repo.findAll(spec, pageable);
     }
 
+    // -------------------------------------------------------------------------
+    // WRITES
+    // -------------------------------------------------------------------------
+
+    /**
+     * Creates a new ProductAttributeValue based on the provided DTO.
+     *
+     * @param dto the DTO containing data for the new ProductAttributeValue
+     * @return the created ProductAttributeValue entity
+     * @throws DuplicateResourceException if a duplicate ProductAttributeValue link exists
+     */
     @Override
     @Transactional
     public ProductAttributeValue create(ProductAttributeValueRequestDTO dto) {
-        ProductAttributeValue entity = new ProductAttributeValue();
 
-        ProductAttribute productAttribute = productAttributeService.getOrThrow(dto.getProductAttributeId());
-        AttributeValue attributeValue = attributeValueService.getById(dto.getAttributeValueId());
+        ProductAttribute productAttribute = productAttributeService.getById(dto.productAttributeId());
+        AttributeValue attributeValue = attributeValueService.getById(dto.attributeValueId());
 
-        if (repo.existsByProductAttributeIdAndAttributeValueId(dto.getProductAttributeId(), dto.getAttributeValueId())) {
-            throw new DuplicateResourceException("Duplicate ProductAttributeValue link");
-        }
+        asserUniqueLink(productAttribute.getId(), attributeValue.getId());
 
-        entity.setProductAttribute(productAttribute);
-        entity.setAttributeValue(attributeValue);
+        ProductAttributeValue pav = new ProductAttributeValue();
+        pav.setProductAttribute(productAttribute);
+        pav.setAttributeValue(attributeValue);
 
-        return repo.save(entity);
+        return repo.save(pav);
     }
 
+    /**
+     * Deletes a ProductAttributeValue by its ID.
+     *
+     * @param id the ID of the ProductAttributeValue to delete
+     */
     @Override
+    @Transactional
     public void delete(Long id) {
-        hardDelete(id);
+        ProductAttributeValue pav = getById(id);
+        repo.delete(pav);
+    }
+
+    // -------------------------------------------------------------------------
+    // VALIDATIONS
+    // -------------------------------------------------------------------------
+
+    /**
+     * Asserts that the link between ProductAttribute and AttributeValue is unique.
+     *
+     * @param productAttributeId the ID of the ProductAttribute
+     * @param attributeValueId the ID of the AttributeValue
+     * @throws DuplicateResourceException if a duplicate link exists
+     */
+    private void asserUniqueLink(Long productAttributeId, Long attributeValueId) {
+        if (repo.existsByProductAttributeIdAndAttributeValueId(productAttributeId, attributeValueId)) {
+            throw new DuplicateResourceException("Duplicate ProductAttributeValue link");
+        }
     }
 }

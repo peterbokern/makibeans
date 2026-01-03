@@ -7,6 +7,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Repository for the category entity.
@@ -14,28 +15,20 @@ import java.util.List;
 
 public interface CategoryRepository extends JpaRepository<Category, Long> {
 
-    /**
-     * Returns the category with the given name and parent category.
-     *
-     * @param name The name of the category.
-     * @param parentCategory The parent category.
-     * @return The category with the given name and parent category.
-     */
-
-    boolean existsByNameAndParentCategory(String name, Category parentCategory);
-
-    boolean existsByParentCategoryId(Long parentCategoryId);
-
-    /**
-     * Returns the list of categories with the given parent category ID.
-     *
-     * @param parentCategoryId The ID of the parent category.
-     * @return The list of categories with the given parent category ID.
-     */
-
-    List<Category> findByParentCategoryId(Long parentCategoryId);
-
     Page<Category> findAll(Specification<Category> spec, Pageable pageable);
 
+    Boolean existsByParentCategoryAndDeletedFalse(Category parentCategory);
+
+    boolean existsByParentCategoryAndSlugIgnoreCaseAndDeletedFalse(Category parentCategory, String slug);
+
+    boolean existsByParentCategoryAndSlugIgnoreCaseAndIdNotAndDeletedFalse(Category parentCategory, String slug, Long id);
+
+    boolean existsByParentCategoryIsNullAndSlugIgnoreCaseAndDeletedFalse(String slug);
+
+    boolean existsByParentCategoryIsNullAndSlugIgnoreCaseAndIdNotAndDeletedFalse(String slug, Long id);
+
+    List<Category> findByParentCategoryIsNullAndDeletedFalse();
+
+    Optional<Category> findByIdAndDeletedFalse(Long id);
 
 }

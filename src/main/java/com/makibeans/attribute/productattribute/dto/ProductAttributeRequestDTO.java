@@ -16,6 +16,6 @@ public class ProductAttributeRequestDTO {
     @NotNull(message = "Product id cannot be null.")
     private Long productId;
 
-    @NotNull(message = "Attribute id cannot be null.")
-    private Long attributeId;
+    @NotNull(message = "Category attribute id cannot be null.")
+    private Long categoryAttributeId;
 }

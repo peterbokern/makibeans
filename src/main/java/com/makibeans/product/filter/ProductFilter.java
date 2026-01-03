@@ -1,3 +1,4 @@
+// java
 package com.makibeans.product.filter;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -9,23 +10,6 @@ import lombok.Data;
 import java.time.Instant;
 import java.util.List;
 
-/**
- * ProductFilter adjusted to your current entities:
- *
- * Product:
- *  - id, name, description, image, category, productVariants, productAttributes
- *
- * ProductVariant:
- *  - priceInCents (Long), sku (String), stock (Long), size (Size -> id/name)
- *
- * ProductAttribute/ProductAttributeValue:
- *  - productAttributes.attribute.id / .name
- *  - productAttributes.productAttributeValues.attributeValue.id / .value
- *
- * Path resolution:
- *  - Works with SearchCriteriaUtils.resolvePath(root, dottedPath) which LEFT-joins each path segment.
- *  - Collection joins like 'productVariants' and 'productAttributes' are supported via join(parts[i], LEFT).
- */
 @Data
 @JsonIgnoreProperties(ignoreUnknown = false)
 public class ProductFilter {
@@ -38,6 +22,9 @@ public class ProductFilter {
 
     @Filter(path = "name", type = {Filter.Operation.LIKE, Filter.Operation.EQ}, sortable = true, filterable = true)
     private String name;
+
+    @Filter(path = "slug", type = { Filter.Operation.LIKE }, sortable = true)
+    private String slug;
 
     @Filter(path = "description", type = {Filter.Operation.LIKE}, sortable = false, filterable = true)
     private String description;
@@ -99,16 +86,16 @@ public class ProductFilter {
     /* ---------- Attributes (joins: productAttributes.*) ---------- */
 
     @JsonFormat(with = JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
-    @Filter(path = "productAttributes.attribute.id", type = {Filter.Operation.EQ, Filter.Operation.IN}, sortable = true, filterable = true)
+    @Filter(path = "productAttributes.categoryAttribute.attribute.id", type = {Filter.Operation.EQ, Filter.Operation.IN}, sortable = true, filterable = true)
     private List<@Positive Long> attributeId;
 
-    @Filter(path = "productAttributes.attribute.name", type = {Filter.Operation.LIKE, Filter.Operation.EQ}, sortable = true, filterable = true)
+    @Filter(path = "productAttributes.categoryAttribute.attribute.name", type = {Filter.Operation.LIKE, Filter.Operation.EQ}, sortable = true, filterable = true)
     private String attributeName;
 
     @JsonFormat(with = JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
     @Filter(path = "productAttributes.productAttributeValues.attributeValue.id", type = {Filter.Operation.EQ, Filter.Operation.IN}, sortable = false, filterable = true)
     private List<@Positive Long> attributeValueId;
 
-    @Filter(path = "productAttributes.productAttributeValues.attributeValue.value", type = {Filter.Operation.LIKE, Filter.Operation.EQ}, sortable = false, filterable = true)
-    private String attributeValue;
+    @Filter(path = "productAttributes.productAttributeValues.attributeValue.slug", type = {Filter.Operation.LIKE, Filter.Operation.EQ}, sortable = false, filterable = true)
+    private String attributeSlug;
 }

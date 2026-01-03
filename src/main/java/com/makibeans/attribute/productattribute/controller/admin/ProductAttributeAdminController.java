@@ -2,12 +2,16 @@ package com.makibeans.attribute.productattribute.controller.admin;
 
 import com.makibeans.attribute.productattribute.dto.ProductAttributeAdminResponseDTO;
 import com.makibeans.attribute.productattribute.dto.ProductAttributeRequestDTO;
+import com.makibeans.attribute.productattribute.dto.ProductAttributeUpdateDTO;
+import com.makibeans.attribute.productattribute.filter.ProductAttributeAdminFilter;
 import com.makibeans.attribute.productattribute.filter.ProductAttributeFilter;
 import com.makibeans.attribute.productattribute.mapper.ProductAttributeMapper;
 import com.makibeans.attribute.productattribute.model.ProductAttribute;
 import com.makibeans.search.SearchRequest;
 import com.makibeans.search.utils.SearchRequestUtils;
 import com.makibeans.attribute.productattribute.service.ProductAttributeService;
+import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.data.web.PageableDefault;
@@ -32,23 +36,23 @@ public class ProductAttributeAdminController {
 
     @GetMapping
     public ResponseEntity<Page<ProductAttributeAdminResponseDTO>> getAll(
-            @ModelAttribute ProductAttributeFilter filters,
+            @ModelAttribute ProductAttributeAdminFilter filters,
             @RequestParam(required = false) String search,
             @RequestParam(required = false, defaultValue = "false") Boolean includeDeleted,
             @PageableDefault(size = 20, sort = "id") Pageable pageable
     ) {
-        SearchRequest<ProductAttributeFilter> req =
+        SearchRequest<ProductAttributeAdminFilter> req =
                 SearchRequestUtils.assemble(filters, search, includeDeleted, pageable);
 
         Page<ProductAttributeAdminResponseDTO> result =
-                service.search(req).map(mapper::toAdminResponseDTO);
+                service.searchAdmin(req).map(mapper::toAdminResponseDTO);
 
         return ResponseEntity.ok(result);
     }
 
     @PostMapping
     public ResponseEntity<ProductAttributeAdminResponseDTO> create(
-            @RequestBody ProductAttributeRequestDTO body
+            @Valid @RequestBody ProductAttributeRequestDTO body
     ) {
         ProductAttribute created = service.create(body);
         return ResponseEntity
@@ -56,10 +60,20 @@ public class ProductAttributeAdminController {
                 .body(mapper.toAdminResponseDTO(created));
     }
 
-    //TO DO make this into disable/enable instead of delete
+    @PatchMapping("/{id}/visible")
+    @Operation(summary = "Admin: Update product attribute by id")
+    public ResponseEntity<ProductAttributeAdminResponseDTO> patch(
+            @PathVariable Long id,
+            @Valid @RequestBody ProductAttributeUpdateDTO body
+    ) {
+        ProductAttribute updated = service.update(id, body);
+        return ResponseEntity.ok(mapper.toAdminResponseDTO(updated));
+    }
+
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> disable(@PathVariable Long id) {
-        service.disable(id);
+    @Operation(summary = "Admin: Delete product attribute by id")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        service.delete(id);
         return ResponseEntity.noContent().build();
     }
 }

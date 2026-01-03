@@ -2,6 +2,7 @@ package com.makibeans.attribute.attribute.mapper;
 
 import com.makibeans.attribute.attribute.dto.*;
 import com.makibeans.attribute.attribute.model.Attribute;
+import com.makibeans.attribute.attributevalue.mapper.AttributeValueMapper;
 import com.makibeans.audit.mapper.AuditableMapper;
 import org.mapstruct.*;
 

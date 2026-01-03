@@ -19,7 +19,7 @@ public class AttributeValueTypeValidator implements ConstraintValidator<ValidAtt
 
         boolean matches = switch (dataType) {
             case STRING -> attributeValue.getStringValue() != null;
-            case NUMERIC -> attributeValue.getNumericValue() != null;
+            case NUMBER -> attributeValue.getNumericValue() != null;
             case BOOLEAN -> attributeValue.getBooleanValue() != null;
             case DATE -> attributeValue.getDateValue() != null;
             case DATETIME -> attributeValue.getDateTimeValue() != null;

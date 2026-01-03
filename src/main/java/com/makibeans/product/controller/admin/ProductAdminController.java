@@ -3,10 +3,10 @@ package com.makibeans.product.controller.admin;
 import com.makibeans.product.dto.ProductAdminResponseDTO;
 import com.makibeans.product.dto.ProductRequestDTO;
 import com.makibeans.product.dto.ProductUpdateDTO;
+import com.makibeans.product.filter.ProductAdminFilter;
 import com.makibeans.product.mapper.ProductMapper;
 import com.makibeans.product.model.Product;
 import com.makibeans.search.SearchRequest;
-import com.makibeans.product.filter.ProductFilter;
 import com.makibeans.search.utils.SearchRequestUtils;
 import com.makibeans.product.service.ProductService;
 import com.makibeans.web.exceptions.ImageProcessingException;
@@ -54,13 +54,13 @@ public class ProductAdminController {
     )
     @GetMapping
     public ResponseEntity<Page<ProductAdminResponseDTO>> getAll(
-            @Valid @ModelAttribute ProductFilter filters,
+            @Valid @ModelAttribute ProductAdminFilter filters,
             @RequestParam(required = false) String search,
             @RequestParam(required = false, defaultValue = "false") Boolean includeDeleted,
             @PageableDefault(size = 20, sort = "id") Pageable pageable
     ) {
-        SearchRequest<ProductFilter> req = SearchRequestUtils.assemble(filters, search, includeDeleted, pageable);
-        Page<Product> page = productService.search(req);
+        SearchRequest<ProductAdminFilter> req = SearchRequestUtils.assemble(filters, search, includeDeleted, pageable);
+        Page<Product> page = productService.searchAdmin(req);
         Page<ProductAdminResponseDTO> result = page.map(productMapper::toAdminResponseDTO);
         return ResponseEntity.ok(result);
     }
@@ -71,11 +71,11 @@ public class ProductAdminController {
             description = "Same as GET but accepts a JSON body for complex filters."
     )
     public ResponseEntity<Page<ProductAdminResponseDTO>> search(
-            @Valid @RequestBody SearchRequest<ProductFilter> request,
+            @Valid @RequestBody SearchRequest<ProductAdminFilter> request,
             @PageableDefault(size = 20, sort = "id") Pageable pageable
     ) {
-        SearchRequest<ProductFilter> merged = SearchRequestUtils.mergeWithPageable(request, pageable);
-        Page<Product> page = productService.search(merged);
+        SearchRequest<ProductAdminFilter> merged = SearchRequestUtils.mergeWithPageable(request, pageable);
+        Page<Product> page = productService.searchAdmin(merged);
         Page<ProductAdminResponseDTO> result = page.map(productMapper::toAdminResponseDTO);
         return ResponseEntity.ok(result);
     }

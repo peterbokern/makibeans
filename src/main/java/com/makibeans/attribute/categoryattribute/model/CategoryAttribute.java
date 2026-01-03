@@ -4,6 +4,7 @@ import com.makibeans.attribute.attribute.model.Attribute;
 import com.makibeans.category.model.Category;
 import com.makibeans.audit.model.Auditable;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
@@ -38,7 +39,10 @@ public class CategoryAttribute extends Auditable {
             foreignKey = @ForeignKey(name = "fk_cat_attr_attribute"))
     private Attribute attribute;
 
-    // Optional per-category settings (nice to have)
+    @Column(name = "sort_order")
+    @Min(value = 0, message = "Sort order must be a non-negative integer.")
+    private Integer sortOrder;
+
     @Column(name = "required", nullable = false)
     @Builder.Default
     private boolean required = false;

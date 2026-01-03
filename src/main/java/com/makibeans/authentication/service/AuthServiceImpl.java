@@ -1,7 +1,7 @@
 package com.makibeans.authentication.service;
 
-import com.makibeans.login.dto.LoginRequestDTO;
-import com.makibeans.login.dto.LoginResponseDTO;
+import com.makibeans.authentication.dto.LoginRequestDTO;
+import com.makibeans.authentication.dto.LoginResponseDTO;
 import com.makibeans.web.exceptions.InvalidCredentialsException;
 import com.makibeans.web.exceptions.ResourceNotFoundException;
 import com.makibeans.authentication.mapper.AuthMapper;

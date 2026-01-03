@@ -3,6 +3,7 @@ package com.makibeans.size.controller.admin;
 import com.makibeans.size.dto.SizeAdminResponseDTO;
 import com.makibeans.size.dto.SizeRequestDTO;
 import com.makibeans.size.dto.SizeUpdateDTO;
+import com.makibeans.size.filter.SizeAdminFilter;
 import com.makibeans.size.mapper.SizeMapper;
 import com.makibeans.size.model.Size;
 import com.makibeans.search.SearchRequest;
@@ -45,15 +46,15 @@ public class SizeAdminController {
             description = "Search/sort/paginate sizes using query parameters."
     )
     public ResponseEntity<Page<SizeAdminResponseDTO>> getAll(
-            @Valid @ModelAttribute SizeFilter filters,
+            @Valid @ModelAttribute SizeAdminFilter filters,
             @RequestParam(required = false) String search,
             @RequestParam(required = false, defaultValue = "false") Boolean includeDeleted,
             @PageableDefault(size = 20, sort = "id") Pageable pageable
     ) {
-        SearchRequest<SizeFilter> req =
+        SearchRequest<SizeAdminFilter> req =
                 SearchRequestUtils.assemble(filters, search, includeDeleted, pageable);
 
-        Page<Size> page = service.search(req);
+        Page<Size> page = service.searchAdmin(req);
         Page<SizeAdminResponseDTO> result = page.map(mapper::toAdminResponseDTO);
 
         return ResponseEntity.ok(result);
@@ -65,13 +66,13 @@ public class SizeAdminController {
             description = "Same as GET but accepts a JSON body for complex filters."
     )
     public ResponseEntity<Page<SizeAdminResponseDTO>> search(
-            @Valid @RequestBody SearchRequest<SizeFilter> request,
+            @Valid @RequestBody SearchRequest<SizeAdminFilter> request,
             @PageableDefault(size = 20, sort = "id") Pageable pageable
     ) {
-        SearchRequest<SizeFilter> merged =
+        SearchRequest<SizeAdminFilter> merged =
                 SearchRequestUtils.mergeWithPageable(request, pageable);
 
-        Page<Size> page = service.search(merged);
+        Page<Size> page = service.searchAdmin(merged);
         Page<SizeAdminResponseDTO> result = page.map(mapper::toAdminResponseDTO);
 
         return ResponseEntity.ok(result);

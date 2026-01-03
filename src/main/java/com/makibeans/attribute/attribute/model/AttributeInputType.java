@@ -4,17 +4,23 @@ import lombok.Getter;
 
 @Getter
 public enum AttributeInputType {
-    TEXT("text"),        // Free text input
-    DROPDOWN("dropdown"),    // Select one from predefined values
-    MULTISELECT("multiselect"), // Select multiple values
-    NUMERIC("numeric"),      // Numeric input
-    SLIDER("slider"),      // Slider UI
-    DATE_PICKER("datepicker"), // Date picker
-    CHECKBOX("checkbox");   // Boolean checkbox ;
+
+    // Free input (stored in raw_value)
+    FREE_TEXT("text", false),
+    NUMERIC("numeric", false),
+    DATE_PICKER("date", false),
+    SLIDER("slider", false),
+    CHECKBOX("checkbox", false),
+
+    // Library-backed (stored via AttributeValue)
+    DROPDOWN("dropdown", true),
+    MULTISELECT("multiselect", true);
 
     private final String label;
+    private final boolean libraryBacked;
 
-    AttributeInputType(String label) {
+    AttributeInputType(String label, boolean libraryBacked) {
         this.label = label;
+        this.libraryBacked = libraryBacked;
     }
 }

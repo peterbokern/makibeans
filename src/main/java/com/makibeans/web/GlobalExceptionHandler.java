@@ -3,13 +3,9 @@ package com.makibeans.web;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
-import com.makibeans.web.exceptions.DuplicateResourceException;
-import com.makibeans.web.exceptions.ResourceInUseException;
-import com.makibeans.web.exceptions.ResourceNotFoundException;
-import com.makibeans.web.exceptions.UnknownQueryParamException;
+import com.makibeans.web.exceptions.*;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
-import org.apache.coyote.BadRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -169,16 +165,10 @@ public class GlobalExceptionHandler {
     //handle duplicate resource
     @ExceptionHandler(DuplicateResourceException.class)
     public ProblemDetail handleDuplicateResource(DuplicateResourceException ex) {
-        Map<String, Object> error = Map.of(
-                "field" , "rawValue",
-                "message", ex.getMessage()
-        );
-
         ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.CONFLICT);
         pd.setTitle("Duplicate resource");
         pd.setDetail(ex.getMessage());
         pd.setProperty("timestamp", OffsetDateTime.now());
-        pd.setProperty("errors", List.of(error));
         return pd;
     }
 
@@ -199,8 +189,8 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ProblemDetail handleIllegalArgumentException(IllegalArgumentException ex) {
+
         Map<String, Object> error = Map.of(
-                "field" , "rawValue",
                 "message", ex.getMessage()
         );
 
@@ -212,7 +202,7 @@ public class GlobalExceptionHandler {
         return pd;
     }
 
-    @ExceptionHandler(BadRequestException.class)
+/*    @ExceptionHandler(BadRequestException.class)
     public ProblemDetail handleBadRequestException(BadRequestException ex) {
         Map<String, Object> error = Map.of(
                 "field" , "rawValue",
@@ -225,7 +215,7 @@ public class GlobalExceptionHandler {
         pd.setProperty("timestamp", OffsetDateTime.now());
         pd.setProperty("errors", List.of(error));
         return pd;
-    }
+    }*/
 
     @ExceptionHandler(UnknownQueryParamException.class)
     public ProblemDetail handleUnknownQueryParamException(UnknownQueryParamException ex) {
@@ -251,6 +241,16 @@ public class GlobalExceptionHandler {
         return pd;
     }
 
+    @ExceptionHandler(CircularReferenceException.class)
+    public ProblemDetail handleCircularReferenceException(CircularReferenceException ex) {
+
+        ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        pd.setTitle("Circular Reference Detected");
+        pd.setDetail(ex.getMessage());
+        pd.setProperty("timestamp", OffsetDateTime.now());
+        return pd;
+    }
+
     //) Fallback
     @ExceptionHandler(Exception.class)
     public ProblemDetail handleOther(Exception ex) {
@@ -263,6 +263,17 @@ public class GlobalExceptionHandler {
         pd.setProperty("timestamp", OffsetDateTime.now());
         return pd;
     }
+
+    @ExceptionHandler(BadRequestException.class)
+    public ProblemDetail handleCustomBadRequestException(BadRequestException ex) {
+       //use helper method
+         ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        pd.setTitle("Bad Request");
+        pd.setDetail(ex.getMessage());
+        pd.setProperty("timestamp", OffsetDateTime.now());
+        return pd;
+    }
+
 
     // ---------- helpers ----------
 

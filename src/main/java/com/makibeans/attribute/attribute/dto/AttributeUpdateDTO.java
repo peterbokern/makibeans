@@ -23,5 +23,4 @@ public class AttributeUpdateDTO {
 
     private AttributeInputType inputType;
 
-    boolean active;
 }

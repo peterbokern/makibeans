@@ -3,6 +3,8 @@ package com.makibeans.attribute.attributevalue.controller.admin;
 import com.makibeans.attribute.attributevalue.dto.AttributeValueAdminResponseDTO;
 import com.makibeans.attribute.attributevalue.dto.AttributeValueRequestDTO;
 import com.makibeans.attribute.attributevalue.dto.AttributeValueUpdateDTO;
+import com.makibeans.attribute.attributevalue.dto.AttributeValueUsageDTO;
+import com.makibeans.attribute.attributevalue.filter.AttributeValueAdminFilter;
 import com.makibeans.attribute.attributevalue.mapper.AttributeValueMapper;
 import com.makibeans.attribute.attributevalue.model.AttributeValue;
 import com.makibeans.search.SearchRequest;
@@ -48,25 +50,32 @@ public class AttributeValueAdminController {
     @GetMapping
     @Operation(summary = "Admin: Get attribute values (paged)", description = "Search/sort/paginate attribute values using query params.")
     public ResponseEntity<Page<AttributeValueAdminResponseDTO>> getAll(
-            @Valid @ModelAttribute AttributeValueFilter filters,
+            @Valid @ModelAttribute AttributeValueAdminFilter filters,
             @RequestParam(required = false) String search,
             @RequestParam(required = false, defaultValue = "false") Boolean includeDeleted,
             @PageableDefault(size = 20, sort = "id") Pageable pageable
     ) {
-        SearchRequest<AttributeValueFilter> req = SearchRequestUtils.assemble(filters, search, includeDeleted, pageable);
-        Page<AttributeValue> page = service.search(req);
+        SearchRequest<AttributeValueAdminFilter> req = SearchRequestUtils.assemble(filters, search, includeDeleted, pageable);
+        Page<AttributeValue> page = service.searchAdmin(req);
         return ResponseEntity.ok(page.map(mapper::toAdminResponseDTO));
     }
 
     @PostMapping("/search")
     @Operation(summary = "Admin: Search attribute values (POST)", description = "Same as GET but accepts a JSON body for complex filters.")
     public ResponseEntity<Page<AttributeValueAdminResponseDTO>> search(
-            @Valid @RequestBody SearchRequest<AttributeValueFilter> request,
+            @Valid @RequestBody SearchRequest<AttributeValueAdminFilter> request,
             @PageableDefault(size = 20, sort = "id") Pageable pageable
     ) {
-        SearchRequest<AttributeValueFilter> merged = SearchRequestUtils.mergeWithPageable(request, pageable);
-        Page<AttributeValue> page = service.search(merged);
+        SearchRequest<AttributeValueAdminFilter> merged = SearchRequestUtils.mergeWithPageable(request, pageable);
+        Page<AttributeValue> page = service.searchAdmin(merged);
         return ResponseEntity.ok(page.map(mapper::toAdminResponseDTO));
+    }
+
+    @GetMapping("/{attributeValueId}/usage")
+    @Operation(summary = "Get usage summary for an attribute value")
+    public ResponseEntity<AttributeValueUsageDTO> summarizeUsage (@PathVariable Long attributeValueId) {
+        AttributeValueUsageDTO usageDTO = service.summarizeAttributeValueUsage(attributeValueId);
+        return ResponseEntity.ok(usageDTO);
     }
 
     // ---------- WRITES ----------

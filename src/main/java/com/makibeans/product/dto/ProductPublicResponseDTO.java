@@ -1,6 +1,7 @@
 package com.makibeans.product.dto;
 
 import com.makibeans.attribute.productattribute.dto.ProductAttributePublicResponseDTO;
+import com.makibeans.productvariant.dto.ProductVariantPublicResponseDTO;
 import com.makibeans.productvariant.dto.ProductVariantResponseDTO;
 
 import java.util.List;
@@ -11,10 +12,11 @@ import java.util.List;
 public record ProductPublicResponseDTO(
         Long id,
         String name,
+        String slug,
         String description,
         String imageUrl,
         Long categoryId,
         String categoryName,
-        List<ProductVariantResponseDTO> productVariants,
+        List<ProductVariantPublicResponseDTO> productVariants,
         List<ProductAttributePublicResponseDTO> productAttributes
 ) {}

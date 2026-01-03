@@ -18,17 +18,21 @@ public interface SizeMapper {
     // -------------------------------------------------------------------------
     // Public DTO mapping
     // -------------------------------------------------------------------------
+    @Mapping(source = "slug", target = "slug")
     SizePublicResponseDTO toPublicResponseDTO(Size entity);
 
     // -------------------------------------------------------------------------
     // Admin DTO mapping (with audit)
     // -------------------------------------------------------------------------
     @Mapping(target = "audit", source = ".")
+    @Mapping(source = "slug", target = "slug")
     SizeAdminResponseDTO toAdminResponseDTO(Size entity);
 
     // -------------------------------------------------------------------------
     // Update from DTO
     // -------------------------------------------------------------------------
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target="slug", ignore = true)
     void updateEntityFromDTO(SizeUpdateDTO updateDTO, @MappingTarget Size size);
 }

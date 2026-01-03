@@ -6,6 +6,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.Optional;
+
 /**
  * Repository interface for managing `Size` entities.
  * Provides methods to perform CRUD operations and custom queries on Size data.
@@ -14,14 +16,15 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface SizeRepository extends JpaRepository<Size, Long> {
 
     /**
-     * Checks if a Size with the given name exists.
-     *
-     * @param name the name of the Size
-     * @return true if a Size with the given name exists, false otherwise
+     * Checks if a Size with the given name exists (case-insensitive).
      */
-    boolean existsByNameIgnoreCase(String name);
 
     Page<Size> findAll(Specification<Size> spec, Pageable pageable);
 
-    boolean existsByNameAndIdNot(String name, Long id);
+    Optional<Size> findByIdAndDeletedFalse(Long id);
+
+    boolean existsBySlugAndDeletedFalse(String slug);
+
+    boolean existsBySlugAndIdNotAndDeletedFalse(String slug, Long id);
+
 }
