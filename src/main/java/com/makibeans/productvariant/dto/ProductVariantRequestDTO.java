@@ -30,4 +30,6 @@ public class ProductVariantRequestDTO {
     @Min(value = 0, message = "Stock should be a minimum of 0.")
     @Digits(integer = 10, fraction = 0, message = "Stock must be a valid number with up to 10 digits.")
     private Long stock;
+
+    private Boolean isDefault = false;
 }

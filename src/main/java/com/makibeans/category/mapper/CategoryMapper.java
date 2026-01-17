@@ -2,6 +2,7 @@ package com.makibeans.category.mapper;
 
 import com.makibeans.audit.mapper.AuditableMapper;
 import com.makibeans.category.dto.*;
+import com.makibeans.category.filter.dto.AttributeFilterDefinitionDTO;
 import com.makibeans.category.model.Category;
 import org.mapstruct.*;
 
@@ -40,12 +41,9 @@ public interface CategoryMapper {
 
     CategoryRefDTO toRefDTO(Category category);
 
-    /**
-     * Returns the image URL of the given product.
-     *
-     * @param category the category to get the image URL from
-     * @return the image URL of the given product
-     */
+
+    AttributeFilterDefinitionDTO toFilterDTO(Category category);
+
 
     @Named("getImageUrl")
     default String getImageUrl(Category category) {
@@ -80,5 +78,9 @@ public interface CategoryMapper {
 
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "name", ignore = true)
+    @Mapping(target = "parentCategory", ignore = true)
     void updateEntityFromDTO(CategoryUpdateDTO updateDTO, @MappingTarget Category category);
+
+
 }

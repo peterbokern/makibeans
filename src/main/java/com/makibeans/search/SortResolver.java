@@ -12,7 +12,6 @@ public final class SortResolver {
     private final Map<String, FilterMetadataExtractor.FilterMetadata> meta;
     //example data: {"name" -> {path: "category.name", sortable: true}, ...}
 
-
     public SortResolver(Class<?> filterClass) {
         this.meta = FilterMetadataExtractor.extract(filterClass);
     }
@@ -27,9 +26,9 @@ public final class SortResolver {
         }
 
         // 2) Single built-in fallback: allow root-level "id"
-        if ("id".equals(sortBy)) {
+ /*       if ("id".equals(sortBy)) {
             return Sort.by(toSpringDir(dir), "id");
-        }
+        }*/
 
         // 3) Unknown or not allowed -> unsorted
         return Sort.unsorted();

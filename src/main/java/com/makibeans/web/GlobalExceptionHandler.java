@@ -4,12 +4,14 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.makibeans.web.exceptions.*;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindException;
 import org.springframework.validation.FieldError;
@@ -84,7 +86,7 @@ public class GlobalExceptionHandler {
     public ProblemDetail handleHttpMessageNotReadable(HttpMessageNotReadableException ex) {
         ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
         pd.setTitle("Malformed or invalid JSON");
-        pd.setDetail("The request body is missing or invalid.");
+        pd.setDetail("The request body is missing or invalid: {}");
         pd.setProperty("timestamp", OffsetDateTime.now());
 
         Throwable cause = ex.getCause();
@@ -273,6 +275,25 @@ public class GlobalExceptionHandler {
         pd.setProperty("timestamp", OffsetDateTime.now());
         return pd;
     }
+
+    @ExceptionHandler(InvalidAttributeFilterException.class)
+    public ResponseEntity<Map<String, Object>> handleInvalidAttributeFilterException(
+            InvalidAttributeFilterException ex,
+            HttpServletRequest request
+    ) {
+        Map<String, Object> body = new LinkedHashMap<>();
+
+        body.put("type", "about:blank");
+        body.put("title", "Invalid attribute filters");
+        body.put("status", 400);
+        body.put("detail", ex.getMessage());
+        body.put("invalidPairs", ex.getInvalidPairs());
+        body.put("instance", request.getRequestURI());
+        body.put("timestamp", OffsetDateTime.now());
+
+        return ResponseEntity.badRequest().body(body);
+    }
+
 
 
     // ---------- helpers ----------

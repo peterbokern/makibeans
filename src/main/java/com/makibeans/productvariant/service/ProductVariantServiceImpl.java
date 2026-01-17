@@ -1,10 +1,10 @@
 package com.makibeans.productvariant.service;
 
+import com.makibeans.audit.model.DeleteReason;
+import com.makibeans.productvariant.dto.ProductVariantAdminResponseDTO;
 import com.makibeans.productvariant.dto.ProductVariantRequestDTO;
-import com.makibeans.productvariant.dto.ProductVariantResponseDTO;
 import com.makibeans.productvariant.dto.ProductVariantUpdateDTO;
 import com.makibeans.productvariant.filter.ProductVariantAdminFilter;
-import com.makibeans.productvariant.filter.ProductVariantPublicFilter;
 import com.makibeans.web.exceptions.DuplicateResourceException;
 import com.makibeans.productvariant.mapper.ProductVariantMapper;
 import com.makibeans.product.model.Product;
@@ -17,6 +17,7 @@ import com.makibeans.search.SortResolver;
 import com.makibeans.search.SpecificationFactory;
 import com.makibeans.product.service.ProductService;
 
+import com.makibeans.web.exceptions.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.data.domain.Page;
@@ -24,12 +25,12 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Objects;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -42,24 +43,9 @@ public class ProductVariantServiceImpl implements ProductVariantService {
     private final SizeServiceImpl sizeService;
 
     @Override
-    public JpaRepository<ProductVariant, Long> repo() {
-        return repo;
-    }
-
-    @Override
-    public String entityName() {
-        return "ProductVariant";
-    }
-
-    @Override
     public ProductVariant getById(Long id) {
-        return getOrThrow(id);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public Page<ProductVariant> searchPublic(SearchRequest<ProductVariantPublicFilter> req) {
-        return search(req, ProductVariantPublicFilter.class);
+        return repo.findById(id).orElseThrow(() ->
+                new ResourceNotFoundException("ProductVariant with id " + id + " not found."));
     }
 
     @Override
@@ -68,6 +54,10 @@ public class ProductVariantServiceImpl implements ProductVariantService {
         return search(req, ProductVariantAdminFilter.class);
     }
 
+    //TODO : add default search to all searches
+
+    // -------- Core search implementation --------
+    //SORTING: Always apply default sorting by isDefault desc, id asc if not provided by client
     @Override
     @Transactional(readOnly = true)
     public <F> Page<ProductVariant> search(SearchRequest<F> req, Class<F> filterClass) {
@@ -77,13 +67,8 @@ public class ProductVariantServiceImpl implements ProductVariantService {
         Sort sort = new SortResolver(filterClass)
                 .resolve(req.getSortBy(), req.getSortDirection());
 
-        Specification<ProductVariant> distinctSpec = (root, query, cb) -> {
-            Objects.requireNonNull(query, "CriteriaQuery must not be null");
-            query.distinct(true);
-            return null;
-        };
-
-        Specification<ProductVariant> finalSpec = (spec == null) ? distinctSpec : spec.and(distinctSpec);
+        // Ensure default sorting by isDefault desc, id asc if not provided by client
+        sort = resolveSortWithDefault(sort);
 
         Pageable pageable = PageRequest.of(
                 req.getPage() != null ? req.getPage() : 0,
@@ -91,18 +76,23 @@ public class ProductVariantServiceImpl implements ProductVariantService {
                 sort
         );
 
-        return repo.findAll(finalSpec, pageable);
+        return repo.findAll(spec, pageable);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<ProductVariant> getPublicVariantsByProductId(Long productId) {
+        return repo.findByProductIdAndDeletedFalseOrderByIsDefaultDescIdAsc(productId);
+    }
 
     @Override
     @Transactional
     public ProductVariant create(ProductVariantRequestDTO dto) {
 
-        Product product = productService.getById(dto.getProductId());
+        Product product = productService.findById((dto.getProductId()));
         Size size = sizeService.getById(dto.getSizeId());
 
-        ensureUniqueProductAndSizeOrThrow(product, size);
+        assertUniqueProductAndSize(product, size);
 
         ProductVariant productVariant = ProductVariant.builder()
                 .product(product)
@@ -112,55 +102,104 @@ public class ProductVariantServiceImpl implements ProductVariantService {
                 .sku(generateSkuValue(product, size))
                 .build();
 
-        return repo.save(productVariant);
+        ProductVariant saved = repo.save(productVariant);
+
+        applyDefaultVariantOnCreate(product.getId(), dto.getIsDefault(), saved.getId());
+
+        return getById(saved.getId());
     }
 
     @Override
     @Transactional
     public ProductVariant update(Long id, ProductVariantUpdateDTO dto) {
-        ProductVariant productVariant = getOrThrow(id);
+        var productVariant = getById(id);
+        var product = productVariant.getProduct();
+
+        boolean wasDefault = Boolean.TRUE.equals(productVariant.getIsDefault());
 
         mapper.updateEntityFromDTO(dto, productVariant);
 
-        return productVariant;
+        //Ensure default variant logic after update
+        // If isDefault is set to true, set this variant as default
+        // If isDefault is set to false, and it was previously default, set another variant as default
+        // If isDefault is null, do nothing
+        if (dto.getIsDefault() != null) {
+
+            boolean requestDefault = Boolean.TRUE.equals(dto.getIsDefault());
+
+            if (requestDefault) {
+                setDefault(product.getId(), productVariant.getId());
+            } else if (wasDefault) {
+                productVariant.setIsDefault(false);
+                handleDefaultVariantAfterDeletionOrUpdate(product.getId(), productVariant.getId());
+            }
+            repo.flush();
+        }
+
+        return getById(id);
     }
 
     @Override
     @Transactional
     public void delete(Long id) {
-        ProductVariant existing = getOrThrow(id);
-        repo.delete(existing);
-    }
+        ProductVariant existing = getById(id);
 
-    // -------- Convenience ops --------
+        if (existing.isDeleted()) return;
+
+        Long productId = existing.getProduct().getId();
+        boolean wasDefault = Boolean.TRUE.equals(existing.getIsDefault());
+
+        existing.setIsDefault(false);
+        existing.setDeleted(true);
+        existing.setDeletedReason(DeleteReason.ADMIN_DELETED);
+
+        // After deletion, if it was the default variant, set another variant as default
+        if (wasDefault) handleDefaultVariantAfterDeletionOrUpdate(productId, existing.getId());
+    }
 
     @Override
     @Transactional
-    public ProductVariantResponseDTO setStock(Long variantId, Long stock) {
-        var existing = ProductVariantService.super.getOrThrow(variantId);
+    public void deleteByProductId(Long productId, DeleteReason reason) {
+        var variants = repo.findByProductIdAndDeletedFalse(productId);
+        variants.forEach(variant -> {
+            if (!variant.isDeleted()) {
+                variant.setDeleted(true);
+                variant.setDeletedReason(reason);
+            }
+        });
+    }
+
+// -------- Convenience ops --------
+
+
+    //TODO : need to implement
+    @Override
+    @Transactional
+    public ProductVariantAdminResponseDTO setStock(Long variantId, Long stock) {
+        var existing = getById(variantId);
         existing.setStock(stock != null ? Math.max(0L, stock) : 0L);
-        return mapper.toResponseDTO(repo.save(existing));
+        return mapper.toAdminResponseDTO(repo.save(existing));
     }
 
     @Override
     @Transactional
-    public ProductVariantResponseDTO incrementStock(Long variantId, Long by) {
-        var existing = ProductVariantService.super.getOrThrow(variantId);
+    public ProductVariantAdminResponseDTO incrementStock(Long variantId, Long by) {
+        var existing = getById(variantId);
         existing.setStock(Math.max(0L, (existing.getStock() == null ? 0L : existing.getStock()) + (by == null ? 0L : by)));
-        return mapper.toResponseDTO(repo.save(existing));
+        return mapper.toAdminResponseDTO(repo.save(existing));
     }
 
     @Override
     @Transactional
-    public ProductVariantResponseDTO decrementStock(Long variantId, Long by) {
-        var existing = getOrThrow(variantId);
+    public ProductVariantAdminResponseDTO decrementStock(Long variantId, Long by) {
+        var existing = getById(variantId);
         existing.setStock(Math.max(0L, (existing.getStock() == null ? 0L : existing.getStock()) - (by == null ? 0L : by)));
-        return mapper.toResponseDTO(repo.save(existing));
+        return mapper.toAdminResponseDTO(repo.save(existing));
     }
 
     // -------- Helpers --------
-    private void ensureUniqueProductAndSizeOrThrow(Product product, Size size) {
-        if (repo.existsByProductAndSize(product, size)) {
+    private void assertUniqueProductAndSize(Product product, Size size) {
+        if (repo.existsByProductAndSizeAndDeletedFalse(product, size)) {
             throw new DuplicateResourceException(
                     "A ProductVariant with product ID " + product.getId() + " and size ID " + size.getId() + " already exists."
             );
@@ -176,5 +215,67 @@ public class ProductVariantServiceImpl implements ProductVariantService {
                 productId == null ? "X" : productId,
                 sizeId == null ? "X" : sizeId,
                 rand);
+    }
+
+    // sets the specified product variant as the default for the given product and unsets any other default variant.
+    @Override
+    @Transactional
+    public void setDefault(Long productId, Long productVariantId) {
+        if (productId == null || productVariantId == null) return;
+        if (!repo.existsByIdAndProductIdAndDeletedFalse(productVariantId, productId)) {
+            throw new ResourceNotFoundException("Unable to set default product variant. ProductVariant with id " + productVariantId + " not found for Product with id " + productId);
+        }
+        int updated = repo.setDefaultProductVariant(productId, productVariantId);
+        if (updated == 0) {
+            throw new ResourceNotFoundException("No active variants found for Product with id " + productId);
+        }
+    }
+
+    // Ensures that a default variant is set for the product.
+// If isDefault is true, sets the specified variant as default.
+// If no default is set, sets the specified variant as default.
+// Throws ResourceNotFoundException if the specified variant does not belong to the product.
+    private void applyDefaultVariantOnCreate(Long productId, Boolean isDefault, Long productVariantId) {
+
+        boolean noDefaultSet = !repo.existsByProductIdAndDeletedFalseAndIsDefaultTrue(productId);
+        boolean requestDefault = Boolean.TRUE.equals(isDefault);
+
+        if (requestDefault || noDefaultSet) {
+            if (!repo.existsByIdAndProductIdAndDeletedFalse(productVariantId, productId)) {
+                throw new ResourceNotFoundException("Unable to set default product variant. ProductVariant with id " + productVariantId + " not found for Product with id " + productId);
+            }
+            setDefault(productId, productVariantId);
+        }
+    }
+
+    private void handleDefaultVariantAfterDeletionOrUpdate(Long productId, Long excludeVariantId) {
+        var next = repo.findFirstByProductIdAndDeletedFalseAndIdNotOrderByIdAsc(productId, excludeVariantId);
+        next.ifPresent(v -> setDefault(productId, v.getId()));
+    }
+
+    private Sort resolveSortWithDefault(Sort sort) {
+        Sort defaultSort = Sort.by(
+                Sort.Order.desc("isDefault"),
+                Sort.Order.asc("id")
+        );
+
+        // Ensure default sorting by isDefault desc, id asc if not provided by client
+        if (sort == null || sort.isUnsorted()) {
+            sort = defaultSort;
+
+        } else {
+            var clientSort = sort.stream()
+                    .map(Sort.Order::getProperty)
+                    .collect(Collectors.toSet());
+
+            if (!clientSort.contains("isDefault")) {
+                sort = sort.and(Sort.by(Sort.Order.desc("isDefault")));
+            }
+
+            if (!clientSort.contains("id")) {
+                sort = sort.and(Sort.by(Sort.Order.asc("id")));
+            }
+        }
+        return sort;
     }
 }

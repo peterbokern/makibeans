@@ -1,37 +1,42 @@
 package com.makibeans.product.service;
 
+import com.makibeans.product.dto.ProductAdminResponseDTO;
+import com.makibeans.product.dto.ProductPublicResponseDTO;
 import com.makibeans.product.dto.ProductRequestDTO;
 import com.makibeans.product.dto.ProductUpdateDTO;
 import com.makibeans.product.filter.ProductAdminFilter;
 import com.makibeans.product.model.Product;
+import com.makibeans.product.repository.PriceRange;
+import com.makibeans.productvariant.dto.ProductVariantPublicResponseDTO;
 import com.makibeans.search.SearchRequest;
-import com.makibeans.product.filter.ProductFilter;
 import com.makibeans.product.filter.ProductPublicFilter;
-import com.makibeans.common.service.CrudService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+import java.util.Map;
+
 public interface ProductService  {
 
-    Product getById(Long id);
-
-    @Transactional
-    Product getByIdIncludingDeleted(Long id);
+    @Transactional(readOnly = true)
+    Product findById(Long id);
 
     @Transactional(readOnly = true)
-    Page<Product> searchPublic(SearchRequest<ProductPublicFilter> req);
+    Product findByIdIncludingDeleted(Long id);
 
-    @Transactional(readOnly = true)
-    Page<Product> searchAdmin(SearchRequest<ProductAdminFilter> req);
+    ProductPublicResponseDTO getById(Long id);
 
-    @Transactional(readOnly = true)
-    <F> Page<Product> search(SearchRequest<F> req, Class<F> filterClass);
+    ProductAdminResponseDTO  getByIdIncludingDeleted(Long id);
 
-    Product create(@Valid ProductRequestDTO dto);
+    Page<ProductPublicResponseDTO> searchPublic(SearchRequest<ProductPublicFilter> req);
 
-    Product update(Long id, @Valid ProductUpdateDTO dto);
+    Page<ProductAdminResponseDTO> searchAdmin(SearchRequest<ProductAdminFilter> req);
+
+    ProductAdminResponseDTO create(@Valid ProductRequestDTO dto);
+
+    ProductAdminResponseDTO update(Long id, @Valid ProductUpdateDTO dto);
 
     void delete(Long id);
 
@@ -39,8 +44,10 @@ public interface ProductService  {
 
     void deleteProductImage(Long productId);
 
-    @Transactional
     void restore(Long productId);
 
-    Product uploadProductImage(Long productId, MultipartFile image);
+    ProductAdminResponseDTO uploadProductImage(Long productId, MultipartFile image);
+
+    Map<Long, PriceRange> getPriceRangesForProducts(List<Long> productIds);
+
 }

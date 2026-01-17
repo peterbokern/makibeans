@@ -1,40 +1,43 @@
 package com.makibeans.product.service;
 
-import com.makibeans.product.dto.ProductRequestDTO;
-import com.makibeans.product.dto.ProductUpdateDTO;
+import com.makibeans.audit.model.DeleteReason;
+import com.makibeans.product.dto.*;
 import com.makibeans.product.filter.ProductAdminFilter;
-import com.makibeans.product.filter.ProductFilter;
 import com.makibeans.product.filter.ProductPublicFilter;
-import com.makibeans.web.exceptions.DuplicateResourceException;
-import com.makibeans.web.exceptions.ImageProcessingException;
-import com.makibeans.web.exceptions.ResourceNotFoundException;
+import com.makibeans.product.repository.PriceRange;
+import com.makibeans.productattribute.service.ProductAttributeService;
+import com.makibeans.productattributevalue.service.ProductAttributeValueService;
+import com.makibeans.productvariant.dto.ProductVariantPublicResponseDTO;
+import com.makibeans.productvariant.mapper.ProductVariantMapper;
+import com.makibeans.productvariant.service.ProductVariantService;
+import com.makibeans.web.exceptions.*;
 import com.makibeans.product.mapper.ProductMapper;
 import com.makibeans.category.model.Category;
 import com.makibeans.product.model.Product;
 import com.makibeans.product.repository.ProductRepository;
 import com.makibeans.search.SearchRequest;
-import com.makibeans.search.SortResolver;
-import com.makibeans.search.SpecificationFactory;
 import com.makibeans.category.service.CategoryService;
 import com.makibeans.common.util.ImageUtils;
 import com.makibeans.common.util.TextUtils;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Objects;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 
 /**
  * Service class for managing Products.
  * Provides methods to retrieve, create, update, and delete Products.
  */
+@Slf4j
 @Service
 public class ProductServiceImpl implements ProductService {
 
@@ -42,23 +45,42 @@ public class ProductServiceImpl implements ProductService {
     private final CategoryService categoryService;
     private final ProductMapper mapper;
     private final ImageUtils imageUtils;
+    private final ProductAttributeService productAttributeService;
+    private final ProductAttributeValueService productAttributeValueService;
+    private final ProductVariantService productVariantService;
+    private final ProductSearchService productSearchService;
 
-    @Autowired
+
     public ProductServiceImpl(
             ProductRepository repo,
             CategoryService categoryService,
-            ProductMapper mapper,
-            ImageUtils imageUtils
-    ) {
+            ProductMapper mapper, ProductVariantMapper productVariantMapper,
+            ImageUtils imageUtils,
+            @Lazy ProductAttributeService productAttributeService,
+            @Lazy ProductAttributeValueService productAttributeValueService,
+            @Lazy ProductVariantService productVariantService,
+            ProductSearchService productSearchService) {
         this.repo = repo;
         this.categoryService = categoryService;
         this.mapper = mapper;
         this.imageUtils = imageUtils;
+        this.productAttributeService = productAttributeService;
+        this.productAttributeValueService = productAttributeValueService;
+        this.productVariantService = productVariantService;
+        this.productSearchService = productSearchService;
     }
 
     @Transactional(readOnly = true)
     @Override
-    public Product getById(Long id) {
+    public Product findById(Long id) {
+        return repo.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Product with ID " + id + " not found."));
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public Product findByIdIncludingDeleted(Long id) {
         return repo.findByIdAndDeletedFalse(id)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Product with ID " + id + " not found."));
@@ -66,48 +88,51 @@ public class ProductServiceImpl implements ProductService {
 
     @Transactional(readOnly = true)
     @Override
-    public Product getByIdIncludingDeleted(Long id) {
-        return repo.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Product with ID " + id + " not found."));
+    public ProductPublicResponseDTO getById(Long id) {
+        return toPublicResponseDTO(findByIdIncludingDeleted(id));
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public ProductAdminResponseDTO getByIdIncludingDeleted(Long id) {
+        return toAdminResponseDTO(findByIdIncludingDeleted(id));
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Page<Product> searchPublic(SearchRequest<ProductPublicFilter> req) {
-        return search(req, ProductPublicFilter.class);
+    public Page<ProductPublicResponseDTO> searchPublic(SearchRequest<ProductPublicFilter> req) {
+        return toPublicResponseDTOPage(productSearchService.search(req, ProductPublicFilter.class));
+    }
+
+    //maps product page to dto page using mapstruct mapper with context. Mapstruct needs to have the map of price ranges to fill the price field
+    @Transactional(readOnly = true)
+    protected Page<ProductPublicResponseDTO> toPublicResponseDTOPage(Page<Product> products) {
+        var productIds = products.stream().map(Product::getId).toList();
+        var priceRanges = getPriceRangesForProducts(productIds);
+        return products.map(p -> mapper.toPublicResponseDTO(p, priceRanges));
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Page<Product> searchAdmin(SearchRequest<ProductAdminFilter> req) {
-        return search(req, ProductAdminFilter.class);
+    public Page<ProductAdminResponseDTO> searchAdmin(SearchRequest<ProductAdminFilter> req) {
+        return toAdminResponseDTOPage(productSearchService.search(req, ProductAdminFilter.class));
     }
 
-    @Override
     @Transactional(readOnly = true)
-    public  <F> Page<Product> search(SearchRequest<F> req, Class<F> filterClass) {
-        Specification<Product> spec =
-                SpecificationFactory.fromRequest(req, filterClass);
+    protected ProductPublicResponseDTO toPublicResponseDTO(Product product) {
+        return mapper.toPublicResponseDTO(product, getPriceRangesForProducts(List.of(product.getId())));
+    }
 
-        Sort sort = new SortResolver(filterClass)
-                .resolve(req.getSortBy(), req.getSortDirection());
+    @Transactional(readOnly = true)
+    protected Page<ProductAdminResponseDTO> toAdminResponseDTOPage(Page<Product> products) {
+        var productIds = products.stream().map(Product::getId).toList();
+        var priceRanges = getPriceRangesForProducts(productIds);
+        return products.map(p -> mapper.toAdminResponseDTO(p, priceRanges));
+    }
 
-        Specification<Product> distinctSpec = (root, query, cb) -> {
-            Objects.requireNonNull(query, "CriteriaQuery must not be null");
-            query.distinct(true);
-            return cb.conjunction();
-        };
-
-        Specification<Product> finalSpec = (spec == null) ? distinctSpec : spec.and(distinctSpec);
-
-        Pageable pageable = PageRequest.of(
-                req.getPage() != null ? req.getPage() : 0,
-                req.getSize() != null ? req.getSize() : 20,
-                sort
-        );
-
-        return repo.findAll(finalSpec, pageable);
+    @Transactional(readOnly = true)
+    protected ProductAdminResponseDTO toAdminResponseDTO(Product product) {
+        return mapper.toAdminResponseDTO(product, getPriceRangesForProducts(List.of(product.getId())));
     }
 
     /**
@@ -117,12 +142,13 @@ public class ProductServiceImpl implements ProductService {
      * @return the saved Product.
      * @throws DuplicateResourceException if a product with the given slug already exists.
      */
+
     @Transactional
     @Override
-    public Product create(ProductRequestDTO dto) {
+    public ProductAdminResponseDTO create(ProductRequestDTO dto) {
 
         String name = dto.getName().trim();
-        String normalizedName = TextUtils.normalizeText(name);
+        String normalizedName = normalize(name);
         String slug = TextUtils.toSlug(normalizedName);
 
         assertUniqueSlug(slug);
@@ -137,13 +163,14 @@ public class ProductServiceImpl implements ProductService {
 
         product.setSlug(slug);
 
-        return repo.save(product);
+        Product saved = repo.save(product);
+        return toAdminResponseDTO(saved);
     }
 
     @Override
     @Transactional
-    public Product update(Long productId, @Valid ProductUpdateDTO dto) {
-        Product product = getById(productId);
+    public ProductAdminResponseDTO update(Long productId, @Valid ProductUpdateDTO dto) {
+        Product product = findById(productId);
 
         String newName = dto.getName();
 
@@ -163,25 +190,31 @@ public class ProductServiceImpl implements ProductService {
         // If your mapper updates name/slug, configure it to ignore those fields.
         mapper.updateEntityFromDTO(dto, product);
 
-        return product;
+        return toAdminResponseDTO(product);
     }
 
     @Override
     @Transactional
     public void delete(Long productId) {
-        Product product = getById(productId);
-        // CascadeType.ALL and orphanRemoval = true on productAttributes and productVariants in Product entity
+        Product product = findById(productId);
+        //  productAttributes and productVariants in Product entity
+        if (product.isDeleted()) return;
+
+        DeleteReason reason = DeleteReason.PRODUCT_DELETED;
+
+        productAttributeValueService.deleteByProductId(productId, reason);
+        productAttributeService.deleteByProductId(productId, reason);
+        productVariantService.deleteByProductId(productId, reason);
+
         product.setDeleted(true);
     }
 
     @Override
     @Transactional
     public void restore(Long productId) {
-        Product product = getByIdIncludingDeleted(productId);
+        Product product = findByIdIncludingDeleted(productId);
 
-        if (!Boolean.TRUE.equals(product.isDeleted())) {
-            return; // or throw BadRequestException("Product is not deleted.")
-        }
+        if (!product.isDeleted()) return;
 
         // check if unique by slug among non-deleted items
         assertUniqueSlugAndIdNotAmongActive(product.getSlug(), productId);
@@ -190,13 +223,13 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
-    public Product uploadProductImage(Long productId, MultipartFile image) throws ImageProcessingException {
-        Product product = getById(productId);
+    public ProductAdminResponseDTO uploadProductImage(Long productId, MultipartFile image) throws ImageProcessingException {
+        Product product = findById(productId);
 
         byte[] imageBytes = imageUtils.validateAndExtractImageBytes(image);
         product.setImage(imageBytes);
 
-        return product;
+        return toAdminResponseDTO(product);
     }
 
     /**
@@ -208,7 +241,7 @@ public class ProductServiceImpl implements ProductService {
     @Transactional(readOnly = true)
     @Override
     public byte[] getProductImage(Long productId) {
-        Product product = getById(productId);
+        Product product = findById(productId);
         byte[] productImage = product.getImage();
 
         if (productImage == null) {
@@ -226,9 +259,22 @@ public class ProductServiceImpl implements ProductService {
     @Transactional
     @Override
     public void deleteProductImage(Long productId) {
-        Product product = getById(productId);
+        Product product = findById(productId);
         product.setImage(null);
     }
+
+    @Transactional(readOnly = true)
+    @Override
+    public Map<Long, PriceRange> getPriceRangesForProducts(List<Long> productIds) {
+        var ranges = repo.findPriceRangesForProducts(productIds);
+        if (ranges.isEmpty()) return Collections.emptyMap();
+        Map<Long, PriceRange> map = new HashMap<>();
+        ranges.stream()
+                .filter(pr -> pr.getProductId() != null)
+                .forEach(pr -> map.put(pr.getProductId(), pr));
+        return map;
+    }
+
 
     private void assertUniqueSlug(String slug) {
         if (slug != null && repo.existsBySlugAndDeletedFalse(slug)) {
@@ -242,5 +288,9 @@ public class ProductServiceImpl implements ProductService {
             throw new DuplicateResourceException(
                     "Product with slug '" + slug + "' already exists.");
         }
+    }
+
+    private String normalize(String in) {
+        return (in == null) ? null : TextUtils.normalizeText(in);
     }
 }

@@ -1,7 +1,7 @@
 package com.makibeans.category.service;
 
-import com.makibeans.attribute.categoryattribute.repository.CategoryAttributeRepository;
-import com.makibeans.attribute.productattribute.repository.ProductAttributeRepository;
+import com.makibeans.categoryattribute.repository.CategoryAttributeRepository;
+import com.makibeans.productattribute.repository.ProductAttributeRepository;
 import com.makibeans.category.dto.CategoryUsageDTO;
 import com.makibeans.category.model.Category;
 import com.makibeans.category.repository.CategoryRepository;

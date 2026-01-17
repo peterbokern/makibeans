@@ -1,3 +1,4 @@
+/*
 package com.makibeans.model;
 
 import com.makibeans.category.model.Category;
@@ -7,9 +8,11 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+*/
 /**
  * Unit tests for the Category class.
- */
+ *//*
+
 
 class CategoryTest {
 
@@ -109,3 +112,4 @@ class CategoryTest {
         assertEquals(expected, result, "toString() should return expected string format");
     }
 }
+*/

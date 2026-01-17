@@ -80,6 +80,9 @@ public class ProductVariantAdminController {
     // -------------------------------------------------------------------------
     // CREATE / UPDATE
     // -------------------------------------------------------------------------
+    //add API instruction:
+    //when a variant is created and if it's marked as default, other variants of the same product are updated to not be default.
+    //if its the first variant for the product, it is automatically set as default.
     @PostMapping
     @Operation(summary = "Admin: Create product variant")
     public ResponseEntity<ProductVariantAdminResponseDTO> create(
@@ -91,6 +94,8 @@ public class ProductVariantAdminController {
                 .body(mapper.toAdminResponseDTO(created));
     }
 
+    //if a variant is updated to be default, other variants of the same product are updated to not be default.
+    //if the default variant is unset, and there are other variants for the product, the first one is set as default.
     @PutMapping("/{id}")
     @Operation(summary = "Admin: Update product variant")
     public ResponseEntity<ProductVariantAdminResponseDTO> update(

@@ -3,7 +3,6 @@ package com.makibeans.productvariant.mapper;
 import com.makibeans.audit.mapper.AuditableMapper;
 import com.makibeans.productvariant.dto.ProductVariantAdminResponseDTO;
 import com.makibeans.productvariant.dto.ProductVariantPublicResponseDTO;
-import com.makibeans.productvariant.dto.ProductVariantResponseDTO;
 import com.makibeans.productvariant.dto.ProductVariantUpdateDTO;
 import com.makibeans.productvariant.model.ProductVariant;
 import org.mapstruct.*;
@@ -17,28 +16,17 @@ import org.mapstruct.*;
 public interface ProductVariantMapper {
 
     // -------------------------------------------------------------------------
-    // Legacy/general DTO (keep temporarily)
-    // -------------------------------------------------------------------------
-    ProductVariantResponseDTO toResponseDTO(ProductVariant entity);
-
-    // -------------------------------------------------------------------------
     // Public DTO
     // -------------------------------------------------------------------------
 
-    @Mapping(source = "product.id",        target = "productId")
-    @Mapping(source = "product.name",      target = "productName")
-    @Mapping(source = "size.id",           target = "sizeId")
-    @Mapping(source = "size.name",         target = "sizeName")
+    @Mapping(source = "isDefault", target = "isDefault")
     ProductVariantPublicResponseDTO toPublicResponseDTO(ProductVariant entity);
 
     // -------------------------------------------------------------------------
     // Admin DTO (with audit)
     // -------------------------------------------------------------------------
 
-    @Mapping(source = "product.id",        target = "productId")
-    @Mapping(source = "product.name",      target = "productName")
-    @Mapping(source = "size.id",           target = "sizeId")
-    @Mapping(source = "size.name",         target = "sizeName")
+    @Mapping(source = "isDefault", target = "isDefault")
     @Mapping(target = "audit", source = ".")
     ProductVariantAdminResponseDTO toAdminResponseDTO(ProductVariant entity);
 
@@ -46,6 +34,7 @@ public interface ProductVariantMapper {
     // Update from DTO
     // -------------------------------------------------------------------------
 
+    @Mapping(target = "isDefault", ignore = true)
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateEntityFromDTO(ProductVariantUpdateDTO dto,
                              @MappingTarget ProductVariant entity);

@@ -1,12 +1,11 @@
 package com.makibeans.category.service;
 
-import com.makibeans.attribute.categoryattribute.service.CategoryAttributeService;
+import com.makibeans.audit.model.DeleteReason;
+import com.makibeans.categoryattribute.service.CategoryAttributeService;
 import com.makibeans.category.dto.CategoryRequestDTO;
 import com.makibeans.category.dto.CategoryUpdateDTO;
 import com.makibeans.category.filter.CategoryAdminFilter;
-import com.makibeans.category.filter.CategoryFilter;
 import com.makibeans.category.filter.CategoryPublicFilter;
-import com.makibeans.category.mapper.CategoryMapper;
 import com.makibeans.category.model.Category;
 import com.makibeans.category.repository.CategoryRepository;
 import com.makibeans.common.util.ImageUtils;
@@ -27,12 +26,12 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @Service
 public class CategoryServiceImpl implements CategoryService {
 
     private final CategoryRepository repo;
-    private final CategoryMapper mapper;
     private final CategoryUsageChecker usageChecker;
     private final CategoryAttributeService categoryAttributeService;
     private final ImageUtils imageUtils;
@@ -40,12 +39,10 @@ public class CategoryServiceImpl implements CategoryService {
     @Autowired
     public CategoryServiceImpl(
             CategoryRepository repo,
-            CategoryMapper mapper,
             CategoryUsageChecker usageChecker, CategoryAttributeService categoryAttributeService,
             ImageUtils imageUtils
     ) {
         this.repo = repo;
-        this.mapper = mapper;
         this.usageChecker = usageChecker;
         this.categoryAttributeService = categoryAttributeService;
         this.imageUtils = imageUtils;
@@ -67,6 +64,20 @@ public class CategoryServiceImpl implements CategoryService {
     public Category getByIdIncludingDeleted(Long id) {
         return repo.findById(id).orElseThrow(() ->
                 new ResourceNotFoundException("Category with ID " + id + " not found."));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Category getBySlug(String slug) {
+        return repo.findBySlugAndDeletedFalse(slug).orElseThrow(() ->
+                new ResourceNotFoundException("Category with slug '" + slug + "' not found."));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Category getBySlugIncludingDeleted(String slug) {
+        return repo.findBySlug(slug).orElseThrow(() ->
+                new ResourceNotFoundException("Category with slug '" + slug + "' not found."));
     }
 
     @Override
@@ -94,13 +105,10 @@ public class CategoryServiceImpl implements CategoryService {
         Specification<Category> spec =
                 SpecificationFactory.fromRequest(req, filterClass);
 
-        Sort sort = new SortResolver(filterClass)
-                .resolve(req.getSortBy(), req.getSortDirection());
-
         Pageable pageable = PageRequest.of(
                 req.getPage() != null ? req.getPage() : 0,
                 req.getSize() != null ? req.getSize() : 20,
-                sort
+                new SortResolver(filterClass).resolve(req.getSortBy(), req.getSortDirection())
         );
 
         return repo.findAll(spec, pageable);
@@ -114,7 +122,11 @@ public class CategoryServiceImpl implements CategoryService {
     @Transactional
     public Category create(@Valid CategoryRequestDTO dto) throws BadRequestException {
 
-        String trimmedName = dto.getName().trim();
+        String rawName = dto.getName();
+        if (rawName == null || rawName.isBlank()) {
+            throw new BadRequestException("Category name cannot be blank.");
+        }
+        String trimmedName = rawName.trim();
         String normalizedName = normalize(trimmedName);
         String slug = toSlug(normalizedName);
 
@@ -139,63 +151,60 @@ public class CategoryServiceImpl implements CategoryService {
     @Transactional
     public Category update(Long id, @Valid CategoryUpdateDTO dto) throws BadRequestException {
 
-        // Fetch existing category
         Category category = getById(id);
-        String finalSlug = category.getSlug();
-        String finalName = category.getName();
-        Category finalParent = category.getParentCategory();
 
-        // 1) Parent change
+        // -------------------------------------------------------------------------
+        // Resolve FINAL values (PATCH semantics)
+        // - null in DTO = no change
+        // - blank name = invalid
+        // - parentCategoryId null = no change (use /root endpoint to clear parent)
+        // - description: null = no change, blank = clear (set to null)
+        // -------------------------------------------------------------------------
+
+        Category finalParent = category.getParentCategory();
+        String finalName = category.getName();
+        String finalSlug = category.getSlug();
+
+        // 1) Parent change (null means "no change" in this API)
         Long parentId = dto.getParentCategoryId();
-        if (parentId != null)  {
+        if (parentId != null) {
             finalParent = getById(parentId);
             validateCircularReference(finalParent, category);
         }
 
         // 2) Name change
         String newName = dto.getName();
-        if (newName != null && !newName.isBlank()) {
+        if (newName != null) {
+            if (newName.isBlank()) {
+                throw new BadRequestException("Category name cannot be blank.");
+            }
             finalName = newName.trim();
-            String normalizedNewName = normalize(finalName);
-            finalSlug = toSlug(normalizedNewName);
+            finalSlug = toSlug(normalize(finalName));
         }
 
-        // Validate slug uniqueness
-        boolean changed = nameChanged(category, newName) || parentChanged(category, parentId);
+        // 3) Uniqueness checks only if name/parent effectively changed
+        boolean nameOrParentChanged =
+                !finalName.equals(category.getName()) || !Objects.equals(finalParent, category.getParentCategory());
 
-        if (changed) {
-            if (finalParent != null) assertNotEqualsParentSlug(finalParent, finalSlug);
+        if (nameOrParentChanged) {
+            if (finalParent != null) {
+                assertNotEqualsParentSlug(finalParent, finalSlug);
+            }
             assertUniqueSlugAmongSiblings(finalParent, finalSlug, category.getId());
         }
 
-        // Apply changes
+        // 4) Description (null = no change; blank = clear)
+        if (dto.getDescription() != null) {
+            String desc = dto.getDescription().trim();
+            category.setDescription(desc.isEmpty() ? null : desc);
+        }
+
+        // 5) Apply changes
         category.setParentCategory(finalParent);
         category.setName(finalName);
         category.setSlug(finalSlug);
 
-        // 3) Other fields
-        mapper.updateEntityFromDTO(dto, category);
-
         return category;
-    }
-
-    private boolean nameChanged(Category category, String newName) {
-        if (newName == null || newName.isBlank()) return false;
-
-        String trimmedNewName = newName.trim();
-        String normalizedNewName = normalize(trimmedNewName);
-        String newSlug = toSlug(normalizedNewName);
-        return !newSlug.equalsIgnoreCase(category.getSlug());
-    }
-
-    private boolean parentChanged(Category category, Long newParentId) {
-        if (newParentId == null) return false;
-
-        Long currentParentId = category.getParentCategory() != null
-                ? category.getParentCategory().getId()
-                : null;
-
-        return !Objects.equals(currentParentId, newParentId);
     }
 
     @Override
@@ -205,11 +214,8 @@ public class CategoryServiceImpl implements CategoryService {
         Category currentParent = category.getParentCategory();
         if (currentParent != null) {
 
-            // Ensure slug uniqueness among root categories
             assertUniqueSlugAmongSiblings(null, category.getSlug(), category.getId());
-
             category.setParentCategory(null);
-            currentParent.getSubCategories().removeIf(c -> c.getId().equals(categoryId));
 
         }
         return category;
@@ -220,8 +226,9 @@ public class CategoryServiceImpl implements CategoryService {
     public void delete(Long categoryId) {
         Category category = getById(categoryId);
         assertNotInUse(category);
-        categoryAttributeService.deleteByCategory(category);
+        categoryAttributeService.deleteAllByCategory(category);
         category.setDeleted(true);
+        category.setDeletedReason(DeleteReason.CATEGORY_DELETED);
     }
 
     @Override
@@ -239,33 +246,19 @@ public class CategoryServiceImpl implements CategoryService {
                                 category.getName(),
                                 parent.getName()));
             }
-            assertNotEqualsParentSlug(
-                    parent,
-                    slug
-            );
+            assertNotEqualsParentSlug(parent, slug);
         }
-        assertUniqueSlugAmongSiblings(
-                parent,
-                slug,
-                null
-        );
+        assertUniqueSlugAmongSiblings(parent, slug, category.getId());
+
         category.setDeleted(false);
-        categoryAttributeService.restoreByCategory(category);
+        category.setDeletedReason(null);
+        categoryAttributeService.restoreAllByCategory(category, DeleteReason.CATEGORY_DELETED);
         return category;
     }
 
     // -------------------------------------------------------------------------
     // IMAGE
     // -------------------------------------------------------------------------
-
-    @Override
-    @Transactional
-    public Category uploadCategoryImage(Long categoryId, MultipartFile image) {
-        Category category = getById(categoryId);
-        byte[] bytes = imageUtils.validateAndExtractImageBytes(image);
-        category.setImage(bytes);
-        return category;
-    }
 
     @Override
     @Transactional(readOnly = true)
@@ -280,6 +273,15 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     @Transactional
+    public Category uploadCategoryImage(Long categoryId, MultipartFile image) {
+        Category category = getById(categoryId);
+        byte[] bytes = imageUtils.validateAndExtractImageBytes(image);
+        category.setImage(bytes);
+        return category;
+    }
+
+    @Override
+    @Transactional
     public void deleteCategoryImage(Long categoryId) {
         Category category = getById(categoryId);
         category.setImage(null);
@@ -289,7 +291,7 @@ public class CategoryServiceImpl implements CategoryService {
     // VALIDATION
     // -------------------------------------------------------------------------
 
-    void validateCircularReference(Category parentCategory, Category subCategory) {
+    private void validateCircularReference(Category parentCategory, Category subCategory) {
         Category current = parentCategory;
         while (current != null) {
             if (current.getId() !=null && current.getId().equals(subCategory.getId())) {
@@ -303,25 +305,35 @@ public class CategoryServiceImpl implements CategoryService {
 
     private void assertUniqueSlugAmongSiblings(Category parentCategory, String slug, Long excludeId) {
 
-        boolean exists;
+        Optional<Category> conflict;
 
         if (parentCategory == null) {
-            // root-level uniqueness
-            exists = (excludeId == null)
-                    ? repo.existsByParentCategoryIsNullAndSlugIgnoreCaseAndDeletedFalse(slug) // create
-                    : repo.existsByParentCategoryIsNullAndSlugIgnoreCaseAndIdNotAndDeletedFalse(slug, excludeId); // update
+            conflict = (excludeId == null)
+                    ? repo.findByParentCategoryIsNullAndSlugIgnoreCase(slug)
+                    : repo.findByParentCategoryIsNullAndSlugIgnoreCaseAndIdNot(slug, excludeId);
         } else {
-            // sibling uniqueness
-            exists = (excludeId == null)
-                    ? repo.existsByParentCategoryAndSlugIgnoreCaseAndDeletedFalse(parentCategory, slug) // create
-                    : repo.existsByParentCategoryAndSlugIgnoreCaseAndIdNotAndDeletedFalse(parentCategory, slug, excludeId); // update
+            conflict = (excludeId == null)
+                    ? repo.findByParentCategoryAndSlugIgnoreCase(parentCategory, slug)
+                    : repo.findByParentCategoryAndSlugIgnoreCaseAndIdNot(parentCategory, slug, excludeId);
         }
 
-        if (exists) {
-            String parentLabel = parentCategory == null ? "ROOT" : parentCategory.getName();
+        if (conflict.isEmpty()) return; // no conflict
+
+        Category existing = conflict.get();
+        String parentLabel = parentCategory == null ? "ROOT" : parentCategory.getName();
+
+        if (existing.isDeleted()) {
             throw new DuplicateResourceException(
-                    String.format("A category with slug '%s' already exists under '%s'.", slug, parentLabel));
+                    String.format(
+                            "A category with slug '%s' already exists under '%s' but is deleted. Restore it instead of creating a new one.",
+                            slug, parentLabel
+                    )
+            );
         }
+
+        throw new DuplicateResourceException(
+                String.format("A category with slug '%s' already exists under '%s'.", slug, parentLabel)
+        );
     }
 
     private void assertNotEqualsParentSlug(Category parent, String childSlug) throws BadRequestException {

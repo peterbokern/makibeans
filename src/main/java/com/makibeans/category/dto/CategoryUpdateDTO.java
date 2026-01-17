@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class CategoryUpdateDTO {
 
-    @Size(min = 3, max = 50, message = "Category name must be between 3 and 50 characters.")
+    @Size(min = 1, max = 50, message = "Category name must be between 1 and 50 characters.")
     private String name;
 
     @Size(max = 255, message = "Description must be less than 255 characters.")

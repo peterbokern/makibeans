@@ -1,6 +1,4 @@
 package com.makibeans.size.service;
-
-import com.makibeans.common.service.CrudService;
 import com.makibeans.size.dto.SizeRequestDTO;
 import com.makibeans.size.dto.SizeUpdateDTO;
 import com.makibeans.size.dto.SizeUsageDTO;
@@ -8,7 +6,6 @@ import com.makibeans.size.filter.SizeAdminFilter;
 import com.makibeans.size.filter.SizePublicFilter;
 import com.makibeans.size.model.Size;
 import com.makibeans.search.SearchRequest;
-import com.makibeans.size.filter.SizeFilter;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.transaction.annotation.Transactional;

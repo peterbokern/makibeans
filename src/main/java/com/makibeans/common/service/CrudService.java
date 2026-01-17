@@ -1,6 +1,7 @@
+/*
 package com.makibeans.common.service;
 
-import com.makibeans.attribute.attributevalue.model.AttributeValue;
+import com.makibeans.attributevalue.model.AttributeValue;
 import com.makibeans.web.exceptions.ResourceNotFoundException;
 import com.makibeans.audit.model.Auditable;
 import org.apache.coyote.BadRequestException;
@@ -8,30 +9,42 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Objects;
 
+*/
 /**
  * Minimal reusable CRUD defaults.
  * - delete(id): soft-delete if entity implements Auditable, otherwise hard-delete
  * - restore(id): only for Auditable entities
  * - getOrThrow(id): helper for read/update flows
- */
+ *//*
+
 public interface CrudService<T, ID> {
 
-    /** Implementors must return their repository. */
+    */
+/** Implementors must return their repository. *//*
+
     JpaRepository<T, ID> repo();
 
-    /** Readable name for errors/logs. Override if needed. */
+    */
+/** Readable name for errors/logs. Override if needed. *//*
+
     default String entityName() {
         String n = getClass().getSimpleName().replace("ServiceImpl", "").replace("Service", "");
         return n.isBlank() ? "Resource" : n;
     }
 
-    /* ---------- Defaults ---------- */
+    */
+/* ---------- Defaults ---------- *//*
 
-      /*  default T create(T entity) {
+
+      */
+/*  default T create(T entity) {
             return repo().save(Objects.requireNonNull(entity, entityName() + " cannot be null."));
-        }*/
+        }*//*
 
-    /** Typical load-or-404 helper for updates and deletes. */
+
+    */
+/** Typical load-or-404 helper for updates and deletes. *//*
+
     default T getOrThrow(ID id) {
         Objects.requireNonNull(id, entityName() + " ID cannot be null.");
         return repo().findById(id).orElseThrow(
@@ -39,7 +52,9 @@ public interface CrudService<T, ID> {
         );
     }
 
-    /** Soft-delete if possible; otherwise hard-delete. */
+    */
+/** Soft-delete if possible; otherwise hard-delete. *//*
+
     default void delete(ID id) {
         T e = getOrThrow(id);
         if (e instanceof Auditable a) {
@@ -51,7 +66,9 @@ public interface CrudService<T, ID> {
         }
     }
 
-    /** Explicit soft-delete (throws if entity not Auditable). */
+    */
+/** Explicit soft-delete (throws if entity not Auditable). *//*
+
     default void softDelete(ID id) {
         T e = getOrThrow(id);
         if (e instanceof Auditable a) {
@@ -62,17 +79,21 @@ public interface CrudService<T, ID> {
         }
     }
 
-    /** Explicit hard delete (use only in admin/maintenance flows). */
+    */
+/** Explicit hard delete (use only in admin/maintenance flows). *//*
+
     default void hardDelete(ID id) {
         T e = getOrThrow(id);
         repo().delete(e);
     }
 
-    /**
+    */
+/**
      * Restore a soft-deleted entity (Auditable only).
      *
      * @return
-     */
+     *//*
+
     default AttributeValue restore(ID id) throws BadRequestException {
         T e = getOrThrow(id);
         if (e instanceof Auditable a) {
@@ -84,4 +105,4 @@ public interface CrudService<T, ID> {
         }
         return null;
     }
-}
+}*/

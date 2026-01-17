@@ -83,6 +83,7 @@ public final class SpecificationFactory {
         return specs.stream().reduce(alwaysTrue(), Specification::and);
     }
 
+
     /**
      * Free-text search: OR over all fields annotated with LIKE (String-typed).
      */

@@ -15,27 +15,6 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = false)
 public class ProductAdminFilter extends ProductPublicFilter {
 
-    // Admin commonly searches by internal identifiers
-    @JsonFormat(with = JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
-    @Filter(path = "id", type = { Filter.Operation.EQ, Filter.Operation.IN }, sortable = true, filterable = true)
-    private List<@Positive Long> id;
-
-    @Filter(path = "name", type = { Filter.Operation.LIKE, Filter.Operation.EQ }, sortable = true, filterable = true)
-    private String name;
-
-    @Filter(path = "description", type = { Filter.Operation.LIKE }, sortable = false, filterable = true)
-    private String description;
-
-    @Filter(path = "image", type = { Filter.Operation.BOOL }, sortable = false, filterable = true)
-    private Boolean hasImage;
-
-    // Variant operational filters
-    @Filter(path = "productVariants.sku", type = { Filter.Operation.LIKE, Filter.Operation.EQ }, sortable = true, filterable = true)
-    private String variantSku;
-
-    @Filter(path = "productVariants.stock", type = { Filter.Operation.LTE }, sortable = false, filterable = true)
-    private Long maxStock;
-
     // Deleted + audit
     @Filter(path = "deleted", type = { Filter.Operation.EQ }, sortable = true, filterable = true)
     private Boolean deleted;

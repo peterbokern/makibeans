@@ -3,14 +3,12 @@ package com.makibeans.productvariant.filter;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.makibeans.search.annotation.Filter;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 import java.time.Instant;
 
-@EqualsAndHashCode(callSuper = true)
 @Data
 @JsonIgnoreProperties(ignoreUnknown = false)
-public class ProductVariantAdminFilter extends ProductVariantPublicFilter {
+public class ProductVariantAdminFilter {
 
     @Filter(path = "sku", type = { Filter.Operation.LIKE, Filter.Operation.EQ }, sortable = true, filterable = true)
     private String sku;

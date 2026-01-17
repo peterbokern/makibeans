@@ -2,6 +2,7 @@ package com.makibeans.audit.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.makibeans.audit.model.DeleteReason;
 
 import java.time.Instant;
 
@@ -17,8 +18,8 @@ public record AuditableInfo(
         String updatedBy,
         Instant updatedAt,
         Boolean deleted,
-        Instant deletedOn,
         String deletedBy,
-        Instant deletedAt
+        Instant deletedAt,
+        DeleteReason deletedReason
 ) {}
 

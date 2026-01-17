@@ -39,6 +39,9 @@ public abstract class Auditable {
     @Column (name = "deleted_at", nullable = true)
     private Instant deletedAt;
 
+    @Column (name = "deleted_reason", nullable = true, length = 500)
+    private DeleteReason deletedReason;
+
     // Track if the entity was deleted when loaded from the database
     @PostLoad
     private void captureWasDeleted() {this.wasDeleted = this.deleted;}

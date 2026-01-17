@@ -3,7 +3,9 @@ package com.makibeans.product.controller.pub;
 import com.makibeans.product.dto.ProductPublicResponseDTO;
 import com.makibeans.product.filter.ProductPublicFilter;
 import com.makibeans.product.mapper.ProductMapper;
-import com.makibeans.product.model.Product;
+import com.makibeans.productvariant.dto.ProductVariantPublicResponseDTO;
+import com.makibeans.productvariant.mapper.ProductVariantMapper;
+import com.makibeans.productvariant.service.ProductVariantService;
 import com.makibeans.search.SearchRequest;
 import com.makibeans.search.utils.SearchRequestUtils;
 import com.makibeans.product.service.ProductService;
@@ -18,6 +20,9 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
 import static com.makibeans.common.util.FileTypeUtils.detectImageContentType;
 
 @RestController
@@ -26,12 +31,14 @@ import static com.makibeans.common.util.FileTypeUtils.detectImageContentType;
 public class ProductPublicController {
 
     private final ProductService productService;
-    private final ProductMapper productMapper;
+    private final ProductVariantService productVariantService;
+    private final ProductVariantMapper productVariantMapper;
     private final Logger logger = LoggerFactory.getLogger(ProductPublicController.class);
 
-    public ProductPublicController(ProductService productService, ProductMapper productMapper) {
+    public ProductPublicController(ProductService productService, ProductMapper productMapper, ProductVariantService productVariantService, ProductVariantMapper productVariantMapper) {
         this.productService = productService;
-        this.productMapper = productMapper;
+        this.productVariantService = productVariantService;
+        this.productVariantMapper = productVariantMapper;
     }
 
     // -------------------------------------------------------------------------
@@ -41,8 +48,8 @@ public class ProductPublicController {
     @Operation(summary = "Get product by ID (public)")
     @GetMapping("/{id}")
     public ResponseEntity<ProductPublicResponseDTO> getById(@PathVariable Long id) {
-        Product product = productService.getById(id);
-        return ResponseEntity.ok(productMapper.toPublicResponseDTO(product));
+        return null ;
+        //ResponseEntity.ok(productService.getById(id));
     }
 
     // -------------------------------------------------------------------------
@@ -60,9 +67,15 @@ public class ProductPublicController {
             @PageableDefault(size = 20, sort = "id") Pageable pageable
     ) {
         SearchRequest<ProductPublicFilter> req = SearchRequestUtils.assemble(filters, search, false, pageable);
-        Page<Product> page = productService.searchPublic(req);
-        Page<ProductPublicResponseDTO> result = page.map(productMapper::toPublicResponseDTO);
-        return ResponseEntity.ok(result);
+        return ResponseEntity.ok(productService.searchPublic(req));
+    }
+
+    @GetMapping("/{id}/variants")
+    public ResponseEntity<List<ProductVariantPublicResponseDTO>> getVariantsByProductId(@PathVariable Long id) {
+        var variants = productVariantService.getPublicVariantsByProductId(id).stream()
+                .map(productVariantMapper::toPublicResponseDTO)
+                .toList();
+        return ResponseEntity.ok(variants);
     }
 
     // -------------------------------------------------------------------------
@@ -72,7 +85,12 @@ public class ProductPublicController {
     @PostMapping("/search")
     @Operation(
             summary = "Search products (POST, public)",
-            description = "Same as GET but accepts a JSON body for complex filters."
+            description =
+                    "Search products  using JSON body for complex filters." +
+                    "Supports attribute-value filtering:" +
+                    "If attributeFilters is present categoryId must be provided and must be 1 value" +
+                            "attribute values must be provided in list e.g. 'origin' : ['chili', 'argentina']" +
+                            "Attributes must be filterable, this is set on category-attribute links"
     )
     public ResponseEntity<Page<ProductPublicResponseDTO>> search(
             @Valid @RequestBody SearchRequest<ProductPublicFilter> request,
@@ -80,9 +98,7 @@ public class ProductPublicController {
     ) {
         SearchRequest<ProductPublicFilter> merged = SearchRequestUtils.mergeWithPageable(request, pageable);
         merged.setIncludeDeleted(false); // Force exclude deleted for public API
-        Page<Product> page = productService.searchPublic(merged);
-        Page<ProductPublicResponseDTO> result = page.map(productMapper::toPublicResponseDTO);
-        return ResponseEntity.ok(result);
+        return ResponseEntity.ok(productService.searchPublic(merged));
     }
 
     // -------------------------------------------------------------------------

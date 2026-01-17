@@ -9,6 +9,7 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
@@ -67,15 +68,17 @@ public class ProductVariant extends Auditable {
     @Column(name = "stock", nullable = false)
     private Long stock;
 
+    @Setter
+    @Column(name = "is_default")
+    @ColumnDefault("false")
+    private Boolean isDefault = false;
+
     public ProductVariant(Product product, Size size, Long priceInCents, String sku, Long stock) {
         this.product = product;
         this.size = size;
         this.priceInCents = priceInCents;
-        this.setSku(sku);
+        this.sku = sku;
         this.stock = stock;
     }
 
-    public void setSku(String sku) {
-        this.sku = TextUtils.normalizeText(sku);
-    }
 }

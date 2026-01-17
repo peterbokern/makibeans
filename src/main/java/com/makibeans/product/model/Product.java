@@ -1,7 +1,7 @@
 package com.makibeans.product.model;
 
 import com.makibeans.category.model.Category;
-import com.makibeans.attribute.productattribute.model.ProductAttribute;
+import com.makibeans.productattribute.model.ProductAttribute;
 import com.makibeans.productvariant.model.ProductVariant;
 import com.makibeans.audit.model.Auditable;
 import jakarta.persistence.*;
@@ -66,15 +66,11 @@ public class Product extends Auditable {
     //Ensures that adding & removing attributes and variants will be cascaded to the database
     @OneToMany(
             mappedBy = "product",
-            cascade = CascadeType.ALL,
-            orphanRemoval = true,
             fetch = FetchType.LAZY)
     private Set<ProductAttribute> productAttributes = new HashSet<>();
 
     @OneToMany(
             mappedBy = "product",
-            cascade = CascadeType.ALL,
-            orphanRemoval = true,
             fetch = FetchType.LAZY)
     private Set<ProductVariant> productVariants = new HashSet<>();
 

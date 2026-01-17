@@ -1,5 +1,6 @@
 package com.makibeans.user.service;
 
+import com.makibeans.audit.model.DeleteReason;
 import com.makibeans.web.exceptions.ResourceNotFoundException;
 import com.makibeans.role.service.RoleServiceImpl;
 import com.makibeans.user.dto.*;
@@ -36,23 +37,13 @@ public class UserServiceImpl implements UserService {
     private final RoleServiceImpl roleService;              // use service (not repository) for roles
     private final PasswordEncoder passwordEncoder;      // encode passwords
 
-    /* ------------- CrudService hooks ------------- */
-
-    @Override
-    public JpaRepository<User, Long> repo() {
-        return repo;
-    }
-
-    @Override
-    public String entityName() {
-        return "User";
-    }
 
     /* ------------- Reads ------------- */
 
     @Override
     public User getById(Long id) {
-        return getOrThrow(id);
+        return repo.findById(id).orElseThrow(() ->
+                new ResourceNotFoundException("User with id " + id + " not found."));
     }
 
     @Override
@@ -87,7 +78,7 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public User update(Long id, @Valid UserUpdateDTO dto) {
-        User existing = UserService.super.getOrThrow(id);
+        User existing = getById(id);
         mapper.updateEntityFromDTO(dto, existing);
         return existing;
     }
@@ -131,14 +122,14 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void enable(Long id) {
-        User user = UserService.super.getOrThrow(id);
+        User user = getById(id);
         user.setEnabled(true);
     }
 
     @Override
     @Transactional
     public void disable(Long id) {
-        User user = UserService.super.getOrThrow(id);
+        User user = getById(id);
         user.setEnabled(false);
     }
 
@@ -168,14 +159,14 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void setPassword(Long userId, @Valid PasswordSetRequestDTO dto) {
-        User user = this.getOrThrow(userId);
+        User user =  getById(userId);
         user.setPassword(encode(dto.getPassword()));
     }
 
     @Override
     @Transactional
     public void changePassword(Long userId, @Valid PasswordChangeRequestDTO dto) {
-        User user = this.getOrThrow(userId);
+        User user = getById(userId);
         if (user.getPassword() == null || !passwordEncoder.matches(dto.getCurrentPassword(), user.getPassword())) {
             throw new IllegalArgumentException("Current password is incorrect");
         }
@@ -222,6 +213,13 @@ public class UserServiceImpl implements UserService {
     public User findByUserName(String username) {
         return repo.findByUsername(username).orElseThrow(() -> new ResourceNotFoundException(
                 "User with username '" + username + "' not found."));
+    }
+
+    @Override
+    public void delete(Long id) {
+        User user = getById(id);
+        user.setDeleted(true);
+        user.setDeletedReason(DeleteReason.ADMIN_DELETED);
     }
 
     @Override

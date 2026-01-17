@@ -4,6 +4,7 @@ import com.makibeans.category.model.Category;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -19,16 +20,20 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
 
     Boolean existsByParentCategoryAndDeletedFalse(Category parentCategory);
 
-    boolean existsByParentCategoryAndSlugIgnoreCaseAndDeletedFalse(Category parentCategory, String slug);
-
-    boolean existsByParentCategoryAndSlugIgnoreCaseAndIdNotAndDeletedFalse(Category parentCategory, String slug, Long id);
-
-    boolean existsByParentCategoryIsNullAndSlugIgnoreCaseAndDeletedFalse(String slug);
-
-    boolean existsByParentCategoryIsNullAndSlugIgnoreCaseAndIdNotAndDeletedFalse(String slug, Long id);
-
+    @EntityGraph(attributePaths = {"subCategories"})
     List<Category> findByParentCategoryIsNullAndDeletedFalse();
 
     Optional<Category> findByIdAndDeletedFalse(Long id);
 
+    Optional<Category> findByParentCategoryIsNullAndSlugIgnoreCase(String slug);
+
+    Optional<Category> findByParentCategoryIsNullAndSlugIgnoreCaseAndIdNot(String slug, Long excludeId);
+
+    Optional<Category> findByParentCategoryAndSlugIgnoreCase(Category parentCategory, String slug);
+
+    Optional<Category> findByParentCategoryAndSlugIgnoreCaseAndIdNot(Category parentCategory, String slug, Long excludeId);
+
+    Optional<Category> findBySlugAndDeletedFalse(String slug);
+
+    Optional<Category> findBySlug(String slug);
 }

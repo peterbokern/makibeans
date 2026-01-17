@@ -1,5 +1,7 @@
 package com.makibeans.productvariant.dto;
 
+import com.makibeans.size.dto.SizePublicResponseDTO;
+
 import java.math.BigDecimal;
 
 /**
@@ -9,13 +11,8 @@ import java.math.BigDecimal;
 public record ProductVariantPublicResponseDTO(
         Long id,
         String sku,
-        String ean,
-        BigDecimal price,
+        Long priceInCents,
         Integer stock,
-        Boolean active,
-        Boolean defaultVariant,
-        Long productId,
-        String productName,
-        Long sizeId,
-        String sizeName
+        boolean isDefault,
+        SizePublicResponseDTO size
 ) {}

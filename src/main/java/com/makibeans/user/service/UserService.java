@@ -1,6 +1,5 @@
 package com.makibeans.user.service;
 
-import com.makibeans.common.service.CrudService;
 import com.makibeans.user.dto.*;
 import com.makibeans.user.model.User;
 import com.makibeans.search.SearchRequest;
@@ -9,7 +8,7 @@ import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.transaction.annotation.Transactional;
 
-public interface UserService extends CrudService<User, Long> {
+public interface UserService {
 
     // Basics
     User getById(Long id);
@@ -47,4 +46,6 @@ public interface UserService extends CrudService<User, Long> {
 
     // Already present in impl; optional to expose:
     User findByUserName(String username);
+
+    void delete(Long id);
 }

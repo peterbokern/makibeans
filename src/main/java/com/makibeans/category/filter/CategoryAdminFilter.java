@@ -12,37 +12,43 @@ import java.time.Instant;
 @JsonIgnoreProperties(ignoreUnknown = false)
 public class CategoryAdminFilter extends CategoryPublicFilter {
 
-    // Deleted flag (admin toggles or audit views)
-    @Filter(type = { Filter.Operation.EQ }, path = "deleted", sortable = true, filterable = true)
-    private Boolean deleted;
+    @Filter(path = "description", type = { Filter.Operation.LIKE }, sortable = false, filterable = true)
+    private String description;
 
-    // CREATED
+    @Filter(path = "createdAt", sortable = true, filterable = true)
+    private Instant createdAt;
+
     @Filter(type = { Filter.Operation.GTE }, path = "createdAt", sortable = true, filterable = true)
     private Instant createdAtFrom;
 
     @Filter(type = { Filter.Operation.LTE }, path = "createdAt", sortable = true, filterable = true)
     private Instant createdAtTo;
 
-    @Filter(type = { Filter.Operation.LIKE }, path = "createdBy", sortable = true, filterable = true)
+    @Filter(type = { Filter.Operation.LIKE }, path = "createdBy", sortable = false, filterable = true)
     private String createdBy;
 
-    // UPDATED
-    @Filter(type = { Filter.Operation.GTE }, path = "updatedAt", sortable = true, filterable = true)
+    @Filter( path = "updatedAt", sortable = true, filterable = true)
+    private Instant updatedAt;
+
+    @Filter(type = { Filter.Operation.GTE }, path = "updatedAt", sortable = false, filterable = true)
     private Instant updatedAtFrom;
 
-    @Filter(type = { Filter.Operation.LTE }, path = "updatedAt", sortable = true, filterable = true)
+    @Filter(type = { Filter.Operation.LTE }, path = "updatedAt", sortable = false, filterable = true)
     private Instant updatedAtTo;
 
-    @Filter(type = { Filter.Operation.LIKE }, path = "updatedBy", sortable = true, filterable = true)
+    @Filter(type = { Filter.Operation.LIKE }, path = "updatedBy", sortable = false, filterable = true)
     private String updatedBy;
 
-    // DELETED (optional, if you store deletedAt/deletedBy in your Auditable)
-    @Filter(type = { Filter.Operation.GTE }, path = "deletedAt", sortable = true, filterable = true)
+    @Filter(path = "deletedAt", sortable = true, filterable = true)
+    private Instant deletedAt;
+
+    @Filter(type = { Filter.Operation.GTE }, path = "deletedAt", sortable = false, filterable = true)
     private Instant deletedAtFrom;
 
-    @Filter(type = { Filter.Operation.LTE }, path = "deletedAt", sortable = true, filterable = true)
+    @Filter(type = { Filter.Operation.LTE }, path = "deletedAt", sortable = false, filterable = true)
     private Instant deletedAtTo;
 
-    @Filter(type = { Filter.Operation.LIKE }, path = "deletedBy", sortable = true, filterable = true)
+    @Filter(type = { Filter.Operation.LIKE }, path = "deletedBy", sortable = false, filterable = true)
     private String deletedBy;
 }
+

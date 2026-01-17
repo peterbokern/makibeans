@@ -6,8 +6,6 @@ import com.makibeans.category.filter.CategoryAdminFilter;
 import com.makibeans.category.filter.CategoryPublicFilter;
 import com.makibeans.category.model.Category;
 import com.makibeans.search.SearchRequest;
-import com.makibeans.category.filter.CategoryFilter;
-import com.makibeans.common.service.CrudService;
 import org.apache.coyote.BadRequestException;
 import org.springframework.data.domain.Page;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,19 +13,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
-/**
- * Application service for {@link Category}.
- * <p>
- * Minimal interface:
- * <ul>
- *   <li>Generic CRUD defaults via {@link CrudService}</li>
- *   <li>DTO-based operations for create/update/get</li>
- *   <li>Typed, pageable search over Categories</li>
- * </ul>
- */
+
 public interface CategoryService  {
-
-
 
     Category getById(Long id);
 
@@ -64,4 +51,8 @@ public interface CategoryService  {
 
     @Transactional(readOnly = true)
     Page<Category> searchAdmin(SearchRequest<CategoryAdminFilter> req);
+
+    Category getBySlugIncludingDeleted(String slug);
+
+    Category getBySlug(String slug);
 }

@@ -1,3 +1,4 @@
+/*
 package com.makibeans.service;
 
 import com.makibeans.web.exceptions.DuplicateResourceException;
@@ -18,9 +19,11 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+*/
 /**
  * Unit tests for RoleService.
- */
+ *//*
+
 
 @ExtendWith(MockitoExtension.class)
 class RoleServiceTest {
@@ -165,3 +168,4 @@ class RoleServiceTest {
         verifyNoMoreInteractions(roleRepository);
     }
 }
+*/

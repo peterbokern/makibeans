@@ -1,20 +1,16 @@
 package com.makibeans.category.model;
 
-import com.makibeans.attribute.categoryattribute.model.CategoryAttribute;
+import com.makibeans.categoryattribute.model.CategoryAttribute;
 import com.makibeans.audit.model.Auditable;
 import com.makibeans.product.model.Product;
-import com.makibeans.common.util.TextUtils;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.hibernate.annotations.OnDelete;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 /**
