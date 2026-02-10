@@ -1,8 +1,8 @@
 package com.makibeans.config;
 
-import com.makibeans.dto.user.UserRequestDTO;
-import com.makibeans.service.RoleService;
-import com.makibeans.service.UserService;
+import com.makibeans.user.dto.UserRequestDTO;
+import com.makibeans.role.service.RoleService;
+import com.makibeans.user.service.UserService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
@@ -17,9 +17,10 @@ public class DataInitializer implements CommandLineRunner {
     private final UserService userService;
     private final RoleService roleService;
 
-    public DataInitializer(UserService userService, RoleService roleService, RoleService roleService1) {
+    public DataInitializer(UserService userService, RoleService roleService) {
+
         this.userService = userService;
-        this.roleService = roleService1;
+        this.roleService = roleService;
     }
 
     @Override
@@ -43,7 +44,7 @@ public class DataInitializer implements CommandLineRunner {
      */
 
     private void initAdmin() {
-        if (!userService.existsByUsername("maki_admin")) {
+        if (userService.existsByUsername("maki_admin")) {
             UserRequestDTO admin = new UserRequestDTO("maki_admin", "maki_admin@makibeans.nl", "maki_admin");
             userService.registerAdmin(admin);
         }
@@ -54,7 +55,7 @@ public class DataInitializer implements CommandLineRunner {
      */
 
     private void initUser() {
-        if (!userService.existsByUsername("regular_user")) {
+        if (userService.existsByUsername("regular_user")) {
             UserRequestDTO user = new UserRequestDTO("regular_user", "regular_user@example.nl", "regular_user");
             userService.registerUser(user);
         }

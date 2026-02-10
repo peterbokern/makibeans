@@ -1,6 +1,6 @@
 package com.makibeans.security;
 
-import com.makibeans.service.UserDetailsServiceImpl;
+import com.makibeans.user.service.UserDetailsServiceImpl;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

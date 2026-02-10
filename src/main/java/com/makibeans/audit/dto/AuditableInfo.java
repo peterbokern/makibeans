@@ -1,0 +1,25 @@
+package com.makibeans.audit.dto;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.makibeans.audit.model.DeleteReason;
+
+import java.time.Instant;
+
+/**
+ * Small value object to hold audit metadata for admin DTOs.
+ * Use composition to avoid repeating audit fields across many admin DTOs.
+ */
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public record AuditableInfo(
+        String createdBy,
+        Instant createdAt,
+        String updatedBy,
+        Instant updatedAt,
+        Boolean deleted,
+        String deletedBy,
+        Instant deletedAt,
+        DeleteReason deletedReason
+) {}
+

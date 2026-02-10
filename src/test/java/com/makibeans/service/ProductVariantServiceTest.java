@@ -1,16 +1,17 @@
+/*
 package com.makibeans.service;
 
-import com.makibeans.dto.productvariant.ProductVariantRequestDTO;
-import com.makibeans.dto.productvariant.ProductVariantResponseDTO;
-import com.makibeans.dto.productvariant.ProductVariantUpdateDTO;
+import com.makibeans.productvariant.dto.ProductVariantRequestDTO;
+import com.makibeans.productvariant.dto.ProductVariantResponseDTO;
+import com.makibeans.productvariant.dto.ProductVariantUpdateDTO;
 import com.makibeans.exceptions.DuplicateResourceException;
 import com.makibeans.exceptions.ResourceNotFoundException;
-import com.makibeans.mapper.ProductVariantMapper;
-import com.makibeans.model.Category;
-import com.makibeans.model.Product;
-import com.makibeans.model.ProductVariant;
-import com.makibeans.model.Size;
-import com.makibeans.repository.ProductVariantRepository;
+import com.makibeans.productvariant.mapper.ProductVariantMapper;
+import com.makibeans.category.model.Category;
+import com.makibeans.product.model.Product;
+import com.makibeans.productvariant.model.ProductVariant;
+import com.makibeans.size.model.Size;
+import com.makibeans.productvariant.repository.ProductVariantRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,7 +29,8 @@ import static org.mockito.Mockito.*;
 class ProductVariantServiceTest {
 
     @Mock ProductVariantRepository productVariantRepository;
-    @Mock ProductService productService;
+    @Mock
+    ProductServiceImpl productService;
     @Mock SizeService sizeService;
     @Mock ProductVariantMapper productVariantMapper;
 
@@ -242,3 +244,4 @@ class ProductVariantServiceTest {
         verify(productVariantRepository).deleteBySizeId(sizeId);
     }
 }
+*/

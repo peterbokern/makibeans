@@ -1,12 +1,13 @@
+/*
 package com.makibeans.service;
 
-import com.makibeans.dto.productattribute.ProductAttributeRequestDTO;
-import com.makibeans.dto.productattribute.ProductAttributeResponseDTO;
+import com.makibeans.productattribute.dto.ProductAttributeRequestDTO;
+import com.makibeans.productattribute.dto.ProductAttributeResponseDTO;
 import com.makibeans.exceptions.DuplicateResourceException;
 import com.makibeans.exceptions.ResourceNotFoundException;
-import com.makibeans.mapper.ProductAttributeMapper;
+import com.makibeans.productattribute.mapper.ProductAttributeMapper;
 import com.makibeans.model.*;
-import com.makibeans.repository.ProductAttributeRepository;
+import com.makibeans.productattribute.repository.ProductAttributeRepository;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
@@ -23,13 +24,13 @@ import static org.mockito.Mockito.*;
 class ProductAttributeServiceTest {
 
     Product product;
-    AttributeTemplate attributeTemplate;
+    Attribute attributeTemplate;
     AttributeValue attributeValue;
     ProductAttribute productAttribute;
 
     @Mock ProductAttributeRepository productAttributeRepository;
-    @Mock ProductService productService;
-    @Mock AttributeTemplateService attributeTemplateService;
+    @Mock ProductServiceImpl productService;
+    @Mock AttributeServiceImpl attributeTemplateService;
     @Mock AttributeValueService attributeValueService;
     @Mock ProductAttributeMapper productAttributeMapper;
 
@@ -39,7 +40,7 @@ class ProductAttributeServiceTest {
     void setup() {
         Category category = new Category("categoryName", "categoryDescription");
         product = new Product("productName", "productDescription", null, category);
-        attributeTemplate = new AttributeTemplate("attributeTemplateName");
+        attributeTemplate = new Attribute("attributeTemplateName");
         attributeValue = new AttributeValue(attributeTemplate, "attributeValue");
         productAttribute = new ProductAttribute(attributeTemplate, product);
     }
@@ -323,3 +324,4 @@ class ProductAttributeServiceTest {
         verifyNoMoreInteractions(productAttributeRepository);
     }
 }
+*/

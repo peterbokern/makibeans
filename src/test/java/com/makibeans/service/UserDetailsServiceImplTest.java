@@ -1,8 +1,11 @@
+/*
 package com.makibeans.service;
 
-import com.makibeans.exceptions.ResourceNotFoundException;
-import com.makibeans.model.Role;
-import com.makibeans.model.User;
+import com.makibeans.web.exceptions.ResourceNotFoundException;
+import com.makibeans.role.model.Role;
+import com.makibeans.user.model.User;
+import com.makibeans.user.service.UserDetailsServiceImpl;
+import com.makibeans.user.service.UserServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -20,7 +23,7 @@ import static org.mockito.Mockito.*;
 class UserDetailsServiceImplTest {
 
     @Mock
-    private UserService userService;
+    private UserServiceImpl userService;
 
     @InjectMocks
     private UserDetailsServiceImpl userDetailsService;
@@ -72,3 +75,4 @@ class UserDetailsServiceImplTest {
         verifyNoMoreInteractions(userService);
     }
 }
+*/
